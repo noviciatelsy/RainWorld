@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 316811649123266590}
   - component: {fileID: 2573213602012212942}
   - component: {fileID: 6739359061223012118}
-  - component: {fileID: 8302839446425912500}
-  m_Layer: 0
+  - component: {fileID: 7815576328976498153}
+  m_Layer: 6
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -47,18 +47,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b17e1b62aec7b424398dd94659b756f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxSpeed: 90
+  maxSpeed: 40
   accelTime: 1
   decelTime: 1
   airDecelTime: 1.045
   airDriveTime: 1.00005
-  jumpVelocity: 300
+  jumpVelocity: 20
   maxJumpHold: 0.25
   coyoteTime: 0.08
   jumpBufferTime: 0.1
-  jumpGravity: 1100
-  shortJumpGravity: 2500
-  fallGravity: 900
+  jumpGravity: 20
+  shortJumpGravity: 40
+  fallGravity: 80
 --- !u!50 &6739359061223012118
 Rigidbody2D:
   serializedVersion: 4
@@ -86,8 +86,8 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!61 &8302839446425912500
-BoxCollider2D:
+--- !u!70 &7815576328976498153
+CapsuleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -118,19 +118,9 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.022831857, y: -0.10188329}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  serializedVersion: 2
-  m_Size: {x: 1.7118915, y: 1.9589679}
-  m_EdgeRadius: 0
+  m_Offset: {x: -0.0017968416, y: -0.20707363}
+  m_Size: {x: 1.4075301, y: 1.8216773}
+  m_Direction: 0
 --- !u!1 &2856404445994123893
 GameObject:
   m_ObjectHideFlags: 0
@@ -140,7 +130,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7320704623778263412}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: playertexture
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -173,7 +163,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1530905874673726045}
   - component: {fileID: 9180586665732774587}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: remove.photos-removed-background (20)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
