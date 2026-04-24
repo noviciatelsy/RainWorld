@@ -1,9 +1,12 @@
 using UnityEngine;
 
+
 public class SurfaceWalkerMotor : IMonsterMotor
 {
-    public void Execute(MonsterBase owner, MoveIntent intent)
+    public void Execute(MonsterBase owner, object intentObj)
     {
+        if (intentObj is not MoveIntent intent) return;
+
         var sw = owner as SurfaceWalker2D;
 
         if (sw.HasEdge)
