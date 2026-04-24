@@ -1,67 +1,26 @@
 ﻿using UnityEngine;
 
-public class SurfaceWalker2D : MonoBehaviour
+public class SurfaceWalker2D : MonsterBase
 {
-    private Vector2Int currentCell;
-
-    // ✔ edge index（0~3）
-    private int edgeIndex = 0;
-
-    public float moveSpeed = 5f;
+    public float moveSpeed = 3f;
     public float fallSpeed = 6f;
 
-    private Vector2 worldPos;
-
-    private bool grounded;
-
-    void Start()
+    protected override void Init()
     {
-        worldPos = transform.position;
-    }
+        ai = new SurfaceWalkerUtilityAI();
+        motor = new SurfaceWalkerMotor();
 
-    void FixedUpdate()
-    {
-        worldPos = transform.position;
+        var mgr = TileMapGuideManager.Instance;
 
-        currentCell = GroundCheckManager.Instance.WorldToCell(worldPos);
-        grounded = GroundCheckManager.Instance.IsSolid(currentCell);
+        EdgeIndex = mgr.FindClosestEdgeIndex(transform.position);
+        CurrentEdge = mgr.GetEdge(EdgeIndex);
 
-        if (!grounded)
-        {
-            worldPos += Vector2.down * fallSpeed * Time.fixedDeltaTime;
-            Move();
-            return;
-        }
+        Target =
+            Vector2.Distance(transform.position, CurrentEdge.a) <
+            Vector2.Distance(transform.position, CurrentEdge.b)
+            ? CurrentEdge.b
+            : CurrentEdge.a;
 
-        StepEdge();
-        Move();
-    }
-
-    // =================================================
-    // ✔ 真正 edge traversal
-    // =================================================
-    void StepEdge()
-    {
-        int nextEdge = (edgeIndex + 1) % 4;
-
-        Vector2 nextPoint =
-            GroundCheckManager.Instance.EdgePoint(currentCell, nextEdge);
-
-        worldPos = Vector2.MoveTowards(
-            worldPos,
-            nextPoint,
-            moveSpeed * Time.fixedDeltaTime
-        );
-
-        // ✔ 到达则切换 edge
-        if (Vector2.Distance(worldPos, nextPoint) < 0.01f)
-        {
-            edgeIndex = nextEdge;
-        }
-    }
-
-    void Move()
-    {
-        transform.position = worldPos;
+        HasEdge = true;
     }
 }
