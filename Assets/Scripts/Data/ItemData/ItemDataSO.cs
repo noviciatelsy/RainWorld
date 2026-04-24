@@ -11,7 +11,7 @@ public class ItemDataSO : ScriptableObject
     public string itemDisplayName;
     public string itemDescription;
     public Sprite itemIcon;
-    public ItemEffectDataSO effectData;
+    public ItemEffectDataSO itemEffectData;
     public BackpackItemDataSO backpackItemData;
     public ItemType itemType; // 物品类型
     public ItemRarity rarity = ItemRarity.Common;
