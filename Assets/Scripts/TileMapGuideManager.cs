@@ -18,33 +18,49 @@ public class TileMapGuideManager : MonoBehaviour
 
     private HashSet<Vector2Int> solid = new();
 
-    private List<Edge> edges = new();
+    // =========================
+    // 🔥 多边界结构
+    // =========================
+    private List<List<Edge>> edgeLoops = new();
 
-    // 👉 O(1)：edge index 邻接
     private List<int> nextCW = new();
     private List<int> nextCCW = new();
+
+    private List<Edge> flatEdges = new(); // 用于AI查询
 
     void Awake()
     {
         Instance = this;
+        Rebuild();
+    }
+
+    public void Rebuild()
+    {
         Build();
     }
 
     void Build()
     {
         solid.Clear();
-        edges.Clear();
+        edgeLoops.Clear();
+        flatEdges.Clear();
         nextCW.Clear();
         nextCCW.Clear();
 
-        BoundsInt b = tilemap.cellBounds;
+        BoundsInt bounds = new BoundsInt(tilemap.origin, tilemap.size);
 
-        foreach (var p in b.allPositionsWithin)
+        // =========================
+        // 1. 收集 tile
+        // =========================
+        foreach (var p in bounds.allPositionsWithin)
         {
             if (!tilemap.HasTile(p)) continue;
             solid.Add(new Vector2Int(p.x, p.y));
         }
 
+        // =========================
+        // 2. raw edges
+        // =========================
         List<Edge> rawEdges = new();
 
         foreach (var cell in solid)
@@ -55,18 +71,40 @@ public class TileMapGuideManager : MonoBehaviour
             TryAddEdge(cell, Vector2Int.left, 3, rawEdges);
         }
 
-        edges = BuildOrderedLoop(rawEdges);
+        // =========================
+        // 3. 🔥 拆分多个连通 loop
+        // =========================
+        edgeLoops = BuildAllLoops(rawEdges);
 
-        // 👉 构建 O(1) 邻接
-        int count = edges.Count;
+        // =========================
+        // 4. flatten + index
+        // =========================
+        int index = 0;
 
-        for (int i = 0; i < count; i++)
+        foreach (var loop in edgeLoops)
         {
-            nextCW.Add((i + 1) % count);
-            nextCCW.Add((i - 1 + count) % count);
+            foreach (var e in loop)
+            {
+                flatEdges.Add(e);
+
+                nextCW.Add(index + 1);
+                nextCCW.Add(index - 1);
+
+                index++;
+            }
+        }
+
+        // 修正闭环
+        for (int i = 0; i < flatEdges.Count; i++)
+        {
+            nextCW[i] = (i + 1) % flatEdges.Count;
+            nextCCW[i] = (i - 1 + flatEdges.Count) % flatEdges.Count;
         }
     }
 
+    // =================================================
+    // Edge 构建
+    // =================================================
     void TryAddEdge(Vector2Int cell, Vector2Int dir, int type, List<Edge> list)
     {
         if (IsSolid(cell + dir)) return;
@@ -86,69 +124,85 @@ public class TileMapGuideManager : MonoBehaviour
         list.Add(e);
     }
 
-    List<Edge> BuildOrderedLoop(List<Edge> input)
+    // =================================================
+    // 🔥 多 loop 构建核心
+    // =================================================
+    List<List<Edge>> BuildAllLoops(List<Edge> input)
     {
-        List<Edge> result = new();
-        if (input.Count == 0) return result;
-
+        List<List<Edge>> loops = new();
         HashSet<int> used = new();
 
-        Edge current = input[0];
-        result.Add(current);
-        used.Add(0);
-
-        while (true)
+        for (int i = 0; i < input.Count; i++)
         {
+            if (used.Contains(i)) continue;
+
+            List<Edge> loop = new();
+
+            Edge current = input[i];
+            loop.Add(current);
+            used.Add(i);
+
+            Vector2 start = current.a;
             Vector2 pivot = current.b;
 
-            bool found = false;
-
-            for (int i = 0; i < input.Count; i++)
+            while (true)
             {
-                if (used.Contains(i)) continue;
+                bool found = false;
 
-                var candidate = input[i];
-
-                if (SamePoint(candidate.a, pivot))
+                for (int j = 0; j < input.Count; j++)
                 {
-                    current = candidate;
-                }
-                else if (SamePoint(candidate.b, pivot))
-                {
-                    current = new Edge { a = candidate.b, b = candidate.a };
-                }
-                else continue;
+                    if (used.Contains(j)) continue;
 
-                result.Add(current);
-                used.Add(i);
-                found = true;
-                break;
+                    var candidate = input[j];
+
+                    if (SamePoint(candidate.a, pivot))
+                    {
+                        current = candidate;
+                    }
+                    else if (SamePoint(candidate.b, pivot))
+                    {
+                        current = new Edge { a = candidate.b, b = candidate.a };
+                    }
+                    else continue;
+
+                    loop.Add(current);
+                    used.Add(j);
+
+                    pivot = current.b;
+
+                    if (SamePoint(pivot, start))
+                        goto LOOP_END;
+
+                    found = true;
+                    break;
+                }
+
+                if (!found) break;
             }
 
-            if (!found) break;
+        LOOP_END:
+            loops.Add(loop);
         }
 
-        return result;
+        return loops;
     }
 
     // =================================================
-    // O(1) API
+    // API
     // =================================================
-    public Edge GetEdge(int index) => edges[index];
+    public Edge GetEdge(int index) => flatEdges[index];
 
     public int GetNextIndex(int index, bool clockwise)
-    {
-        return clockwise ? nextCW[index] : nextCCW[index];
-    }
+        => clockwise ? nextCW[index] : nextCCW[index];
 
     public int FindClosestEdgeIndex(Vector2 pos)
     {
         float minDist = float.MaxValue;
         int best = 0;
 
-        for (int i = 0; i < edges.Count; i++)
+        for (int i = 0; i < flatEdges.Count; i++)
         {
-            float d = DistanceToSegment(pos, edges[i].a, edges[i].b);
+            float d = DistanceToSegment(pos, flatEdges[i].a, flatEdges[i].b);
             if (d < minDist)
             {
                 minDist = d;
@@ -160,9 +214,7 @@ public class TileMapGuideManager : MonoBehaviour
     }
 
     public bool IsSolid(Vector2Int cell)
-    {
-        return solid.Contains(cell);
-    }
+        => solid.Contains(cell);
 
     public Vector2 CellCorner(Vector2Int cell)
     {
@@ -171,9 +223,7 @@ public class TileMapGuideManager : MonoBehaviour
     }
 
     bool SamePoint(Vector2 a, Vector2 b)
-    {
-        return Vector2.Distance(a, b) < 0.01f;
-    }
+        => Vector2.Distance(a, b) < 0.01f;
 
     float DistanceToSegment(Vector2 p, Vector2 a, Vector2 b)
     {
@@ -181,28 +231,5 @@ public class TileMapGuideManager : MonoBehaviour
         float t = Vector2.Dot(p - a, ab) / ab.sqrMagnitude;
         t = Mathf.Clamp01(t);
         return Vector2.Distance(p, a + ab * t);
-    }
-
-    void OnDrawGizmos()
-    {
-        if (edges == null) return;
-
-        for (int i = 0; i < edges.Count; i++)
-        {
-            var e = edges[i];
-
-            Gizmos.color = Color.green;
-            Gizmos.DrawLine(e.a, e.b);
-
-            Gizmos.DrawSphere(e.a, 0.04f);
-
-            Vector2 mid = (e.a + e.b) * 0.5f;
-            Gizmos.color = Color.red;
-            Gizmos.DrawLine(mid, mid + e.Dir * 0.3f);
-
-#if UNITY_EDITOR
-            UnityEditor.Handles.Label(mid, i.ToString());
-#endif
-        }
     }
 }
