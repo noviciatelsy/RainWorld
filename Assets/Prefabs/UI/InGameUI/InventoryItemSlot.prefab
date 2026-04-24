@@ -59,7 +59,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 0
   m_OnCullStateChanged:
@@ -87,7 +87,7 @@ GameObject:
   - component: {fileID: 8682539680832431254}
   - component: {fileID: 6280125087095057256}
   m_Layer: 5
-  m_Name: SelectImage
+  m_Name: SlotStateImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -134,9 +134,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
+  m_Maskable: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -160,6 +160,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6285094902580985159}
   - component: {fileID: 6353449444189537716}
+  - component: {fileID: 6828757464035977415}
   m_Layer: 5
   m_Name: InventoryItemSlot
   m_TagString: Untagged
@@ -196,3 +197,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6738020974591316202}
   m_CullTransparentMesh: 1
+--- !u!114 &6828757464035977415
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6738020974591316202}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c1bf4e28e440a243816a7c4dcbc531d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  slotStateImage: {fileID: 0}
+  itemInSlot:
+    ItemData: {fileID: 0}
+    itemEffect: {fileID: 0}
+    rotateState: 0

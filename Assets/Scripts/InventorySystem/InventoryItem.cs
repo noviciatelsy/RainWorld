@@ -11,7 +11,7 @@ public class InventoryItem
 
     // 这里的 itemEffect 将不再指向 Asset，本质变为“运行时克隆出来的一份实例”
     public ItemEffectDataSO itemEffect; 
-
+    public ItemRotateState rotateState;
     public InventoryItem(ItemDataSO ItemData)
     {
         this.ItemData = ItemData;

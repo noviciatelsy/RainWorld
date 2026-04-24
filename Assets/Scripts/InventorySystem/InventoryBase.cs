@@ -1,11 +1,14 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class InventoryBase : MonoBehaviour
 {
-    public int maxInventorySize; // 仓库容量
-    public List<InventoryItemSlot> itemSlotList = new List<InventoryItemSlot>(); // 仓库物品槽位类别
+    public event Action onInventoryChange; // 改变事件
+
+    public int maxInventorySize; // 容量
+    public List<InventoryItemSlot> itemSlotList = new List<InventoryItemSlot>(); // 物品槽位列表
     public List<InventoryItem> inventoryItems = new List<InventoryItem>();
     public ItemListDataSO itemDataBase; // 全物品SO
 
