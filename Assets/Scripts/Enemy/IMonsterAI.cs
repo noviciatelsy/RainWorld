@@ -1,6 +1,4 @@
-
-
 public interface IMonsterAI
 {
-    MoveIntent Evaluate(MonsterBase owner);
+    object Evaluate(MonsterBase owner);
 }
