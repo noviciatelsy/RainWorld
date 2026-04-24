@@ -17,6 +17,8 @@ public class TileMapGuideManager : MonoBehaviour
     // =========================
     // 核心结构
     // =========================
+    private BoundsInt bounds;
+
     private List<List<Edge>> edgeLoops = new();
     private List<Edge> flatEdges = new();
     // 每条 edge 属于哪个 loop
@@ -26,12 +28,18 @@ public class TileMapGuideManager : MonoBehaviour
     private Dictionary<int, int> nextCCW = new();
 
     //点
+    // 替换原来的 DIRS
     private static readonly Vector2Int[] DIRS = new Vector2Int[]
     {
-        Vector2Int.up,
-        Vector2Int.down,
-        Vector2Int.left,
-        Vector2Int.right
+    new Vector2Int(1,0),
+    new Vector2Int(-1,0),
+    new Vector2Int(0,1),
+    new Vector2Int(0,-1),
+
+    new Vector2Int(1,1),
+    new Vector2Int(1,-1),
+    new Vector2Int(-1,1),
+    new Vector2Int(-1,-1)
     };
 
     void Awake()
@@ -59,15 +67,15 @@ public class TileMapGuideManager : MonoBehaviour
         nextCW.Clear();
         nextCCW.Clear();
 
-        BoundsInt bounds = new BoundsInt(tilemap.origin, tilemap.size);
+        bounds = new BoundsInt(tilemap.origin, tilemap.size);
 
         // =========================
         // 1. 收集 tile
         // =========================
         foreach (var p in bounds.allPositionsWithin)
         {
-            if (!tilemap.HasTile(p)) continue;
-            solid.Add(new Vector2Int(p.x, p.y));
+            if (!tilemap.HasTile(p)) air.Add(new Vector2Int(p.x, p.y)); 
+            else solid.Add(new Vector2Int(p.x, p.y));
         }
 
         // =========================
@@ -272,8 +280,12 @@ public class TileMapGuideManager : MonoBehaviour
 
     public List<Vector2> FindPath(Vector2 start, Vector2 end)
     {
+
         Vector2Int startCell = WorldToCell(start);
         Vector2Int endCell = WorldToCell(end);
+        // 必加
+        if (!InBounds(startCell) || !InBounds(endCell))
+            return null;
 
         var open = new List<Vector2Int>();
         var cameFrom = new Dictionary<Vector2Int, Vector2Int>();
@@ -285,8 +297,18 @@ public class TileMapGuideManager : MonoBehaviour
         gScore[startCell] = 0;
         fScore[startCell] = Heuristic(startCell, endCell);
 
+        int maxIterations = 2000;
+        int iter = 0;
+
         while (open.Count > 0)
         {
+            iter++;
+            if (iter > maxIterations)
+            {
+                Debug.LogWarning("findpathfailed");
+                return null;
+            }
+
             Vector2Int current = GetLowestF(open, fScore);
 
             if (current == endCell)
@@ -294,13 +316,19 @@ public class TileMapGuideManager : MonoBehaviour
 
             open.Remove(current);
 
+            int maxSearchDist = 50; // 可调（非常关键）
             foreach (var dir in DIRS)
             {
                 Vector2Int neighbor = current + dir;
 
-                if (!IsSolid(neighbor)) continue;
+                if (!InBounds(neighbor)) continue;
+                if (IsSolid(neighbor) ) continue;
+                if (Mathf.Abs(neighbor.x - startCell.x) > maxSearchDist ||
+                    Mathf.Abs(neighbor.y - startCell.y) > maxSearchDist)
+                    continue;
 
-                float tentativeG = gScore[current] + 1;
+                float cost = (dir.x != 0 && dir.y != 0) ? 1.4142f : 1f;
+                float tentativeG = gScore[current] + cost;
 
                 if (!gScore.ContainsKey(neighbor) || tentativeG < gScore[neighbor])
                 {
@@ -325,7 +353,7 @@ public class TileMapGuideManager : MonoBehaviour
 
     float Heuristic(Vector2Int a, Vector2Int b)
     {
-        return Mathf.Abs(a.x - b.x) + Mathf.Abs(a.y - b.y);
+        return Vector2Int.Distance(a, b);
     }
 
     Vector2Int GetLowestF(List<Vector2Int> open, Dictionary<Vector2Int, float> fScore)
@@ -348,22 +376,77 @@ public class TileMapGuideManager : MonoBehaviour
 
     List<Vector2> Reconstruct(Dictionary<Vector2Int, Vector2Int> cameFrom, Vector2Int current)
     {
-        List<Vector2> path = new();
+        List<Vector2Int> cellPath = new();
 
-        path.Add(CellToWorld(current));
+        cellPath.Add(current);
 
         while (cameFrom.ContainsKey(current))
         {
             current = cameFrom[current];
-            path.Add(CellToWorld(current));
+            cellPath.Add(current);
         }
 
-        path.Reverse();
-        return path;
+        cellPath.Reverse();
+
+        List<Vector2> result = new();
+
+        Vector2 lastPoint = CellToWorld(cellPath[0]);
+        result.Add(lastPoint);
+
+        for (int i = 1; i < cellPath.Count; i++)
+        {
+            Vector2 world = CellToWorld(cellPath[i]);
+
+            if (HasLineOfSight(lastPoint, world))
+            {
+                // 如果是最后一个点，必须加入
+                if (i == cellPath.Count - 1)
+                {
+                    result.Add(world);
+                }
+                continue;
+            }
+            else
+            {
+                Vector2 prev = CellToWorld(cellPath[i - 1]);
+                result.Add(prev);
+                lastPoint = prev;
+            }
+        }
+
+        return result;
+    }
+
+    bool HasLineOfSight(Vector2 a, Vector2 b)
+    {
+        float dist = Vector2.Distance(a, b);
+        int steps = Mathf.CeilToInt(dist / 0.2f);
+
+        for (int i = 0; i <= steps; i++)
+        {
+            float t = i / (float)steps;
+            Vector2 p = Vector2.Lerp(a, b, t);
+
+            Vector2Int cell = WorldToCell(p);
+
+            if (!InBounds(cell)) return false;
+            if (IsSolid(cell))
+                return false;
+        }
+
+        return true;
     }
 
     Vector2 CellToWorld(Vector2Int cell)
     {
         return tilemap.GetCellCenterWorld(new Vector3Int(cell.x, cell.y, 0));
+    }
+
+    bool InBounds(Vector2Int cell)
+    {
+        return cell.x >= bounds.xMin &&
+               cell.x < bounds.xMax &&
+               cell.y >= bounds.yMin &&
+               cell.y < bounds.yMax;
     }
 }

@@ -57,7 +57,7 @@ public class FlyUtilityAI
     {
         var mgr = TileMapGuideManager.Instance;
 
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 30; i++)
         {
             Vector2 offset = Random.insideUnitCircle * Random.Range(1f, 10f);
             Vector2 candidate = owner.Position + offset;

@@ -18,16 +18,21 @@ public class FlyMotor
         if (intent.type != FlyIntentType.RandomWalk)
             return;
 
-        // =========================
-        // 永远以 intent.target 为准重建路径
-        // =========================
-        if (path == null)
+        // 只在没有路径 或 到达时 才重建
+        if (path == null || owner.Arrived)
         {
             path = TileMapGuideManager.Instance.FindPath(owner.Position, intent.target);
+
+            if (path == null || path.Count == 0)
+                return;
+
             index = 0;
 
             owner.CurrentTarget = intent.target;
             owner.Arrived = false;
+
+            owner.DebugPath = path;
+            owner.DebugTarget = intent.target;
         }
 
         Move();
