@@ -1,0 +1,62 @@
+﻿using System.Collections.Generic;
+using UnityEngine;
+
+public class FlyMotor
+{
+    private Fly2D owner;
+
+    private List<Vector2> path;
+    private int index;
+
+    public FlyMotor(Fly2D owner)
+    {
+        this.owner = owner;
+    }
+
+    public void Execute(FlyIntent intent)
+    {
+        if (intent.type != FlyIntentType.RandomWalk)
+            return;
+
+        // =========================
+        // 永远以 intent.target 为准重建路径
+        // =========================
+        if (path == null)
+        {
+            path = TileMapGuideManager.Instance.FindPath(owner.Position, intent.target);
+            index = 0;
+
+            owner.CurrentTarget = intent.target;
+            owner.Arrived = false;
+        }
+
+        Move();
+    }
+
+    void Move()
+    {
+        if (path == null || path.Count == 0)
+            return;
+
+        Vector2 target = path[index];
+
+        owner.Transform.position = Vector2.MoveTowards(
+            owner.Transform.position,
+            target,
+            owner.moveSpeed * Time.fixedDeltaTime
+        );
+
+        if (Vector2.Distance(owner.Position, target) < 0.05f)
+        {
+            index++;
+
+            if (index >= path.Count)
+            {
+                owner.Arrived = true;
+
+                path = null;
+                index = 0;
+            }
+        }
+    }
+}
