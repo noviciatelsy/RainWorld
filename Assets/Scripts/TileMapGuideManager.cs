@@ -1,14 +1,8 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine;
 
-public struct Edge
-{
-    public Vector2 a;
-    public Vector2 b;
 
-    public Vector2 Dir => (b - a).normalized;
-}
 
 public class TileMapGuideManager : MonoBehaviour
 {
@@ -16,17 +10,29 @@ public class TileMapGuideManager : MonoBehaviour
 
     public Tilemap tilemap;
 
-    private HashSet<Vector2Int> solid = new();
+    private HashSet<Vector2Int> air = new();     // 可飞行空间
+    private HashSet<Vector2Int> ground = new();  // 可站立表面
+    private HashSet<Vector2Int> solid = new();   // 你已有（墙）
 
     // =========================
-    // 🔥 多边界结构
+    // 核心结构
     // =========================
     private List<List<Edge>> edgeLoops = new();
+    private List<Edge> flatEdges = new();
+    // 每条 edge 属于哪个 loop
+    private Dictionary<int, int> edgeToLoop = new();
+    // 每个 loop 内的 next
+    private Dictionary<int, int> nextCW = new();
+    private Dictionary<int, int> nextCCW = new();
 
-    private List<int> nextCW = new();
-    private List<int> nextCCW = new();
-
-    private List<Edge> flatEdges = new(); // 用于AI查询
+    //点
+    private static readonly Vector2Int[] DIRS = new Vector2Int[]
+    {
+        Vector2Int.up,
+        Vector2Int.down,
+        Vector2Int.left,
+        Vector2Int.right
+    };
 
     void Awake()
     {
@@ -39,11 +45,17 @@ public class TileMapGuideManager : MonoBehaviour
         Build();
     }
 
+    // =================================================
+    // BUILD
+    // =================================================
     void Build()
     {
         solid.Clear();
+        air.Clear();
+        ground.Clear();
         edgeLoops.Clear();
         flatEdges.Clear();
+        edgeToLoop.Clear();
         nextCW.Clear();
         nextCCW.Clear();
 
@@ -72,33 +84,56 @@ public class TileMapGuideManager : MonoBehaviour
         }
 
         // =========================
-        // 3. 🔥 拆分多个连通 loop
+        // 3. split loops
         // =========================
         edgeLoops = BuildAllLoops(rawEdges);
 
         // =========================
-        // 4. flatten + index
+        // 4. build per-loop structure（关键修复）
         // =========================
-        int index = 0;
+        int globalIndex = 0;
 
-        foreach (var loop in edgeLoops)
+        for (int loopId = 0; loopId < edgeLoops.Count; loopId++)
         {
-            foreach (var e in loop)
+            var loop = edgeLoops[loopId];
+
+            int count = loop.Count;
+
+            for (int i = 0; i < count; i++)
             {
+                Edge e = loop[i];
+                e.loopId = loopId;
+
                 flatEdges.Add(e);
 
-                nextCW.Add(index + 1);
-                nextCCW.Add(index - 1);
+                edgeToLoop[globalIndex] = loopId;
 
-                index++;
+                globalIndex++;
             }
         }
 
-        // 修正闭环
-        for (int i = 0; i < flatEdges.Count; i++)
+        // =========================
+        // 5. per-loop next（关键修复）
+        // =========================
+        int index = 0;
+
+        for (int loopId = 0; loopId < edgeLoops.Count; loopId++)
         {
-            nextCW[i] = (i + 1) % flatEdges.Count;
-            nextCCW[i] = (i - 1 + flatEdges.Count) % flatEdges.Count;
+            var loop = edgeLoops[loopId];
+
+            int start = index;
+
+            for (int i = 0; i < loop.Count; i++)
+            {
+                int current = start + i;
+                int next = start + (i + 1) % loop.Count;
+                int prev = start + (i - 1 + loop.Count) % loop.Count;
+
+                nextCW[current] = next;
+                nextCCW[current] = prev;
+            }
+
+            index += loop.Count;
         }
     }
 
@@ -125,7 +160,7 @@ public class TileMapGuideManager : MonoBehaviour
     }
 
     // =================================================
-    // 🔥 多 loop 构建核心
+    // LOOP 构建（修复稳定版）
     // =================================================
     List<List<Edge>> BuildAllLoops(List<Edge> input)
     {
@@ -153,15 +188,15 @@ public class TileMapGuideManager : MonoBehaviour
                 {
                     if (used.Contains(j)) continue;
 
-                    var candidate = input[j];
+                    var c = input[j];
 
-                    if (SamePoint(candidate.a, pivot))
+                    if (SamePoint(c.a, pivot))
                     {
-                        current = candidate;
+                        current = c;
                     }
-                    else if (SamePoint(candidate.b, pivot))
+                    else if (SamePoint(c.b, pivot))
                     {
-                        current = new Edge { a = candidate.b, b = candidate.a };
+                        current = new Edge { a = c.b, b = c.a };
                     }
                     else continue;
 
@@ -171,7 +206,7 @@ public class TileMapGuideManager : MonoBehaviour
                     pivot = current.b;
 
                     if (SamePoint(pivot, start))
-                        goto LOOP_END;
+                        goto END;
 
                     found = true;
                     break;
@@ -180,7 +215,7 @@ public class TileMapGuideManager : MonoBehaviour
                 if (!found) break;
             }
 
-        LOOP_END:
+        END:
             loops.Add(loop);
         }
 
@@ -188,24 +223,27 @@ public class TileMapGuideManager : MonoBehaviour
     }
 
     // =================================================
-    // API
+    // API（关键修复点）
     // =================================================
+
     public Edge GetEdge(int index) => flatEdges[index];
 
     public int GetNextIndex(int index, bool clockwise)
-        => clockwise ? nextCW[index] : nextCCW[index];
+    {
+        return clockwise ? nextCW[index] : nextCCW[index];
+    }
 
     public int FindClosestEdgeIndex(Vector2 pos)
     {
-        float minDist = float.MaxValue;
+        float min = float.MaxValue;
         int best = 0;
 
         for (int i = 0; i < flatEdges.Count; i++)
         {
             float d = DistanceToSegment(pos, flatEdges[i].a, flatEdges[i].b);
-            if (d < minDist)
+            if (d < min)
             {
-                minDist = d;
+                min = d;
                 best = i;
             }
         }
@@ -213,13 +251,12 @@ public class TileMapGuideManager : MonoBehaviour
         return best;
     }
 
-    public bool IsSolid(Vector2Int cell)
-        => solid.Contains(cell);
+    public bool IsSolid(Vector2Int cell) => solid.Contains(cell);
 
     public Vector2 CellCorner(Vector2Int cell)
     {
-        Vector3 center = tilemap.GetCellCenterWorld((Vector3Int)cell);
-        return center - new Vector3(0.5f, 0.5f);
+        Vector3 c = tilemap.GetCellCenterWorld((Vector3Int)cell);
+        return c - new Vector3(0.5f, 0.5f);
     }
 
     bool SamePoint(Vector2 a, Vector2 b)
@@ -231,5 +268,102 @@ public class TileMapGuideManager : MonoBehaviour
         float t = Vector2.Dot(p - a, ab) / ab.sqrMagnitude;
         t = Mathf.Clamp01(t);
         return Vector2.Distance(p, a + ab * t);
+    }
+
+    public List<Vector2> FindPath(Vector2 start, Vector2 end)
+    {
+        Vector2Int startCell = WorldToCell(start);
+        Vector2Int endCell = WorldToCell(end);
+
+        var open = new List<Vector2Int>();
+        var cameFrom = new Dictionary<Vector2Int, Vector2Int>();
+
+        var gScore = new Dictionary<Vector2Int, float>();
+        var fScore = new Dictionary<Vector2Int, float>();
+
+        open.Add(startCell);
+        gScore[startCell] = 0;
+        fScore[startCell] = Heuristic(startCell, endCell);
+
+        while (open.Count > 0)
+        {
+            Vector2Int current = GetLowestF(open, fScore);
+
+            if (current == endCell)
+                return Reconstruct(cameFrom, current);
+
+            open.Remove(current);
+
+            foreach (var dir in DIRS)
+            {
+                Vector2Int neighbor = current + dir;
+
+                if (!IsSolid(neighbor)) continue;
+
+                float tentativeG = gScore[current] + 1;
+
+                if (!gScore.ContainsKey(neighbor) || tentativeG < gScore[neighbor])
+                {
+                    cameFrom[neighbor] = current;
+                    gScore[neighbor] = tentativeG;
+                    fScore[neighbor] = tentativeG + Heuristic(neighbor, endCell);
+
+                    if (!open.Contains(neighbor))
+                        open.Add(neighbor);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public Vector2Int WorldToCell(Vector2 pos)
+    {
+        Vector3Int cell = tilemap.WorldToCell(pos);
+        return new Vector2Int(cell.x, cell.y);
+    }
+
+    float Heuristic(Vector2Int a, Vector2Int b)
+    {
+        return Mathf.Abs(a.x - b.x) + Mathf.Abs(a.y - b.y);
+    }
+
+    Vector2Int GetLowestF(List<Vector2Int> open, Dictionary<Vector2Int, float> fScore)
+    {
+        Vector2Int best = open[0];
+        float bestScore = float.MaxValue;
+
+        foreach (var n in open)
+        {
+            float score = fScore.ContainsKey(n) ? fScore[n] : float.MaxValue;
+            if (score < bestScore)
+            {
+                bestScore = score;
+                best = n;
+            }
+        }
+
+        return best;
+    }
+
+    List<Vector2> Reconstruct(Dictionary<Vector2Int, Vector2Int> cameFrom, Vector2Int current)
+    {
+        List<Vector2> path = new();
+
+        path.Add(CellToWorld(current));
+
+        while (cameFrom.ContainsKey(current))
+        {
+            current = cameFrom[current];
+            path.Add(CellToWorld(current));
+        }
+
+        path.Reverse();
+        return path;
+    }
+
+    Vector2 CellToWorld(Vector2Int cell)
+    {
+        return tilemap.GetCellCenterWorld(new Vector3Int(cell.x, cell.y, 0));
     }
 }
