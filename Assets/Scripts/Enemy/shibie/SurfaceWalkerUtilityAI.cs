@@ -1,25 +1,19 @@
 using UnityEngine;
-public enum MoveIntentType
-{
-    SurfaceMove
-}
 
-public struct MoveIntent
+public struct SurfaceMoveIntent : IIntent
 {
-    public MoveIntentType type;
     public bool clockwise;
 }
 
 public class SurfaceWalkerUtilityAI : IMonsterAI
 {
-    public object Evaluate(MonsterBase owner)
+    public IIntent Evaluate(MonsterBase owner)
     {
         float cw = Score(owner, true);
         float ccw = Score(owner, false);
 
-        return new MoveIntent
+        return new SurfaceMoveIntent
         {
-            type = MoveIntentType.SurfaceMove,
             clockwise = cw >= ccw
         };
     }

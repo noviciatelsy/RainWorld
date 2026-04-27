@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class FlyMotor
+public class FlyMotor : IMonsterMotor
 {
     private Fly2D owner;
 
@@ -13,26 +13,27 @@ public class FlyMotor
         this.owner = owner;
     }
 
-    public void Execute(FlyIntent intent)
+    public void Execute(MonsterBase owner, IIntent intent)
     {
-        if (intent.type != FlyIntentType.RandomWalk)
+        if (intent is not FlyMoveIntent move)
             return;
+        Fly2D fly = owner as Fly2D;
 
         // 只在没有路径 或 到达时 才重建
         if (path == null || owner.Arrived)
         {
-            path = TileMapGuideManager.Instance.FindPath(owner.Position, intent.target);
+            path = TileMapGuideManager.Instance.FindPath(owner.Position, move.target);
 
             if (path == null || path.Count == 0)
                 return;
 
             index = 0;
 
-            owner.CurrentTarget = intent.target;
+            owner.CurrentTarget = move.target;
             owner.Arrived = false;
 
             owner.DebugPath = path;
-            owner.DebugTarget = intent.target;
+            owner.DebugTarget = move.target;
         }
 
         Move();
