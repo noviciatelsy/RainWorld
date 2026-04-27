@@ -1,9 +1,12 @@
-using UnityEngine;
+﻿using UnityEngine;
 using static UnityEngine.Rendering.VolumeComponent;
 
 
 public class SurfaceWalkerMotor : IMonsterMotor
 {
+    public bool facingLeft = true;
+    public Transform bodyVisual;
+
     public void Execute(MonsterBase owner, IIntent intent)
     {
         if (intent is not SurfaceMoveIntent move) return;
@@ -18,6 +21,8 @@ public class SurfaceWalkerMotor : IMonsterMotor
 
     void Move(SurfaceWalker2D sw, bool clockwise)
     {
+        UpdateFacing(sw, clockwise);
+
         sw.Transform.position = Vector2.MoveTowards(
             sw.Transform.position,
             sw.Target,
@@ -43,6 +48,7 @@ public class SurfaceWalkerMotor : IMonsterMotor
             Vector2.Distance(sw.Transform.position, e.a) <
             Vector2.Distance(sw.Transform.position, e.b)
             ? e.b : e.a;
+
     }
 
     void Fall(SurfaceWalker2D sw)
@@ -62,5 +68,41 @@ public class SurfaceWalkerMotor : IMonsterMotor
             sw.CurrentEdge = e;
             sw.HasEdge = true;
         }
+    }
+
+    Vector2 GetOffsetPosition(Edge e)
+    {
+        Vector2 dir = (e.b - e.a).normalized;
+
+        // 法线（外侧）
+        Vector2 normal = new Vector2(-dir.y, dir.x);
+
+        return normal * 0.3f;
+    }
+
+    void UpdateFacing(SurfaceWalker2D sw, bool clockwise)
+    {
+        Vector2 dir = (sw.CurrentEdge.b - sw.CurrentEdge.a).normalized;
+
+        float angle;
+
+        if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y))
+        {
+            // horizontal
+            angle = dir.x > 0 ? 0 : 180;
+        }
+        else
+        {
+            // vertical
+            angle = dir.y > 0 ? 90 : -90;
+        }
+
+        // 修正：不要直接 flip angle（这是抖动源）
+        if (clockwise)
+        {
+            angle += 0; // ❌ 不再翻转
+        }
+
+        sw.Transform.rotation = Quaternion.Euler(0, 0, angle);
     }
 }
