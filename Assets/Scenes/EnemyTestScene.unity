@@ -139,12 +139,12 @@ PrefabInstance:
     - target: {fileID: 4865556744524737416, guid: f16307e7d15eb774cb1eb46c5339017d,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -5.62
+      value: -7.4
       objectReference: {fileID: 0}
     - target: {fileID: 4865556744524737416, guid: f16307e7d15eb774cb1eb46c5339017d,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -2.46
+      value: 0.13
       objectReference: {fileID: 0}
     - target: {fileID: 4865556744524737416, guid: f16307e7d15eb774cb1eb46c5339017d,
         type: 3}
@@ -190,21 +190,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Ghost
-      objectReference: {fileID: 0}
-    - target: {fileID: 5326532261978733824, guid: f16307e7d15eb774cb1eb46c5339017d,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 3.63
-      objectReference: {fileID: 0}
-    - target: {fileID: 5326532261978733824, guid: f16307e7d15eb774cb1eb46c5339017d,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 5.51
-      objectReference: {fileID: 0}
-    - target: {fileID: 6578576672270133160, guid: f16307e7d15eb774cb1eb46c5339017d,
-        type: 3}
-      propertyPath: m_Color.a
-      value: 0.7058824
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
