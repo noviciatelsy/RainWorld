@@ -1,16 +1,17 @@
 using UnityEngine;
+using static UnityEngine.Rendering.VolumeComponent;
 
 
 public class SurfaceWalkerMotor : IMonsterMotor
 {
-    public void Execute(MonsterBase owner, object intentObj)
+    public void Execute(MonsterBase owner, IIntent intent)
     {
-        if (intentObj is not MoveIntent intent) return;
+        if (intent is not SurfaceMoveIntent move) return;
 
         var sw = owner as SurfaceWalker2D;
 
         if (sw.HasEdge)
-            Move(sw, intent.clockwise);
+            Move(sw, move.clockwise);
         else
             Fall(sw);
     }

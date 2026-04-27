@@ -1,17 +1,10 @@
 ﻿using UnityEngine;
 
-public enum FlyIntentType
+public struct FlyMoveIntent : IIntent
 {
-    RandomWalk
-}
-
-public struct FlyIntent
-{
-    public FlyIntentType type;
     public Vector2 target;
 }
-
-public class FlyUtilityAI
+public class FlyUtilityAI : IMonsterAI
 {
     private Fly2D owner;
 
@@ -25,7 +18,7 @@ public class FlyUtilityAI
         this.owner = owner;
     }
 
-    public FlyIntent Evaluate()
+    public IIntent Evaluate(MonsterBase owner)
     {
         timer -= Time.fixedDeltaTime;
 
@@ -38,17 +31,15 @@ public class FlyUtilityAI
 
             lastIssuedTarget = newTarget;
 
-            return new FlyIntent
+            return new FlyMoveIntent
             {
-                type = FlyIntentType.RandomWalk,
                 target = newTarget
             };
         }
 
         //  不再返回 CurrentTarget（这是bug根源）
-        return new FlyIntent
+        return new FlyMoveIntent
         {
-            type = FlyIntentType.RandomWalk,
             target = lastIssuedTarget
         };
     }

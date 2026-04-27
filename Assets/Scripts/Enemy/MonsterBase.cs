@@ -36,11 +36,11 @@ public abstract class MonsterBase : MonoBehaviour
 
     protected virtual void FixedUpdate()
     {
-        object intent = ai.Evaluate(this);
+        IIntent intent = ai.Evaluate(this);
         motor.Execute(this, intent);
     }
 
-    // =========================
+    // =========================a
     // 通用函数（关键）
     // =========================
     public bool TargetChanged(Vector2 newTarget)
