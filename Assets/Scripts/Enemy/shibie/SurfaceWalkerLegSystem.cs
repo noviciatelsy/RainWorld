@@ -73,21 +73,39 @@ public class SurfaceWalkerLegSystem : MonoBehaviour
         var leg = legs[i];
         var mgr = TileMapGuideManager.Instance;
 
-        Vector2 edgeDir = (mgr.GetEdge(sw.EdgeIndex).b - mgr.GetEdge(sw.EdgeIndex).a).normalized;
+        // ✅ 用body位置找最近edge（关键）
+        int edgeIndex = mgr.FindClosestEdgeIndex(body.position);
+        Edge e = mgr.GetEdge(edgeIndex);
 
-        Vector3 forwardOffset = (Vector3)edgeDir * 0.5f;
+        Vector2 a = e.a;
+        Vector2 b = e.b;
 
-        Vector3 desiredPos = body.position + forwardOffset + leg.restOffset;
+        Vector2 dir = (b - a).normalized;
+        float length = Vector2.Distance(a, b);
 
-        float dist = Vector3.Distance(leg.worldPos, desiredPos);
+        // ✅ 用body而不是pivot（关键）
+        float tOnEdge = GetTOnEdge(body.position, a, b);
+        float basePos = tOnEdge * length;
 
+        // ✅ 腿分布（局部 spacing）
+        float spacing = 0.25f;
+        float offset = (i - legs.Length * 0.5f) * spacing;
+
+        // ✅ 动态前瞻（关键）
+        float forward = bodyVelocity.magnitude * 0.25f;
+
+        float finalPos = basePos + offset + forward;
+        finalPos = Mathf.Clamp(finalPos, 0, length);
+
+        Vector2 desired = a + dir * finalPos;
+
+        float dist = Vector3.Distance(leg.worldPos, desired);
+
+        // ✅ 每条腿独立判断（你这点是对的）
         if (!leg.isMoving && dist > leg.moveThreshold)
         {
             leg.isMoving = true;
-
-            Vector3 rawTarget = FindGroundPoint(desiredPos);
-
-            leg.worldPos = ClampToRestRange(desiredPos, rawTarget, 0.3f);
+            leg.worldPos = desired;
         }
 
         leg.target.position = Vector3.MoveTowards(
@@ -102,6 +120,24 @@ public class SurfaceWalkerLegSystem : MonoBehaviour
         }
 
         legs[i] = leg;
+    }
+
+
+    float GetTOnEdge(Vector2 p, Vector2 a, Vector2 b)
+    {
+        Vector2 ab = b - a;
+        float t = Vector2.Dot(p - a, ab) / ab.sqrMagnitude;
+        return Mathf.Clamp01(t);
+    }
+
+    int CountMovingLegs()
+    {
+        int count = 0;
+        for (int i = 0; i < legs.Length; i++)
+        {
+            if (legs[i].isMoving) count++;
+        }
+        return count;
     }
 
     Vector3 ClampToRestRange(Vector3 restCenter, Vector3 target, float maxRadius)
