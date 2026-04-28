@@ -70,15 +70,6 @@ public class SurfaceWalkerMotor : IMonsterMotor
         }
     }
 
-    Vector2 GetOffsetPosition(Edge e)
-    {
-        Vector2 dir = (e.b - e.a).normalized;
-
-        // 法线（外侧）
-        Vector2 normal = new Vector2(-dir.y, dir.x);
-
-        return normal * 0.3f;
-    }
 
     void UpdateFacing(SurfaceWalker2D sw, bool clockwise)
     {

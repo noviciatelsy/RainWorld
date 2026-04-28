@@ -34,6 +34,6 @@ public class SurfaceWalker2D : MonsterBase
         Vector2 dir = (CurrentEdge.b - CurrentEdge.a).normalized;
         Vector2 normal = new Vector2(-dir.y, dir.x);
 
-        bodyVisual.localPosition = normal * 0.3f;
+        bodyVisual.localPosition = normal * 0.1f;
     }
 }
