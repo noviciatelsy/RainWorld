@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 7815576328976498153}
   - component: {fileID: 2660588595327728199}
   - component: {fileID: 595886777981685744}
+  - component: {fileID: 2536843987404145219}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -185,6 +186,248 @@ MonoBehaviour:
     m_Bits: 512
   dropIgnoreTime: 0.5
   jumpBufferTimer: -999
+--- !u!114 &2536843987404145219
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 129472153574247727}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2bd85e7e26c317e4da01d2f6edcccd4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  columnCount: 7
+  maxInventorySize: 56
+  preferTighterPlacement: 1
+  itemSlotList:
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  inventoryItems: []
+  itemDataBase: {fileID: 0}
 --- !u!1 &8150497666571950502
 GameObject:
   m_ObjectHideFlags: 0

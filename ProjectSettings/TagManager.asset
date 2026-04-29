@@ -15,7 +15,7 @@ TagManager:
   - Ground
   - Enemy
   - Platform
-  - 
+  - Minimap
   - 
   - 
   - 
@@ -58,4 +58,7 @@ TagManager:
     locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Minimap
+    uniqueID: 467895111
     locked: 0

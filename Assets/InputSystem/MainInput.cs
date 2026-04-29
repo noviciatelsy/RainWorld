@@ -183,8 +183,30 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
         {
             ""name"": ""UI"",
             ""id"": ""5e27c318-db62-49ee-9170-1fac2470ce14"",
-            ""actions"": [],
-            ""bindings"": []
+            ""actions"": [
+                {
+                    ""name"": ""CheckBackpack"",
+                    ""type"": ""Button"",
+                    ""id"": ""c1dcdac2-9331-4552-aec3-a060684ff695"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""9b897457-37ff-41e1-afd3-4cfde49f7452"",
+                    ""path"": ""<Keyboard>/tab"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""CheckBackpack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": []
@@ -195,6 +217,7 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
         m_Player_Jump = m_Player.FindAction("Jump", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
+        m_UI_CheckBackpack = m_UI.FindAction("CheckBackpack", throwIfNotFound: true);
     }
 
     ~@MainInput()
@@ -383,6 +406,7 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
     // UI
     private readonly InputActionMap m_UI;
     private List<IUIActions> m_UIActionsCallbackInterfaces = new List<IUIActions>();
+    private readonly InputAction m_UI_CheckBackpack;
     /// <summary>
     /// Provides access to input actions defined in input action map "UI".
     /// </summary>
@@ -394,6 +418,10 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
         /// Construct a new instance of the input action map wrapper class.
         /// </summary>
         public UIActions(@MainInput wrapper) { m_Wrapper = wrapper; }
+        /// <summary>
+        /// Provides access to the underlying input action "UI/CheckBackpack".
+        /// </summary>
+        public InputAction @CheckBackpack => m_Wrapper.m_UI_CheckBackpack;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -420,6 +448,9 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
         {
             if (instance == null || m_Wrapper.m_UIActionsCallbackInterfaces.Contains(instance)) return;
             m_Wrapper.m_UIActionsCallbackInterfaces.Add(instance);
+            @CheckBackpack.started += instance.OnCheckBackpack;
+            @CheckBackpack.performed += instance.OnCheckBackpack;
+            @CheckBackpack.canceled += instance.OnCheckBackpack;
         }
 
         /// <summary>
@@ -431,6 +462,9 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UIActions" />
         private void UnregisterCallbacks(IUIActions instance)
         {
+            @CheckBackpack.started -= instance.OnCheckBackpack;
+            @CheckBackpack.performed -= instance.OnCheckBackpack;
+            @CheckBackpack.canceled -= instance.OnCheckBackpack;
         }
 
         /// <summary>
@@ -493,5 +527,12 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
     /// <seealso cref="UIActions.RemoveCallbacks(IUIActions)" />
     public interface IUIActions
     {
+        /// <summary>
+        /// Method invoked when associated input action "CheckBackpack" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnCheckBackpack(InputAction.CallbackContext context);
     }
 }

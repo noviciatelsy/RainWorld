@@ -92,7 +92,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &5328755831146481641
 RectTransform:
   m_ObjectHideFlags: 0
@@ -127,7 +127,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6643558090872447550}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -136,7 +136,7 @@ MonoBehaviour:
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 0
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -209,7 +209,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c1bf4e28e440a243816a7c4dcbc531d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  slotStateImage: {fileID: 0}
+  slotStateImage: {fileID: 6280125087095057256}
+  enablePlaceColor: {r: 0.45, g: 1, b: 0.55, a: 0.35}
+  enableReplaceColor: {r: 1, g: 0.85, b: 0.25, a: 0.45}
+  disablePlaceColor: {r: 1, g: 0.25, b: 0.25, a: 0.45}
   itemInSlot:
     ItemData: {fileID: 0}
     itemEffect: {fileID: 0}

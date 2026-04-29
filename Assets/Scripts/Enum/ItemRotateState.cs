@@ -4,5 +4,8 @@ using UnityEngine;
 
 public enum ItemRotateState 
 {
-
+    Rotate0,
+    Rotate90,
+    Rotate180,
+    Rotate270
 }
