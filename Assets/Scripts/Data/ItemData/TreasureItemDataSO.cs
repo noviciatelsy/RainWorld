@@ -5,5 +5,8 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Setup/Item Data/Treasure Item", fileName = "TreasureItemData - ")]
 public class TreasureItemDataSO : ItemDataSO
 {
-
+    private void OnValidate()
+    {
+        itemType = ItemType.Treasure;
+    }
 }

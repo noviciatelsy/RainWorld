@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 897fa93c7d38228458e3620aba7d0259, type: 3}
+  m_Name: TreasureItemData - Test_6
+  m_EditorClassIdentifier: 
+  itemDisplayName: 
+  itemDescription: 
+  itemIcon: {fileID: 21300000, guid: e9f3fd54b0f916a459be45bf599d97ae, type: 3}
+  itemEffectData: {fileID: 0}
+  backpackItemData: {fileID: 11400000, guid: 18236b910c591ca41a1a6b329b359312, type: 2}
+  itemType: 3
+  rarity: 0
+  itembuyPrice: 0
+  itemSellPrice: 0

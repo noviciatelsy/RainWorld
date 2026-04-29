@@ -10,4 +10,17 @@ public class InventoryItemSlot
     {
         return itemInSlot != null && itemInSlot.ItemData != null;
     }
+
+    public void ClearIfInvalid()
+    {
+        if (itemInSlot != null && itemInSlot.ItemData == null)
+        {
+            itemInSlot = null;
+        }
+    }
+
+    public void Clear()
+    {
+        itemInSlot = null;
+    }
 }

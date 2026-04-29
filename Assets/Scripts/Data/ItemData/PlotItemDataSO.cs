@@ -5,5 +5,8 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Setup/Item Data/Plot Item", fileName = "PlotItemData - ")]
 public class PlotItemDataSO : ItemDataSO
 {
-
+    private void OnValidate()
+    {
+        itemType = ItemType.Plot;
+    }
 }

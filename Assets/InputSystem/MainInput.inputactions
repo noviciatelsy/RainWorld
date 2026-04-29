@@ -97,8 +97,30 @@
         {
             "name": "UI",
             "id": "5e27c318-db62-49ee-9170-1fac2470ce14",
-            "actions": [],
-            "bindings": []
+            "actions": [
+                {
+                    "name": "CheckBackpack",
+                    "type": "Button",
+                    "id": "c1dcdac2-9331-4552-aec3-a060684ff695",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "9b897457-37ff-41e1-afd3-4cfde49f7452",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "CheckBackpack",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": []
