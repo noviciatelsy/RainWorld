@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 2660588595327728199}
   - component: {fileID: 595886777981685744}
   - component: {fileID: 2536843987404145219}
+  - component: {fileID: 4877479732014819151}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -428,6 +429,31 @@ MonoBehaviour:
       rotateState: 0
   inventoryItems: []
   itemDataBase: {fileID: 0}
+  test_1: {fileID: 11400000, guid: 053395d34a640be45b6cf4218ec9e7e0, type: 2}
+  test_2: {fileID: 11400000, guid: 1120d80d3fecc214ebe81b21e37f8d70, type: 2}
+  test_3: {fileID: 11400000, guid: 2ffa2a47fbec39d4d88dcbc8459ffcba, type: 2}
+  test_4: {fileID: 11400000, guid: be53c00eea61b774eb95465c128193b1, type: 2}
+  test_5: {fileID: 11400000, guid: c5cfec53499d70b459dc4411d6a2527c, type: 2}
+  test_6: {fileID: 11400000, guid: e434d1eb4cd22d04da528c647453b354, type: 2}
+  test_7: {fileID: 11400000, guid: 393e74c984bb02247945217386ae1336, type: 2}
+--- !u!114 &4877479732014819151
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 129472153574247727}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c817b892d62de874a841c9c7db2ac099, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startWithFullHealth: 1
+  customStartHealth: 100
+  startHunger: 0
+  autoIncreaseHunger: 1
+  hungerIncreaseInterval: 15
+  hungerIncreaseAmount: 1
 --- !u!1 &8150497666571950502
 GameObject:
   m_ObjectHideFlags: 0

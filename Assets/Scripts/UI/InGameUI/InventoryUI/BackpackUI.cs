@@ -24,9 +24,9 @@ public class BackpackUI : MonoBehaviour
     {
         if (PlayerManager.Instance != null)
         {
-            PlayerManager.Instance.OnCurrentPlayerChanged += HandleCurrentPlayerChanged;
+            PlayerManager.Instance.OnCurrentPlayerChanged += GetInventoryPlayer;
 
-            HandleCurrentPlayerChanged(PlayerManager.Instance.CurrentPlayer);
+            GetInventoryPlayer(PlayerManager.Instance.CurrentPlayer);
         }
     }
 
@@ -34,7 +34,7 @@ public class BackpackUI : MonoBehaviour
     {
         if (PlayerManager.Instance != null)
         {
-            PlayerManager.Instance.OnCurrentPlayerChanged -= HandleCurrentPlayerChanged;
+            PlayerManager.Instance.OnCurrentPlayerChanged -= GetInventoryPlayer;
         }
 
         if (draggedItemUI != null && draggedItemUI.IsDragging)
@@ -50,7 +50,7 @@ public class BackpackUI : MonoBehaviour
         inventoryPlayer = null;
     }
 
-    private void HandleCurrentPlayerChanged(Player player)
+    private void GetInventoryPlayer(Player player)
     {
         if (player == null)
         {
