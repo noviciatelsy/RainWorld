@@ -16,7 +16,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerDownHandler
 
     private InventoryGridUI ownerGridUI;
 
-    private void Awake()
+    protected virtual void Awake()
     {
         if (slotStateImage != null)
         {

@@ -5,7 +5,7 @@ public class BackpackUI : MonoBehaviour
     [SerializeField] private InventoryGridUI playerInventoryGrid;
     private DraggedItemUI draggedItemUI;
 
-    private InventoryPlayer inventoryPlayer;
+    private InventoryPlayer playerInventory;
 
     private void Awake()
     {
@@ -20,23 +20,29 @@ public class BackpackUI : MonoBehaviour
         }
     }
 
-    private void OnEnable()
+    public void Open()
     {
-        if (PlayerManager.Instance != null)
-        {
-            PlayerManager.Instance.OnCurrentPlayerChanged += GetInventoryPlayer;
+        Player currentPlayer = PlayerManager.Instance != null ? PlayerManager.Instance.CurrentPlayer : null;
 
-            GetInventoryPlayer(PlayerManager.Instance.CurrentPlayer);
+        if (currentPlayer == null)
+        {
+            Debug.LogWarning("打开 LootUI 失败：当前没有玩家。");
+            return;
         }
+
+        playerInventory = currentPlayer.GetComponent<InventoryPlayer>();
+
+        if (playerInventory == null)
+        {
+            Debug.LogWarning("打开 LootUI 失败：玩家身上没有 InventoryPlayer。");
+            return;
+        }
+        gameObject.SetActive(true);
+        playerInventoryGrid.SetInventory(playerInventory);
     }
 
-    private void OnDisable()
+    public void Close()
     {
-        if (PlayerManager.Instance != null)
-        {
-            PlayerManager.Instance.OnCurrentPlayerChanged -= GetInventoryPlayer;
-        }
-
         if (draggedItemUI != null && draggedItemUI.IsDragging)
         {
             draggedItemUI.TryReturnToSource();
@@ -46,29 +52,8 @@ public class BackpackUI : MonoBehaviour
         {
             playerInventoryGrid.ClearInventoryBinding();
         }
-
-        inventoryPlayer = null;
+        playerInventory = null;
+        gameObject.SetActive(false);
     }
 
-    private void GetInventoryPlayer(Player player)
-    {
-        if (player == null)
-        {
-            inventoryPlayer = null;
-
-            if (playerInventoryGrid != null)
-            {
-                playerInventoryGrid.ClearInventoryBinding();
-            }
-
-            return;
-        }
-
-        inventoryPlayer = player.GetComponent<InventoryPlayer>();
-
-        if (playerInventoryGrid != null)
-        {
-            playerInventoryGrid.SetInventory(inventoryPlayer);
-        }
-    }
 }

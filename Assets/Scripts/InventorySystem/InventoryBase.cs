@@ -75,31 +75,6 @@ public class InventoryBase : MonoBehaviour
         SanitizeEmptyItemShells();
     }
 
-    //public bool AddItem(ItemDataSO itemData)
-    //{
-    //    if (itemData == null)
-    //    {
-    //        Debug.LogWarning("AddItem 失败：itemData 为空。");
-    //        return false;
-    //    }
-
-    //    if (itemData.backpackItemData == null)
-    //    {
-    //        Debug.LogWarning($"AddItem 失败：{itemData.name} 没有配置 backpackItemData。");
-    //        return false;
-    //    }
-
-    //    InventoryItem newItem = new InventoryItem(itemData);
-
-    //    if (!TryFindBestPlacement(newItem, out Vector2Int bestTopLeft, out ItemRotateState bestRotateState))
-    //    {
-    //        Debug.Log($"背包没有足够空间放入：{itemData.itemDisplayName}");
-    //        return false;
-    //    }
-
-    //    return PlaceItem(newItem, bestTopLeft, bestRotateState);
-    //}
-
     public bool AddItem(ItemDataSO itemData)
     {
         EnsureSlotListSize();
@@ -130,25 +105,6 @@ public class InventoryBase : MonoBehaviour
         return PlaceItem(newItem, bestTopLeft, bestRotateState);
     }
 
-    private int GetOccupiedSlotCount()
-    {
-        int count = 0;
-
-        if (itemSlotList == null)
-        {
-            return 0;
-        }
-
-        for (int i = 0; i < itemSlotList.Count; i++)
-        {
-            if (itemSlotList[i] != null && itemSlotList[i].HasItem())
-            {
-                count++;
-            }
-        }
-
-        return count;
-    }
 
     public InventoryItem GetItemAtSlot(int slotIndex)
     {
@@ -446,82 +402,6 @@ public class InventoryBase : MonoBehaviour
         return row * ColumnCount + column;
     }
 
-    //private bool TryFindBestPlacement(
-    //    InventoryItem item,
-    //    out Vector2Int bestTopLeft,
-    //    out ItemRotateState bestRotateState
-    //)
-    //{
-    //    bestTopLeft = Vector2Int.zero;
-    //    bestRotateState = ItemRotateState.Rotate0;
-
-    //    bool found = false;
-    //    int bestScore = int.MinValue;
-    //    int bestRow = int.MaxValue;
-    //    int bestColumn = int.MaxValue;
-    //    int bestRotationOrder = int.MaxValue;
-
-    //    ItemRotateState[] rotateStates =
-    //    {
-    //        ItemRotateState.Rotate0,
-    //        ItemRotateState.Rotate90,
-    //        ItemRotateState.Rotate180,
-    //        ItemRotateState.Rotate270
-    //    };
-
-    //    for (int rotationIndex = 0; rotationIndex < rotateStates.Length; rotationIndex++)
-    //    {
-    //        ItemRotateState rotateState = rotateStates[rotationIndex];
-    //        Vector2Int rotatedSize = BackpackItemShapeUtility.GetRotatedImageSize(item.ItemData.backpackItemData, rotateState);
-
-    //        if (rotatedSize.x > ColumnCount || rotatedSize.y > RowCount)
-    //        {
-    //            continue;
-    //        }
-
-    //        for (int row = 0; row <= RowCount - rotatedSize.y; row++)
-    //        {
-    //            for (int column = 0; column <= ColumnCount - rotatedSize.x; column++)
-    //            {
-    //                Vector2Int topLeft = new Vector2Int(column, row);
-
-    //                if (!CanPlaceItem(item, topLeft, rotateState, out List<int> targetIndices, out HashSet<InventoryItem> conflictItems))
-    //                {
-    //                    continue;
-    //                }
-
-    //                if (!preferTighterPlacement)
-    //                {
-    //                    bestTopLeft = topLeft;
-    //                    bestRotateState = rotateState;
-    //                    return true;
-    //                }
-
-    //                int score = CalculateTightnessScore(targetIndices);
-
-    //                bool better =
-    //                    !found ||
-    //                    score > bestScore ||
-    //                    score == bestScore && row < bestRow ||
-    //                    score == bestScore && row == bestRow && column < bestColumn ||
-    //                    score == bestScore && row == bestRow && column == bestColumn && rotationIndex < bestRotationOrder;
-
-    //                if (better)
-    //                {
-    //                    found = true;
-    //                    bestScore = score;
-    //                    bestRow = row;
-    //                    bestColumn = column;
-    //                    bestRotationOrder = rotationIndex;
-    //                    bestTopLeft = topLeft;
-    //                    bestRotateState = rotateState;
-    //                }
-    //            }
-    //        }
-    //    }
-
-    //    return found;
-    //}
 
     private bool TryFindBestPlacement(
        InventoryItem item,

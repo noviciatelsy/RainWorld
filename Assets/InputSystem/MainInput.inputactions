@@ -106,6 +106,42 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "QuickItemSlotUI_1",
+                    "type": "Button",
+                    "id": "4e685744-d131-48b7-b52c-10e0b8ddf334",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "QuickItemSlotUI_2",
+                    "type": "Button",
+                    "id": "80f43d6d-6b1d-4676-861d-374f2a332b3b",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "QuickItemSlotUI_3",
+                    "type": "Button",
+                    "id": "0d45ede8-8528-4aef-a6c5-639b8ee06256",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "QuickItemSlotUI_4",
+                    "type": "Button",
+                    "id": "a358a916-2527-4332-a64a-5eaaac0d6785",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -117,6 +153,50 @@
                     "processors": "",
                     "groups": "",
                     "action": "CheckBackpack",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9fda2119-0c93-4624-927b-5f67e0514ded",
+                    "path": "<Keyboard>/1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "QuickItemSlotUI_1",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ccc52c72-298f-40ac-9fbd-2eb510a87ca0",
+                    "path": "<Keyboard>/2",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "QuickItemSlotUI_2",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "04f9332b-8fbb-4d0c-93d2-10dd665cc139",
+                    "path": "<Keyboard>/3",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "QuickItemSlotUI_3",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "df336589-2a4d-454b-9286-96de95d1fdc0",
+                    "path": "<Keyboard>/4",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "QuickItemSlotUI_4",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

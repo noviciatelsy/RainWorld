@@ -98,7 +98,14 @@ public class InGameUI : MonoBehaviour
 
     private void SwitchBackpackUI(bool enabled)
     {
-        backpackUI.gameObject.SetActive(enabled);
+        if(enabled)
+        {
+            backpackUI.Open();
+        }
+        else
+        {
+            backpackUI.Close();
+        }
     }
 
     private void SwitchLootUI(bool enabled,InventoryBase lootInventory)

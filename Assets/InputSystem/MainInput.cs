@@ -192,6 +192,42 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""QuickItemSlotUI_1"",
+                    ""type"": ""Button"",
+                    ""id"": ""4e685744-d131-48b7-b52c-10e0b8ddf334"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""QuickItemSlotUI_2"",
+                    ""type"": ""Button"",
+                    ""id"": ""80f43d6d-6b1d-4676-861d-374f2a332b3b"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""QuickItemSlotUI_3"",
+                    ""type"": ""Button"",
+                    ""id"": ""0d45ede8-8528-4aef-a6c5-639b8ee06256"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""QuickItemSlotUI_4"",
+                    ""type"": ""Button"",
+                    ""id"": ""a358a916-2527-4332-a64a-5eaaac0d6785"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -203,6 +239,50 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""CheckBackpack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""9fda2119-0c93-4624-927b-5f67e0514ded"",
+                    ""path"": ""<Keyboard>/1"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""QuickItemSlotUI_1"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ccc52c72-298f-40ac-9fbd-2eb510a87ca0"",
+                    ""path"": ""<Keyboard>/2"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""QuickItemSlotUI_2"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""04f9332b-8fbb-4d0c-93d2-10dd665cc139"",
+                    ""path"": ""<Keyboard>/3"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""QuickItemSlotUI_3"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""df336589-2a4d-454b-9286-96de95d1fdc0"",
+                    ""path"": ""<Keyboard>/4"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""QuickItemSlotUI_4"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -218,6 +298,10 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_CheckBackpack = m_UI.FindAction("CheckBackpack", throwIfNotFound: true);
+        m_UI_QuickItemSlotUI_1 = m_UI.FindAction("QuickItemSlotUI_1", throwIfNotFound: true);
+        m_UI_QuickItemSlotUI_2 = m_UI.FindAction("QuickItemSlotUI_2", throwIfNotFound: true);
+        m_UI_QuickItemSlotUI_3 = m_UI.FindAction("QuickItemSlotUI_3", throwIfNotFound: true);
+        m_UI_QuickItemSlotUI_4 = m_UI.FindAction("QuickItemSlotUI_4", throwIfNotFound: true);
     }
 
     ~@MainInput()
@@ -407,6 +491,10 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_UI;
     private List<IUIActions> m_UIActionsCallbackInterfaces = new List<IUIActions>();
     private readonly InputAction m_UI_CheckBackpack;
+    private readonly InputAction m_UI_QuickItemSlotUI_1;
+    private readonly InputAction m_UI_QuickItemSlotUI_2;
+    private readonly InputAction m_UI_QuickItemSlotUI_3;
+    private readonly InputAction m_UI_QuickItemSlotUI_4;
     /// <summary>
     /// Provides access to input actions defined in input action map "UI".
     /// </summary>
@@ -422,6 +510,22 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "UI/CheckBackpack".
         /// </summary>
         public InputAction @CheckBackpack => m_Wrapper.m_UI_CheckBackpack;
+        /// <summary>
+        /// Provides access to the underlying input action "UI/QuickItemSlotUI_1".
+        /// </summary>
+        public InputAction @QuickItemSlotUI_1 => m_Wrapper.m_UI_QuickItemSlotUI_1;
+        /// <summary>
+        /// Provides access to the underlying input action "UI/QuickItemSlotUI_2".
+        /// </summary>
+        public InputAction @QuickItemSlotUI_2 => m_Wrapper.m_UI_QuickItemSlotUI_2;
+        /// <summary>
+        /// Provides access to the underlying input action "UI/QuickItemSlotUI_3".
+        /// </summary>
+        public InputAction @QuickItemSlotUI_3 => m_Wrapper.m_UI_QuickItemSlotUI_3;
+        /// <summary>
+        /// Provides access to the underlying input action "UI/QuickItemSlotUI_4".
+        /// </summary>
+        public InputAction @QuickItemSlotUI_4 => m_Wrapper.m_UI_QuickItemSlotUI_4;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -451,6 +555,18 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
             @CheckBackpack.started += instance.OnCheckBackpack;
             @CheckBackpack.performed += instance.OnCheckBackpack;
             @CheckBackpack.canceled += instance.OnCheckBackpack;
+            @QuickItemSlotUI_1.started += instance.OnQuickItemSlotUI_1;
+            @QuickItemSlotUI_1.performed += instance.OnQuickItemSlotUI_1;
+            @QuickItemSlotUI_1.canceled += instance.OnQuickItemSlotUI_1;
+            @QuickItemSlotUI_2.started += instance.OnQuickItemSlotUI_2;
+            @QuickItemSlotUI_2.performed += instance.OnQuickItemSlotUI_2;
+            @QuickItemSlotUI_2.canceled += instance.OnQuickItemSlotUI_2;
+            @QuickItemSlotUI_3.started += instance.OnQuickItemSlotUI_3;
+            @QuickItemSlotUI_3.performed += instance.OnQuickItemSlotUI_3;
+            @QuickItemSlotUI_3.canceled += instance.OnQuickItemSlotUI_3;
+            @QuickItemSlotUI_4.started += instance.OnQuickItemSlotUI_4;
+            @QuickItemSlotUI_4.performed += instance.OnQuickItemSlotUI_4;
+            @QuickItemSlotUI_4.canceled += instance.OnQuickItemSlotUI_4;
         }
 
         /// <summary>
@@ -465,6 +581,18 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
             @CheckBackpack.started -= instance.OnCheckBackpack;
             @CheckBackpack.performed -= instance.OnCheckBackpack;
             @CheckBackpack.canceled -= instance.OnCheckBackpack;
+            @QuickItemSlotUI_1.started -= instance.OnQuickItemSlotUI_1;
+            @QuickItemSlotUI_1.performed -= instance.OnQuickItemSlotUI_1;
+            @QuickItemSlotUI_1.canceled -= instance.OnQuickItemSlotUI_1;
+            @QuickItemSlotUI_2.started -= instance.OnQuickItemSlotUI_2;
+            @QuickItemSlotUI_2.performed -= instance.OnQuickItemSlotUI_2;
+            @QuickItemSlotUI_2.canceled -= instance.OnQuickItemSlotUI_2;
+            @QuickItemSlotUI_3.started -= instance.OnQuickItemSlotUI_3;
+            @QuickItemSlotUI_3.performed -= instance.OnQuickItemSlotUI_3;
+            @QuickItemSlotUI_3.canceled -= instance.OnQuickItemSlotUI_3;
+            @QuickItemSlotUI_4.started -= instance.OnQuickItemSlotUI_4;
+            @QuickItemSlotUI_4.performed -= instance.OnQuickItemSlotUI_4;
+            @QuickItemSlotUI_4.canceled -= instance.OnQuickItemSlotUI_4;
         }
 
         /// <summary>
@@ -534,5 +662,33 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnCheckBackpack(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "QuickItemSlotUI_1" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnQuickItemSlotUI_1(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "QuickItemSlotUI_2" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnQuickItemSlotUI_2(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "QuickItemSlotUI_3" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnQuickItemSlotUI_3(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "QuickItemSlotUI_4" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnQuickItemSlotUI_4(InputAction.CallbackContext context);
     }
 }
