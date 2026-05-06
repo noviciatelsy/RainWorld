@@ -199,10 +199,42 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2bd85e7e26c317e4da01d2f6edcccd4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  columnCount: 7
-  maxInventorySize: 56
+  columnCount: 8
+  maxInventorySize: 64
   preferTighterPlacement: 1
   itemSlotList:
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
+  - itemInSlot:
+      ItemData: {fileID: 0}
+      itemEffect: {fileID: 0}
+      rotateState: 0
   - itemInSlot:
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
