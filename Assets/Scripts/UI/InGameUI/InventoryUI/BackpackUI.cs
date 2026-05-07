@@ -3,6 +3,8 @@ using UnityEngine;
 public class BackpackUI : MonoBehaviour
 {
     [SerializeField] private InventoryGridUI playerInventoryGrid;
+    private PlayerBackpack playerBackpack;
+    private QuickItemSlots quickItemSlots;
     private DraggedItemUI draggedItemUI;
 
     private InventoryPlayer playerInventory;
@@ -18,6 +20,8 @@ public class BackpackUI : MonoBehaviour
                 draggedItemUI = inGameUI.draggedItemUI;
             }
         }
+        playerBackpack = GetComponentInChildren<PlayerBackpack>();
+        quickItemSlots = GetComponentInChildren<QuickItemSlots>();
     }
 
     public void Open()
@@ -39,6 +43,9 @@ public class BackpackUI : MonoBehaviour
         }
         gameObject.SetActive(true);
         playerInventoryGrid.SetInventory(playerInventory);
+        playerBackpack.SetInventory(playerInventory);
+        quickItemSlots.SetInventory(playerInventory);
+        
     }
 
     public void Close()
@@ -48,10 +55,10 @@ public class BackpackUI : MonoBehaviour
             draggedItemUI.TryReturnToSource();
         }
 
-        if (playerInventoryGrid != null)
-        {
-            playerInventoryGrid.ClearInventoryBinding();
-        }
+
+        playerInventoryGrid.SetInventory(null);
+        playerBackpack.SetInventory(null);
+        quickItemSlots.SetInventory(null);
         playerInventory = null;
         gameObject.SetActive(false);
     }

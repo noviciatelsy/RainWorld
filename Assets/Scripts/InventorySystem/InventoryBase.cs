@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class InventoryBase : MonoBehaviour
 {
-    public event Action onInventoryChange; // 改变事件
+    public event Action onInventoryChange; // 物品改变事件
 
-    [Header("背包尺寸")]
+    [Header("尺寸")]
     [Min(1)] public int columnCount = 7; // 每行多少列
     [Min(1)] public int maxInventorySize = 56; // 容量
 
@@ -36,16 +36,11 @@ public class InventoryBase : MonoBehaviour
     protected virtual void Awake()
     {
         EnsureSlotListSize();
+        SanitizeEmptyItemShells();
     }
 
-#if UNITY_EDITOR
-    private void OnValidate()
-    {
-        EnsureSlotListSize();
-    }
-#endif
 
-    private void EnsureSlotListSize()
+    protected virtual void EnsureSlotListSize()
     {
         if (maxInventorySize < 1)
         {
@@ -72,7 +67,7 @@ public class InventoryBase : MonoBehaviour
             itemSlotList.RemoveRange(maxInventorySize, itemSlotList.Count - maxInventorySize);
         }
 
-        SanitizeEmptyItemShells();
+
     }
 
     public bool AddItem(ItemDataSO itemData)
@@ -545,64 +540,6 @@ public class InventoryBase : MonoBehaviour
         return score;
     }
 
-    //private bool TryGetTargetIndices(
-    //    BackpackItemDataSO backpackItemData,
-    //    Vector2Int topLeft,
-    //    ItemRotateState rotateState,
-    //    out List<int> targetIndices
-    //)
-    //{
-    //    targetIndices = new List<int>();
-
-    //    if (backpackItemData == null)
-    //    {
-    //        return false;
-    //    }
-
-    //    Vector2Int rotatedSize = BackpackItemShapeUtility.GetRotatedImageSize(backpackItemData, rotateState);
-
-    //    if (topLeft.x < 0 || topLeft.y < 0)
-    //    {
-    //        return false;
-    //    }
-
-    //    if (topLeft.x + rotatedSize.x > ColumnCount)
-    //    {
-    //        return false;
-    //    }
-
-    //    if (topLeft.y + rotatedSize.y > RowCount)
-    //    {
-    //        return false;
-    //    }
-
-    //    List<Vector2Int> rotatedOccupationArea = BackpackItemShapeUtility.GetRotatedOccupationArea(backpackItemData, rotateState);
-
-    //    for (int i = 0; i < rotatedOccupationArea.Count; i++)
-    //    {
-    //        Vector2Int localCell = rotatedOccupationArea[i];
-
-    //        int column = topLeft.x + localCell.x;
-
-    //        // occupationArea 是左下角坐标系，UI 背包是从上往下排，所以这里要翻转 y
-    //        int row = topLeft.y + (rotatedSize.y - 1 - localCell.y);
-
-    //        if (column < 0 || column >= ColumnCount || row < 0 || row >= RowCount)
-    //        {
-    //            return false;
-    //        }
-
-    //        int index = CoordToIndex(column, row);
-
-    //        if (!targetIndices.Contains(index))
-    //        {
-    //            targetIndices.Add(index);
-    //        }
-    //    }
-
-    //    return targetIndices.Count > 0;
-    //}
-
     private bool TryGetTargetIndices(
     BackpackItemDataSO backpackItemData,
     Vector2Int topLeft,
@@ -710,7 +647,7 @@ public class InventoryBase : MonoBehaviour
         return changed;
     }
 
-    private void SanitizeEmptyItemShells()
+    protected virtual void SanitizeEmptyItemShells()
     {
         if (itemSlotList == null)
         {

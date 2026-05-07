@@ -145,6 +145,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4024739685476737902}
   - component: {fileID: 9170414676041325392}
+  - component: {fileID: 5011878281826020152}
   m_Layer: 5
   m_Name: QuickItemSlot
   m_TagString: Untagged
@@ -182,6 +183,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3610194469158384612}
   m_CullTransparentMesh: 1
+--- !u!114 &5011878281826020152
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3610194469158384612}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48cc6f7a163f7894bbfa89de067f1ae3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemIconImage: {fileID: 8344239630778855616}
+  itemInSlot:
+    ItemData: {fileID: 0}
+    itemEffect: {fileID: 0}
+    rotateState: 0
 --- !u!1 &4377845903945924886
 GameObject:
   m_ObjectHideFlags: 0

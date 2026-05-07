@@ -87,10 +87,6 @@ public class InventoryGridUI : MonoBehaviour
         UpdateItemImages();
     }
 
-    public void ClearInventoryBinding()
-    {
-        SetInventory(null);
-    }
 
     public void OnSlotPointerDown(int slotIndex, PointerEventData eventData)
     {

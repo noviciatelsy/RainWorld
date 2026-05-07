@@ -7,16 +7,6 @@ public class ItemEffectDataSO : ScriptableObject
     public string effectDescription; // 效果描述
     protected Player player;
 
-    public virtual void ExecuteEffect()
-    {
-
-    }
-
-    public virtual void CancelEffect()
-    {
-
-    }
-
     public virtual void Subscribe(Player player)
     {
         this.player = player; // 获取player

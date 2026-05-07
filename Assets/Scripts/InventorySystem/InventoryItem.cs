@@ -30,12 +30,12 @@ public class InventoryItem
 
     }
 
-    public void AddItemEffect(Player player)
+    public void SubscribeToPlayer(Player player)
     {
         itemEffect?.Subscribe(player); 
     }
 
-    public void RemoveItemEffect()
+    public void UnsubscribeToPlayer()
     {
         itemEffect?.Unsubscribe(); 
     }
