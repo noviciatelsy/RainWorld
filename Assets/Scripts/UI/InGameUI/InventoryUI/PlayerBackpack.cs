@@ -10,6 +10,8 @@ public class PlayerBackpack : MonoBehaviour
     public bool holdQuickItemIndex_3 { get; private set; } = false;
     public bool holdQuickItemIndex_4 { get; private set; } = false;
 
+    private InventoryPlayer playerInventory;
+
     private void Awake()
     {
         mainInput = InputManager.Instance.mainInput;
@@ -39,4 +41,17 @@ public class PlayerBackpack : MonoBehaviour
         mainInput.UI.QuickItemSlotUI_4.canceled -= ctx => holdQuickItemIndex_4 = false;
     }
 
+    public void SetInventory(InventoryPlayer newPlayerInventory)
+    {
+        if (playerInventory == newPlayerInventory)
+        {
+            return;
+        }
+        playerInventory = newPlayerInventory;
+    }
+
+    public void SetQuickItem(InventoryItem itemToSet,int quickSlotIndex)
+    {
+
+    }
 }

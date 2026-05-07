@@ -5,6 +5,8 @@ public class RetrieveUI : MonoBehaviour
     [Header("Grids")]
     [SerializeField] private InventoryGridUI playerInventoryGrid;
     [SerializeField] private InventoryGridUI lostInventoryGrid;
+    private PlayerBackpack playerBackpack;
+    private QuickItemSlots quickItemSlots;
 
     [Header("Refs")]
     private DraggedItemUI draggedItemUI;
@@ -23,6 +25,8 @@ public class RetrieveUI : MonoBehaviour
                 draggedItemUI = inGameUI.draggedItemUI;
             }
         }
+        playerBackpack = GetComponentInChildren<PlayerBackpack>();
+        quickItemSlots = GetComponentInChildren<QuickItemSlots>();
     }
 
     public void Open(InventoryBase lostInventory)
@@ -55,6 +59,8 @@ public class RetrieveUI : MonoBehaviour
 
         playerInventoryGrid.SetInventory(playerInventory);
         lostInventoryGrid.SetInventory(currentLostInventory);
+        playerBackpack.SetInventory(playerInventory);
+        quickItemSlots.SetInventory(playerInventory);
     }
 
     public void Close()
@@ -66,13 +72,15 @@ public class RetrieveUI : MonoBehaviour
 
         if (playerInventoryGrid != null)
         {
-            playerInventoryGrid.ClearInventoryBinding();
+            playerInventoryGrid.SetInventory(null);
         }
 
         if (lostInventoryGrid != null)
         {
-            lostInventoryGrid.ClearInventoryBinding();
+            lostInventoryGrid.SetInventory(null);
         }
+        playerBackpack.SetInventory(null);
+        quickItemSlots.SetInventory(null);
 
         playerInventory = null;
         currentLostInventory = null;

@@ -5,6 +5,8 @@ public class LootUI : MonoBehaviour
     [Header("Grids")]
     [SerializeField] private InventoryGridUI playerInventoryGrid;
     [SerializeField] private InventoryGridUI lootInventoryGrid;
+    private PlayerBackpack playerBackpack;
+    private QuickItemSlots quickItemSlots;
 
     [Header("Refs")]
     private DraggedItemUI draggedItemUI;
@@ -23,6 +25,8 @@ public class LootUI : MonoBehaviour
                 draggedItemUI = inGameUI.draggedItemUI;
             }
         }
+        playerBackpack = GetComponentInChildren<PlayerBackpack>();
+        quickItemSlots = GetComponentInChildren<QuickItemSlots>();
     }
 
     public void Open(InventoryBase lootInventory)
@@ -55,6 +59,8 @@ public class LootUI : MonoBehaviour
 
         playerInventoryGrid.SetInventory(playerInventory);
         lootInventoryGrid.SetInventory(currentLootInventory);
+        playerBackpack.SetInventory(playerInventory);
+        quickItemSlots.SetInventory(playerInventory);
     }
 
     public void Close()
@@ -66,13 +72,15 @@ public class LootUI : MonoBehaviour
 
         if (playerInventoryGrid != null)
         {
-            playerInventoryGrid.ClearInventoryBinding();
+            playerInventoryGrid.SetInventory(null);
         }
 
         if (lootInventoryGrid != null)
         {
-            lootInventoryGrid.ClearInventoryBinding();
+            lootInventoryGrid.SetInventory(null);
         }
+        playerBackpack.SetInventory(null);
+        quickItemSlots.SetInventory(null) ;
 
         playerInventory = null;
         currentLootInventory = null;

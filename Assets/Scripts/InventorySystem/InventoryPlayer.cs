@@ -1,7 +1,13 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class InventoryPlayer : InventoryBase
 {
+    [Header("快捷栏位")]
+    [SerializeField] private int quickItemSlotSize = 4;
+    public List<InventoryItemSlot> quickItemSlotList = new List<InventoryItemSlot>(); // 快捷栏物品槽位列表
+    public event Action onQuickItemsChange;
     private Player player;
     [SerializeField] private ItemDataSO test_1;
     [SerializeField] private ItemDataSO test_2;
@@ -51,11 +57,55 @@ public class InventoryPlayer : InventoryBase
 
     protected override void OnItemPlaced(InventoryItem item)
     {
-        item?.AddItemEffect(player);
+        item?.SubscribeToPlayer(player);
     }
 
     protected override void OnItemRemoved(InventoryItem item)
     {
-        item?.RemoveItemEffect();
+        item?.UnsubscribeToPlayer();
+    }
+
+    protected override void EnsureSlotListSize()
+    {
+        base.EnsureSlotListSize();
+        if (quickItemSlotSize< 1)
+        {
+            quickItemSlotSize = 1;
+        }
+
+        if (quickItemSlotList == null)
+        {
+            quickItemSlotList = new List<InventoryItemSlot>();
+        }
+
+        while (quickItemSlotList.Count < quickItemSlotSize)
+        {
+            quickItemSlotList.Add(new InventoryItemSlot()); // 补空槽
+        }
+
+        if (quickItemSlotList.Count > quickItemSlotSize)
+        {
+            quickItemSlotList.RemoveRange(quickItemSlotSize, quickItemSlotList.Count - quickItemSlotSize);
+        }
+    }
+
+    protected override void SanitizeEmptyItemShells()
+    {
+        base.SanitizeEmptyItemShells();
+        if (quickItemSlotList == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < quickItemSlotList.Count; i++)
+        {
+            if (quickItemSlotList[i] == null)
+            {
+                quickItemSlotList[i] = new InventoryItemSlot();
+                continue;
+            }
+
+            quickItemSlotList[i].ClearIfInvalid();
+        }
     }
 }

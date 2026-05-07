@@ -23,7 +23,11 @@ public class PlayerItemSlotUI : ItemSlotUI, IPointerClickHandler
         {
             return;
         }
-        if(playerBackpack.holdQuickItemIndex_1)
+        if (itemInSlot.ItemData.itemType != ItemType.Active)
+        {
+            return;
+        }
+        if (playerBackpack.holdQuickItemIndex_1)
         {
 
         }
@@ -38,13 +42,6 @@ public class PlayerItemSlotUI : ItemSlotUI, IPointerClickHandler
         else if (playerBackpack.holdQuickItemIndex_4)
         {
 
-        }
-        else // 直接将物品设为手持
-        {
-            if(itemInSlot.ItemData.itemType!=ItemType.Active)
-            {
-                return ;
-            }
         }
     }
 }
