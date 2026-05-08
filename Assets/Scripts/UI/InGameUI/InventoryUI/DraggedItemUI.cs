@@ -16,6 +16,8 @@ public class DraggedItemUI : MonoBehaviour
     public ItemRotateState SourceRotateState { get; private set; } // 原本旋转状态
     public bool HasSourcePlacement { get; private set; } // 是否记录了原位置
 
+    public event Action<InventoryItem> OnBeginDraggingItem;
+    public event Action<InventoryItem> OnEndDraggingItem;
     public event Action OnDraggedItemRotated;
 
     private RectTransform selfRt; // 自身的Rect
@@ -58,40 +60,49 @@ public class DraggedItemUI : MonoBehaviour
     }
 
     public void BeginDrag(
-        InventoryItem item,
-        InventoryBase sourceInventory,
-        bool hasSourcePlacement,
-        Vector2Int sourceTopLeft,
-        ItemRotateState sourceRotateState
-    )
+            InventoryItem item,
+            InventoryBase sourceInventory,
+            bool hasSourcePlacement,
+            Vector2Int sourceTopLeft,
+            ItemRotateState sourceRotateState
+        )
     {
         if (item == null)
         {
             return;
         }
 
-        draggedItem = item; // 暂存该物品
+        draggedItem = item;
         SourceInventory = sourceInventory;
         HasSourcePlacement = hasSourcePlacement;
         SourceTopLeft = sourceTopLeft;
         SourceRotateState = sourceRotateState;
 
-        IsDragging = true; // 开启bool锁
+        IsDragging = true;
+
         ShowItem();
+
+        OnBeginDraggingItem?.Invoke(draggedItem);
     }
+
 
     public void EndDrag()
     {
+        InventoryItem endedItem = draggedItem;
+
         HideItem();
 
-        draggedItem = null; // 清空暂存的物品
+        draggedItem = null;
         SourceInventory = null;
         SourceTopLeft = Vector2Int.zero;
         SourceRotateState = ItemRotateState.Rotate0;
         HasSourcePlacement = false;
 
         IsDragging = false;
+
+        OnEndDraggingItem?.Invoke(endedItem);
     }
+
 
     public bool TryReturnToSource()
     {

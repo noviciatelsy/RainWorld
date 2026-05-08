@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -15,33 +13,25 @@ public class PlayerItemSlotUI : ItemSlotUI, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if(itemInSlot==null)
+        if (eventData.button != PointerEventData.InputButton.Right)
         {
             return;
         }
-        if(eventData.button==PointerEventData.InputButton.Left)
+
+        if (itemInSlot == null || itemInSlot.ItemData == null)
         {
             return;
         }
+
         if (itemInSlot.ItemData.itemType != ItemType.Active)
         {
             return;
         }
-        if (playerBackpack.holdQuickItemIndex_1)
-        {
 
-        }
-        else if(playerBackpack.holdQuickItemIndex_2)
+        if (playerBackpack == null)
         {
-
+            return;
         }
-        else if (playerBackpack.holdQuickItemIndex_3)
-        {
-
-        }
-        else if (playerBackpack.holdQuickItemIndex_4)
-        {
-
-        }
+        playerBackpack.TrySetQuickItemToHeldSlot(itemInSlot);
     }
 }
