@@ -1,58 +1,243 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class InventoryPlayer : InventoryBase
 {
     [Header("快捷栏位")]
     [SerializeField] private int quickItemSlotSize = 4;
+
     public List<InventoryItemSlot> quickItemSlotList = new List<InventoryItemSlot>(); // 快捷栏物品槽位列表
+
     public event Action onQuickItemsChange;
+
     private Player player;
+
+    [Header("测试物品")]
     [SerializeField] private ItemDataSO test_1;
     [SerializeField] private ItemDataSO test_2;
     [SerializeField] private ItemDataSO test_3;
     [SerializeField] private ItemDataSO test_4;
-    [SerializeField] private ItemDataSO test_5; 
+    [SerializeField] private ItemDataSO test_5;
     [SerializeField] private ItemDataSO test_6;
     [SerializeField] private ItemDataSO test_7;
+
+    public int QuickItemSlotSize
+    {
+        get
+        {
+            return Mathf.Max(1, quickItemSlotSize);
+        }
+    }
+
     protected override void Awake()
     {
         base.Awake();
         player = GetComponent<Player>();
+
+        EnsureSlotListSize();
+        SanitizeEmptyItemShells();
+        ValidateQuickItems(null);
     }
 
-    private void Update()
+    [ContextMenu("1")]
+    public void Add1()
     {
-        if(Input.GetKeyDown(KeyCode.Alpha1))
+        AddItem(test_1);
+    }
+    [ContextMenu("2")]
+    public void Add2()
+    {
+        AddItem(test_2);
+    }
+    [ContextMenu("3")]
+   
+    public void Add3() 
+    {
+        AddItem(test_3);
+    }
+    [ContextMenu("4")]
+    public void Add4()
+    {
+        AddItem(test_4);
+    }
+
+
+    public InventoryItem GetQuickItem(int quickSlotIndex)
+    {
+        EnsureSlotListSize();
+        SanitizeEmptyItemShells();
+
+        if (!IsValidQuickSlotIndex(quickSlotIndex))
         {
-            AddItem(test_1);
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            AddItem(test_2);
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            AddItem(test_3);
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha4))
-        {
-            AddItem(test_4);
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha5))
-        {
-            AddItem(test_5);
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha6))
-        {
-            AddItem(test_6);
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha7))
-        {
-            AddItem(test_7);
+            return null;
         }
 
+        InventoryItemSlot slot = quickItemSlotList[quickSlotIndex];
+
+        if (slot == null || !slot.HasItem())
+        {
+            if (slot != null)
+            {
+                slot.itemInSlot = null;
+            }
+
+            return null;
+        }
+
+        return slot.itemInSlot;
+    }
+
+    public bool SetQuickItem(InventoryItem itemToSet, int quickSlotIndex)
+    {
+        EnsureSlotListSize();
+        SanitizeEmptyItemShells();
+
+        if (!IsValidQuickSlotIndex(quickSlotIndex))
+        {
+            Debug.LogWarning($"设置快捷栏失败：快捷栏下标 {quickSlotIndex} 不合法。");
+            return false;
+        }
+
+        if (itemToSet == null || itemToSet.ItemData == null)
+        {
+            return ClearQuickItem(quickSlotIndex);
+        }
+
+        if (itemToSet.ItemData.itemType != ItemType.Active)
+        {
+            Debug.Log($"设置快捷栏失败：{itemToSet.ItemData.itemDisplayName} 不是主动道具。");
+            return false;
+        }
+
+        if (!ContainsItem(itemToSet))
+        {
+            Debug.Log($"设置快捷栏失败：{itemToSet.ItemData.itemDisplayName} 当前不在玩家背包里。");
+            return false;
+        }
+
+        InventoryItem currentItem = GetQuickItem(quickSlotIndex);
+
+        // 如果这个栏位已经装的是同一个物品，则取消装备
+        if (currentItem == itemToSet)
+        {
+            return ClearQuickItem(quickSlotIndex);
+        }
+
+        bool changed = false;
+
+        // 同一个物品不建议同时占多个快捷栏位，所以先从其他快捷栏里清掉
+        changed |= ClearQuickItemInternal(itemToSet);
+
+        quickItemSlotList[quickSlotIndex].itemInSlot = itemToSet;
+        changed = true;
+
+        if (changed)
+        {
+            onQuickItemsChange?.Invoke();
+        }
+
+        return true;
+    }
+
+    public bool ClearQuickItem(int quickSlotIndex)
+    {
+        EnsureSlotListSize();
+        SanitizeEmptyItemShells();
+
+        if (!IsValidQuickSlotIndex(quickSlotIndex))
+        {
+            return false;
+        }
+
+        bool changed = ClearQuickItemAtInternal(quickSlotIndex);
+
+        if (changed)
+        {
+            onQuickItemsChange?.Invoke();
+        }
+
+        return changed;
+    }
+
+
+
+    public void ValidateQuickItems(InventoryItem temporarilyAllowedItem)
+    {
+        EnsureSlotListSize();
+        SanitizeEmptyItemShells();
+
+        bool changed = false;
+
+        for (int i = 0; i < quickItemSlotList.Count; i++)
+        {
+            InventoryItem item = GetQuickItem(i);
+
+            if (item == null)
+            {
+                continue;
+            }
+
+            bool isActiveItem =
+                item.ItemData != null &&
+                item.ItemData.itemType == ItemType.Active;
+
+            bool stillBelongsToPlayer =
+                ContainsItem(item);
+
+            bool isBeingDragged =
+                temporarilyAllowedItem != null &&
+                item == temporarilyAllowedItem;
+
+            if (!isActiveItem || (!stillBelongsToPlayer && !isBeingDragged))
+            {
+                quickItemSlotList[i].itemInSlot = null;
+                changed = true;
+            }
+        }
+
+        if (changed)
+        {
+            onQuickItemsChange?.Invoke();
+        }
+    }
+
+    public bool ContainsItem(InventoryItem item)
+    {
+        if (item == null || item.ItemData == null)
+        {
+            return false;
+        }
+
+        SanitizeEmptyItemShells();
+
+        if (inventoryItems != null && inventoryItems.Contains(item))
+        {
+            return true;
+        }
+
+        for (int i = 0; i < itemSlotList.Count; i++)
+        {
+            InventoryItemSlot slot = itemSlotList[i];
+
+            if (slot == null || !slot.HasItem())
+            {
+                continue;
+            }
+
+            if (slot.itemInSlot == item)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public bool IsValidQuickSlotIndex(int quickSlotIndex)
+    {
+        return quickSlotIndex >= 0 && quickSlotIndex < quickItemSlotList.Count;
     }
 
     protected override void OnItemPlaced(InventoryItem item)
@@ -68,7 +253,8 @@ public class InventoryPlayer : InventoryBase
     protected override void EnsureSlotListSize()
     {
         base.EnsureSlotListSize();
-        if (quickItemSlotSize< 1)
+
+        if (quickItemSlotSize < 1)
         {
             quickItemSlotSize = 1;
         }
@@ -92,6 +278,7 @@ public class InventoryPlayer : InventoryBase
     protected override void SanitizeEmptyItemShells()
     {
         base.SanitizeEmptyItemShells();
+
         if (quickItemSlotList == null)
         {
             return;
@@ -107,5 +294,54 @@ public class InventoryPlayer : InventoryBase
 
             quickItemSlotList[i].ClearIfInvalid();
         }
+    }
+
+    private bool ClearQuickItemInternal(InventoryItem itemToClear)
+    {
+        if (itemToClear == null)
+        {
+            return false;
+        }
+
+        bool changed = false;
+
+        for (int i = 0; i < quickItemSlotList.Count; i++)
+        {
+            if (quickItemSlotList[i] == null)
+            {
+                quickItemSlotList[i] = new InventoryItemSlot();
+                continue;
+            }
+
+            if (quickItemSlotList[i].itemInSlot == itemToClear)
+            {
+                quickItemSlotList[i].itemInSlot = null;
+                changed = true;
+            }
+        }
+
+        return changed;
+    }
+
+    private bool ClearQuickItemAtInternal(int quickSlotIndex)
+    {
+        if (!IsValidQuickSlotIndex(quickSlotIndex))
+        {
+            return false;
+        }
+
+        if (quickItemSlotList[quickSlotIndex] == null)
+        {
+            quickItemSlotList[quickSlotIndex] = new InventoryItemSlot();
+            return false;
+        }
+
+        if (quickItemSlotList[quickSlotIndex].itemInSlot == null)
+        {
+            return false;
+        }
+
+        quickItemSlotList[quickSlotIndex].itemInSlot = null;
+        return true;
     }
 }

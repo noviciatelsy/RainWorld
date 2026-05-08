@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 public class QuickItemSlots : MonoBehaviour
@@ -9,7 +8,17 @@ public class QuickItemSlots : MonoBehaviour
 
     private void Awake()
     {
-        quickItemSlotUIs=GetComponentsInChildren<QuickItemSlotUI>();
+        quickItemSlotUIs = GetComponentsInChildren<QuickItemSlotUI>(true);
+
+        Array.Sort(
+            quickItemSlotUIs,
+            (a, b) => a.transform.GetSiblingIndex().CompareTo(b.transform.GetSiblingIndex())
+        );
+
+        for (int i = 0; i < quickItemSlotUIs.Length; i++)
+        {
+            quickItemSlotUIs[i].Bind(this, i);
+        }
     }
 
     public void SetInventory(InventoryPlayer newPlayerInventory)
@@ -24,23 +33,38 @@ public class QuickItemSlots : MonoBehaviour
             playerInventory.onQuickItemsChange -= UpdateQuickItemSlots;
         }
 
-        playerInventory=newPlayerInventory;
-
+        playerInventory = newPlayerInventory;
 
         if (playerInventory != null)
         {
-            playerInventory.onQuickItemsChange += UpdateQuickItemSlots;   
+            playerInventory.onQuickItemsChange += UpdateQuickItemSlots;
         }
 
         UpdateQuickItemSlots();
+    }
+
+    public void ClearQuickItem(int quickSlotIndex)
+    {
+        if (playerInventory == null)
+        {
+            return;
+        }
+
+        playerInventory.ClearQuickItem(quickSlotIndex);
     }
 
     private void UpdateQuickItemSlots()
     {
         for (int i = 0; i < quickItemSlotUIs.Length; i++)
         {
-            InventoryItem itemInSlot=playerInventory.quickItemSlotList[i].itemInSlot;
-            quickItemSlotUIs[i].UpdateItem(itemInSlot);  
+            InventoryItem itemInSlot = null;
+
+            if (playerInventory != null && i < playerInventory.quickItemSlotList.Count)
+            {
+                itemInSlot = playerInventory.GetQuickItem(i);
+            }
+
+            quickItemSlotUIs[i].UpdateItem(itemInSlot);
         }
     }
 }
