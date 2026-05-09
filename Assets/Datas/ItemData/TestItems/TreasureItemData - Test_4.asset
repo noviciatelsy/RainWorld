@@ -17,7 +17,7 @@ MonoBehaviour:
   itemIcon: {fileID: 21300000, guid: cbe3973fa704cc24d91e448b4f7344a4, type: 3}
   itemEffectData: {fileID: 0}
   backpackItemData: {fileID: 11400000, guid: a55557c41908412478f568d007666619, type: 2}
-  itemType: 3
+  itemType: 1
   rarity: 0
   itembuyPrice: 0
   itemSellPrice: 0

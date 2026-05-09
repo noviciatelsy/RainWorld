@@ -32,6 +32,7 @@ public class PlayerItemSlotUI : ItemSlotUI, IPointerClickHandler
         {
             return;
         }
+
         playerBackpack.TrySetQuickItemToHeldSlot(itemInSlot);
     }
 }
