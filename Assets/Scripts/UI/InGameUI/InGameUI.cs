@@ -10,6 +10,8 @@ public class InGameUI : MonoBehaviour
     private bool backpackUIEnabled;
     private bool lootUIEnabled;
     private bool retrieveUIEnabled;
+
+    private bool canReturnByESC = true;
     private MainInput mainInput;
     private void Awake()
     {
@@ -27,13 +29,56 @@ public class InGameUI : MonoBehaviour
     private void OnEnable()
     {
         mainInput.UI.CheckBackpack.performed += ctx=> ToggleBackpackUI();
+        mainInput.UI.Escape.performed += ctx => HandleEscape() ;
     }
 
     private void OnDisable()
     {
         mainInput.UI.CheckBackpack.performed -= ctx => ToggleBackpackUI();
+        mainInput.UI.Escape.performed -= ctx => HandleEscape();
     }
 
+    private void HandleEscape()
+    {
+        if (!canReturnByESC) // 如果此刻禁用ESC返回
+        {
+            return;
+        }
+        // 如果已经有面板开着：只关闭“当前最上层”的那个（按优先级）
+        if (AnyPanelOpen())
+        {
+            //// 选项（最高优先级）
+            //if (pauseUIEnabled)
+            //{
+            //    TogglePauseUI();
+            //    return;
+            //}
+            
+            if (backpackUIEnabled)
+            {
+                ToggleBackpackUI();
+                return;
+            }
+
+            if(lootUIEnabled)
+            {
+                ToggleLootUI(null);
+                return;
+            }
+
+            if (retrieveUIEnabled)
+            {
+                ToggleRetrieveUI(null);
+                return;
+            }
+
+            return;
+        }
+        //if (!pauseUIEnabled)
+        //{
+        //    TogglePauseUI();
+        //}
+    }
 
     public void ToggleBackpackUI()
     {
@@ -135,6 +180,13 @@ public class InGameUI : MonoBehaviour
     private void HideToolTips()
     {
 
+    }
+
+    private bool AnyPanelOpen()
+    {
+        return backpackUIEnabled
+            ||lootUIEnabled
+            ||retrieveUIEnabled;
     }
 }
 
