@@ -228,6 +228,15 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Escape"",
+                    ""type"": ""Button"",
+                    ""id"": ""0d4baaf3-b3c2-4186-8adc-7a552f86f8ef"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -285,6 +294,17 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
                     ""action"": ""QuickItemSlotUI_4"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""af013bcc-b171-420c-a9c5-ba772c3d145c"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Escape"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -302,6 +322,7 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
         m_UI_QuickItemSlotUI_2 = m_UI.FindAction("QuickItemSlotUI_2", throwIfNotFound: true);
         m_UI_QuickItemSlotUI_3 = m_UI.FindAction("QuickItemSlotUI_3", throwIfNotFound: true);
         m_UI_QuickItemSlotUI_4 = m_UI.FindAction("QuickItemSlotUI_4", throwIfNotFound: true);
+        m_UI_Escape = m_UI.FindAction("Escape", throwIfNotFound: true);
     }
 
     ~@MainInput()
@@ -495,6 +516,7 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_UI_QuickItemSlotUI_2;
     private readonly InputAction m_UI_QuickItemSlotUI_3;
     private readonly InputAction m_UI_QuickItemSlotUI_4;
+    private readonly InputAction m_UI_Escape;
     /// <summary>
     /// Provides access to input actions defined in input action map "UI".
     /// </summary>
@@ -526,6 +548,10 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "UI/QuickItemSlotUI_4".
         /// </summary>
         public InputAction @QuickItemSlotUI_4 => m_Wrapper.m_UI_QuickItemSlotUI_4;
+        /// <summary>
+        /// Provides access to the underlying input action "UI/Escape".
+        /// </summary>
+        public InputAction @Escape => m_Wrapper.m_UI_Escape;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -567,6 +593,9 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
             @QuickItemSlotUI_4.started += instance.OnQuickItemSlotUI_4;
             @QuickItemSlotUI_4.performed += instance.OnQuickItemSlotUI_4;
             @QuickItemSlotUI_4.canceled += instance.OnQuickItemSlotUI_4;
+            @Escape.started += instance.OnEscape;
+            @Escape.performed += instance.OnEscape;
+            @Escape.canceled += instance.OnEscape;
         }
 
         /// <summary>
@@ -593,6 +622,9 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
             @QuickItemSlotUI_4.started -= instance.OnQuickItemSlotUI_4;
             @QuickItemSlotUI_4.performed -= instance.OnQuickItemSlotUI_4;
             @QuickItemSlotUI_4.canceled -= instance.OnQuickItemSlotUI_4;
+            @Escape.started -= instance.OnEscape;
+            @Escape.performed -= instance.OnEscape;
+            @Escape.canceled -= instance.OnEscape;
         }
 
         /// <summary>
@@ -690,5 +722,12 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnQuickItemSlotUI_4(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Escape" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnEscape(InputAction.CallbackContext context);
     }
 }
