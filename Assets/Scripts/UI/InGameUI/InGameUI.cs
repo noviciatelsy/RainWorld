@@ -6,10 +6,11 @@ public class InGameUI : MonoBehaviour
     public BackpackUI backpackUI { get; private set; }
     public LootUI lootUI { get; private set; }
     public RetrieveUI retrieveUI { get; private set; }
-
+    public MapUI mapUI { get; private set; }
     private bool backpackUIEnabled;
     private bool lootUIEnabled;
     private bool retrieveUIEnabled;
+    private bool mapUIEnabled;
 
     private bool canReturnByESC = true;
     private MainInput mainInput;
@@ -20,21 +21,24 @@ public class InGameUI : MonoBehaviour
         backpackUI = GetComponentInChildren<BackpackUI>(true);
         lootUI = GetComponentInChildren<LootUI>(true);
         retrieveUI = GetComponentInChildren<RetrieveUI>(true);
-
+        mapUI = GetComponentInChildren<MapUI>(true);
         backpackUIEnabled = backpackUI.gameObject.activeSelf;
         lootUIEnabled = lootUI.gameObject.activeSelf;
         retrieveUIEnabled = retrieveUI.gameObject.activeSelf;
+        mapUIEnabled = mapUI.gameObject.activeSelf;
     }
 
     private void OnEnable()
     {
         mainInput.UI.CheckBackpack.performed += ctx=> ToggleBackpackUI();
+        mainInput.UI.Map.performed += ctx => ToggleMapUI();
         mainInput.UI.Escape.performed += ctx => HandleEscape() ;
     }
 
     private void OnDisable()
     {
         mainInput.UI.CheckBackpack.performed -= ctx => ToggleBackpackUI();
+        mainInput.UI.Map.performed -= ctx => ToggleMapUI();
         mainInput.UI.Escape.performed -= ctx => HandleEscape();
     }
 
@@ -71,7 +75,11 @@ public class InGameUI : MonoBehaviour
                 ToggleRetrieveUI(null);
                 return;
             }
-
+            if(mapUIEnabled)
+            {
+                ToggleMapUI();
+                return;
+            }
             return;
         }
         //if (!pauseUIEnabled)
@@ -117,6 +125,18 @@ public class InGameUI : MonoBehaviour
         HideToolTips();
     }
 
+    public void ToggleMapUI()
+    {
+        bool willOpen = !mapUIEnabled;
+        if (willOpen)
+        {
+            CloseAllPanelsBeforeOpening(InGamePanelType.Map);
+        }
+        mapUIEnabled = willOpen;
+        SwitchMapUI(mapUIEnabled);
+        HideToolTips();    
+    }
+
     // 开新面板前，关闭其它所有已开启面板
     private void CloseAllPanelsBeforeOpening(InGamePanelType panelToOpen)
     {
@@ -134,6 +154,11 @@ public class InGameUI : MonoBehaviour
         if(retrieveUIEnabled&&panelToOpen != InGamePanelType.Retrieve)
         {
             ToggleRetrieveUI(null);
+        }
+
+        if(mapUIEnabled&& panelToOpen != InGamePanelType.Map)
+        {
+            ToggleMapUI();
         }
 
         // 统一收起各种 ToolTip
@@ -177,6 +202,11 @@ public class InGameUI : MonoBehaviour
         }
     }
 
+    private void SwitchMapUI(bool enabled)
+    {
+        mapUI.gameObject.SetActive(enabled);
+    }
+
     private void HideToolTips()
     {
 
@@ -195,5 +225,6 @@ public enum InGamePanelType
     None,
     Backpack,
     Loot,
-    Retrieve
+    Retrieve,
+    Map
 }

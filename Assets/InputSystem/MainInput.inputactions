@@ -108,6 +108,24 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "Escape",
+                    "type": "Button",
+                    "id": "0d4baaf3-b3c2-4186-8adc-7a552f86f8ef",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Map",
+                    "type": "Button",
+                    "id": "04edcb39-95e1-4bee-b9ec-ac0965627374",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "QuickItemSlotUI_1",
                     "type": "Button",
                     "id": "4e685744-d131-48b7-b52c-10e0b8ddf334",
@@ -138,15 +156,6 @@
                     "name": "QuickItemSlotUI_4",
                     "type": "Button",
                     "id": "a358a916-2527-4332-a64a-5eaaac0d6785",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Escape",
-                    "type": "Button",
-                    "id": "0d4baaf3-b3c2-4186-8adc-7a552f86f8ef",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -217,6 +226,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Escape",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a4e519b1-422f-4867-b020-c7682bb02393",
+                    "path": "<Keyboard>/m",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Map",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
