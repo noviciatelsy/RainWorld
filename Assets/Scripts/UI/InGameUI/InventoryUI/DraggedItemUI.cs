@@ -7,6 +7,8 @@ public class DraggedItemUI : MonoBehaviour
     [Header("Refs")]
     private Canvas rootCanvas; // 主Canvas
     private Image draggedIconImage; // 跟随鼠标的图标
+    [SerializeField] private int slotSize=65;
+    [SerializeField] private int spaceSize=5;
 
     public bool IsDragging { get; private set; } // bool锁，是否正在拖拽物品
     public InventoryItem draggedItem { get; private set; } // 拖拽时暂存的物品
@@ -159,7 +161,7 @@ public class DraggedItemUI : MonoBehaviour
             backpackItemData.imageSize.y
         );
 
-        selfRt.sizeDelta = itemSize * backpackItemData.pixelAmount;
+        selfRt.sizeDelta = new Vector2(itemSize.x*slotSize+(itemSize.x-1)*spaceSize,itemSize.y*slotSize+(itemSize.y-1)*spaceSize);
 
         int clockwiseDegrees = BackpackItemShapeUtility.GetClockwiseDegrees(draggedItem.rotateState);
 

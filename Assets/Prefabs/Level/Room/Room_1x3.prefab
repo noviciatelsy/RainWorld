@@ -16,7 +16,7 @@ PrefabInstance:
     - target: {fileID: 4124130234442191358, guid: ece7845404164c241a52d4cbed545add,
         type: 3}
       propertyPath: m_Name
-      value: Room_3x1
+      value: Room_1x3
       objectReference: {fileID: 0}
     - target: {fileID: 4235886226823703142, guid: ece7845404164c241a52d4cbed545add,
         type: 3}
@@ -71,7 +71,7 @@ PrefabInstance:
     - target: {fileID: 5716387108933479486, guid: ece7845404164c241a52d4cbed545add,
         type: 3}
       propertyPath: m_Size.x
-      value: 46.6
+      value: 46.5
       objectReference: {fileID: 0}
     - target: {fileID: 8583618822364186860, guid: ece7845404164c241a52d4cbed545add,
         type: 3}
