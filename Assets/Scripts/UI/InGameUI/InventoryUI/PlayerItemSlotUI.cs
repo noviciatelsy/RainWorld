@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class PlayerItemSlotUI : ItemSlotUI, IPointerClickHandler
+public class PlayerItemSlotUI : BaseItemSlotUI, IPointerClickHandler
 {
     private PlayerBackpack playerBackpack;
 

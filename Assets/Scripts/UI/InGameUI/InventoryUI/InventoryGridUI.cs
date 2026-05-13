@@ -13,7 +13,7 @@ public class InventoryGridUI : MonoBehaviour
     private GridLayoutGroup slotsGridLayout;
     private DraggedItemUI draggedItemUI;
 
-    private ItemSlotUI[] itemSlots;
+    private BaseItemSlotUI[] itemSlots;
     private InventoryBase inventory;
 
     private readonly List<Image> itemImageInstances = new List<Image>();
@@ -578,8 +578,8 @@ public class InventoryGridUI : MonoBehaviour
         }
 
         itemSlots = slotsRoot != null
-    ? slotsRoot.GetComponentsInChildren<ItemSlotUI>(true)
-    : GetComponentsInChildren<ItemSlotUI>(true);
+    ? slotsRoot.GetComponentsInChildren<BaseItemSlotUI>(true)
+    : GetComponentsInChildren<BaseItemSlotUI>(true);
 
         if (draggedItemUI == null)
         {
