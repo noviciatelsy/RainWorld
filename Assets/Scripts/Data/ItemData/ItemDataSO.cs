@@ -20,6 +20,15 @@ public class ItemDataSO : ScriptableObject
     public int itembuyPrice = 0; // 物品购买价格
     public int itemSellPrice = 0; // 物品售出价格
 
+    //public string GetItemTypeName()
+    //{
+    //    switch(itemType)
+    //    {
+    //        case ItemType.Active:
+    //            return "主动道具"
+    //    }
+    //}
+
     private void OnValidate()
     {
 #if UNITY_EDITOR
