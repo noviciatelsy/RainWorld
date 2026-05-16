@@ -8,5 +8,5 @@ public enum ItemType
     Active,
     Note,
     Treasure,
-    Plot
+    None
 }

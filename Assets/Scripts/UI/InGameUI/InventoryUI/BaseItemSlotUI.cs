@@ -12,6 +12,8 @@ public class BaseItemSlotUI : MonoBehaviour, IPointerDownHandler,IPointerEnterHa
     [SerializeField] private Color disablePlaceColor = new Color(1f, 0.25f, 0.25f, 0.55f);
 
     private int slotIndex; // UI的槽位序号
+    protected InGameUI inGameUI;
+    protected RectTransform rect;
     public InventoryItem itemInSlot; // 槽内物品的Inventory_Item对象
 
     private InventoryGridUI ownerGridUI;
@@ -37,6 +39,8 @@ public class BaseItemSlotUI : MonoBehaviour, IPointerDownHandler,IPointerEnterHa
 
             HideSlotState();
         }
+        inGameUI=GetComponentInParent<InGameUI>();
+        rect = GetComponent<RectTransform>();
     }
 
     public void BindItemIndex(int index)
@@ -62,6 +66,14 @@ public class BaseItemSlotUI : MonoBehaviour, IPointerDownHandler,IPointerEnterHa
         }
 
         ownerGridUI.OnSlotPointerDown(slotIndex, eventData);
+        if (itemInSlot != null)
+        {
+            ShowItemToolTip();
+        }
+        else
+        {
+            HideItemToolTip();
+        }
     }
 
     public void SetSlotState(SlotState slotState)
@@ -104,13 +116,23 @@ public class BaseItemSlotUI : MonoBehaviour, IPointerDownHandler,IPointerEnterHa
         slotStateImage.gameObject.SetActive(false);
     }
 
-    public void OnPointerEnter(PointerEventData eventData)
+    public virtual void OnPointerEnter(PointerEventData eventData)
     {
         
     }
 
-    public void OnPointerExit(PointerEventData eventData)
+    public virtual void OnPointerExit(PointerEventData eventData)
     {
         
+    }
+
+    protected virtual void ShowItemToolTip()
+    {
+
+    }
+
+    protected virtual void HideItemToolTip()
+    {
+
     }
 }

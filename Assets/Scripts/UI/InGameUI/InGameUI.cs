@@ -7,6 +7,8 @@ public class InGameUI : MonoBehaviour
     public LootUI lootUI { get; private set; }
     public RetrieveUI retrieveUI { get; private set; }
     public MapUI mapUI { get; private set; }
+
+    public ItemToolTip itemToolTip { get; private set; }
     private bool backpackUIEnabled;
     private bool lootUIEnabled;
     private bool retrieveUIEnabled;
@@ -26,6 +28,8 @@ public class InGameUI : MonoBehaviour
         lootUIEnabled = lootUI.gameObject.activeSelf;
         retrieveUIEnabled = retrieveUI.gameObject.activeSelf;
         mapUIEnabled = mapUI.gameObject.activeSelf;
+
+        itemToolTip=GetComponentInChildren<ItemToolTip>(true);
     }
 
     private void OnEnable()

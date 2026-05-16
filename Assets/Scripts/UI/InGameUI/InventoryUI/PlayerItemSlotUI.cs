@@ -35,4 +35,29 @@ public class PlayerItemSlotUI : BaseItemSlotUI, IPointerClickHandler
 
         playerBackpack.TrySetQuickItemToHeldSlot(itemInSlot);
     }
+
+    public override void OnPointerEnter(PointerEventData eventData)
+    {
+        base.OnPointerEnter(eventData);
+        ShowItemToolTip();
+    }
+
+    public override void OnPointerExit(PointerEventData eventData)
+    {
+        base.OnPointerExit(eventData);
+        HideItemToolTip();
+    }
+
+    protected override void ShowItemToolTip()
+    {
+        base.ShowItemToolTip();
+        if (itemInSlot == null) return;
+        inGameUI.itemToolTip.ShowPlayerItemToolTip(true, rect, itemInSlot);
+    }
+
+    protected override void HideItemToolTip()
+    {
+        base.HideItemToolTip();
+        inGameUI.itemToolTip.ShowPlayerItemToolTip(false, rect, itemInSlot);
+    }
 }
