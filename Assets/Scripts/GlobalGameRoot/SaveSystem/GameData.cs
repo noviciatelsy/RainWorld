@@ -11,6 +11,14 @@ public class GameData
     public float sfxVolume = 1f;
     public float uiVolume = 1f;
 
+    // 已解锁情报id
+    public List<string> unlockedIntelligences=new List<string>();
+
+    // 已解锁敌人情报id
+    public List<string> unlockedEnemyIntelligences=new List<string>();
+
+    // 已解锁EnemyInformation的id
+    public List<string> unlockedEnemies=new List<string>();
 }
 
 [Serializable]
@@ -18,7 +26,6 @@ public class SerializableDictionary<Tkey, TValue> : Dictionary<Tkey, TValue>, IS
 {
     [SerializeField] private List<Tkey> keys = new List<Tkey>();
     [SerializeField] private List<TValue> values = new List<TValue>();
-    // [SerializeField]：让 Unity 知道要把这俩字段当作可序列化数据来保存
 
     public void OnAfterDeserialize() // 在反序列化之后，把 keys 和 values 两个 List 还原回来，再把它们重新组装成字典
     {
