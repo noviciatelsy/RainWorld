@@ -284,8 +284,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2bd85e7e26c317e4da01d2f6edcccd4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  columnCount: 8
-  maxInventorySize: 64
+  columnCount: 9
+  maxInventorySize: 81
   preferTighterPlacement: 1
   itemSlotList:
   - itemInSlot:
@@ -548,13 +548,19 @@ MonoBehaviour:
   itemDataBase: {fileID: 0}
   quickItemSlotSize: 4
   quickItemSlotList: []
-  test_1: {fileID: 11400000, guid: 053395d34a640be45b6cf4218ec9e7e0, type: 2}
-  test_2: {fileID: 11400000, guid: 1120d80d3fecc214ebe81b21e37f8d70, type: 2}
-  test_3: {fileID: 11400000, guid: 2ffa2a47fbec39d4d88dcbc8459ffcba, type: 2}
-  test_4: {fileID: 11400000, guid: be53c00eea61b774eb95465c128193b1, type: 2}
-  test_5: {fileID: 11400000, guid: c5cfec53499d70b459dc4411d6a2527c, type: 2}
-  test_6: {fileID: 11400000, guid: e434d1eb4cd22d04da528c647453b354, type: 2}
-  test_7: {fileID: 11400000, guid: 393e74c984bb02247945217386ae1336, type: 2}
+  testItems:
+  - {fileID: 11400000, guid: 449ee6def96c7344296c75ed7d358f9c, type: 2}
+  - {fileID: 11400000, guid: f8e7e67aa5cc6aa42b722f9e844711e4, type: 2}
+  - {fileID: 11400000, guid: 9105d4426d3ba6d40a49cf7095646ad3, type: 2}
+  - {fileID: 11400000, guid: bea97ed5db74116459ed2a4cc660b90b, type: 2}
+  - {fileID: 11400000, guid: 50ae977aa10d57240a75ee89e7789fdd, type: 2}
+  - {fileID: 11400000, guid: 2c2cdb083138f21488eb853f8ef1fbdb, type: 2}
+  - {fileID: 11400000, guid: 6978a251bfc11ba47b3378f9e0dad24d, type: 2}
+  - {fileID: 11400000, guid: dac9b82a91406174ea6fe8b6b01fcfbc, type: 2}
+  - {fileID: 11400000, guid: 4f3fbbc76a37bdb4386c12325722a1bb, type: 2}
+  - {fileID: 11400000, guid: bb721189e6c567d4b89131f23ab0a7e3, type: 2}
+  - {fileID: 11400000, guid: 04ea348198140aa49b7316e34f801621, type: 2}
+  - {fileID: 11400000, guid: 98a08a6ff47e0ca499393d79ca873908, type: 2}
 --- !u!114 &4877479732014819151
 MonoBehaviour:
   m_ObjectHideFlags: 0

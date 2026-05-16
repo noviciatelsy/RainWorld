@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class QuickItemSlotUI : MonoBehaviour, IPointerDownHandler
+public class QuickItemSlotUI : MonoBehaviour, IPointerDownHandler,IPointerEnterHandler,IPointerExitHandler
 {
     [SerializeField] private Image itemIconImage;
 
@@ -12,6 +12,8 @@ public class QuickItemSlotUI : MonoBehaviour, IPointerDownHandler
     private int quickSlotIndex;
 
     private RectTransform itemIconRect;
+    private InGameUI inGameUI;
+    private RectTransform rect;
 
     private void Awake()
     {
@@ -22,6 +24,8 @@ public class QuickItemSlotUI : MonoBehaviour, IPointerDownHandler
 
             itemIconRect = itemIconImage.transform as RectTransform;
         }
+        inGameUI=GetComponentInParent<InGameUI>();
+        rect = GetComponent<RectTransform>();
     }
 
     public void Bind(QuickItemSlots owner, int quickSlotIndex)
@@ -110,6 +114,35 @@ public class QuickItemSlotUI : MonoBehaviour, IPointerDownHandler
             return;
         }
 
+        HideItemToolTip();
         owner.ClearQuickItem(quickSlotIndex);
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        ShowItemToolTip();
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        HideItemToolTip();
+    }
+
+    private void ShowItemToolTip()
+    {
+        if(itemInSlot == null)
+        {
+            return;
+        }
+        inGameUI.itemToolTip.ShowQuickItemToolTip(true, rect, itemInSlot);
+    }
+    
+    private void HideItemToolTip()
+    {
+        if (itemInSlot == null)
+        {
+            return;
+        }
+        inGameUI.itemToolTip.ShowQuickItemToolTip(false, rect, itemInSlot);
     }
 }

@@ -12,7 +12,7 @@ public class InventoryGridUI : MonoBehaviour
     [SerializeField] private RectTransform slotsRoot;
     private GridLayoutGroup slotsGridLayout;
     private DraggedItemUI draggedItemUI;
-
+    private InGameUI inGameUI;
     private BaseItemSlotUI[] itemSlots;
     private InventoryBase inventory;
 
@@ -131,9 +131,7 @@ public class InventoryGridUI : MonoBehaviour
         // 先进入拖拽状态，再从 Inventory 中移除。
         // 这样快捷栏验证时能知道这个物品只是“正在被拖着”，不是已经丢了。
         draggedItemUI.BeginDrag(item, inventory, hasOldTopLeft, oldTopLeft, oldRotateState);
-
         bool removed = inventory.RemoveItem(item);
-
         if (!removed)
         {
             draggedItemUI.EndDrag();
@@ -581,9 +579,9 @@ public class InventoryGridUI : MonoBehaviour
     ? slotsRoot.GetComponentsInChildren<BaseItemSlotUI>(true)
     : GetComponentsInChildren<BaseItemSlotUI>(true);
 
-        if (draggedItemUI == null)
+        if (inGameUI == null)
         {
-            InGameUI inGameUI = GetComponentInParent<InGameUI>();
+            inGameUI = GetComponentInParent<InGameUI>();
 
             if (inGameUI != null)
             {

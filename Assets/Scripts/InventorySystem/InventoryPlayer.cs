@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class InventoryPlayer : InventoryBase
 {
@@ -15,13 +15,8 @@ public class InventoryPlayer : InventoryBase
     private Player player;
 
     [Header("≤‚ ‘ŒÔ∆∑")]
-    [SerializeField] private ItemDataSO test_1;
-    [SerializeField] private ItemDataSO test_2;
-    [SerializeField] private ItemDataSO test_3;
-    [SerializeField] private ItemDataSO test_4;
-    [SerializeField] private ItemDataSO test_5;
-    [SerializeField] private ItemDataSO test_6;
-    [SerializeField] private ItemDataSO test_7;
+    [SerializeField] private ItemDataSO[] testItems;
+
 
     public int QuickItemSlotSize
     {
@@ -41,26 +36,18 @@ public class InventoryPlayer : InventoryBase
         ValidateQuickItems(null);
     }
 
-    [ContextMenu("1")]
-    public void Add1()
+    private void Update()
     {
-        AddItem(test_1);
+        if (Input.GetKeyUp(KeyCode.G))
+        {
+            GetRandomItem();
+        }
     }
-    [ContextMenu("2")]
-    public void Add2()
+
+    private void GetRandomItem()
     {
-        AddItem(test_2);
-    }
-    [ContextMenu("3")]
-   
-    public void Add3() 
-    {
-        AddItem(test_3);
-    }
-    [ContextMenu("4")]
-    public void Add4()
-    {
-        AddItem(test_4);
+        int randomIndex = Random.Range(0, testItems.Length);
+        AddItem(testItems[randomIndex]);
     }
 
 

@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fdf35bc37bd521d41925e66a18fb75bf, type: 3}
+  m_Name: ActiveItemData - Chocolate
+  m_EditorClassIdentifier: 
+  itemDisplayName: "\u5DE7\u514B\u529B"
+  itemDescription: "\u6574\u7248\u7684\u5DE7\u514B\u529B\uFF0C\u5B83\u7684\u751C\u871C\u8DB3\u4EE5\u4F7F\u4EBA\u5FD8\u8BB0\u8EAB\u4F53\u7684\u4F24\u75DB"
+  itemIcon: {fileID: 21300000, guid: 04b5180d059d2d34ca62dd7059fd7e50, type: 3}
+  itemEffectData: {fileID: 0}
+  backpackItemData: {fileID: 11400000, guid: 52023b128b5a5864badc22fabedcfc70, type: 2}
+  itemType: 1
+  rarity: 0
+  itembuyPrice: 4
+  itemSellPrice: 2
