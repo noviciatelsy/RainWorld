@@ -212,6 +212,15 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
+                    ""name"": ""NoteBook"",
+                    ""type"": ""Button"",
+                    ""id"": ""b2db09de-5957-4842-b1ab-38ec10ee027b"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
                     ""name"": ""QuickItemSlotUI_1"",
                     ""type"": ""Button"",
                     ""id"": ""4e685744-d131-48b7-b52c-10e0b8ddf334"",
@@ -325,6 +334,17 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
                     ""action"": ""Map"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""1e6a0e7e-7f20-4c98-b5c0-8a559eff071c"",
+                    ""path"": ""<Keyboard>/b"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""NoteBook"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -340,6 +360,7 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
         m_UI_CheckBackpack = m_UI.FindAction("CheckBackpack", throwIfNotFound: true);
         m_UI_Escape = m_UI.FindAction("Escape", throwIfNotFound: true);
         m_UI_Map = m_UI.FindAction("Map", throwIfNotFound: true);
+        m_UI_NoteBook = m_UI.FindAction("NoteBook", throwIfNotFound: true);
         m_UI_QuickItemSlotUI_1 = m_UI.FindAction("QuickItemSlotUI_1", throwIfNotFound: true);
         m_UI_QuickItemSlotUI_2 = m_UI.FindAction("QuickItemSlotUI_2", throwIfNotFound: true);
         m_UI_QuickItemSlotUI_3 = m_UI.FindAction("QuickItemSlotUI_3", throwIfNotFound: true);
@@ -535,6 +556,7 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_UI_CheckBackpack;
     private readonly InputAction m_UI_Escape;
     private readonly InputAction m_UI_Map;
+    private readonly InputAction m_UI_NoteBook;
     private readonly InputAction m_UI_QuickItemSlotUI_1;
     private readonly InputAction m_UI_QuickItemSlotUI_2;
     private readonly InputAction m_UI_QuickItemSlotUI_3;
@@ -562,6 +584,10 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "UI/Map".
         /// </summary>
         public InputAction @Map => m_Wrapper.m_UI_Map;
+        /// <summary>
+        /// Provides access to the underlying input action "UI/NoteBook".
+        /// </summary>
+        public InputAction @NoteBook => m_Wrapper.m_UI_NoteBook;
         /// <summary>
         /// Provides access to the underlying input action "UI/QuickItemSlotUI_1".
         /// </summary>
@@ -613,6 +639,9 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
             @Map.started += instance.OnMap;
             @Map.performed += instance.OnMap;
             @Map.canceled += instance.OnMap;
+            @NoteBook.started += instance.OnNoteBook;
+            @NoteBook.performed += instance.OnNoteBook;
+            @NoteBook.canceled += instance.OnNoteBook;
             @QuickItemSlotUI_1.started += instance.OnQuickItemSlotUI_1;
             @QuickItemSlotUI_1.performed += instance.OnQuickItemSlotUI_1;
             @QuickItemSlotUI_1.canceled += instance.OnQuickItemSlotUI_1;
@@ -645,6 +674,9 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
             @Map.started -= instance.OnMap;
             @Map.performed -= instance.OnMap;
             @Map.canceled -= instance.OnMap;
+            @NoteBook.started -= instance.OnNoteBook;
+            @NoteBook.performed -= instance.OnNoteBook;
+            @NoteBook.canceled -= instance.OnNoteBook;
             @QuickItemSlotUI_1.started -= instance.OnQuickItemSlotUI_1;
             @QuickItemSlotUI_1.performed -= instance.OnQuickItemSlotUI_1;
             @QuickItemSlotUI_1.canceled -= instance.OnQuickItemSlotUI_1;
@@ -740,6 +772,13 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnMap(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "NoteBook" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnNoteBook(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "QuickItemSlotUI_1" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>

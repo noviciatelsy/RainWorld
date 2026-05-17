@@ -408,6 +408,58 @@ MonoBehaviour:
   roomSwitchHoldTime: 0.15
   roomSwitchFadeOutDuration: 0.2
   roomSwitchFadeInDuration: 0.15
+--- !u!1 &3317416102140543022
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5300577590111271955}
+  - component: {fileID: 5465295473403512571}
+  m_Layer: 0
+  m_Name: IntelligenceArchiveManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5300577590111271955
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3317416102140543022}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1193684985750821440}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5465295473403512571
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3317416102140543022}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ffdf84e607bf2b9448908976f88cbc40, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  intelligenceDataBase: {fileID: 11400000, guid: 58999aeaae780004491eed3954b06f3b,
+    type: 2}
+  enemyInformationDataBase: {fileID: 11400000, guid: ce8d729afead6614e870d91760dfe866,
+    type: 2}
+  enemyIntelligenceDataBase: {fileID: 11400000, guid: 8b05ce23fd11ede4e9f393fbdfbbcdef,
+    type: 2}
+  saveImmediatelyWhenUnlock: 1
+  autoUnlockEnemyWhenUnlockEnemyIntelligence: 1
 --- !u!1 &3408192366164122419
 GameObject:
   m_ObjectHideFlags: 0
@@ -444,6 +496,7 @@ Transform:
   - {fileID: 1555537640536093216}
   - {fileID: 5192112909267917291}
   - {fileID: 5042285641921903067}
+  - {fileID: 5300577590111271955}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4666719250213547974
@@ -506,6 +559,9 @@ MonoBehaviour:
     bgmVolume: 1
     sfxVolume: 1
     uiVolume: 1
+    unlockedIntelligences: []
+    unlockedEnemyIntelligences: []
+    unlockedEnemies: []
   fileName: RainWorldYC.json
   encryptData: 1
 --- !u!1 &6971042185059060553

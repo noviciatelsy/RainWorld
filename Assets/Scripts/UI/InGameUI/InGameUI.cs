@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class InGameUI : MonoBehaviour
@@ -7,12 +8,13 @@ public class InGameUI : MonoBehaviour
     public LootUI lootUI { get; private set; }
     public RetrieveUI retrieveUI { get; private set; }
     public MapUI mapUI { get; private set; }
-
+    public NoteBookUI notebookUI { get; private set; }
     public ItemToolTip itemToolTip { get; private set; }
     private bool backpackUIEnabled;
     private bool lootUIEnabled;
     private bool retrieveUIEnabled;
     private bool mapUIEnabled;
+    private bool notebookUIEnabled;
 
     private bool canReturnByESC = true;
     private MainInput mainInput;
@@ -24,10 +26,12 @@ public class InGameUI : MonoBehaviour
         lootUI = GetComponentInChildren<LootUI>(true);
         retrieveUI = GetComponentInChildren<RetrieveUI>(true);
         mapUI = GetComponentInChildren<MapUI>(true);
+        notebookUI=GetComponentInChildren<NoteBookUI>(true);
         backpackUIEnabled = backpackUI.gameObject.activeSelf;
         lootUIEnabled = lootUI.gameObject.activeSelf;
         retrieveUIEnabled = retrieveUI.gameObject.activeSelf;
         mapUIEnabled = mapUI.gameObject.activeSelf;
+        notebookUIEnabled = notebookUI.gameObject.activeSelf;
 
         itemToolTip=GetComponentInChildren<ItemToolTip>(true);
     }
@@ -36,6 +40,7 @@ public class InGameUI : MonoBehaviour
     {
         mainInput.UI.CheckBackpack.performed += ctx=> ToggleBackpackUI();
         mainInput.UI.Map.performed += ctx => ToggleMapUI();
+        mainInput.UI.NoteBook.performed += ctx=> ToggleNoteBookUI();
         mainInput.UI.Escape.performed += ctx => HandleEscape() ;
     }
 
@@ -43,6 +48,7 @@ public class InGameUI : MonoBehaviour
     {
         mainInput.UI.CheckBackpack.performed -= ctx => ToggleBackpackUI();
         mainInput.UI.Map.performed -= ctx => ToggleMapUI();
+        mainInput.UI.NoteBook.performed -= ctx => ToggleNoteBookUI();
         mainInput.UI.Escape.performed -= ctx => HandleEscape();
     }
 
@@ -82,6 +88,11 @@ public class InGameUI : MonoBehaviour
             if(mapUIEnabled)
             {
                 ToggleMapUI();
+                return;
+            }
+            if (notebookUIEnabled)
+            {
+                ToggleNoteBookUI();
                 return;
             }
             return;
@@ -141,6 +152,20 @@ public class InGameUI : MonoBehaviour
         HideToolTips();    
     }
 
+    public void ToggleNoteBookUI()
+    {
+        bool willOpen = !notebookUIEnabled;
+        if(willOpen)
+        {
+            CloseAllPanelsBeforeOpening(InGamePanelType.NoteBook);
+        }
+        notebookUIEnabled = willOpen;
+        SwitchNoteBookUI(notebookUIEnabled);
+        HideToolTips();
+    }
+
+
+
     // 开新面板前，关闭其它所有已开启面板
     private void CloseAllPanelsBeforeOpening(InGamePanelType panelToOpen)
     {
@@ -164,7 +189,10 @@ public class InGameUI : MonoBehaviour
         {
             ToggleMapUI();
         }
-
+        if(notebookUIEnabled&&panelToOpen!=InGamePanelType.NoteBook)
+        {
+            ToggleNoteBookUI();
+        }
         // 统一收起各种 ToolTip
         HideToolTips();
 
@@ -211,9 +239,21 @@ public class InGameUI : MonoBehaviour
         mapUI.gameObject.SetActive(enabled);
     }
 
+    private void SwitchNoteBookUI(bool enabled)
+    {
+        if(enabled)
+        {
+            notebookUI.Open();
+        }
+        else
+        {
+            notebookUI.Close();
+        }
+    }
+
     private void HideToolTips()
     {
-
+        itemToolTip.HideItemToolTip();
     }
 
     private bool AnyPanelOpen()
@@ -230,5 +270,6 @@ public enum InGamePanelType
     Backpack,
     Loot,
     Retrieve,
-    Map
+    Map,
+    NoteBook
 }
