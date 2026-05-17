@@ -126,6 +126,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "NoteBook",
+                    "type": "Button",
+                    "id": "b2db09de-5957-4842-b1ab-38ec10ee027b",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "QuickItemSlotUI_1",
                     "type": "Button",
                     "id": "4e685744-d131-48b7-b52c-10e0b8ddf334",
@@ -237,6 +246,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Map",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1e6a0e7e-7f20-4c98-b5c0-8a559eff071c",
+                    "path": "<Keyboard>/b",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "NoteBook",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

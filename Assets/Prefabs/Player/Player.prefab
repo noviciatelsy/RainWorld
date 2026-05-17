@@ -28,7 +28,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 316811649123266590}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -73,7 +73,7 @@ SpriteRenderer:
   m_SortingLayerID: 467895111
   m_SortingLayer: 1
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 4feca320d1e971b468cc668714710b3a, type: 3}
+  m_Sprite: {fileID: -151624116, guid: 48370e1c04172a6419f3fb98e74d61d6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -228,8 +228,8 @@ CapsuleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0.6}
-  m_Size: {x: 0.8, y: 1.2}
+  m_Offset: {x: 0, y: 0.5}
+  m_Size: {x: 0.7, y: 1}
   m_Direction: 0
 --- !u!114 &2660588595327728199
 MonoBehaviour:
@@ -256,7 +256,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   groundCheckDistance: 0.03
-  wallCheckDistance: 0.45
+  wallCheckDistance: 0.375
   whatIsGround:
     serializedVersion: 2
     m_Bits: 640
@@ -653,7 +653,7 @@ SpriteRenderer:
   m_SortingLayerID: -2120415309
   m_SortingLayer: -1
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 4feca320d1e971b468cc668714710b3a, type: 3}
+  m_Sprite: {fileID: 349988813, guid: 5ecb783e848a4004b8dd3bf636ca678f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
