@@ -20,7 +20,7 @@ public class FlyMotor : IMonsterMotor
         Fly2D fly = owner as Fly2D;
 
         // 只在没有路径 或 到达时 才重建
-        if (path == null || owner.Arrived)
+        if (path == null || owner.Arrived || owner.TargetChanged(move.target))
         {
             path = TileMapGuideManager.Instance.FindPath(owner.Position, move.target);
 
