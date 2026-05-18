@@ -13,6 +13,7 @@ public class TileMapGuideManager : MonoBehaviour
     private HashSet<Vector2Int> air = new();     // 可飞行空间
     private HashSet<Vector2Int> ground = new();  // 可站立表面
     private HashSet<Vector2Int> solid = new();   // 你已有（墙）
+    private Vector2 cellSize;
 
     // =========================
     // 核心结构
@@ -68,7 +69,7 @@ public class TileMapGuideManager : MonoBehaviour
         nextCCW.Clear();
 
         bounds = new BoundsInt(tilemap.origin, tilemap.size);
-
+        cellSize = tilemap.cellSize;
         // =========================
         // 1. 收集 tile
         // =========================
@@ -156,12 +157,30 @@ public class TileMapGuideManager : MonoBehaviour
 
         Edge e = new();
 
+        Vector2 right = new Vector2(cellSize.x, 0);
+        Vector2 up = new Vector2(0, cellSize.y);
+
         switch (type)
         {
-            case 0: e.a = c; e.b = c + Vector2.right; break;
-            case 1: e.a = c + Vector2.right; e.b = c + Vector2.right + Vector2.up; break;
-            case 2: e.a = c + Vector2.right + Vector2.up; e.b = c + Vector2.up; break;
-            case 3: e.a = c + Vector2.up; e.b = c; break;
+            case 0:
+                e.a = c;
+                e.b = c + right;
+                break;
+
+            case 1:
+                e.a = c + right;
+                e.b = c + right + up;
+                break;
+
+            case 2:
+                e.a = c + right + up;
+                e.b = c + up;
+                break;
+
+            case 3:
+                e.a = c + up;
+                e.b = c;
+                break;
         }
 
         list.Add(e);
@@ -264,7 +283,10 @@ public class TileMapGuideManager : MonoBehaviour
     public Vector2 CellCorner(Vector2Int cell)
     {
         Vector3 c = tilemap.GetCellCenterWorld((Vector3Int)cell);
-        return c - new Vector3(0.5f, 0.5f);
+        return c - new Vector3(
+            cellSize.x * 0.5f,
+            cellSize.y * 0.5f
+        );
     }
 
     bool SamePoint(Vector2 a, Vector2 b)
@@ -448,5 +470,32 @@ public class TileMapGuideManager : MonoBehaviour
                cell.x < bounds.xMax &&
                cell.y >= bounds.yMin &&
                cell.y < bounds.yMax;
+    }
+
+    void OnDrawGizmos()
+    {
+        if (flatEdges == null) return;
+
+        Gizmos.color = Color.green;
+
+        foreach (var e in flatEdges)
+        {
+            Vector3 a = e.a;
+            Vector3 b = e.b;
+
+            Gizmos.DrawLine(a, b);
+
+            // 起点
+            Gizmos.DrawSphere(a, 0.03f);
+
+            // 方向箭头
+            Vector3 mid = (a + b) * 0.5f;
+            Vector3 dir = (b - a).normalized;
+
+            Gizmos.color = Color.red;
+            Gizmos.DrawLine(mid, mid + dir * 0.2f);
+
+            Gizmos.color = Color.green;
+        }
     }
 }
