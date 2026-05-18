@@ -26,6 +26,9 @@ public class PlayerControl : MonoBehaviour
     [SerializeField] private LayerMask oneWayPlatformLayer;   // 单向平台所在层
     [SerializeField] private float dropIgnoreTime = 0.25f;    // 忽略碰撞持续时间
 
+    [Header("HoldItem")]
+    [SerializeField] private SpriteRenderer holdingItemSprite;
+    [SerializeField] private int baseScaleMultiplier = 4;
     public Player player { get; private set; }
     public Animator anim {  get; private set; }
     public Rigidbody2D rb { get; private set; }
@@ -120,6 +123,11 @@ public class PlayerControl : MonoBehaviour
 
     public void Handleflip(float xVelocity)
     {
+        // 极小速度不参与朝向判断
+        if (Mathf.Abs(xVelocity) < 0.01f)
+        {
+            return;
+        }
         if (xVelocity > 0 && facingRight == false)
         // 如果朝向由左改右
         {
@@ -153,7 +161,18 @@ public class PlayerControl : MonoBehaviour
         // 是否接触墙壁
     }
 
+    public void StartHoldingItem(ItemDataSO itemToHold)
+    {
+        BackpackItemDataSO backpackItemData=itemToHold.backpackItemData;
+        holdingItemSprite.enabled = true;
+        holdingItemSprite.transform.localScale = new Vector3(1/baseScaleMultiplier*backpackItemData.imageSize.x,1/ baseScaleMultiplier * backpackItemData.imageSize.y,1);
+    }
 
+    public void EndHoldingItem()
+    {
+        holdingItemSprite.enabled=false;
+        holdingItemSprite.transform.localScale=new Vector3(1,1,1);
+    }
 
     public void EnablePlayerControl()
     {

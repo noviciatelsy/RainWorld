@@ -109,6 +109,42 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""EquipQuickItem_1"",
+                    ""type"": ""Button"",
+                    ""id"": ""c6ba0fe6-b481-4118-bfc6-be2cf44f2b8d"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""EquipQuickItem_2"",
+                    ""type"": ""Button"",
+                    ""id"": ""c0ba5ecc-b50a-4be6-ba85-722d43f17ccc"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""EquipQuickItem_3"",
+                    ""type"": ""Button"",
+                    ""id"": ""a2a15219-7159-4d09-923e-8a077031be73"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""EquipQuickItem_4"",
+                    ""type"": ""Button"",
+                    ""id"": ""1cf11e06-e45d-4849-8fc7-9ce7299bd500"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -175,6 +211,50 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Jump"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a4a25a67-ae99-417c-a6f8-2a82cfdfdc36"",
+                    ""path"": ""<Keyboard>/1"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""EquipQuickItem_1"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c38e2d66-9816-4a7e-8999-ce1d11f5ac47"",
+                    ""path"": ""<Keyboard>/2"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""EquipQuickItem_2"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d69c580c-4ee5-4403-9abb-81151d764369"",
+                    ""path"": ""<Keyboard>/3"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""EquipQuickItem_3"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""24710e03-7105-4ef8-8f06-a03ae04226b5"",
+                    ""path"": ""<Keyboard>/4"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""EquipQuickItem_4"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -355,6 +435,10 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
         m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
         m_Player_Jump = m_Player.FindAction("Jump", throwIfNotFound: true);
+        m_Player_EquipQuickItem_1 = m_Player.FindAction("EquipQuickItem_1", throwIfNotFound: true);
+        m_Player_EquipQuickItem_2 = m_Player.FindAction("EquipQuickItem_2", throwIfNotFound: true);
+        m_Player_EquipQuickItem_3 = m_Player.FindAction("EquipQuickItem_3", throwIfNotFound: true);
+        m_Player_EquipQuickItem_4 = m_Player.FindAction("EquipQuickItem_4", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_CheckBackpack = m_UI.FindAction("CheckBackpack", throwIfNotFound: true);
@@ -448,6 +532,10 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
     private List<IPlayerActions> m_PlayerActionsCallbackInterfaces = new List<IPlayerActions>();
     private readonly InputAction m_Player_Move;
     private readonly InputAction m_Player_Jump;
+    private readonly InputAction m_Player_EquipQuickItem_1;
+    private readonly InputAction m_Player_EquipQuickItem_2;
+    private readonly InputAction m_Player_EquipQuickItem_3;
+    private readonly InputAction m_Player_EquipQuickItem_4;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -467,6 +555,22 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/Jump".
         /// </summary>
         public InputAction @Jump => m_Wrapper.m_Player_Jump;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/EquipQuickItem_1".
+        /// </summary>
+        public InputAction @EquipQuickItem_1 => m_Wrapper.m_Player_EquipQuickItem_1;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/EquipQuickItem_2".
+        /// </summary>
+        public InputAction @EquipQuickItem_2 => m_Wrapper.m_Player_EquipQuickItem_2;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/EquipQuickItem_3".
+        /// </summary>
+        public InputAction @EquipQuickItem_3 => m_Wrapper.m_Player_EquipQuickItem_3;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/EquipQuickItem_4".
+        /// </summary>
+        public InputAction @EquipQuickItem_4 => m_Wrapper.m_Player_EquipQuickItem_4;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -499,6 +603,18 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
             @Jump.started += instance.OnJump;
             @Jump.performed += instance.OnJump;
             @Jump.canceled += instance.OnJump;
+            @EquipQuickItem_1.started += instance.OnEquipQuickItem_1;
+            @EquipQuickItem_1.performed += instance.OnEquipQuickItem_1;
+            @EquipQuickItem_1.canceled += instance.OnEquipQuickItem_1;
+            @EquipQuickItem_2.started += instance.OnEquipQuickItem_2;
+            @EquipQuickItem_2.performed += instance.OnEquipQuickItem_2;
+            @EquipQuickItem_2.canceled += instance.OnEquipQuickItem_2;
+            @EquipQuickItem_3.started += instance.OnEquipQuickItem_3;
+            @EquipQuickItem_3.performed += instance.OnEquipQuickItem_3;
+            @EquipQuickItem_3.canceled += instance.OnEquipQuickItem_3;
+            @EquipQuickItem_4.started += instance.OnEquipQuickItem_4;
+            @EquipQuickItem_4.performed += instance.OnEquipQuickItem_4;
+            @EquipQuickItem_4.canceled += instance.OnEquipQuickItem_4;
         }
 
         /// <summary>
@@ -516,6 +632,18 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
             @Jump.started -= instance.OnJump;
             @Jump.performed -= instance.OnJump;
             @Jump.canceled -= instance.OnJump;
+            @EquipQuickItem_1.started -= instance.OnEquipQuickItem_1;
+            @EquipQuickItem_1.performed -= instance.OnEquipQuickItem_1;
+            @EquipQuickItem_1.canceled -= instance.OnEquipQuickItem_1;
+            @EquipQuickItem_2.started -= instance.OnEquipQuickItem_2;
+            @EquipQuickItem_2.performed -= instance.OnEquipQuickItem_2;
+            @EquipQuickItem_2.canceled -= instance.OnEquipQuickItem_2;
+            @EquipQuickItem_3.started -= instance.OnEquipQuickItem_3;
+            @EquipQuickItem_3.performed -= instance.OnEquipQuickItem_3;
+            @EquipQuickItem_3.canceled -= instance.OnEquipQuickItem_3;
+            @EquipQuickItem_4.started -= instance.OnEquipQuickItem_4;
+            @EquipQuickItem_4.performed -= instance.OnEquipQuickItem_4;
+            @EquipQuickItem_4.canceled -= instance.OnEquipQuickItem_4;
         }
 
         /// <summary>
@@ -743,6 +871,34 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnJump(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "EquipQuickItem_1" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnEquipQuickItem_1(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "EquipQuickItem_2" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnEquipQuickItem_2(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "EquipQuickItem_3" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnEquipQuickItem_3(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "EquipQuickItem_4" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnEquipQuickItem_4(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.

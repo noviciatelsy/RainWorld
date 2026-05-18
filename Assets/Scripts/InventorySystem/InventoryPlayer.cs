@@ -13,6 +13,7 @@ public class InventoryPlayer : InventoryBase
     public event Action onQuickItemsChange;
 
     private Player player;
+    private PlayerControl playerControl;
 
     [Header("≤‚ ‘ŒÔ∆∑")]
     [SerializeField] private ItemDataSO[] testItems;
@@ -30,6 +31,7 @@ public class InventoryPlayer : InventoryBase
     {
         base.Awake();
         player = GetComponent<Player>();
+        playerControl = GetComponent<PlayerControl>();
 
         EnsureSlotListSize();
         SanitizeEmptyItemShells();

@@ -33,6 +33,7 @@ public class PlayerIdleState : PlayerGroundedState
         {
             stateMachine.ChangeState(playerControl.moveState);
             // ÇÐ»»ÖÁÒÆ¶¯×´Ì¬
+            return ;
         }
 
     }

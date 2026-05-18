@@ -18,7 +18,7 @@ public class ItemDataSO : ScriptableObject
     public ItemRarity rarity = ItemRarity.Common;
 
     [Header("Merchant details")]
-    public int itembuyPrice = 0; // 物品购买价格
+    public int itemBuyPrice = 0; // 物品购买价格
     public int itemSellPrice = 0; // 物品售出价格
 
     public string GetItemTypeName()

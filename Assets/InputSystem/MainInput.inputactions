@@ -23,6 +23,42 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "EquipQuickItem_1",
+                    "type": "Button",
+                    "id": "c6ba0fe6-b481-4118-bfc6-be2cf44f2b8d",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "EquipQuickItem_2",
+                    "type": "Button",
+                    "id": "c0ba5ecc-b50a-4be6-ba85-722d43f17ccc",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "EquipQuickItem_3",
+                    "type": "Button",
+                    "id": "a2a15219-7159-4d09-923e-8a077031be73",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "EquipQuickItem_4",
+                    "type": "Button",
+                    "id": "1cf11e06-e45d-4849-8fc7-9ce7299bd500",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -89,6 +125,50 @@
                     "processors": "",
                     "groups": "",
                     "action": "Jump",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a4a25a67-ae99-417c-a6f8-2a82cfdfdc36",
+                    "path": "<Keyboard>/1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "EquipQuickItem_1",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c38e2d66-9816-4a7e-8999-ce1d11f5ac47",
+                    "path": "<Keyboard>/2",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "EquipQuickItem_2",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d69c580c-4ee5-4403-9abb-81151d764369",
+                    "path": "<Keyboard>/3",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "EquipQuickItem_3",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "24710e03-7105-4ef8-8f06-a03ae04226b5",
+                    "path": "<Keyboard>/4",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "EquipQuickItem_4",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
