@@ -11,7 +11,14 @@ public class PlayerJumpState : PlayerAiredState
     public override void Enter()
     {
         base.Enter();
-        playerControl.SetVelocity(rb.velocity.x, playerControl.jumpForce);
+        float xVelocity = rb.velocity.x;
+        if (Mathf.Abs(playerControl.moveInput.x) < 0.01f)
+        {
+            xVelocity = 0f;
+        }
+
+
+        playerControl.SetVelocity(xVelocity, playerControl.jumpForce);
         // 在y方向获得jumpForce大小的速度
         playerControl.jumpBufferTimer = -999f;
     }

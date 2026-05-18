@@ -4,7 +4,12 @@ using UnityEngine;
 
 public class ActiveItemEffectDataSO : ItemEffectDataSO
 {
-    public virtual void UseItem()
+    public virtual void MainUse()
+    {
+
+    }
+
+    public virtual void SecondaryUse()
     {
 
     }

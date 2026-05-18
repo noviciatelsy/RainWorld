@@ -8,8 +8,9 @@ public class ItemToolTip : BaseToolTip
     [SerializeField] private TextMeshProUGUI itemDescription;
     [SerializeField] private TextMeshProUGUI itemEffect;
     [SerializeField] private TextMeshProUGUI equipInfo;
-    [SerializeField] private TextMeshProUGUI SetQuickItemInfo;
-    [SerializeField] private TextMeshProUGUI CancelQuickItemInfo;
+    [SerializeField] private TextMeshProUGUI setQuickItemInfo;
+    [SerializeField] private TextMeshProUGUI cancelQuickItemInfo;
+    [SerializeField] private TextMeshProUGUI consumableItemInfo;
     [SerializeField] private TextMeshProUGUI sellMoney;
 
     public void ShowPlayerItemToolTip(bool show, RectTransform targetRect, InventoryItem itemToShow)
@@ -41,6 +42,7 @@ public class ItemToolTip : BaseToolTip
             {
                 itemEffect.gameObject.SetActive(false);
             }
+
         }
         else
         {
@@ -50,15 +52,27 @@ public class ItemToolTip : BaseToolTip
         if (itemData.itemType == ItemType.Active)
         {
             equipInfo.gameObject.SetActive(true);
-            SetQuickItemInfo.gameObject.SetActive(true);
+            setQuickItemInfo.gameObject.SetActive(true);
+
+            consumableItemInfo.gameObject.SetActive(true);
+            ActiveItemDataSO activeItemData=itemData as ActiveItemDataSO;
+            if(activeItemData.isConsumable)
+            {
+                consumableItemInfo.text = "消耗品";
+            }
+            else
+            {
+                consumableItemInfo.text = "非消耗品";
+            }
         }
         else
         {
+            consumableItemInfo.gameObject.SetActive(false );
             equipInfo.gameObject.SetActive(false);
-            SetQuickItemInfo.gameObject.SetActive(false);
+            setQuickItemInfo.gameObject.SetActive(false);
         }
 
-        CancelQuickItemInfo.gameObject.SetActive(false);
+        cancelQuickItemInfo.gameObject.SetActive(false);
 
         sellMoney.text = "售出价格:" + itemData.itemSellPrice;
         sellMoney.gameObject.SetActive(true);
@@ -96,9 +110,20 @@ public class ItemToolTip : BaseToolTip
         }
 
         equipInfo.gameObject.SetActive(false);
-        SetQuickItemInfo.gameObject.SetActive(false);
+        setQuickItemInfo.gameObject.SetActive(false);
 
-        CancelQuickItemInfo.gameObject.SetActive(true);
+        cancelQuickItemInfo.gameObject.SetActive(true);
+
+        consumableItemInfo.gameObject.SetActive(true);
+        ActiveItemDataSO activeItemData = itemData as ActiveItemDataSO;
+        if (activeItemData.isConsumable)
+        {
+            consumableItemInfo.text = "消耗品";
+        }
+        else
+        {
+            consumableItemInfo.text = "非消耗品";
+        }
 
         sellMoney.gameObject.SetActive(false);
     }
@@ -135,9 +160,29 @@ public class ItemToolTip : BaseToolTip
         }
 
         equipInfo.gameObject.SetActive(false);
-        SetQuickItemInfo.gameObject.SetActive(false);
+        setQuickItemInfo.gameObject.SetActive(false);
 
-        CancelQuickItemInfo.gameObject.SetActive(false);
+        if(itemData.itemType==ItemType.Active)
+        {
+            consumableItemInfo.gameObject.SetActive(true);
+            ActiveItemDataSO activeItemData = itemData as ActiveItemDataSO;
+            if (activeItemData.isConsumable)
+            {
+                consumableItemInfo.text = "消耗品";
+            }
+            else
+            {
+                consumableItemInfo.text = "非消耗品";
+            }
+        }
+        else
+        {
+            consumableItemInfo.gameObject.SetActive(false);
+        }
+
+        cancelQuickItemInfo.gameObject.SetActive(false);
+
+
 
         sellMoney.text = "售出价格:" + itemData.itemSellPrice;
         sellMoney.gameObject.SetActive(true);

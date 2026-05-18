@@ -19,5 +19,6 @@ MonoBehaviour:
   backpackItemData: {fileID: 11400000, guid: 18236b910c591ca41a1a6b329b359312, type: 2}
   itemType: 1
   rarity: 0
-  itembuyPrice: 2
+  itemBuyPrice: 0
   itemSellPrice: 1
+  isConsumable: 1
