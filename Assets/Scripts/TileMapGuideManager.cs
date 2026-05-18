@@ -459,7 +459,7 @@ public class TileMapGuideManager : MonoBehaviour
         return true;
     }
 
-    Vector2 CellToWorld(Vector2Int cell)
+    public Vector2 CellToWorld(Vector2Int cell)
     {
         return tilemap.GetCellCenterWorld(new Vector3Int(cell.x, cell.y, 0));
     }
