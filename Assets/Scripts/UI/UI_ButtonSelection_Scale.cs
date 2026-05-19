@@ -42,6 +42,17 @@ public class UI_ButtonSelection_Scale : MonoBehaviour, IPointerEnterHandler, IPo
         originalScale = scaleTarget.localScale;
     }
 
+    private void OnEnable()
+    {
+        isHovered = false;
+    }
+
+
+    private void OnDisable()
+    {
+        scaleTarget.localScale = originalScale;
+    }
+
     private void Update()
     {
         Vector3 baseTargetScale = isHovered
