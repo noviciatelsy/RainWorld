@@ -33,7 +33,17 @@ public class PlayerItemSlotUI : BaseItemSlotUI, IPointerClickHandler
             return;
         }
 
-        playerBackpack.TrySetQuickItemToHeldSlot(itemInSlot);
+        // 情况 1：
+        // 按住数字键 + 右键主动道具 = 设置快捷栏
+        if (playerBackpack.GetHeldQuickItemIndex() >= 0)
+        {
+            playerBackpack.TrySetQuickItemToHeldSlot(itemInSlot);
+            return;
+        }
+
+        // 情况 2：
+        // 没有按数字键，单独右键主动道具 = 直接手持
+        playerBackpack.TryToggleHoldingItem(itemInSlot);
     }
 
     public override void OnPointerEnter(PointerEventData eventData)
@@ -51,7 +61,12 @@ public class PlayerItemSlotUI : BaseItemSlotUI, IPointerClickHandler
     protected override void ShowItemToolTip()
     {
         base.ShowItemToolTip();
-        if (itemInSlot == null) return;
+
+        if (itemInSlot == null)
+        {
+            return;
+        }
+
         inGameUI.itemToolTip.ShowPlayerItemToolTip(true, rect, itemInSlot);
     }
 

@@ -16,4 +16,24 @@ public class ItemEffectDataSO : ScriptableObject
     {
         player = null; // »¹Ô­player
     }
+
+    public virtual void StartHoldingItem()
+    {
+
+    }
+
+    public virtual void EndHoldingItem()
+    {
+
+    }
+
+    public virtual void MainUse()
+    {
+
+    }
+
+    public virtual void SecondaryUse()
+    {
+
+    }
 }

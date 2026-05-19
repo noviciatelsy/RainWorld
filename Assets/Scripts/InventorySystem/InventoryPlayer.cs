@@ -14,6 +14,12 @@ public class InventoryPlayer : InventoryBase
 
     private Player player;
     private PlayerControl playerControl;
+    [Header("手持主动道具")]
+    [SerializeField] private bool clearHoldingItemWhenInvalid = true;
+
+    public InventoryItem holdingItem { get; private set; }
+
+    public event Action<InventoryItem> onHoldingItemChange;
 
     [Header("测试物品")]
     [SerializeField] private ItemDataSO[] testItems;
@@ -36,6 +42,7 @@ public class InventoryPlayer : InventoryBase
         EnsureSlotListSize();
         SanitizeEmptyItemShells();
         ValidateQuickItems(null);
+        ValidateHoldingItem(null);
     }
 
     private void Update()
@@ -52,7 +59,10 @@ public class InventoryPlayer : InventoryBase
         AddItem(testItems[randomIndex]);
     }
 
-
+    public InventoryItem GetHoldingItem()
+    {
+        return holdingItem;
+    }
     public InventoryItem GetQuickItem(int quickSlotIndex)
     {
         EnsureSlotListSize();
@@ -332,5 +342,186 @@ public class InventoryPlayer : InventoryBase
 
         quickItemSlotList[quickSlotIndex].itemInSlot = null;
         return true;
+    }
+
+    public bool TryToggleHoldingItem(InventoryItem itemToHold)
+    {
+        EnsureSlotListSize();
+        SanitizeEmptyItemShells();
+
+        if (itemToHold == null || itemToHold.ItemData == null)
+        {
+            return false;
+        }
+
+        if (itemToHold.ItemData.itemType != ItemType.Active)
+        {
+            Debug.Log($"手持失败：{itemToHold.ItemData.itemDisplayName} 不是主动道具。");
+            return false;
+        }
+
+        if (!ContainsItem(itemToHold))
+        {
+            Debug.Log($"手持失败：{itemToHold.ItemData.itemDisplayName} 当前不在玩家背包里。");
+            return false;
+        }
+
+        // 已经手持这个物品时，再次尝试手持它 = 取消手持
+        if (holdingItem == itemToHold)
+        {
+            ClearHoldingItem();
+            return true;
+        }
+
+        SetHoldingItem(itemToHold);
+        return true;
+    }
+
+    public bool TryHoldQuickItem(int quickSlotIndex)
+    {
+        InventoryItem quickItem = GetQuickItem(quickSlotIndex);
+
+        if (quickItem == null)
+        {
+            return false;
+        }
+
+        return TryToggleHoldingItem(quickItem);
+    }
+
+    public void SetHoldingItem(InventoryItem itemToHold)
+    {
+        if (itemToHold == null || itemToHold.ItemData == null)
+        {
+            ClearHoldingItem();
+            return;
+        }
+
+        holdingItem = itemToHold;
+
+        if (playerControl != null)
+        {
+            playerControl.StartHoldingItem(holdingItem.ItemData);
+        }
+
+        onHoldingItemChange?.Invoke(holdingItem);
+    }
+
+    public bool ClearHoldingItem()
+    {
+        if (holdingItem == null)
+        {
+            return false;
+        }
+
+        holdingItem = null;
+
+        if (playerControl != null)
+        {
+            playerControl.EndHoldingItem();
+        }
+
+        onHoldingItemChange?.Invoke(null);
+        return true;
+    }
+
+    public void ValidateHoldingItem(InventoryItem temporarilyAllowedItem)
+    {
+        if (!clearHoldingItemWhenInvalid)
+        {
+            return;
+        }
+
+        if (holdingItem == null)
+        {
+            return;
+        }
+
+        bool isActiveItem =
+            holdingItem.ItemData != null &&
+            holdingItem.ItemData.itemType == ItemType.Active;
+
+        bool stillBelongsToPlayer =
+            ContainsItem(holdingItem);
+
+        bool isBeingDragged =
+            temporarilyAllowedItem != null &&
+            holdingItem == temporarilyAllowedItem;
+
+        if (!isActiveItem || (!stillBelongsToPlayer && !isBeingDragged))
+        {
+            ClearHoldingItem();
+        }
+    }
+
+    public bool UseHoldingItem()
+    {
+        if (holdingItem == null || holdingItem.ItemData == null)
+        {
+            return false;
+        }
+
+        InventoryItem itemToUse = holdingItem;
+
+        if (!ContainsItem(itemToUse))
+        {
+            ValidateHoldingItem(null);
+            return false;
+        }
+
+        Debug.Log($"使用手持主动道具：{itemToUse.ItemData.itemDisplayName}");
+
+        ActiveItemDataSO activeItemData = itemToUse.ItemData as ActiveItemDataSO;
+
+        bool isConsumable =
+            activeItemData != null &&
+            activeItemData.isConsumable;
+
+        if (isConsumable)
+        {
+            // 消耗品使用后，先取消手持和快捷栏引用，再从背包真正移除
+            ClearHoldingItem();
+            ClearQuickItem(itemToUse);
+
+            bool removed = RemoveItem(itemToUse);
+
+            ValidateQuickItems(null);
+            ValidateHoldingItem(null);
+
+            return removed;
+        }
+
+        return true;
+    }
+
+    public void NotifyHoldingItemConsumed(InventoryItem consumedItem)
+    {
+        if (consumedItem == null)
+        {
+            return;
+        }
+
+        if (holdingItem == consumedItem)
+        {
+            ClearHoldingItem();
+        }
+
+        ClearQuickItem(consumedItem);
+        ValidateQuickItems(null);
+    }
+
+    public bool ClearQuickItem(InventoryItem itemToClear)
+    {
+        EnsureSlotListSize();
+        SanitizeEmptyItemShells();
+
+        bool changed = ClearQuickItemInternal(itemToClear);
+
+        if (changed)
+        {
+            onQuickItemsChange?.Invoke();
+        }
+
+        return changed;
     }
 }
