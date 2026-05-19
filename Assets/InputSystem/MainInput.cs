@@ -145,6 +145,15 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""UseHoldingItem"",
+                    ""type"": ""Button"",
+                    ""id"": ""adc1a4c5-8b97-4719-b36c-3c0aaeb69437"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -255,6 +264,17 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""EquipQuickItem_4"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""473001a3-7662-4bb2-8513-e80eecb3a5f6"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""UseHoldingItem"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -439,6 +459,7 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
         m_Player_EquipQuickItem_2 = m_Player.FindAction("EquipQuickItem_2", throwIfNotFound: true);
         m_Player_EquipQuickItem_3 = m_Player.FindAction("EquipQuickItem_3", throwIfNotFound: true);
         m_Player_EquipQuickItem_4 = m_Player.FindAction("EquipQuickItem_4", throwIfNotFound: true);
+        m_Player_UseHoldingItem = m_Player.FindAction("UseHoldingItem", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_CheckBackpack = m_UI.FindAction("CheckBackpack", throwIfNotFound: true);
@@ -536,6 +557,7 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_EquipQuickItem_2;
     private readonly InputAction m_Player_EquipQuickItem_3;
     private readonly InputAction m_Player_EquipQuickItem_4;
+    private readonly InputAction m_Player_UseHoldingItem;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -571,6 +593,10 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/EquipQuickItem_4".
         /// </summary>
         public InputAction @EquipQuickItem_4 => m_Wrapper.m_Player_EquipQuickItem_4;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/UseHoldingItem".
+        /// </summary>
+        public InputAction @UseHoldingItem => m_Wrapper.m_Player_UseHoldingItem;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -615,6 +641,9 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
             @EquipQuickItem_4.started += instance.OnEquipQuickItem_4;
             @EquipQuickItem_4.performed += instance.OnEquipQuickItem_4;
             @EquipQuickItem_4.canceled += instance.OnEquipQuickItem_4;
+            @UseHoldingItem.started += instance.OnUseHoldingItem;
+            @UseHoldingItem.performed += instance.OnUseHoldingItem;
+            @UseHoldingItem.canceled += instance.OnUseHoldingItem;
         }
 
         /// <summary>
@@ -644,6 +673,9 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
             @EquipQuickItem_4.started -= instance.OnEquipQuickItem_4;
             @EquipQuickItem_4.performed -= instance.OnEquipQuickItem_4;
             @EquipQuickItem_4.canceled -= instance.OnEquipQuickItem_4;
+            @UseHoldingItem.started -= instance.OnUseHoldingItem;
+            @UseHoldingItem.performed -= instance.OnUseHoldingItem;
+            @UseHoldingItem.canceled -= instance.OnUseHoldingItem;
         }
 
         /// <summary>
@@ -899,6 +931,13 @@ public partial class @MainInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnEquipQuickItem_4(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "UseHoldingItem" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnUseHoldingItem(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.

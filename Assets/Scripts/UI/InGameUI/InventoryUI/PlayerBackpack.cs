@@ -157,8 +157,8 @@ public class PlayerBackpack : MonoBehaviour
         }
 
         playerInventory.ValidateQuickItems(temporarilyAllowedItem);
+        playerInventory.ValidateHoldingItem(temporarilyAllowedItem);
     }
-
     private void SubscribeDraggedItemUI()
     {
         if (draggedItemUI == null)
@@ -274,5 +274,15 @@ public class PlayerBackpack : MonoBehaviour
         {
             heldQuickItemIndex = -1;
         }
+    }
+
+    public bool TryToggleHoldingItem(InventoryItem itemToHold)
+    {
+        if (playerInventory == null)
+        {
+            return false;
+        }
+
+        return playerInventory.TryToggleHoldingItem(itemToHold);
     }
 }
