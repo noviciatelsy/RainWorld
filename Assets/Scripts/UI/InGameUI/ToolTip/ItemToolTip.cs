@@ -31,32 +31,24 @@ public class ItemToolTip : BaseToolTip
         itemDescription.gameObject.SetActive(true);
         itemDescription.text = itemData.itemDescription;
 
-        if (itemData.itemType == ItemType.Active || itemData.itemType == ItemType.Passive)
+        if (itemData.itemEffectData != null)
         {
-            if(itemData.itemEffectData!=null)
-            {
-                itemEffect.gameObject.SetActive(true);
-                itemEffect.text = itemData.itemEffectData.effectDescription;
-            }
-            else
-            {
-                itemEffect.gameObject.SetActive(false);
-            }
-
+            itemEffect.gameObject.SetActive(true);
+            itemEffect.text = itemData.itemEffectData.effectDescription;
         }
         else
         {
             itemEffect.gameObject.SetActive(false);
         }
 
+        equipInfo.gameObject.SetActive(true);
+        setQuickItemInfo.gameObject.SetActive(true);
+
         if (itemData.itemType == ItemType.Active)
         {
-            equipInfo.gameObject.SetActive(true);
-            setQuickItemInfo.gameObject.SetActive(true);
-
             consumableItemInfo.gameObject.SetActive(true);
-            ActiveItemDataSO activeItemData=itemData as ActiveItemDataSO;
-            if(activeItemData.isConsumable)
+            ActiveItemDataSO activeItemData = itemData as ActiveItemDataSO;
+            if (activeItemData.isConsumable)
             {
                 consumableItemInfo.text = "消耗品";
             }
@@ -67,8 +59,6 @@ public class ItemToolTip : BaseToolTip
         }
         else
         {
-            consumableItemInfo.gameObject.SetActive(false );
-            equipInfo.gameObject.SetActive(false);
             setQuickItemInfo.gameObject.SetActive(false);
         }
 
@@ -96,13 +86,11 @@ public class ItemToolTip : BaseToolTip
         itemDescription.gameObject.SetActive(true);
         itemDescription.text = itemData.itemDescription;
 
-        if (itemData.itemType == ItemType.Active || itemData.itemType == ItemType.Passive)
+
+        if (itemData.itemEffectData != null)
         {
-            if (itemData.itemEffectData != null)
-            {
-                itemEffect.gameObject.SetActive(true);
-                itemEffect.text = itemData.itemEffectData.effectDescription;
-            }
+            itemEffect.gameObject.SetActive(true);
+            itemEffect.text = itemData.itemEffectData.effectDescription;
         }
         else
         {
@@ -115,15 +103,24 @@ public class ItemToolTip : BaseToolTip
         cancelQuickItemInfo.gameObject.SetActive(true);
 
         consumableItemInfo.gameObject.SetActive(true);
-        ActiveItemDataSO activeItemData = itemData as ActiveItemDataSO;
-        if (activeItemData.isConsumable)
+        if (itemData.itemType == ItemType.Active)
         {
-            consumableItemInfo.text = "消耗品";
+            consumableItemInfo.gameObject.SetActive(true);
+            ActiveItemDataSO activeItemData = itemData as ActiveItemDataSO;
+            if (activeItemData.isConsumable)
+            {
+                consumableItemInfo.text = "消耗品";
+            }
+            else
+            {
+                consumableItemInfo.text = "非消耗品";
+            }
         }
         else
         {
-            consumableItemInfo.text = "非消耗品";
+            setQuickItemInfo.gameObject.SetActive(false);
         }
+
 
         sellMoney.gameObject.SetActive(false);
     }
@@ -146,13 +143,11 @@ public class ItemToolTip : BaseToolTip
         itemDescription.gameObject.SetActive(true);
         itemDescription.text = itemData.itemDescription;
 
-        if (itemData.itemType == ItemType.Active || itemData.itemType == ItemType.Passive)
+
+        if (itemData.itemEffectData != null)
         {
-            if (itemData.itemEffectData != null)
-            {
-                itemEffect.gameObject.SetActive(true);
-                itemEffect.text = itemData.itemEffectData.effectDescription;
-            }
+            itemEffect.gameObject.SetActive(true);
+            itemEffect.text = itemData.itemEffectData.effectDescription;
         }
         else
         {
@@ -162,7 +157,7 @@ public class ItemToolTip : BaseToolTip
         equipInfo.gameObject.SetActive(false);
         setQuickItemInfo.gameObject.SetActive(false);
 
-        if(itemData.itemType==ItemType.Active)
+        if (itemData.itemType == ItemType.Active)
         {
             consumableItemInfo.gameObject.SetActive(true);
             ActiveItemDataSO activeItemData = itemData as ActiveItemDataSO;
@@ -190,6 +185,6 @@ public class ItemToolTip : BaseToolTip
 
     public void HideItemToolTip()
     {
-        base.ShowToolTip(false,null);
+        base.ShowToolTip(false, null);
     }
 }

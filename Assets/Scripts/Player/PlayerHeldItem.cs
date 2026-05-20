@@ -136,7 +136,10 @@ public class PlayerHeldItem : MonoBehaviour
         {
             bonusScaleMultiplier = Mathf.Lerp(width, height, 0.5f);
         }
-
+        if(width==1&&height==1)
+        {
+            bonusScaleMultiplier = 2;
+        }
 
         float safeBaseScaleMultiplier = Mathf.Max(1f, baseScaleMultiplier);
 
