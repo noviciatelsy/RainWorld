@@ -1,10 +1,10 @@
-using System;
 using UnityEngine;
 
 public class ItemEffectDataSO : ScriptableObject
 {
-    [TextArea]
-    public string effectDescription; // 效果描述
+    [TextArea] public string effectDescription; // 效果描述
+    [TextArea] public string holdingHintMessage="长按左键丢弃该物品";
+
     protected Player player;
 
     public virtual void Subscribe(Player player)
@@ -17,23 +17,33 @@ public class ItemEffectDataSO : ScriptableObject
         player = null; // 还原player
     }
 
-    public virtual void StartHoldingItem()
-    {
 
+    public virtual void StartHoldingItem(InventoryItem item, InventoryPlayer inventoryPlayer)
+    {
+        GlobalUI.Instance.hintMessageUI.ShowLongTimeMessage(holdingHintMessage);
     }
 
-    public virtual void EndHoldingItem()
-    {
 
+    public virtual void EndHoldingItem(InventoryItem item, InventoryPlayer inventoryPlayer)
+    {
+        GlobalUI.Instance.hintMessageUI.StopLongTimeMessage();
     }
 
-    public virtual void MainUse()
-    {
 
+    public virtual bool MainUse(InventoryItem item, InventoryPlayer inventoryPlayer)
+    {
+        return false;
     }
 
-    public virtual void SecondaryUse()
-    {
 
+    public virtual bool SecondaryUse(InventoryItem item, InventoryPlayer inventoryPlayer)
+    {
+        if (item == null || item.ItemData == null)
+        {
+            return false;
+        }
+
+        Debug.Log($"准备丢弃道具：{item.ItemData.itemDisplayName}，但具体丢弃实体逻辑暂未实现。");
+        return false;
     }
 }

@@ -202,7 +202,7 @@ public class RoomManager : MonoBehaviour
 
         SetRoomFadeControlledBehavioursActive(false);
 
-        GlobalUI.Instance.fadeScreen.PlayRoomSwitchFade(
+        GlobalUI.Instance.fadeScreenUI.PlayRoomSwitchFade(
             HandleRoomSwitchBlackReached,
             HandleRoomSwitchFadeCompleted
         );

@@ -15,9 +15,9 @@ MonoBehaviour:
   itemDisplayName: "\u94DC\u5757"
   itemDescription: "\u5730\u4E0B\u968F\u5904\u53EF\u89C1\u7684\u94DC\u5757\uFF0C\u53EF\u6362\u53D6\u5C11\u91CF\u8D27\u5E01"
   itemIcon: {fileID: 21300000, guid: bf7788e88fee85b4692518c2883db230, type: 3}
-  itemEffectData: {fileID: 0}
+  itemEffectData: {fileID: 11400000, guid: 261c8fb536fcb824c9a9cf04d80d37dd, type: 2}
   backpackItemData: {fileID: 11400000, guid: 43ae5d4e0e273ce4b998f84bbde81ecc, type: 2}
   itemType: 3
   rarity: 1
-  itembuyPrice: 16
+  itemBuyPrice: 0
   itemSellPrice: 8

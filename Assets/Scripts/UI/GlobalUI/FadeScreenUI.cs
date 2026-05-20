@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class FadeScreen : MonoBehaviour
+public class FadeScreenUI : MonoBehaviour
 {
     [Header("References")]
     private CanvasGroup canvasGroup;

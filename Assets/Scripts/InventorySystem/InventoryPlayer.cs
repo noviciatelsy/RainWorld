@@ -104,12 +104,6 @@ public class InventoryPlayer : InventoryBase
             return ClearQuickItem(quickSlotIndex);
         }
 
-        if (itemToSet.ItemData.itemType != ItemType.Active)
-        {
-            Debug.Log($"设置快捷栏失败：{itemToSet.ItemData.itemDisplayName} 不是主动道具。");
-            return false;
-        }
-
         if (!ContainsItem(itemToSet))
         {
             Debug.Log($"设置快捷栏失败：{itemToSet.ItemData.itemDisplayName} 当前不在玩家背包里。");
@@ -178,18 +172,14 @@ public class InventoryPlayer : InventoryBase
                 continue;
             }
 
-            bool isActiveItem =
-                item.ItemData != null &&
-                item.ItemData.itemType == ItemType.Active;
-
-            bool stillBelongsToPlayer =
-                ContainsItem(item);
+            bool stillBelongsToPlayer = ContainsItem(item);
 
             bool isBeingDragged =
                 temporarilyAllowedItem != null &&
                 item == temporarilyAllowedItem;
 
-            if (!isActiveItem || (!stillBelongsToPlayer && !isBeingDragged))
+
+            if (!stillBelongsToPlayer && !isBeingDragged)
             {
                 quickItemSlotList[i].itemInSlot = null;
                 changed = true;
@@ -354,12 +344,6 @@ public class InventoryPlayer : InventoryBase
             return false;
         }
 
-        if (itemToHold.ItemData.itemType != ItemType.Active)
-        {
-            Debug.Log($"手持失败：{itemToHold.ItemData.itemDisplayName} 不是主动道具。");
-            return false;
-        }
-
         if (!ContainsItem(itemToHold))
         {
             Debug.Log($"手持失败：{itemToHold.ItemData.itemDisplayName} 当前不在玩家背包里。");
@@ -397,12 +381,26 @@ public class InventoryPlayer : InventoryBase
             return;
         }
 
+        if (holdingItem == itemToHold)
+        {
+            return;
+        }
+
+        InventoryItem oldHoldingItem = holdingItem;
+
+        if (oldHoldingItem != null)
+        {
+            oldHoldingItem.EndHoldingItem(this);
+        }
+
         holdingItem = itemToHold;
 
         if (playerHeldItem != null)
         {
             playerHeldItem.StartHoldingItem(holdingItem.ItemData);
         }
+
+        holdingItem.StartHoldingItem(this);
 
         onHoldingItemChange?.Invoke(holdingItem);
     }
@@ -413,6 +411,10 @@ public class InventoryPlayer : InventoryBase
         {
             return false;
         }
+
+        InventoryItem oldHoldingItem = holdingItem;
+
+        oldHoldingItem.EndHoldingItem(this);
 
         holdingItem = null;
 
@@ -437,24 +439,19 @@ public class InventoryPlayer : InventoryBase
             return;
         }
 
-        bool isActiveItem =
-            holdingItem.ItemData != null &&
-            holdingItem.ItemData.itemType == ItemType.Active;
-
-        bool stillBelongsToPlayer =
-            ContainsItem(holdingItem);
+        bool stillBelongsToPlayer = ContainsItem(holdingItem);
 
         bool isBeingDragged =
             temporarilyAllowedItem != null &&
             holdingItem == temporarilyAllowedItem;
 
-        if (!isActiveItem || (!stillBelongsToPlayer && !isBeingDragged))
+        if (!stillBelongsToPlayer && !isBeingDragged)
         {
             ClearHoldingItem();
         }
     }
 
-    public bool UseHoldingItem()
+    public bool TryMainUseHoldingItem()
     {
         if (holdingItem == null || holdingItem.ItemData == null)
         {
@@ -469,7 +466,20 @@ public class InventoryPlayer : InventoryBase
             return false;
         }
 
-        Debug.Log($"使用手持主动道具：{itemToUse.ItemData.itemDisplayName}");
+        // 只有主动道具类型才有具体 MainUse。
+        // 其他类型短按 MainUse 直接失败。
+        if (itemToUse.ItemData.itemType != ItemType.Active)
+        {
+            Debug.Log($"{itemToUse.ItemData.itemDisplayName} 不是主动道具，没有 MainUse。");
+            return false;
+        }
+
+        bool useSucceeded = itemToUse.MainUse(this);
+
+        if (!useSucceeded)
+        {
+            return false;
+        }
 
         ActiveItemDataSO activeItemData = itemToUse.ItemData as ActiveItemDataSO;
 
@@ -479,19 +489,79 @@ public class InventoryPlayer : InventoryBase
 
         if (isConsumable)
         {
-            // 消耗品使用后，先取消手持和快捷栏引用，再从背包真正移除
-            ClearHoldingItem();
-            ClearQuickItem(itemToUse);
-
-            bool removed = RemoveItem(itemToUse);
-
-            ValidateQuickItems(null);
-            ValidateHoldingItem(null);
-
-            return removed;
+            ConsumeItemFromPlayerInventory(itemToUse);
         }
 
         return true;
+    }
+
+    public bool TrySecondaryUseHoldingItem()
+    {
+        if (holdingItem == null || holdingItem.ItemData == null)
+        {
+            return false;
+        }
+
+        InventoryItem itemToUse = holdingItem;
+
+        if (!ContainsItem(itemToUse))
+        {
+            ValidateHoldingItem(null);
+            return false;
+        }
+
+        bool useSucceeded = itemToUse.SecondaryUse(this);
+
+        if (!useSucceeded)
+        {
+            return false;
+        }
+
+        // 之后当 SecondaryUse 真正实现“丢出可拾取实体”并返回 true 时，
+        // 这里就把物品从玩家背包里移除。
+        RemoveItemFromPlayerAfterSecondaryUse(itemToUse);
+
+        return true;
+    }
+
+    private void ConsumeItemFromPlayerInventory(InventoryItem itemToConsume)
+    {
+        if (itemToConsume == null)
+        {
+            return;
+        }
+
+        if (holdingItem == itemToConsume)
+        {
+            ClearHoldingItem();
+        }
+
+        ClearQuickItem(itemToConsume);
+
+        RemoveItem(itemToConsume);
+
+        ValidateQuickItems(null);
+        ValidateHoldingItem(null);
+    }
+
+    private void RemoveItemFromPlayerAfterSecondaryUse(InventoryItem itemToRemove)
+    {
+        if (itemToRemove == null)
+        {
+            return;
+        }
+
+        if (holdingItem == itemToRemove)
+        {
+            ClearHoldingItem();
+        }
+
+        ClearQuickItem(itemToRemove);
+
+        RemoveItem(itemToRemove);
+
+        ValidateQuickItems(null);
+        ValidateHoldingItem(null);
     }
 
     public void NotifyHoldingItemConsumed(InventoryItem consumedItem)

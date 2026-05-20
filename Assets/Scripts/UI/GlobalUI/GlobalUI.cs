@@ -6,7 +6,8 @@ public class GlobalUI : MonoBehaviour
 {
     public static GlobalUI Instance { get; private set; }
 
-    public FadeScreen fadeScreen { get; private set; }
+    public FadeScreenUI fadeScreenUI { get; private set; }
+    public HintMessageUI hintMessageUI { get; private set; }
 
     private bool gameIsPaused = false;
 
@@ -17,7 +18,8 @@ public class GlobalUI : MonoBehaviour
             Destroy(gameObject);
         }
         Instance = this;
-        fadeScreen = GetComponentInChildren<FadeScreen>();
+        fadeScreenUI = GetComponentInChildren<FadeScreenUI>();
+        hintMessageUI = GetComponentInChildren<HintMessageUI>();
     }
 
     public void PlayButtonClick()
