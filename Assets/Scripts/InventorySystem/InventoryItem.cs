@@ -40,5 +40,34 @@ public class InventoryItem
         itemEffect?.Unsubscribe(); 
     }
 
+    public void StartHoldingItem(InventoryPlayer inventoryPlayer)
+    {
+        itemEffect?.StartHoldingItem(this, inventoryPlayer);
+    }
+
+    public void EndHoldingItem(InventoryPlayer inventoryPlayer)
+    {
+        itemEffect?.EndHoldingItem(this, inventoryPlayer);
+    }
+
+    public bool MainUse(InventoryPlayer inventoryPlayer)
+    {
+        if (itemEffect == null)
+        {
+            return false;
+        }
+
+        return itemEffect.MainUse(this, inventoryPlayer);
+    }
+
+    public bool SecondaryUse(InventoryPlayer inventoryPlayer)
+    {
+        if (itemEffect == null)
+        {
+            return false;
+        }
+
+        return itemEffect.SecondaryUse(this, inventoryPlayer);
+    }
 
 }

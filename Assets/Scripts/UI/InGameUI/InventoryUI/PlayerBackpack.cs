@@ -119,11 +119,6 @@ public class PlayerBackpack : MonoBehaviour
             return false;
         }
 
-        if (itemToSet.ItemData.itemType != ItemType.Active)
-        {
-            return false;
-        }
-
         return SetQuickItem(itemToSet, heldQuickItemIndex);
     }
 

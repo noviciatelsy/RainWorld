@@ -23,11 +23,6 @@ public class PlayerItemSlotUI : BaseItemSlotUI, IPointerClickHandler
             return;
         }
 
-        if (itemInSlot.ItemData.itemType != ItemType.Active)
-        {
-            return;
-        }
-
         if (playerBackpack == null)
         {
             return;

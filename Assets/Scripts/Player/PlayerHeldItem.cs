@@ -10,6 +10,12 @@ public class PlayerHeldItem : MonoBehaviour
     [SerializeField] private SpriteRenderer holdingItemSprite;
     [SerializeField] private float baseScaleMultiplier = 4;
 
+    [Header("Use Input")]
+    [SerializeField] private float secondaryUseHoldThreshold = 0.35f;
+
+    private bool isPressingUseHoldingItem;
+    private float useHoldingItemStartTime;
+
     private void Awake()
     {
         inventoryPlayer = GetComponent<InventoryPlayer>();
@@ -42,7 +48,8 @@ public class PlayerHeldItem : MonoBehaviour
         mainInput.Player.EquipQuickItem_3.performed += OnEquipQuickItem3Performed;
         mainInput.Player.EquipQuickItem_4.performed += OnEquipQuickItem4Performed;
 
-        mainInput.Player.UseHoldingItem.performed += OnUseHoldingItemPerformed;
+        mainInput.Player.UseHoldingItem.started += OnUseHoldingItemStarted;
+        mainInput.Player.UseHoldingItem.canceled += OnUseHoldingItemCanceled;
     }
 
     private void UnsubscribeInput()
@@ -57,7 +64,8 @@ public class PlayerHeldItem : MonoBehaviour
         mainInput.Player.EquipQuickItem_3.performed -= OnEquipQuickItem3Performed;
         mainInput.Player.EquipQuickItem_4.performed -= OnEquipQuickItem4Performed;
 
-        mainInput.Player.UseHoldingItem.performed -= OnUseHoldingItemPerformed;
+        mainInput.Player.UseHoldingItem.started -= OnUseHoldingItemStarted;
+        mainInput.Player.UseHoldingItem.canceled -= OnUseHoldingItemCanceled;
     }
 
     private void OnEquipQuickItem1Performed(InputAction.CallbackContext context)
@@ -80,14 +88,36 @@ public class PlayerHeldItem : MonoBehaviour
         TryHoldQuickItem(3);
     }
 
-    private void OnUseHoldingItemPerformed(InputAction.CallbackContext context)
+    private void OnUseHoldingItemStarted(InputAction.CallbackContext context)
     {
+        isPressingUseHoldingItem = true;
+        useHoldingItemStartTime = Time.unscaledTime;
+    }
+
+    private void OnUseHoldingItemCanceled(InputAction.CallbackContext context)
+    {
+        if (!isPressingUseHoldingItem)
+        {
+            return;
+        }
+
+        isPressingUseHoldingItem = false;
+
         if (inventoryPlayer == null)
         {
             return;
         }
 
-        inventoryPlayer.UseHoldingItem();
+        float holdDuration = Time.unscaledTime - useHoldingItemStartTime;
+
+        if (holdDuration >= secondaryUseHoldThreshold)
+        {
+            inventoryPlayer.TrySecondaryUseHoldingItem();
+        }
+        else
+        {
+            inventoryPlayer.TryMainUseHoldingItem();
+        }
     }
 
     private void TryHoldQuickItem(int quickSlotIndex)
@@ -149,13 +179,6 @@ public class PlayerHeldItem : MonoBehaviour
             1 / (bonusScaleMultiplier * safeBaseScaleMultiplier),
             1f
         );
-
-        //holdingItemSprite.transform.localScale = new Vector3
-        //(
-        //  1 / safeBaseScaleMultiplier,
-        // 1 / safeBaseScaleMultiplier,
-        // 1f
-        //);
 
     }
 
