@@ -26,9 +26,7 @@ public class PlayerControl : MonoBehaviour
     [SerializeField] private LayerMask oneWayPlatformLayer;   // 单向平台所在层
     [SerializeField] private float dropIgnoreTime = 0.25f;    // 忽略碰撞持续时间
 
-    [Header("HoldItem")]
-    [SerializeField] private SpriteRenderer holdingItemSprite;
-    [SerializeField] private float baseScaleMultiplier = 4;
+
     public Player player { get; private set; }
     public Animator anim {  get; private set; }
     public Rigidbody2D rb { get; private set; }
@@ -161,54 +159,7 @@ public class PlayerControl : MonoBehaviour
         // 是否接触墙壁
     }
 
-    public void StartHoldingItem(ItemDataSO itemToHold)
-    {
-        if (holdingItemSprite == null)
-        {
-            return;
-        }
 
-        if (itemToHold == null || itemToHold.itemIcon == null)
-        {
-            EndHoldingItem();
-            return;
-        }
-
-        holdingItemSprite.sprite = itemToHold.itemIcon;
-        holdingItemSprite.enabled = true;
-
-        BackpackItemDataSO backpackItemData = itemToHold.backpackItemData;
-
-        if (backpackItemData == null)
-        {
-            holdingItemSprite.transform.localScale = Vector3.one;
-            return;
-        }
-
-        int width = Mathf.Max(1, backpackItemData.imageSize.x);
-        int height = Mathf.Max(1, backpackItemData.imageSize.y);
-
-        float safeBaseScaleMultiplier = Mathf.Max(1f, baseScaleMultiplier);
-
-        holdingItemSprite.transform.localScale = new Vector3
-        (
-            1/width*safeBaseScaleMultiplier,
-            1/height*safeBaseScaleMultiplier,
-            1f
-        );
-    }
-
-    public void EndHoldingItem()
-    {
-        if (holdingItemSprite == null)
-        {
-            return;
-        }
-
-        holdingItemSprite.enabled = false;
-        holdingItemSprite.sprite = null;
-        holdingItemSprite.transform.localScale = Vector3.one;
-    }
 
     public void EnablePlayerControl()
     {

@@ -846,7 +846,6 @@ public class NoteBookUI : MonoBehaviour
             return;
         }
 
-        canvasGroup.interactable = enable;
         canvasGroup.blocksRaycasts = enable;
     }
 

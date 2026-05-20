@@ -13,7 +13,7 @@ public class InventoryPlayer : InventoryBase
     public event Action onQuickItemsChange;
 
     private Player player;
-    private PlayerControl playerControl;
+    private PlayerHeldItem playerHeldItem;
     [Header("手持主动道具")]
     [SerializeField] private bool clearHoldingItemWhenInvalid = true;
 
@@ -37,7 +37,7 @@ public class InventoryPlayer : InventoryBase
     {
         base.Awake();
         player = GetComponent<Player>();
-        playerControl = GetComponent<PlayerControl>();
+        playerHeldItem = GetComponent<PlayerHeldItem>();
 
         EnsureSlotListSize();
         SanitizeEmptyItemShells();
@@ -399,9 +399,9 @@ public class InventoryPlayer : InventoryBase
 
         holdingItem = itemToHold;
 
-        if (playerControl != null)
+        if (playerHeldItem != null)
         {
-            playerControl.StartHoldingItem(holdingItem.ItemData);
+            playerHeldItem.StartHoldingItem(holdingItem.ItemData);
         }
 
         onHoldingItemChange?.Invoke(holdingItem);
@@ -416,9 +416,9 @@ public class InventoryPlayer : InventoryBase
 
         holdingItem = null;
 
-        if (playerControl != null)
+        if (playerHeldItem != null)
         {
-            playerControl.EndHoldingItem();
+            playerHeldItem.EndHoldingItem();
         }
 
         onHoldingItemChange?.Invoke(null);
