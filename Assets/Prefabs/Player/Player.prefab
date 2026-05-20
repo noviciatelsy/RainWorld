@@ -100,6 +100,7 @@ GameObject:
   - component: {fileID: 595886777981685744}
   - component: {fileID: 2536843987404145219}
   - component: {fileID: 4877479732014819151}
+  - component: {fileID: 808092062085497677}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -271,6 +272,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 512
   dropIgnoreTime: 0.3
+  holdingItemSprite: {fileID: 7874282980875062518}
+  baseScaleMultiplier: 4
   jumpBufferTimer: -999
 --- !u!114 &2536843987404145219
 MonoBehaviour:
@@ -548,6 +551,7 @@ MonoBehaviour:
   itemDataBase: {fileID: 0}
   quickItemSlotSize: 4
   quickItemSlotList: []
+  clearHoldingItemWhenInvalid: 1
   testItems:
   - {fileID: 11400000, guid: 449ee6def96c7344296c75ed7d358f9c, type: 2}
   - {fileID: 11400000, guid: f8e7e67aa5cc6aa42b722f9e844711e4, type: 2}
@@ -579,6 +583,18 @@ MonoBehaviour:
   autoIncreaseHunger: 1
   hungerIncreaseInterval: 15
   hungerIncreaseAmount: 1
+--- !u!114 &808092062085497677
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 129472153574247727}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29be97f5b76afc243a4ccf6069e0658f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8150497666571950502
 GameObject:
   m_ObjectHideFlags: 0
