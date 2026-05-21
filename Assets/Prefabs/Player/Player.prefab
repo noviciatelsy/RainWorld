@@ -595,6 +595,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   holdingItemSprite: {fileID: 7874282980875062518}
   baseScaleMultiplier: 3
+  secondaryUseHoldThreshold: 0.35
 --- !u!1 &8150497666571950502
 GameObject:
   m_ObjectHideFlags: 0
@@ -741,7 +742,7 @@ SpriteRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8523841828384543673}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
