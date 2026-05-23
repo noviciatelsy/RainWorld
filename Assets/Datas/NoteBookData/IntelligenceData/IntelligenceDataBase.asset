@@ -12,4 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df8020cd740ace44b8752b266fc6c105, type: 3}
   m_Name: IntelligenceDataBase
   m_EditorClassIdentifier: 
-  intelligenceDataBase: []
+  intelligenceDataBase:
+  - {fileID: 11400000, guid: b995d62de3a46974b9ed194b9d86df94, type: 2}

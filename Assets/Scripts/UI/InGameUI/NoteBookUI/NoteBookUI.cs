@@ -59,6 +59,12 @@ public class NoteBookUI : MonoBehaviour
     [SerializeField] private bool useUnscaledTime = true;
     [SerializeField] private AnimationCurve pageTurnCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
+    [Header("Locked Enemy Picture Settings")]
+    [SerializeField] private Sprite lockedEnemyPictureSprite;
+
+    [Header("Auto Focus Settings")]
+    [SerializeField] private float autoFocusTurnInterval = 0.05f;
+
     private NoteBookSection currentSection = NoteBookSection.Home;
     private int currentSpreadIndex = 0;
 
@@ -66,6 +72,8 @@ public class NoteBookUI : MonoBehaviour
     private int intelligenceSpreadCount = 1;
 
     private bool isTurning = false;
+    public bool IsBusy => isTurning;
+
     private Coroutine pageTurnCoroutine;
 
     private readonly List<GameObject> createdRuntimePageObjects = new List<GameObject>();
@@ -84,6 +92,9 @@ public class NoteBookUI : MonoBehaviour
     private readonly List<IntelligencePageUI> rightIntelligencePages = new List<IntelligencePageUI>();
     private readonly List<IntelligencePageUI> turningLeftIntelligencePages = new List<IntelligencePageUI>();
     private readonly List<IntelligencePageUI> turningRightIntelligencePages = new List<IntelligencePageUI>();
+
+    private readonly List<EnemyInformationDataSO> currentUnlockedEnemies = new List<EnemyInformationDataSO>();
+    private readonly List<IntelligenceDataSO> currentUnlockedIntelligences = new List<IntelligenceDataSO>();
 
     private InGameUI inGameUI;
 
@@ -192,28 +203,52 @@ public class NoteBookUI : MonoBehaviour
         inGameUI.ToggleNoteBookUI();
     }
 
+    public void OpenToUnlockedArchiveEntry(ArchiveUnlockRecord unlockRecord)
+    {
+        if (unlockRecord == null)
+        {
+            Open();
+            return;
+        }
+
+        gameObject.SetActive(true);
+
+        StopCurrentTurnCoroutine();
+
+        currentSection = NoteBookSection.Home;
+        currentSpreadIndex = 0;
+        isTurning = false;
+
+        RebuildAllPagesFromArchive();
+
+        ShowHomePagesImmediate();
+        HideTurningPagesImmediate();
+
+        pageTurnCoroutine = StartCoroutine(AutoOpenToUnlockedEntryRoutine(unlockRecord));
+    }
+
     private void RebuildAllPagesFromArchive()
     {
         ClearRuntimePages();
         ResetPageContentCollections();
 
-        IntelligenceArchiveManager archiveManager = IntelligenceArchiveManager.Instance;
+        currentUnlockedEnemies.Clear();
+        currentUnlockedIntelligences.Clear();
 
-        List<EnemyInformationDataSO> unlockedEnemies = new List<EnemyInformationDataSO>();
-        List<IntelligenceDataSO> unlockedIntelligences = new List<IntelligenceDataSO>();
+        IntelligenceArchiveManager archiveManager = IntelligenceArchiveManager.Instance;
 
         if (archiveManager != null)
         {
-            unlockedEnemies = archiveManager.GetUnlockedEnemies();
-            unlockedIntelligences = archiveManager.GetUnlockedIntelligences();
+            currentUnlockedEnemies.AddRange(archiveManager.GetUnlockedEnemies());
+            currentUnlockedIntelligences.AddRange(archiveManager.GetUnlockedIntelligences());
         }
         else
         {
             Debug.LogWarning("NoteBookUI 无法读取图鉴数据：场景中没有 IntelligenceArchiveManager。");
         }
 
-        BuildEnemyPages(unlockedEnemies, archiveManager);
-        BuildIntelligencePages(unlockedIntelligences);
+        BuildEnemyPages(currentUnlockedEnemies, archiveManager);
+        BuildIntelligencePages(currentUnlockedIntelligences);
     }
 
     private void ClearRuntimePages()
@@ -324,6 +359,7 @@ public class NoteBookUI : MonoBehaviour
             enemyData,
             archiveManager,
             unknownEnemySprite,
+            lockedEnemyPictureSprite,
             unknownEnemyName,
             unknownEnemyInformationLine,
             unknownEnemyInformationLineCount
@@ -930,5 +966,153 @@ public class NoteBookUI : MonoBehaviour
             StopCoroutine(pageTurnCoroutine);
             pageTurnCoroutine = null;
         }
+    }
+
+    private IEnumerator AutoOpenToUnlockedEntryRoutine(ArchiveUnlockRecord unlockRecord)
+    {
+        isTurning = true;
+
+        SetInputEnabled(false);
+
+        NoteBookSection targetSection = GetTargetSectionByUnlockRecord(unlockRecord);
+        int targetSpreadIndex = GetTargetSpreadIndexByUnlockRecord(unlockRecord, targetSection);
+
+        // 自动从首页进入对应分类时，也要保留首页装饰书签，
+        // 等 TurningPageLeft 盖下去后再换成真正的书签按钮
+        HideNavigationButtons(true);
+
+        yield return PlayRightTurnRoutine(NoteBookSection.Home, 0, targetSection, 0);
+
+        currentSection = targetSection;
+        currentSpreadIndex = 0;
+
+        ShowCurrentMainPagesImmediate();
+
+        while (currentSpreadIndex < targetSpreadIndex)
+        {
+            if (autoFocusTurnInterval > 0f)
+            {
+                yield return WaitForDurationRoutine(autoFocusTurnInterval);
+            }
+
+            HideNavigationButtons(false);
+
+            int nextSpreadIndex = currentSpreadIndex + 1;
+
+            yield return PlayRightTurnRoutine(currentSection, currentSpreadIndex, currentSection, nextSpreadIndex);
+
+            currentSpreadIndex = nextSpreadIndex;
+
+            ShowCurrentMainPagesImmediate();
+        }
+
+        HideTurningPagesImmediate();
+
+        isTurning = false;
+        pageTurnCoroutine = null;
+
+        RefreshNavigationButtons();
+
+        SetInputEnabled(true);
+    }
+
+    private NoteBookSection GetTargetSectionByUnlockRecord(ArchiveUnlockRecord unlockRecord)
+    {
+        if (unlockRecord == null)
+        {
+            return NoteBookSection.Home;
+        }
+
+        if (unlockRecord.unlockType == ArchiveUnlockType.Intelligence)
+        {
+            return NoteBookSection.Intelligence;
+        }
+
+        return NoteBookSection.Enemy;
+    }
+
+    private int GetTargetSpreadIndexByUnlockRecord(ArchiveUnlockRecord unlockRecord, NoteBookSection targetSection)
+    {
+        if (unlockRecord == null)
+        {
+            return 0;
+        }
+
+        if (targetSection == NoteBookSection.Intelligence)
+        {
+            int intelligenceIndex = GetIntelligenceIndex(unlockRecord.intelligenceData);
+
+            if (intelligenceIndex < 0)
+            {
+                return 0;
+            }
+
+            int intelligencesPerSpread = Mathf.Max(1, intelligencesPerPage * 2);
+            return intelligenceIndex / intelligencesPerSpread;
+        }
+
+        if (targetSection == NoteBookSection.Enemy)
+        {
+            int enemyIndex = GetEnemyIndex(unlockRecord.enemyInformationData);
+
+            if (enemyIndex < 0)
+            {
+                return 0;
+            }
+
+            return enemyIndex / 2;
+        }
+
+        return 0;
+    }
+
+    private int GetIntelligenceIndex(IntelligenceDataSO intelligenceData)
+    {
+        if (intelligenceData == null)
+        {
+            return -1;
+        }
+
+        for (int i = 0; i < currentUnlockedIntelligences.Count; i++)
+        {
+            IntelligenceDataSO currentData = currentUnlockedIntelligences[i];
+
+            if (currentData == intelligenceData)
+            {
+                return i;
+            }
+
+            if (currentData != null && currentData.SaveID == intelligenceData.SaveID)
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    private int GetEnemyIndex(EnemyInformationDataSO enemyInformationData)
+    {
+        if (enemyInformationData == null)
+        {
+            return -1;
+        }
+
+        for (int i = 0; i < currentUnlockedEnemies.Count; i++)
+        {
+            EnemyInformationDataSO currentData = currentUnlockedEnemies[i];
+
+            if (currentData == enemyInformationData)
+            {
+                return i;
+            }
+
+            if (currentData != null && currentData.SaveID == enemyInformationData.SaveID)
+            {
+                return i;
+            }
+        }
+
+        return -1;
     }
 }

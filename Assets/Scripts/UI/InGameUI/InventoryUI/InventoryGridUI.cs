@@ -130,7 +130,8 @@ public class InventoryGridUI : MonoBehaviour
 
         // 先进入拖拽状态，再从 Inventory 中移除。
         // 这样快捷栏验证时能知道这个物品只是“正在被拖着”，不是已经丢了。
-        draggedItemUI.BeginDrag(item, inventory, hasOldTopLeft, oldTopLeft, oldRotateState);
+        //draggedItemUI.BeginDrag(item, inventory, hasOldTopLeft, oldTopLeft, oldRotateState);
+        draggedItemUI.BeginDrag(item);
         bool removed = inventory.RemoveItem(item);
         if (!removed)
         {
@@ -184,7 +185,8 @@ public class InventoryGridUI : MonoBehaviour
             // 单物品交换：
             // 当前拖拽物品放入这个 InventoryBase；
             // 被冲突的物品离开这个 InventoryBase，变成新的拖拽物品。
-            draggedItemUI.BeginDrag(replacedItem, inventory);
+            //draggedItemUI.BeginDrag(replacedItem, inventory);
+            draggedItemUI.BeginDrag(replacedItem);
         }
 
         ClearSlotStates();

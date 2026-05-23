@@ -1,4 +1,5 @@
 using System;
+using UnityEditor.Media;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -18,19 +19,17 @@ public class DraggedItemUI : MonoBehaviour
     [SerializeField] private float maxVelocityForInertia = 2000f; // 参与惯性计算的最大鼠标速度
     [SerializeField] private bool useUnscaledTime = true; // 是否无视Time.timeScale
 
+
     public bool IsDragging { get; private set; } // bool锁，是否正在拖拽物品
     public InventoryItem draggedItem { get; private set; } // 拖拽时暂存的物品
 
-    public InventoryBase SourceInventory { get; private set; } // 原本来自哪个InventoryBase
-    public Vector2Int SourceTopLeft { get; private set; } // 原本所在矩形左上角
-    public ItemRotateState SourceRotateState { get; private set; } // 原本旋转状态
-    public bool HasSourcePlacement { get; private set; } // 是否记录了原位置
 
     public event Action<InventoryItem> OnBeginDraggingItem;
     public event Action<InventoryItem> OnEndDraggingItem;
     public event Action OnDraggedItemRotated;
 
     private RectTransform selfRt; // 自身的Rect
+    private InventoryPlayer playerInventory;
 
     private Vector2 previousMousePosition; // 上一帧鼠标在Canvas本地坐标中的位置
     private Vector2 smoothedMouseVelocity; // 平滑后的鼠标速度
@@ -48,6 +47,17 @@ public class DraggedItemUI : MonoBehaviour
         selfRt = transform as RectTransform;
 
         HideItem(); // 隐藏拖拽时的物品图标
+    }
+
+    private void OnEnable()
+    {
+        GetPlayerInventory(PlayerManager.Instance.TryGetCurrentPlayer());
+        PlayerManager.Instance.OnPlayerRegistered += GetPlayerInventory;
+    }
+
+    private void OnDisable()
+    {
+        PlayerManager.Instance.OnPlayerRegistered -= GetPlayerInventory;
     }
 
     private void Update()
@@ -79,30 +89,14 @@ public class DraggedItemUI : MonoBehaviour
         }
     }
 
-    public void BeginDrag(InventoryItem item, InventoryBase sourceInventory = null)
-    {
-        BeginDrag(item, sourceInventory, false, Vector2Int.zero, item != null ? item.rotateState : ItemRotateState.Rotate0);
-    }
 
-    public void BeginDrag(
-            InventoryItem item,
-            InventoryBase sourceInventory,
-            bool hasSourcePlacement,
-            Vector2Int sourceTopLeft,
-            ItemRotateState sourceRotateState
-        )
+    public void BeginDrag(InventoryItem item)
     {
         if (item == null)
         {
             return;
         }
-
         draggedItem = item;
-        SourceInventory = sourceInventory;
-        HasSourcePlacement = hasSourcePlacement;
-        SourceTopLeft = sourceTopLeft;
-        SourceRotateState = sourceRotateState;
-
         IsDragging = true;
 
         ResetDragInertia();
@@ -118,37 +112,22 @@ public class DraggedItemUI : MonoBehaviour
         HideItem();
 
         draggedItem = null;
-        SourceInventory = null;
-        SourceTopLeft = Vector2Int.zero;
-        SourceRotateState = ItemRotateState.Rotate0;
-        HasSourcePlacement = false;
 
         IsDragging = false;
 
         OnEndDraggingItem?.Invoke(endedItem);
     }
 
-    public bool TryReturnToSource()
+    public void TryDropItem()
     {
-        if (!IsDragging || draggedItem == null || SourceInventory == null || !HasSourcePlacement)
+        if (!IsDragging || draggedItem == null)
         {
-            return false;
+            return;
         }
+        playerInventory.DropItem(draggedItem.ItemData);
 
-        draggedItem.rotateState = SourceRotateState;
-
-        bool success = SourceInventory.PlaceItem(
-            draggedItem,
-            SourceTopLeft,
-            SourceRotateState
-        );
-
-        if (success)
-        {
-            EndDrag();
-        }
-
-        return success;
+        EndDrag();
+        return;
     }
 
     private void HideItem()
@@ -280,5 +259,14 @@ public class DraggedItemUI : MonoBehaviour
 
         inertiaAngle = 0f;
         inertiaAngleVelocity = 0f;
+    }
+
+    private void GetPlayerInventory(Player player)
+    {
+        if(player == null)
+        {
+            return;
+        }
+        playerInventory = player.GetComponent<InventoryPlayer>();
     }
 }

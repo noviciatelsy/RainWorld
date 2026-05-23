@@ -17,6 +17,7 @@ public class InGameUI : MonoBehaviour
     private bool notebookUIEnabled;
 
     private bool canReturnByESC = true;
+    private bool hasSubscribedArchiveManager = false;
     private MainInput mainInput;
     private void Awake()
     {
@@ -38,18 +39,104 @@ public class InGameUI : MonoBehaviour
 
     private void OnEnable()
     {
-        mainInput.UI.CheckBackpack.performed += ctx=> ToggleBackpackUI();
-        mainInput.UI.Map.performed += ctx => ToggleMapUI();
-        mainInput.UI.NoteBook.performed += ctx=> ToggleNoteBookUI();
-        mainInput.UI.Escape.performed += ctx => HandleEscape() ;
+        if (mainInput != null)
+        {
+            mainInput.UI.CheckBackpack.performed += OnCheckBackpackPerformed;
+            mainInput.UI.Map.performed += OnMapPerformed;
+            mainInput.UI.NoteBook.performed += OnNoteBookPerformed;
+            mainInput.UI.Escape.performed += OnEscapePerformed;
+        }
+
+        TrySubscribeArchiveManager();
+    }
+
+    private void Start()
+    {
+        TrySubscribeArchiveManager();
     }
 
     private void OnDisable()
     {
-        mainInput.UI.CheckBackpack.performed -= ctx => ToggleBackpackUI();
-        mainInput.UI.Map.performed -= ctx => ToggleMapUI();
-        mainInput.UI.NoteBook.performed -= ctx => ToggleNoteBookUI();
-        mainInput.UI.Escape.performed -= ctx => HandleEscape();
+        if (mainInput != null)
+        {
+            mainInput.UI.CheckBackpack.performed -= OnCheckBackpackPerformed;
+            mainInput.UI.Map.performed -= OnMapPerformed;
+            mainInput.UI.NoteBook.performed -= OnNoteBookPerformed;
+            mainInput.UI.Escape.performed -= OnEscapePerformed;
+        }
+
+        UnsubscribeArchiveManager();
+    }
+
+    private void OnCheckBackpackPerformed(UnityEngine.InputSystem.InputAction.CallbackContext context)
+    {
+        ToggleBackpackUI();
+    }
+
+    private void OnMapPerformed(UnityEngine.InputSystem.InputAction.CallbackContext context)
+    {
+        ToggleMapUI();
+    }
+
+    private void OnNoteBookPerformed(UnityEngine.InputSystem.InputAction.CallbackContext context)
+    {
+        ToggleNoteBookUI();
+    }
+
+    private void OnEscapePerformed(UnityEngine.InputSystem.InputAction.CallbackContext context)
+    {
+        HandleEscape();
+    }
+
+    private void TrySubscribeArchiveManager()
+    {
+        if (hasSubscribedArchiveManager)
+        {
+            return;
+        }
+
+        if (IntelligenceArchiveManager.Instance == null)
+        {
+            return;
+        }
+
+        IntelligenceArchiveManager.Instance.OnArchiveEntryUnlocked += HandleArchiveEntryUnlocked;
+        hasSubscribedArchiveManager = true;
+    }
+
+    private void UnsubscribeArchiveManager()
+    {
+        if (!hasSubscribedArchiveManager)
+        {
+            return;
+        }
+
+        if (IntelligenceArchiveManager.Instance != null)
+        {
+            IntelligenceArchiveManager.Instance.OnArchiveEntryUnlocked -= HandleArchiveEntryUnlocked;
+        }
+
+        hasSubscribedArchiveManager = false;
+    }
+
+    private void HandleArchiveEntryUnlocked(ArchiveUnlockRecord unlockRecord)
+    {
+        if (unlockRecord == null)
+        {
+            return;
+        }
+
+        if (notebookUI == null)
+        {
+            return;
+        }
+
+        CloseAllPanelsBeforeOpening(InGamePanelType.NoteBook);
+
+        notebookUIEnabled = true;
+        notebookUI.OpenToUnlockedArchiveEntry(unlockRecord);
+
+        HideToolTips();
     }
 
     private void HandleEscape()
@@ -58,6 +145,12 @@ public class InGameUI : MonoBehaviour
         {
             return;
         }
+
+        if (notebookUIEnabled && notebookUI != null && notebookUI.IsBusy) // 如果正在自动翻页
+        {
+            return;
+        }
+
         // 如果已经有面板开着：只关闭“当前最上层”的那个（按优先级）
         if (AnyPanelOpen())
         {
@@ -154,11 +247,18 @@ public class InGameUI : MonoBehaviour
 
     public void ToggleNoteBookUI()
     {
+        if (notebookUI != null && notebookUI.IsBusy)
+        {
+            return;
+        }
+
         bool willOpen = !notebookUIEnabled;
-        if(willOpen)
+
+        if (willOpen)
         {
             CloseAllPanelsBeforeOpening(InGamePanelType.NoteBook);
         }
+
         notebookUIEnabled = willOpen;
         SwitchNoteBookUI(notebookUIEnabled);
         HideToolTips();
@@ -260,7 +360,11 @@ public class InGameUI : MonoBehaviour
     {
         return backpackUIEnabled
             ||lootUIEnabled
-            ||retrieveUIEnabled;
+            ||retrieveUIEnabled
+            ||mapUIEnabled
+            ||notebookUIEnabled
+            ;
+
     }
 }
 

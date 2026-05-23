@@ -52,7 +52,7 @@ public class BackpackUI : MonoBehaviour
     {
         if (draggedItemUI != null && draggedItemUI.IsDragging)
         {
-            draggedItemUI.TryReturnToSource();
+            draggedItemUI.TryDropItem();
         }
 
 

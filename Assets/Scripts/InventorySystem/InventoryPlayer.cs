@@ -18,8 +18,13 @@ public class InventoryPlayer : InventoryBase
     [SerializeField] private bool clearHoldingItemWhenInvalid = true;
 
     public InventoryItem holdingItem { get; private set; }
+    public int money { get; private set; } = 0;
 
     public event Action<InventoryItem> onHoldingItemChange;
+    public event Action<int> onMoneyChanged;
+
+    [Header("可拾取物品")]
+    [SerializeField] private PickableObject pickableObject;
 
     [Header("测试物品")]
     [SerializeField] private ItemDataSO[] testItems;
@@ -593,5 +598,44 @@ public class InventoryPlayer : InventoryBase
         }
 
         return changed;
+    }
+
+    public void DropItem(ItemDataSO itemToDrop)
+    {
+        bool facingRight = GetComponent<PlayerControl>().facingDir > 0 ? true : false;
+        GameObject itemDropped = Instantiate(
+        pickableObject.gameObject,
+        gameObject.transform.position,
+        Quaternion.identity
+    );
+        itemDropped.GetComponent<PickableObject>()
+                   .SetupObject(itemToDrop, facingRight);
+    }
+
+    public void AddMoney(int amount)
+    {
+        if(amount>=0)
+        {
+            money += amount;
+            onMoneyChanged?.Invoke(money);
+        }
+    }
+
+    public void ReduceMoney(int amount)
+    {
+        if(amount>=0)
+        {
+            money -= amount;
+            if(money < 0)
+            {
+                money = 0;
+            }
+            onMoneyChanged?.Invoke(money);
+        }
+    }
+
+    public bool MoneyCanAfford(int amount)
+    {
+        return money >=amount;
     }
 }
