@@ -163,7 +163,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d784240c8d65304d993fbaf40dd8d37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  randomRotateAngleRange: {x: 3, y: 5}
+  randomRotateAngleRange: {x: 1, y: 3}
   rotateOutDuration: 0.06
   rotateBackDuration: 0.12
   backOvershootRatio: 0.18

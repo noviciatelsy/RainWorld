@@ -67,7 +67,7 @@ public class RetrieveUI : MonoBehaviour
     {
         if (draggedItemUI != null && draggedItemUI.IsDragging)
         {
-            draggedItemUI.TryReturnToSource();
+            draggedItemUI.TryDropItem();
         }
 
         if (playerInventoryGrid != null)

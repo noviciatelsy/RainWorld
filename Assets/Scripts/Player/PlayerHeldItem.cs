@@ -14,6 +14,7 @@ public class PlayerHeldItem : MonoBehaviour
     [SerializeField] private float secondaryUseHoldThreshold = 0.35f;
 
     private bool isPressingUseHoldingItem;
+    private bool hasTriggeredSecondaryUseHoldingItem;
     private float useHoldingItemStartTime;
 
     private void Awake()
@@ -34,6 +35,12 @@ public class PlayerHeldItem : MonoBehaviour
     private void OnDisable()
     {
         UnsubscribeInput();
+        ResetUseHoldingItemInputState();
+    }
+
+    private void Update()
+    {
+        TryTriggerSecondaryUseByHolding();
     }
 
     private void SubscribeInput()
@@ -91,6 +98,7 @@ public class PlayerHeldItem : MonoBehaviour
     private void OnUseHoldingItemStarted(InputAction.CallbackContext context)
     {
         isPressingUseHoldingItem = true;
+        hasTriggeredSecondaryUseHoldingItem = false;
         useHoldingItemStartTime = Time.unscaledTime;
     }
 
@@ -101,7 +109,34 @@ public class PlayerHeldItem : MonoBehaviour
             return;
         }
 
-        isPressingUseHoldingItem = false;
+        bool shouldTriggerMainUse = !hasTriggeredSecondaryUseHoldingItem;
+
+        ResetUseHoldingItemInputState();
+
+        if (!shouldTriggerMainUse)
+        {
+            return;
+        }
+
+        if (inventoryPlayer == null)
+        {
+            return;
+        }
+
+        inventoryPlayer.TryMainUseHoldingItem();
+    }
+
+    private void TryTriggerSecondaryUseByHolding()
+    {
+        if (!isPressingUseHoldingItem)
+        {
+            return;
+        }
+
+        if (hasTriggeredSecondaryUseHoldingItem)
+        {
+            return;
+        }
 
         if (inventoryPlayer == null)
         {
@@ -110,14 +145,20 @@ public class PlayerHeldItem : MonoBehaviour
 
         float holdDuration = Time.unscaledTime - useHoldingItemStartTime;
 
-        if (holdDuration >= secondaryUseHoldThreshold)
+        if (holdDuration < secondaryUseHoldThreshold)
         {
-            inventoryPlayer.TrySecondaryUseHoldingItem();
+            return;
         }
-        else
-        {
-            inventoryPlayer.TryMainUseHoldingItem();
-        }
+
+        hasTriggeredSecondaryUseHoldingItem = true;
+        inventoryPlayer.TrySecondaryUseHoldingItem();
+    }
+
+    private void ResetUseHoldingItemInputState()
+    {
+        isPressingUseHoldingItem = false;
+        hasTriggeredSecondaryUseHoldingItem = false;
+        useHoldingItemStartTime = 0f;
     }
 
     private void TryHoldQuickItem(int quickSlotIndex)
@@ -157,19 +198,7 @@ public class PlayerHeldItem : MonoBehaviour
         float width = Mathf.Max(1, backpackItemData.imageSize.x);
         float height = Mathf.Max(1, backpackItemData.imageSize.y);
 
-        float bonusScaleMultiplier=1;
-        if (width >= height)
-        {
-            bonusScaleMultiplier = Mathf.Lerp(height,width, 0.5f);
-        }
-        else
-        {
-            bonusScaleMultiplier = Mathf.Lerp(width, height, 0.5f);
-        }
-        if(width==1&&height==1)
-        {
-            bonusScaleMultiplier = 2;
-        }
+        float bonusScaleMultiplier = Mathf.Sqrt(width * height);
 
         float safeBaseScaleMultiplier = Mathf.Max(1f, baseScaleMultiplier);
 
@@ -179,7 +208,6 @@ public class PlayerHeldItem : MonoBehaviour
             1 / (bonusScaleMultiplier * safeBaseScaleMultiplier),
             1f
         );
-
     }
 
     public void EndHoldingItem()

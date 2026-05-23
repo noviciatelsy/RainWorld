@@ -692,6 +692,8 @@ MonoBehaviour:
     type: 2}
   saveImmediatelyWhenUnlock: 1
   autoUnlockEnemyWhenUnlockEnemyIntelligence: 1
+  autoUnlockEnemyWhenUnlockEnemyPicture: 1
+  test: {fileID: 11400000, guid: b995d62de3a46974b9ed194b9d86df94, type: 2}
 --- !u!1 &3408192366164122419
 GameObject:
   m_ObjectHideFlags: 0
@@ -962,6 +964,9 @@ MonoBehaviour:
     unlockedIntelligences: []
     unlockedEnemyIntelligences: []
     unlockedEnemies: []
+    unlockedEnemyPicture:
+      keys: []
+      values: 
   fileName: RainWorldYC.json
   encryptData: 1
 --- !u!1 &6971042185059060553
@@ -1233,10 +1238,10 @@ MonoBehaviour:
   longText: {fileID: 6516219395889494379}
   longCanvasGroup: {fileID: 7887620635777550549}
   longLayoutElement: {fileID: 3337674624132391523}
-  quickShowSeconds: 0.75
-  switchPauseSeconds: 0.15
+  quickShowSeconds: 0.5
+  switchPauseSeconds: 0.1
   useFade: 1
-  fadeSeconds: 0.12
+  fadeSeconds: 0.1
 --- !u!1 &8165248472584579676
 GameObject:
   m_ObjectHideFlags: 0

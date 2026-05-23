@@ -7,8 +7,8 @@ public class EnemyPageUI : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private Image enemyPictureImage;
-    [SerializeField] private TextMeshProUGUI enemyNameText;
-    [SerializeField] private TextMeshProUGUI enemyInformationText;
+    [SerializeField] private TMP_Text enemyNameText;
+    [SerializeField] private TMP_Text enemyInformationText;
 
     public void SetUnknown(Sprite unknownEnemySprite, string unknownEnemyName, string unknownLineText, int unknownLineCount)
     {
@@ -33,6 +33,7 @@ public class EnemyPageUI : MonoBehaviour
         EnemyInformationDataSO enemyData,
         IntelligenceArchiveManager archiveManager,
         Sprite unknownEnemySprite,
+        Sprite lockedEnemyPictureSprite,
         string unknownEnemyName,
         string unknownLineText,
         int unknownLineCount)
@@ -58,8 +59,17 @@ public class EnemyPageUI : MonoBehaviour
 
         if (enemyPictureImage != null)
         {
-            enemyPictureImage.sprite = enemyData.enemyPicture;
-            enemyPictureImage.enabled = enemyData.enemyPicture != null;
+            bool pictureUnlocked = archiveManager.IsEnemyPictureUnlocked(enemyData);
+
+            Sprite pictureSprite = pictureUnlocked ? enemyData.enemyPicture : lockedEnemyPictureSprite;
+
+            if (pictureSprite == null)
+            {
+                pictureSprite = unknownEnemySprite;
+            }
+
+            enemyPictureImage.sprite = pictureSprite;
+            enemyPictureImage.enabled = pictureSprite != null;
         }
 
         if (enemyNameText != null)

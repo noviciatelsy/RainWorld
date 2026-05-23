@@ -183,6 +183,63 @@ public class ItemToolTip : BaseToolTip
         sellMoney.gameObject.SetActive(true);
     }
 
+    public void ShowItemToolTip(bool show, RectTransform targetRect, ItemDataSO itemData)
+    {
+        base.ShowToolTip(show, targetRect);
+        if (show == false)
+        {
+            return;
+        }
+
+        itemName.gameObject.SetActive(true);
+        itemName.text = itemData.itemDisplayName;
+
+        itemType.gameObject.SetActive(true);
+        itemType.text = itemData.GetItemTypeName();
+
+        itemDescription.gameObject.SetActive(true);
+        itemDescription.text = itemData.itemDescription;
+
+
+        if (itemData.itemEffectData != null)
+        {
+            itemEffect.gameObject.SetActive(true);
+            itemEffect.text = itemData.itemEffectData.effectDescription;
+        }
+        else
+        {
+            itemEffect.gameObject.SetActive(false);
+        }
+
+        equipInfo.gameObject.SetActive(false);
+        setQuickItemInfo.gameObject.SetActive(false);
+
+        if (itemData.itemType == ItemType.Active)
+        {
+            consumableItemInfo.gameObject.SetActive(true);
+            ActiveItemDataSO activeItemData = itemData as ActiveItemDataSO;
+            if (activeItemData.isConsumable)
+            {
+                consumableItemInfo.text = "消耗品";
+            }
+            else
+            {
+                consumableItemInfo.text = "非消耗品";
+            }
+        }
+        else
+        {
+            consumableItemInfo.gameObject.SetActive(false);
+        }
+
+        cancelQuickItemInfo.gameObject.SetActive(false);
+
+
+
+        sellMoney.text = "售出价格:" + itemData.itemSellPrice;
+        sellMoney.gameObject.SetActive(true);
+    }
+
     public void HideItemToolTip()
     {
         base.ShowToolTip(false, null);

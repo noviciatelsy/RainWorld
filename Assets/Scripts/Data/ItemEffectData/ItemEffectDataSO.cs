@@ -43,7 +43,7 @@ public class ItemEffectDataSO : ScriptableObject
             return false;
         }
 
-        Debug.Log($"准备丢弃道具：{item.ItemData.itemDisplayName}，但具体丢弃实体逻辑暂未实现。");
-        return false;
+        inventoryPlayer.DropItem(item.ItemData);
+        return true;
     }
 }

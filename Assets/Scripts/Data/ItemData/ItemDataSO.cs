@@ -20,6 +20,9 @@ public class ItemDataSO : ScriptableObject
     [Header("Merchant details")]
     public int itemBuyPrice = 0; // 物品购买价格
     public int itemSellPrice = 0; // 物品售出价格
+    public bool canBuyFromMerchant=true; // 是否能在商店购买
+    public bool autoUnlock=false; // 是否自动解锁
+    public int sellAmountToUnlock = 1; // 出售多少后可解锁
 
     public string GetItemTypeName()
     {
