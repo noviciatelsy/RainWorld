@@ -1,14 +1,23 @@
 using System;
-using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class ItemDataSO : ScriptableObject
 {
-    public string saveID { get; private set; }
+    [SerializeField, HideInInspector] private string itemSaveID;
+
+    public string saveID
+    {
+        get
+        {
+            return itemSaveID;
+        }
+    }
 
     [Header("Item Details")]
-
     public string itemDisplayName;
     [TextArea] public string itemDescription;
     public Sprite itemIcon;
@@ -20,8 +29,8 @@ public class ItemDataSO : ScriptableObject
     [Header("Merchant details")]
     public int itemBuyPrice = 0; // 物品购买价格
     public int itemSellPrice = 0; // 物品售出价格
-    public bool canBuyFromMerchant=true; // 是否能在商店购买
-    public bool autoUnlock=false; // 是否自动解锁
+    public bool canBuyFromMerchant = true; // 是否能在商店购买
+    public bool autoUnlock = false; // 是否自动解锁
     public int sellAmountToUnlock = 1; // 出售多少后可解锁
 
     public string GetItemTypeName()
@@ -39,16 +48,14 @@ public class ItemDataSO : ScriptableObject
             default:
                 return "无";
         }
-
     }
 
+#if UNITY_EDITOR
     private void OnValidate()
     {
-#if UNITY_EDITOR
         string path = AssetDatabase.GetAssetPath(this); // ScriptableObject 资源在工程里的路径
-        saveID = AssetDatabase.AssetPathToGUID(path); // 把这个 ScriptableObject 资源在工程里的 GUID，存进 saveID 这个字符串字段里
-#endif
+        itemSaveID = AssetDatabase.AssetPathToGUID(path); // 把这个 ScriptableObject 资源在工程里的 GUID，存进 saveID 这个字符串字段里
+        EditorUtility.SetDirty(this);
     }
-
+#endif
 }
-

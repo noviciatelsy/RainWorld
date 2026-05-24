@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fdf35bc37bd521d41925e66a18fb75bf, type: 3}
   m_Name: ActiveItemData - BigBread
   m_EditorClassIdentifier: 
+  itemSaveID: 
   itemDisplayName: "\u5927\u9762\u5305"
   itemDescription: "\u4E00\u5927\u888B\u9762\u5305\uFF0C\u677E\u8F6F\u53C8\u7F8E\u5473"
   itemIcon: {fileID: 21300000, guid: 604466f70c668a7488fa657aa3aeee97, type: 3}
@@ -21,4 +22,7 @@ MonoBehaviour:
   rarity: 1
   itemBuyPrice: 0
   itemSellPrice: 6
+  canBuyFromMerchant: 1
+  autoUnlock: 1
+  sellAmountToUnlock: 1
   isConsumable: 1

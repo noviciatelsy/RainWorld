@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fdf35bc37bd521d41925e66a18fb75bf, type: 3}
   m_Name: ActiveItemData - Baguette
   m_EditorClassIdentifier: 
+  itemSaveID: 
   itemDisplayName: "\u6CD5\u68CD"
   itemDescription: "\u575A\u786C\u7684\u6CD5\u68CD\uFF0C\u80FD\u5403\u4E5F\u80FD\u7528\u4F5C\u5DE5\u5177"
   itemIcon: {fileID: 21300000, guid: 2b9564e86a6bfe146bcb9ad11e6b4fee, type: 3}
@@ -21,4 +22,7 @@ MonoBehaviour:
   rarity: 2
   itemBuyPrice: 0
   itemSellPrice: 8
+  canBuyFromMerchant: 1
+  autoUnlock: 1
+  sellAmountToUnlock: 1
   isConsumable: 1

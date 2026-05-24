@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 897fa93c7d38228458e3620aba7d0259, type: 3}
   m_Name: TreasureItemData - Copper
   m_EditorClassIdentifier: 
+  itemSaveID: 
   itemDisplayName: "\u94DC\u5757"
   itemDescription: "\u5730\u4E0B\u968F\u5904\u53EF\u89C1\u7684\u94DC\u5757\uFF0C\u53EF\u6362\u53D6\u5C11\u91CF\u8D27\u5E01"
   itemIcon: {fileID: 21300000, guid: bf7788e88fee85b4692518c2883db230, type: 3}
@@ -21,3 +22,6 @@ MonoBehaviour:
   rarity: 1
   itemBuyPrice: 0
   itemSellPrice: 8
+  canBuyFromMerchant: 1
+  autoUnlock: 1
+  sellAmountToUnlock: 1

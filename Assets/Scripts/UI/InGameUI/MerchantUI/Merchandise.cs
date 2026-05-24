@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -13,7 +11,15 @@ public class Merchandise : MonoBehaviour
     public void SetItemData(ItemDataSO itemData)
     {
         this.itemData = itemData;
-        goods.SetItemData(itemData);
-        itemCostText.text=itemData.itemBuyPrice.ToString();
+
+        if (goods != null)
+        {
+            goods.SetItemData(itemData);
+        }
+
+        if (itemCostText != null)
+        {
+            itemCostText.text = itemData != null ? itemData.itemBuyPrice.ToString() : string.Empty;
+        }
     }
 }

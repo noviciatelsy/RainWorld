@@ -1,6 +1,9 @@
 using System.Linq;
-using UnityEditor;
 using UnityEngine;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 [CreateAssetMenu(menuName = "Setup/Item Data/Item List", fileName = "Lists Of Items - ")]
 public class ItemListDataSO : ScriptableObject
@@ -21,9 +24,9 @@ public class ItemListDataSO : ScriptableObject
         //“找所有类型是 ItemDataSO 的资源（t = type）”
         string[] guids = AssetDatabase.FindAssets("t:ItemDataSO"); // 在项目里找到所有的 ItemDataSO 资源的 GUID
         itemList = guids
-         .Select(guid => AssetDatabase.LoadAssetAtPath<ItemDataSO>(AssetDatabase.GUIDToAssetPath(guid)))
-         .Where(item => item != null)
-         .ToArray();
+            .Select(guid => AssetDatabase.LoadAssetAtPath<ItemDataSO>(AssetDatabase.GUIDToAssetPath(guid)))
+            .Where(item => item != null)
+            .ToArray();
 
         EditorUtility.SetDirty(this);
         // EditorUtility.SetDirty(this)：
