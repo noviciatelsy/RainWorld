@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class MerchantUI : MonoBehaviour
@@ -7,6 +5,7 @@ public class MerchantUI : MonoBehaviour
     [Header("Grids")]
     [SerializeField] private InventoryGridUI playerInventoryGrid;
     private PlayerBackpack playerBackpack;
+    private QuickItemSlots quickItemSlots;
 
     [Header("Refs")]
     private DraggedItemUI draggedItemUI;
@@ -24,14 +23,14 @@ public class MerchantUI : MonoBehaviour
                 draggedItemUI = inGameUI.draggedItemUI;
             }
         }
-        playerBackpack = GetComponentInChildren<PlayerBackpack>();
-        goodsShelfUI= GetComponentInChildren<GoodsShelfUI>();
 
+        playerBackpack = GetComponentInChildren<PlayerBackpack>(true);
+        quickItemSlots = GetComponentInChildren<QuickItemSlots>();
+        goodsShelfUI = GetComponentInChildren<GoodsShelfUI>(true);
     }
 
     public void Open()
     {
-
         Player currentPlayer = PlayerManager.Instance != null ? PlayerManager.Instance.CurrentPlayer : null;
 
         if (currentPlayer == null)
@@ -50,8 +49,8 @@ public class MerchantUI : MonoBehaviour
 
         playerInventoryGrid.SetInventory(playerInventory);
         playerBackpack.SetInventory(playerInventory);
+        quickItemSlots.SetInventory(playerInventory);
         goodsShelfUI.SetInventory(playerInventory);
-
     }
 
     public void Close()
@@ -66,11 +65,22 @@ public class MerchantUI : MonoBehaviour
             playerInventoryGrid.SetInventory(null);
         }
 
+        if (playerBackpack != null)
+        {
+            playerBackpack.SetInventory(null);
+        }
 
-        playerBackpack.SetInventory(null);
-        goodsShelfUI.SetInventory(null);
+        if (goodsShelfUI != null)
+        {
+            goodsShelfUI.SetInventory(null);
+        }
+
+        if(quickItemSlots != null)
+        {
+            quickItemSlots.SetInventory(null);  
+        }
+
         playerInventory = null;
-
 
         gameObject.SetActive(false);
     }

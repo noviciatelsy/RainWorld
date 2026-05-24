@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fdf35bc37bd521d41925e66a18fb75bf, type: 3}
   m_Name: ActiveItemData - Water
   m_EditorClassIdentifier: 
+  itemSaveID: 
   itemDisplayName: "\u6C34"
   itemDescription: "\u5728\u5730\u4E0B\u63A2\u7D22\u65F6\u4E5F\u5F97\u8BB0\u5F97\u8865\u5145\u6C34\u5206"
   itemIcon: {fileID: 21300000, guid: 2ca62c8ffdc088240af5082e2a290e30, type: 3}
@@ -21,4 +22,7 @@ MonoBehaviour:
   rarity: 0
   itemBuyPrice: 0
   itemSellPrice: 2
+  canBuyFromMerchant: 1
+  autoUnlock: 1
+  sellAmountToUnlock: 1
   isConsumable: 1

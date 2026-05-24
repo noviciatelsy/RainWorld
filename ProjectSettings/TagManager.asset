@@ -16,10 +16,10 @@ TagManager:
   - Enemy
   - Platform
   - Minimap
-  - PlayerInteractable
-  - GroundInteractable
-  - 
-  - 
+  - CanCollideWithPlayer
+  - CanCollideWithGround
+  - PlayerSensor
+  - PlayerSensorTarget
   - 
   - 
   - 

@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fdf35bc37bd521d41925e66a18fb75bf, type: 3}
   m_Name: ActiveItemData - Coffee
   m_EditorClassIdentifier: 
+  itemSaveID: 
   itemDisplayName: "\u5496\u5561"
   itemDescription: "\u63D0\u795E\u9192\u8111\u7684\u996E\u54C1"
   itemIcon: {fileID: 21300000, guid: e4f8c9b181fc91b4ab2a94c60f2159b3, type: 3}
@@ -21,4 +22,7 @@ MonoBehaviour:
   rarity: 1
   itemBuyPrice: 0
   itemSellPrice: 4
+  canBuyFromMerchant: 1
+  autoUnlock: 1
+  sellAmountToUnlock: 1
   isConsumable: 1

@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fdf35bc37bd521d41925e66a18fb75bf, type: 3}
   m_Name: ActiveItemData - Chocolate
   m_EditorClassIdentifier: 
+  itemSaveID: 
   itemDisplayName: "\u5DE7\u514B\u529B"
   itemDescription: "\u6574\u7248\u7684\u5DE7\u514B\u529B\uFF0C\u5B83\u7684\u751C\u871C\u8DB3\u4EE5\u4F7F\u4EBA\u5FD8\u8BB0\u8EAB\u4F53\u7684\u4F24\u75DB"
   itemIcon: {fileID: 21300000, guid: 04b5180d059d2d34ca62dd7059fd7e50, type: 3}
@@ -21,4 +22,7 @@ MonoBehaviour:
   rarity: 0
   itemBuyPrice: 0
   itemSellPrice: 2
+  canBuyFromMerchant: 1
+  autoUnlock: 1
+  sellAmountToUnlock: 1
   isConsumable: 1
