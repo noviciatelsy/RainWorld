@@ -12,15 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fdf35bc37bd521d41925e66a18fb75bf, type: 3}
   m_Name: ActiveItemData - SmallBread
   m_EditorClassIdentifier: 
-  itemSaveID: 
+  saveID: 4f3fbbc76a37bdb4386c12325722a1bb
   itemDisplayName: "\u5C0F\u9762\u5305"
-  itemDescription: "\u53EF\u53E3\u7684\u5C0F\u9762\u5305\uFF0C\u6478\u91D1\u8005\u5728\u5730\u4E0B\u63A2\u7D22\u65F6\u9996\u9009\u7684\u5E72\u7CAE"
+  itemDescription: "\u53EF\u53E3\u7684\u5C0F\u9762\u5305\uFF0C\u6478\u91D1\u8005\u5728\u5730\u4E0B\u63A2\u7D22\u65F6\u9996\u9009\u7684\u5E72\u7CAE
+    \n"
   itemIcon: {fileID: 21300000, guid: 798bb70ef3597d14c9c98e720104bb18, type: 3}
   itemEffectData: {fileID: 0}
   backpackItemData: {fileID: 11400000, guid: 52023b128b5a5864badc22fabedcfc70, type: 2}
   itemType: 1
   rarity: 0
-  itemBuyPrice: 0
+  itemBuyPrice: 4
   itemSellPrice: 2
   canBuyFromMerchant: 1
   autoUnlock: 1

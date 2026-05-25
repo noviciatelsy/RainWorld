@@ -22,6 +22,7 @@ public class InventoryPlayer : InventoryBase
 
     public event Action<InventoryItem> onHoldingItemChange;
     public event Action<int> onMoneyChanged;
+    public event Action<int> onMoneyAdd;
 
     [Header("可拾取物品")]
     [SerializeField] private PickableObject pickableObject;
@@ -618,6 +619,7 @@ public class InventoryPlayer : InventoryBase
         {
             money += amount;
             onMoneyChanged?.Invoke(money);
+            onMoneyAdd?.Invoke(amount);
         }
     }
 
