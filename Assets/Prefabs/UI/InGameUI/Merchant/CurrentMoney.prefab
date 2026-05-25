@@ -163,6 +163,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c24ef6ae5d027814b96f62c84230e476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  moneyIconRect: {fileID: 567779441149762508}
+  effectRoot: {fileID: 0}
+  moneyFlyCoinPrefab: {fileID: 497281319772024843, guid: 304eeaaf77ca76248851de400b7fa4ca,
+    type: 3}
+  spawnOneCoinPerMoney: 1
+  minVisualCoinCount: 3
+  maxVisualCoinCount: 12
+  scatterRadiusMin: 25
+  scatterRadiusMax: 90
+  popDurationRange: {x: 0.15, y: 0.25}
+  waitBeforeFlyRange: {x: 0.2, y: 0.5}
+  launchStagger: 0.025
+  flyDurationRange: {x: 1, y: 1.5}
+  arcHeightRange: {x: 80, y: 160}
+  startScaleRange: {x: 0.85, y: 1.15}
+  spinSpeedRange: {x: -360, y: 360}
+  iconPunchScale: 1.18
+  iconPunchDuration: 0.12
+  textPunchScale: 1.12
+  textPunchDuration: 0.1
 --- !u!1 &8306810132542796679
 GameObject:
   m_ObjectHideFlags: 0
@@ -197,9 +217,9 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 75, y: 0}
+  m_AnchoredPosition: {x: 47.5, y: -5.5}
   m_SizeDelta: {x: 55, y: 85}
-  m_Pivot: {x: 1, y: 0.5}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8230163729648465796
 CanvasRenderer:
   m_ObjectHideFlags: 0

@@ -4,6 +4,7 @@ using UnityEngine;
 public class InGameUI : MonoBehaviour
 {
     public static InGameUI Instance;
+    [SerializeField] private CanvasGroup HudCanvasGroup;
     public DraggedItemUI draggedItemUI { get; private set; }
     public BackpackUI backpackUI { get; private set; }
     public LootUI lootUI { get; private set; }
@@ -12,6 +13,8 @@ public class InGameUI : MonoBehaviour
     public NoteBookUI notebookUI { get; private set; }
 
     public MerchantUI merchantUI { get; private set; }
+
+    public DialogueUI dialogueUI { get; private set; }
     public ItemToolTip itemToolTip { get; private set; }
     private bool backpackUIEnabled;
     private bool lootUIEnabled;
@@ -40,6 +43,7 @@ public class InGameUI : MonoBehaviour
         mapUI = GetComponentInChildren<MapUI>(true);
         notebookUI=GetComponentInChildren<NoteBookUI>(true);
         merchantUI=GetComponentInChildren<MerchantUI>(true);
+        dialogueUI = GetComponentInChildren<DialogueUI>(true);
         backpackUIEnabled = backpackUI.gameObject.activeSelf;
         lootUIEnabled = lootUI.gameObject.activeSelf;
         retrieveUIEnabled = retrieveUI.gameObject.activeSelf;
@@ -48,6 +52,8 @@ public class InGameUI : MonoBehaviour
         merchantUIEnabled = merchantUI.gameObject.activeSelf;
 
         itemToolTip=GetComponentInChildren<ItemToolTip>(true);
+
+        HudCanvasGroup.alpha = 1;
     }
 
     private void OnEnable()
@@ -390,10 +396,12 @@ public class InGameUI : MonoBehaviour
         if(enabled)
         {
             merchantUI.Open();
+            ShowHud(false);
         }
         else
         {
             merchantUI.Close();
+            ShowHud(true);
         }
     }
 
@@ -413,7 +421,21 @@ public class InGameUI : MonoBehaviour
             ;
 
     }
+
+    public void ShowHud(bool show)
+    {
+        if(show)
+        {
+            HudCanvasGroup.alpha = 1;
+        }
+        else
+        {
+            HudCanvasGroup.alpha = 0;
+        }
+    }
 }
+
+
 
 public enum InGamePanelType
 {

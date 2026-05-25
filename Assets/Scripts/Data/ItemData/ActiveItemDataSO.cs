@@ -8,8 +8,10 @@ public class ActiveItemDataSO : ItemDataSO
     [Header("是否为消耗品")]
     public bool isConsumable=true;
 
-    private void OnValidate()
+    protected override void OnValidate()
     {
-        itemType=ItemType.Active;
-    }
+        base.OnValidate();
+        itemType = ItemType.Active;
+    } 
+
 }

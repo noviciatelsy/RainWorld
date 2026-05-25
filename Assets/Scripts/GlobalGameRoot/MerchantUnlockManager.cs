@@ -68,6 +68,7 @@ public class MerchantUnlockManager : MonoBehaviour
             if (itemData.autoUnlock && !gameData.unlockedMerchantItems.Contains(itemData.saveID))
             {
                 gameData.unlockedMerchantItems.Add(itemData.saveID);
+
                 changed = true;
             }
         }
