@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5108138649834691133}
   - component: {fileID: 6214854152181752167}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: "\u672C\u4F53"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94,7 +94,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1649286789910289104}
   - component: {fileID: 1931619354419877751}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: "\u7FC5\u8180"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -178,7 +178,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7438620424905784386}
   - component: {fileID: 4813328127352243468}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: "\u7FC5\u8180"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -262,7 +262,7 @@ GameObject:
   m_Component:
   - component: {fileID: 850678992018607246}
   - component: {fileID: 5250543974143231364}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: "\u7FC5\u8180"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -345,7 +345,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2316897656149901167}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: texture
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -382,7 +382,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4080804010609708509}
   - component: {fileID: 4842375442697802567}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: "\u7FC5\u8180 (1)"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -466,9 +466,9 @@ GameObject:
   m_Component:
   - component: {fileID: 7286320745350017621}
   - component: {fileID: 4268894465921324274}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: Fly
-  m_TagString: Untagged
+  m_TagString: Fly
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -501,8 +501,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0aa3f25bca54055469650997dfd70a57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 3
   CurrentTarget: {x: 0, y: 0}
   Arrived: 0
   DebugPath: []
   DebugTarget: {x: 0, y: 0}
+  EdgeIndex: 0
+  Target: {x: 0, y: 0}
+  HasEdge: 0
+  moveSpeed: 3
