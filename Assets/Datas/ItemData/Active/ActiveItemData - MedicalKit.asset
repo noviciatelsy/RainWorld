@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fdf35bc37bd521d41925e66a18fb75bf, type: 3}
   m_Name: ActiveItemData - MedicalKit
   m_EditorClassIdentifier: 
-  itemSaveID: 
+  saveID: 6978a251bfc11ba47b3378f9e0dad24d
   itemDisplayName: "\u533B\u7597\u5305"
   itemDescription: "\u6574\u5957\u7684\u533B\u7597\u5305\uFF0C\u4FDD\u969C\u6478\u91D1\u8005\u7684\u751F\u547D\u5B89\u5168"
   itemIcon: {fileID: 21300000, guid: c52275ea1e0e0b24e83707cd2fded084, type: 3}
@@ -20,7 +20,7 @@ MonoBehaviour:
   backpackItemData: {fileID: 11400000, guid: bc105287b45edba4fa317db86e4e779f, type: 2}
   itemType: 1
   rarity: 2
-  itemBuyPrice: 0
+  itemBuyPrice: 24
   itemSellPrice: 12
   canBuyFromMerchant: 1
   autoUnlock: 1

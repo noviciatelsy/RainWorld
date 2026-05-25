@@ -7,15 +7,7 @@ using UnityEditor;
 
 public class ItemDataSO : ScriptableObject
 {
-    [SerializeField, HideInInspector] private string itemSaveID;
-
-    public string saveID
-    {
-        get
-        {
-            return itemSaveID;
-        }
-    }
+    public string saveID;
 
     [Header("Item Details")]
     public string itemDisplayName;
@@ -51,10 +43,12 @@ public class ItemDataSO : ScriptableObject
     }
 
 #if UNITY_EDITOR
-    private void OnValidate()
+    protected virtual void OnValidate()
     {
         string path = AssetDatabase.GetAssetPath(this); // ScriptableObject 资源在工程里的路径
-        itemSaveID = AssetDatabase.AssetPathToGUID(path); // 把这个 ScriptableObject 资源在工程里的 GUID，存进 saveID 这个字符串字段里
+        saveID = AssetDatabase.AssetPathToGUID(path); // 把这个 ScriptableObject 资源在工程里的 GUID，存进 saveID 这个字符串字段里
+
+        itemBuyPrice = itemSellPrice * 2;
         EditorUtility.SetDirty(this);
     }
 #endif
