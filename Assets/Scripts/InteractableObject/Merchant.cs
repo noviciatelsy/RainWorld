@@ -5,13 +5,7 @@ using UnityEngine;
 
 public class Merchant : PlayerSensorTarget
 {
-    [SerializeField] private TextMeshPro interactText;
     [SerializeField] private DialogueDataSO dialogueData;   
-
-    private void Awake()
-    {
-        interactText.gameObject.SetActive(false);
-    }
 
     public override void Interact()
     {
@@ -22,13 +16,5 @@ public class Merchant : PlayerSensorTarget
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        interactText.gameObject.SetActive(true);
-    }
 
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        interactText.gameObject.SetActive(false);
-    }
 }
