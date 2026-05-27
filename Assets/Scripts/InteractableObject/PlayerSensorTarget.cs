@@ -6,7 +6,7 @@ public abstract class PlayerSensorTarget : MonoBehaviour
 
     [SerializeField] protected TextMeshPro displayText;
 
-    private void Awake()
+    protected virtual void Awake()
     {
         if(displayText!=null)
         {
