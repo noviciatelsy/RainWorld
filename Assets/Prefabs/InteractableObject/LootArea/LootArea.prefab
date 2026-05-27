@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8700058874751364687}
   - component: {fileID: 4261061490857749946}
   - component: {fileID: 1010285803866091084}
+  - component: {fileID: 7755647783219942919}
   m_Layer: 14
   m_Name: LootArea
   m_TagString: Untagged
@@ -144,6 +145,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10c6d71cadf981049b6fc8f61f2c05fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  displayText: {fileID: 6330223915987944919}
+  itemDataBase: {fileID: 11400000, guid: 67f3a35b1c96a7c459a28b125f595fcc, type: 2}
+  minGenerateItemCount: 2
+  maxGenerateItemCount: 4
+  commonWeight: 50
+  rareWeight: 30
+  epicWeight: 15
+  legendaryWeight: 5
+  generateOnAwake: 1
+--- !u!114 &7755647783219942919
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3524002720783377463}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55f3c2f745507794f94974f4918709e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  columnCount: 8
+  maxInventorySize: 48
+  preferTighterPlacement: 1
+  itemSlotList: []
+  inventoryItems: []
+  itemDataBase: {fileID: 11400000, guid: 67f3a35b1c96a7c459a28b125f595fcc, type: 2}
 --- !u!1001 &132998471962718533
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -273,3 +301,15 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 132998471962718533}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &6330223915987944919 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6197507769405617298, guid: 9b1e53b1dc64dd643a80b3ffc4d6e227,
+    type: 3}
+  m_PrefabInstance: {fileID: 132998471962718533}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9541d86e2fd84c1d9990edf0852d74ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
