@@ -8,6 +8,11 @@ using UnityEditor;
 public class EnemyIntelligenceDataSO : ScriptableObject
 {
     [TextArea] public string intelligenceText;
+    public string intelligenceName;
+    public bool isImportant=false;
+    public bool canBePurchased=true;
+    public bool canBeLockedByNote=true;
+    public int priceToPurchase = 0;
 
     [SerializeField, HideInInspector] private string saveID;
     public string SaveID => saveID;
@@ -22,6 +27,13 @@ public class EnemyIntelligenceDataSO : ScriptableObject
         {
             saveID = newSaveID;
             EditorUtility.SetDirty(this);
+        }
+
+        if (isImportant)
+        {
+            canBeLockedByNote = false;
+            canBePurchased = false;
+
         }
 #endif
     }
