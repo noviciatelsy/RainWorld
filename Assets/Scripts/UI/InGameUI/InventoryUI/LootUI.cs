@@ -14,6 +14,8 @@ public class LootUI : MonoBehaviour
     private InventoryPlayer playerInventory;
     private InventoryBase currentLootInventory;
 
+    public CanvasGroup canvasGroup {  get; private set; }
+
     private void Awake()
     {
         if (draggedItemUI == null)
@@ -27,6 +29,7 @@ public class LootUI : MonoBehaviour
         }
         playerBackpack = GetComponentInChildren<PlayerBackpack>();
         quickItemSlots = GetComponentInChildren<QuickItemSlots>();
+        canvasGroup=GetComponent<CanvasGroup>();
     }
 
     public void Open(InventoryBase lootInventory)

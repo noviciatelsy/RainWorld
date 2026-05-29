@@ -22,6 +22,8 @@ public class DialogueUI : MonoBehaviour
     [SerializeField] private float inputLockTimeAfterOpen = 0.08f;
     [SerializeField] private float inputLockTimeAfterLineStart = 0.03f;
 
+    public CanvasGroup canvasGroup {  get; private set; }
+
     private DialogueDataSO currentDialogue;
     private Action onDialogueClosed;
 
@@ -40,6 +42,7 @@ public class DialogueUI : MonoBehaviour
     private void Awake()
     {
         inGameUI = GetComponentInParent<InGameUI>();
+        canvasGroup=GetComponent<CanvasGroup>();    
     }
 
     private void OnEnable()

@@ -691,4 +691,424 @@ public class IntelligenceArchiveManager : MonoBehaviour
 
         return null;
     }
+
+    private class RandomNoteUnlockCandidate
+    {
+        public IntelligenceDataSO intelligenceData;
+        public EnemyInformationDataSO enemyInformationData;
+        public EnemyIntelligenceDataSO enemyIntelligenceData;
+
+        public bool IsEnemyIntelligence
+        {
+            get
+            {
+                return enemyIntelligenceData != null;
+            }
+        }
+    }
+
+    public ArchiveUnlockRecord UnlockRandomNonImportantIntelligenceByNote()
+    {
+        if (!TryPrepareGameData())
+        {
+            return null;
+        }
+
+        List<RandomNoteUnlockCandidate> candidates = BuildRandomNoteUnlockCandidates();
+
+        if (candidates.Count <= 0)
+        {
+            Debug.Log("没有可以通过纸条随机解锁的情报。");
+            return null;
+        }
+
+        int randomIndex = UnityEngine.Random.Range(0, candidates.Count);
+        RandomNoteUnlockCandidate candidate = candidates[randomIndex];
+
+        if (candidate.IsEnemyIntelligence)
+        {
+            bool unlocked = UnlockEnemyIntelligence(candidate.enemyInformationData, candidate.enemyIntelligenceData);
+
+            if (unlocked)
+            {
+                return ArchiveUnlockRecord.CreateEnemyIntelligenceRecord(candidate.enemyInformationData, candidate.enemyIntelligenceData);
+            }
+
+            return null;
+        }
+        else
+        {
+            bool unlocked = UnlockIntelligence(candidate.intelligenceData);
+
+            if (unlocked)
+            {
+                return ArchiveUnlockRecord.CreateIntelligenceRecord(candidate.intelligenceData);
+            }
+
+            return null;
+        }
+    }
+
+    private List<RandomNoteUnlockCandidate> BuildRandomNoteUnlockCandidates()
+    {
+        List<RandomNoteUnlockCandidate> candidates = new List<RandomNoteUnlockCandidate>();
+
+        AddNormalIntelligenceNoteCandidates(candidates);
+        AddKnownEnemyIntelligenceNoteCandidates(candidates);
+
+        return candidates;
+    }
+
+    private void AddNormalIntelligenceNoteCandidates(List<RandomNoteUnlockCandidate> candidates)
+    {
+        if (intelligenceDataBase == null || intelligenceDataBase.intelligenceDataBase == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < intelligenceDataBase.intelligenceDataBase.Length; i++)
+        {
+            IntelligenceDataSO intelligenceData = intelligenceDataBase.intelligenceDataBase[i];
+
+            if (intelligenceData == null)
+            {
+                continue;
+            }
+
+            if (intelligenceData.isImportant)
+            {
+                continue;
+            }
+
+            if (!intelligenceData.canBeLockedByNote)
+            {
+                continue;
+            }
+
+            if (IsIntelligenceUnlocked(intelligenceData))
+            {
+                continue;
+            }
+
+            candidates.Add(new RandomNoteUnlockCandidate
+            {
+                intelligenceData = intelligenceData
+            });
+        }
+    }
+
+    private void AddKnownEnemyIntelligenceNoteCandidates(List<RandomNoteUnlockCandidate> candidates)
+    {
+        List<EnemyInformationDataSO> unlockedEnemies = GetUnlockedEnemies();
+
+        for (int i = 0; i < unlockedEnemies.Count; i++)
+        {
+            EnemyInformationDataSO enemyInformationData = unlockedEnemies[i];
+
+            if (enemyInformationData == null || enemyInformationData.enemyIntelligences == null)
+            {
+                continue;
+            }
+
+            for (int j = 0; j < enemyInformationData.enemyIntelligences.Length; j++)
+            {
+                EnemyIntelligenceDataSO enemyIntelligenceData = enemyInformationData.enemyIntelligences[j];
+
+                if (enemyIntelligenceData == null)
+                {
+                    continue;
+                }
+
+                if (enemyIntelligenceData.isImportant)
+                {
+                    continue;
+                }
+
+                if (!enemyIntelligenceData.canBeLockedByNote)
+                {
+                    continue;
+                }
+
+                if (IsEnemyIntelligenceUnlocked(enemyIntelligenceData))
+                {
+                    continue;
+                }
+
+                candidates.Add(new RandomNoteUnlockCandidate
+                {
+                    enemyInformationData = enemyInformationData,
+                    enemyIntelligenceData = enemyIntelligenceData
+                });
+            }
+        }
+    }
+
+    public List<ArchivePurchaseOffer> GetPurchasableIntelligenceOffers()
+    {
+        List<ArchivePurchaseOffer> offers = new List<ArchivePurchaseOffer>();
+
+        if (!TryPrepareGameData())
+        {
+            return offers;
+        }
+
+        AddPurchasableNormalIntelligenceOffers(offers);
+        AddPurchasableKnownEnemyIntelligenceOffers(offers);
+
+        offers.Sort((a, b) =>
+        {
+            int priceCompare = a.Price.CompareTo(b.Price);
+
+            if (priceCompare != 0)
+            {
+                return priceCompare;
+            }
+
+            return string.Compare(a.DisplayName, b.DisplayName, StringComparison.Ordinal);
+        });
+
+        return offers;
+    }
+
+    private void AddPurchasableNormalIntelligenceOffers(List<ArchivePurchaseOffer> offers)
+    {
+        if (intelligenceDataBase == null || intelligenceDataBase.intelligenceDataBase == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < intelligenceDataBase.intelligenceDataBase.Length; i++)
+        {
+            IntelligenceDataSO intelligenceData = intelligenceDataBase.intelligenceDataBase[i];
+
+            if (intelligenceData == null)
+            {
+                continue;
+            }
+
+            if (intelligenceData.isImportant)
+            {
+                continue;
+            }
+
+            if (!intelligenceData.canBePurchased)
+            {
+                continue;
+            }
+
+            if (IsIntelligenceUnlocked(intelligenceData))
+            {
+                continue;
+            }
+
+            offers.Add(ArchivePurchaseOffer.CreateNormalIntelligenceOffer(intelligenceData));
+        }
+    }
+
+    private void AddPurchasableKnownEnemyIntelligenceOffers(List<ArchivePurchaseOffer> offers)
+    {
+        List<EnemyInformationDataSO> unlockedEnemies = GetUnlockedEnemies();
+
+        for (int i = 0; i < unlockedEnemies.Count; i++)
+        {
+            EnemyInformationDataSO enemyInformationData = unlockedEnemies[i];
+
+            if (enemyInformationData == null || enemyInformationData.enemyIntelligences == null)
+            {
+                continue;
+            }
+
+            for (int j = 0; j < enemyInformationData.enemyIntelligences.Length; j++)
+            {
+                EnemyIntelligenceDataSO enemyIntelligenceData = enemyInformationData.enemyIntelligences[j];
+
+                if (enemyIntelligenceData == null)
+                {
+                    continue;
+                }
+
+                if (enemyIntelligenceData.isImportant)
+                {
+                    continue;
+                }
+
+                if (!enemyIntelligenceData.canBePurchased)
+                {
+                    continue;
+                }
+
+                if (IsEnemyIntelligenceUnlocked(enemyIntelligenceData))
+                {
+                    continue;
+                }
+
+                offers.Add(ArchivePurchaseOffer.CreateEnemyIntelligenceOffer(enemyInformationData, enemyIntelligenceData));
+            }
+        }
+    }
+
+    public bool IsPurchaseOfferStillAvailable(ArchivePurchaseOffer offer)
+    {
+        if (offer == null)
+        {
+            return false;
+        }
+
+        if (offer.offerType == ArchivePurchaseOfferType.NormalIntelligence)
+        {
+            IntelligenceDataSO intelligenceData = offer.intelligenceData;
+
+            if (intelligenceData == null)
+            {
+                return false;
+            }
+
+            if (intelligenceData.isImportant || !intelligenceData.canBePurchased)
+            {
+                return false;
+            }
+
+            return !IsIntelligenceUnlocked(intelligenceData);
+        }
+
+        EnemyInformationDataSO enemyInformationData = offer.enemyInformationData;
+        EnemyIntelligenceDataSO enemyIntelligenceData = offer.enemyIntelligenceData;
+
+        if (enemyInformationData == null || enemyIntelligenceData == null)
+        {
+            return false;
+        }
+
+        if (!IsEnemyUnlocked(enemyInformationData))
+        {
+            return false;
+        }
+
+        if (enemyIntelligenceData.isImportant || !enemyIntelligenceData.canBePurchased)
+        {
+            return false;
+        }
+
+        return !IsEnemyIntelligenceUnlocked(enemyIntelligenceData);
+    }
+
+    public bool ShouldShowExchangeData(IntelligenceExchangeDataSO exchangeData)
+    {
+        if (exchangeData == null)
+        {
+            return false;
+        }
+
+        if (exchangeData.requiredEnemyInformationData == null)
+        {
+            return false;
+        }
+
+        if (!exchangeData.HasValidReward())
+        {
+            return false;
+        }
+
+        // 只排列已经认识的敌人的交换项
+        if (!IsEnemyUnlocked(exchangeData.requiredEnemyInformationData))
+        {
+            return false;
+        }
+
+        // 奖励已经解锁后，就不再显示这个交换项
+        if (IsExchangeRewardUnlocked(exchangeData))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    public bool CanExchangeImportantIntelligence(IntelligenceExchangeDataSO exchangeData)
+    {
+        if (!ShouldShowExchangeData(exchangeData))
+        {
+            return false;
+        }
+
+        int currentCount = GetUnlockedNonImportantEnemyIntelligenceCount(exchangeData.requiredEnemyInformationData);
+        int requiredCount = Mathf.Max(1, exchangeData.requiredNonImportantEnemyIntelligenceCount);
+
+        return currentCount >= requiredCount;
+    }
+
+    public bool TryExchangeImportantIntelligence(IntelligenceExchangeDataSO exchangeData)
+    {
+        if (!CanExchangeImportantIntelligence(exchangeData))
+        {
+            return false;
+        }
+
+        if (exchangeData.rewardType == IntelligenceExchangeRewardType.NormalIntelligence)
+        {
+            return UnlockIntelligence(exchangeData.rewardIntelligenceData);
+        }
+
+        EnemyInformationDataSO ownerEnemyData = exchangeData.rewardEnemyInformationData;
+
+        if (ownerEnemyData == null)
+        {
+            ownerEnemyData = FindEnemyInformationByEnemyIntelligence(exchangeData.rewardEnemyIntelligenceData);
+        }
+
+        if (ownerEnemyData == null)
+        {
+            Debug.LogWarning($"交换情报失败：奖励敌人情报 {exchangeData.rewardEnemyIntelligenceData.name} 找不到所属敌人。");
+            return false;
+        }
+
+        return UnlockEnemyIntelligence(ownerEnemyData, exchangeData.rewardEnemyIntelligenceData);
+    }
+
+    public bool IsExchangeRewardUnlocked(IntelligenceExchangeDataSO exchangeData)
+    {
+        if (exchangeData == null)
+        {
+            return false;
+        }
+
+        if (exchangeData.rewardType == IntelligenceExchangeRewardType.NormalIntelligence)
+        {
+            return IsIntelligenceUnlocked(exchangeData.rewardIntelligenceData);
+        }
+
+        return IsEnemyIntelligenceUnlocked(exchangeData.rewardEnemyIntelligenceData);
+    }
+
+    public int GetUnlockedNonImportantEnemyIntelligenceCount(EnemyInformationDataSO enemyInformationData)
+    {
+        if (enemyInformationData == null || enemyInformationData.enemyIntelligences == null)
+        {
+            return 0;
+        }
+
+        int count = 0;
+
+        for (int i = 0; i < enemyInformationData.enemyIntelligences.Length; i++)
+        {
+            EnemyIntelligenceDataSO enemyIntelligenceData = enemyInformationData.enemyIntelligences[i];
+
+            if (enemyIntelligenceData == null)
+            {
+                continue;
+            }
+
+            if (enemyIntelligenceData.isImportant)
+            {
+                continue;
+            }
+
+            if (IsEnemyIntelligenceUnlocked(enemyIntelligenceData))
+            {
+                count++;
+            }
+        }
+
+        return count;
+    }
 }
