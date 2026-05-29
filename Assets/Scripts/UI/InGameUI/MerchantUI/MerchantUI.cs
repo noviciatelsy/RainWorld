@@ -12,6 +12,7 @@ public class MerchantUI : MonoBehaviour
     private InventoryPlayer playerInventory;
     private GoodsShelfUI goodsShelfUI;
 
+    public CanvasGroup canvasGroup {  get; private set; }
     private void Awake()
     {
         if (draggedItemUI == null)
@@ -27,6 +28,7 @@ public class MerchantUI : MonoBehaviour
         playerBackpack = GetComponentInChildren<PlayerBackpack>(true);
         quickItemSlots = GetComponentInChildren<QuickItemSlots>();
         goodsShelfUI = GetComponentInChildren<GoodsShelfUI>(true);
+        canvasGroup=GetComponent<CanvasGroup>();
     }
 
     public void Open()

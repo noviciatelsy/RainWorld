@@ -13,6 +13,7 @@ public class RetrieveUI : MonoBehaviour
 
     private InventoryPlayer playerInventory;
     private InventoryBase currentLostInventory;
+    public CanvasGroup canvasGroup;
 
     private void Awake()
     {
@@ -27,6 +28,7 @@ public class RetrieveUI : MonoBehaviour
         }
         playerBackpack = GetComponentInChildren<PlayerBackpack>();
         quickItemSlots = GetComponentInChildren<QuickItemSlots>();
+        canvasGroup=GetComponent<CanvasGroup>();
     }
 
     public void Open(InventoryBase lostInventory)
