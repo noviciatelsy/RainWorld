@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine.Tilemaps;
 using UnityEngine;
 
@@ -77,6 +77,16 @@ public class TileMapGuideManager : MonoBehaviour
         {
             if (!tilemap.HasTile(p)) air.Add(new Vector2Int(p.x, p.y)); 
             else solid.Add(new Vector2Int(p.x, p.y));
+        }
+
+        foreach (Vector2Int cell in air)
+        {
+            Vector2Int below = cell + Vector2Int.down;
+
+            if (IsSolid(below))
+            {
+                ground.Add(cell);
+            }
         }
 
         // =========================
@@ -279,6 +289,200 @@ public class TileMapGuideManager : MonoBehaviour
     }
 
     public bool IsSolid(Vector2Int cell) => solid.Contains(cell);
+
+    public bool IsGroundAirCell(Vector2Int cell) => ground.Contains(cell);
+
+    /// <summary>
+    /// 获取 solid 格子顶边世界坐标（底角 + 格子高度）。
+    /// </summary>
+    public Vector2 GetSolidCellTop(Vector2Int solidCell)
+    {
+        return CellCorner(solidCell) + new Vector2(0f, cellSize.y);
+    }
+
+    /// <summary>
+    /// 从世界坐标查找可站立地面顶面（air 格 + 下方 solid）。
+    /// 在同一列中选与 worldHint 高度最接近的地面，避免误吸到远处层。
+    /// </summary>
+    public bool TryGetFloorTop(Vector2 worldHint, out Vector2 standPoint, float surfaceOffset = 0.08f)
+    {
+        standPoint = default;
+        Vector2Int baseCell = WorldToCell(worldHint);
+        bool found = false;
+        float bestHeightDelta = float.MaxValue;
+
+        for (int dy = -6; dy <= 8; dy++)
+        {
+            Vector2Int airCell = baseCell + new Vector2Int(0, dy);
+            Vector2Int solidBelow = airCell + Vector2Int.down;
+
+            if (!InBounds(airCell) || !InBounds(solidBelow))
+            {
+                continue;
+            }
+
+            if (!IsSolid(airCell) && IsSolid(solidBelow))
+            {
+                float floorTopY = GetSolidCellTop(solidBelow).y;
+                float heightDelta = Mathf.Abs(floorTopY - worldHint.y);
+
+                if (heightDelta < bestHeightDelta)
+                {
+                    bestHeightDelta = heightDelta;
+                    standPoint = new Vector2(worldHint.x, floorTopY + surfaceOffset);
+                    found = true;
+                }
+            }
+        }
+
+        if (found)
+        {
+            return true;
+        }
+
+        if (InBounds(baseCell) && IsSolid(baseCell))
+        {
+            standPoint = new Vector2(
+                worldHint.x,
+                GetSolidCellTop(baseCell).y + surfaceOffset
+            );
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// 根据边两侧 solid/air 关系，计算角色站立点（避免底边法线朝下导致陷入地板）。
+    /// </summary>
+    public bool TryGetStandPointOnEdge(
+        Edge edge,
+        Vector2 worldHint,
+        float surfaceOffset,
+        out Vector2 standPoint,
+        out Vector2 normal)
+    {
+        standPoint = default;
+        normal = Vector2.up;
+
+        Vector2 pointOnEdge = ClosestPointOnSegment(worldHint, edge.a, edge.b);
+        Vector2 mid = (edge.a + edge.b) * 0.5f;
+        const float probe = 0.08f;
+
+        Vector2Int cellAbove = WorldToCell(mid + Vector2.up * probe);
+        Vector2Int cellBelow = WorldToCell(mid + Vector2.down * probe);
+        bool solidAbove = InBounds(cellAbove) && IsSolid(cellAbove);
+        bool solidBelow = InBounds(cellBelow) && IsSolid(cellBelow);
+
+        // 底边：solid 在边上侧、空气在下侧 → 应站在 solid 顶面，不能用朝下的空气法线偏移
+        if (solidAbove && !solidBelow)
+        {
+            standPoint = new Vector2(
+                worldHint.x,
+                GetSolidCellTop(cellAbove).y + surfaceOffset
+            );
+            normal = Vector2.up;
+            return true;
+        }
+
+        // 顶边：solid 在下、空气在上
+        if (solidBelow && !solidAbove)
+        {
+            Vector2 airNormal = GetEdgeAirNormal(edge);
+
+            if (airNormal.y < 0.2f)
+            {
+                airNormal = Vector2.up;
+            }
+
+            standPoint = pointOnEdge + airNormal * surfaceOffset;
+            normal = airNormal;
+            return true;
+        }
+
+        // 竖边 / 兜底：用空气法线，但禁止朝下
+        Vector2 fallbackNormal = GetEdgeAirNormal(edge);
+
+        if (fallbackNormal.y < 0.2f)
+        {
+            if (TryGetFloorTop(worldHint, out Vector2 floorPoint, surfaceOffset))
+            {
+                standPoint = floorPoint;
+                normal = Vector2.up;
+                return true;
+            }
+
+            fallbackNormal = Vector2.up;
+        }
+
+        standPoint = pointOnEdge + fallbackNormal * surfaceOffset;
+        normal = fallbackNormal;
+        return true;
+    }
+
+    public bool TryGetStandPointOnEdge(
+        int edgeIndex,
+        Vector2 worldHint,
+        float surfaceOffset,
+        out Vector2 standPoint,
+        out Vector2 normal)
+    {
+        return TryGetStandPointOnEdge(flatEdges[edgeIndex], worldHint, surfaceOffset, out standPoint, out normal);
+    }
+
+    static Vector2 ClosestPointOnSegment(Vector2 point, Vector2 a, Vector2 b)
+    {
+        Vector2 ab = b - a;
+
+        if (ab.sqrMagnitude < 0.0001f)
+        {
+            return a;
+        }
+
+        float t = Mathf.Clamp01(Vector2.Dot(point - a, ab) / ab.sqrMagnitude);
+        return a + ab * t;
+    }
+
+    /// <summary>
+    /// 返回边朝向空气一侧的单位法线。
+    /// 注意：实心块「底边」(type0) 的法线向下，贴地移动请用 TryGetFloorTop / TryGetStandPointOnEdge。
+    /// </summary>
+    public Vector2 GetEdgeAirNormal(Edge edge)
+    {
+        Vector2 tangent = (edge.b - edge.a).normalized;
+
+        if (tangent.sqrMagnitude < 0.0001f)
+        {
+            return Vector2.up;
+        }
+
+        Vector2 normalA = new Vector2(-tangent.y, tangent.x);
+        Vector2 normalB = -normalA;
+        Vector2 mid = (edge.a + edge.b) * 0.5f;
+        const float probe = 0.06f;
+
+        bool airA = !IsSolid(WorldToCell(mid + normalA * probe));
+        bool airB = !IsSolid(WorldToCell(mid + normalB * probe));
+
+        if (airA && !airB)
+        {
+            return normalA;
+        }
+
+        if (airB && !airA)
+        {
+            return normalB;
+        }
+
+        return normalA.y >= normalB.y ? normalA : normalB;
+    }
+
+    public Vector2 GetEdgeAirNormal(int edgeIndex)
+    {
+        return GetEdgeAirNormal(flatEdges[edgeIndex]);
+    }
+
+    public int GetEdgeCount() => flatEdges.Count;
 
     public Vector2 CellCorner(Vector2Int cell)
     {

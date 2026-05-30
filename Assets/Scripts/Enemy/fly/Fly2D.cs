@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Fly2D : MonsterBase
@@ -13,6 +13,16 @@ public class Fly2D : MonsterBase
     {
         ai = new FlyUtilityAI(this);
         motor = new FlyMotor(this);
+    }
+
+    private void OnEnable()
+    {
+        FlyRegistry.Register(this);
+    }
+
+    private void OnDisable()
+    {
+        FlyRegistry.Unregister(this);
     }
 
 

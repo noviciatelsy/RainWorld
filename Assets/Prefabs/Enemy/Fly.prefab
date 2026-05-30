@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5108138649834691133}
   - component: {fileID: 6214854152181752167}
-  m_Layer: 15
+  m_Layer: 8
   m_Name: "\u672C\u4F53"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94,7 +94,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1649286789910289104}
   - component: {fileID: 1931619354419877751}
-  m_Layer: 15
+  m_Layer: 8
   m_Name: "\u7FC5\u8180"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -178,7 +178,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7438620424905784386}
   - component: {fileID: 4813328127352243468}
-  m_Layer: 15
+  m_Layer: 8
   m_Name: "\u7FC5\u8180"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -262,7 +262,7 @@ GameObject:
   m_Component:
   - component: {fileID: 850678992018607246}
   - component: {fileID: 5250543974143231364}
-  m_Layer: 15
+  m_Layer: 8
   m_Name: "\u7FC5\u8180"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -345,7 +345,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2316897656149901167}
-  m_Layer: 15
+  m_Layer: 8
   m_Name: texture
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -362,7 +362,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
+  m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 5108138649834691133}
@@ -382,7 +382,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4080804010609708509}
   - component: {fileID: 4842375442697802567}
-  m_Layer: 15
+  m_Layer: 8
   m_Name: "\u7FC5\u8180 (1)"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -466,7 +466,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7286320745350017621}
   - component: {fileID: 4268894465921324274}
-  m_Layer: 15
+  m_Layer: 8
   m_Name: Fly
   m_TagString: Fly
   m_Icon: {fileID: 0}
@@ -508,4 +508,4 @@ MonoBehaviour:
   EdgeIndex: 0
   Target: {x: 0, y: 0}
   HasEdge: 0
-  moveSpeed: 3
+  moveSpeed: 0.1

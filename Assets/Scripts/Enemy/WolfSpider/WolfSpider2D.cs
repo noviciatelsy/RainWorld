@@ -11,6 +11,8 @@ public class WolfSpider2D : MonsterBase
 
     [Header("Perception")]
     public float detectRadius = 8f;
+    public float perceptionInterval = 0.2f;
+    public float pathPickInterval = 0.35f;
     public LayerMask playerLayer;
     [Tooltip("Layer 名称 fly；若尚未在 TagManager 配置，可留空并依赖 Fly 组件检测")]
     public LayerMask flyLayer;
@@ -34,11 +36,16 @@ public class WolfSpider2D : MonsterBase
     public Transform bodyVisual;
 
     [Header("Debug")]
-    public bool enableDebugLog = true;
+    public bool enableDebugLog = false;
     public bool drawDebugGizmos = true;
+
+    public int PerceptionMask { get; private set; }
+
+    private readonly Collider2D[] overlapBuffer = new Collider2D[16];
 
     public bool IsJumping { get; set; }
     public bool IsCoolingDown { get; set; }
+    public bool JumpTargetRejected { get; private set; }
     public Vector2 CurrentSurfaceNormal { get; private set; } = Vector2.up;
     public WolfSpiderBehavior CurrentBehavior { get; set; } = WolfSpiderBehavior.Idle;
 
@@ -70,7 +77,26 @@ public class WolfSpider2D : MonsterBase
         }
 
         ResolveFlyLayerMask();
+        RebuildPerceptionMask();
         SnapToNearestSurface();
+    }
+
+    public void RebuildPerceptionMask()
+    {
+        PerceptionMask = playerLayer.value | flyLayer.value;
+    }
+
+    public int OverlapPreyNonAlloc(out Collider2D[] buffer)
+    {
+        buffer = overlapBuffer;
+        float radius = detectRadius;
+
+        if (PerceptionMask != 0)
+        {
+            return Physics2D.OverlapCircleNonAlloc(Position, radius, overlapBuffer, PerceptionMask);
+        }
+
+        return Physics2D.OverlapCircleNonAlloc(Position, radius, overlapBuffer);
     }
 
     public void ResolveFlyLayerMask()
@@ -81,16 +107,36 @@ public class WolfSpider2D : MonsterBase
         {
             flyLayer = 1 << flyLayerIndex;
         }
+
+        RebuildPerceptionMask();
     }
 
     public void SnapToNearestSurface()
     {
-        SurfaceSnapResult snap = WolfSpiderSurfaceProbe.SnapToSurface(
+        TileMapGuideManager mgr = TileMapGuideManager.Instance;
+
+        if (mgr != null && mgr.TryGetFloorTop(Position, out Vector2 floorPoint, visualSurfaceOffset))
+        {
+            transform.position = floorPoint;
+            ApplySurfaceOrientation(Vector2.up);
+            return;
+        }
+
+        SurfaceSnapResult snap = WolfSpiderSurfaceProbe.SnapToFloorSurface(
             Position,
             surfaceSnapMaxDistance,
-            visualSurfaceOffset,
-            Position
+            visualSurfaceOffset
         );
+
+        if (!snap.success)
+        {
+            snap = WolfSpiderSurfaceProbe.SnapToSurface(
+                Position,
+                surfaceSnapMaxDistance,
+                visualSurfaceOffset,
+                Position
+            );
+        }
 
         if (!snap.success)
         {
@@ -101,6 +147,30 @@ public class WolfSpider2D : MonsterBase
         ApplySurfaceOrientation(snap.normal);
     }
 
+    public void NotifyAttackPerformed()
+    {
+        if (spiderAI != null)
+        {
+            spiderAI.NotifyAttackPerformed();
+        }
+    }
+
+    public void NotifyJumpTargetRejected()
+    {
+        JumpTargetRejected = true;
+    }
+
+    public bool ConsumeJumpTargetRejected()
+    {
+        if (!JumpTargetRejected)
+        {
+            return false;
+        }
+
+        JumpTargetRejected = false;
+        return true;
+    }
+
     public void ApplySurfaceOrientation(Vector2 normal)
     {
         if (normal.sqrMagnitude < 0.0001f)
@@ -109,6 +179,27 @@ public class WolfSpider2D : MonsterBase
         }
 
         CurrentSurfaceNormal = normal.normalized;
+
+        if (bodyVisual != null)
+        {
+            Vector3 scale = bodyVisual.localScale;
+            scale.y = Mathf.Abs(scale.y);
+            scale.x = Mathf.Abs(scale.x);
+            bodyVisual.localScale = scale;
+        }
+
+        if (CurrentSurfaceNormal.y > 0.55f)
+        {
+            transform.rotation = Quaternion.identity;
+
+            if (bodyVisual != null)
+            {
+                bodyVisual.localRotation = Quaternion.identity;
+                bodyVisual.localPosition = new Vector3(0f, visualSurfaceOffset, 0f);
+            }
+
+            return;
+        }
 
         if (bodyVisual != null)
         {
@@ -149,7 +240,7 @@ public class WolfSpider2D : MonsterBase
             return true;
         }
 
-        return collider.GetComponentInParent<Fly2D>() != null;
+        return false;
     }
 
     public bool IsPlayerCollider(Collider2D collider)
@@ -206,7 +297,7 @@ public class WolfSpider2D : MonsterBase
 
     private void OnDrawGizmos()
     {
-        if (!drawDebugGizmos)
+        if (!drawDebugGizmos || !Application.isPlaying)
         {
             return;
         }
