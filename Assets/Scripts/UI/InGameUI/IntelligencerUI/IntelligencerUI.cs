@@ -244,6 +244,7 @@ public class IntelligencerUI : MonoBehaviour
 
         if (!paid)
         {
+
             return;
         }
 

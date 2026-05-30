@@ -192,8 +192,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5d5c4e706cd16d42a6b72e352f3169a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  frequency: 1.5
-  squashAmount: 0.02
+  frequency: 1
+  squashAmount: 0.015
   randomStartTime: 1
 --- !u!1 &8512224300663893375
 GameObject:
