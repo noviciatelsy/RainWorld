@@ -1,12 +1,23 @@
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class InGameUI : MonoBehaviour
 {
     public static InGameUI Instance;
 
+    [Header("CanvasGroup")]
     [SerializeField] private CanvasGroup HudCanvasGroup;
+    [SerializeField] private CanvasGroup draggedItemCanvasGroup;
+
+    [Header("Primary Panel CanvasGroups")]
+    private CanvasGroup backpackCanvasGroup;
+    private CanvasGroup lootCanvasGroup;
+    private CanvasGroup retrieveCanvasGroup;
+    private CanvasGroup mapCanvasGroup;
+    private CanvasGroup merchantCanvasGroup;
+    private CanvasGroup intelligencerCanvasGroup;
+
+    [Header("Secondary Panel CanvasGroups")]
+    private CanvasGroup noteBookCanvasGroup;
 
     public DraggedItemUI draggedItemUI { get; private set; }
     public BackpackUI backpackUI { get; private set; }
@@ -14,36 +25,18 @@ public class InGameUI : MonoBehaviour
     public RetrieveUI retrieveUI { get; private set; }
     public MapUI mapUI { get; private set; }
     public NoteBookUI notebookUI { get; private set; }
-
     public MerchantUI merchantUI { get; private set; }
-
     public IntelligencerUI intelligencerUI { get; private set; }
     public DialogueUI dialogueUI { get; private set; }
     public ItemToolTip itemToolTip { get; private set; }
 
-    private bool backpackUIEnabled;
-    private bool lootUIEnabled;
-    private bool retrieveUIEnabled;
-    private bool mapUIEnabled;
-    private bool notebookUIEnabled;
-    private bool merchantUIEnabled;
-    private bool intelligencerUIEnabled;
-
-    // 当前的 NoteBookUI 是不是以“二级覆盖面板”的方式打开的。
-    private bool notebookUIOpenedAsSecondary = false;
+    private InGamePrimaryPanelType currentPrimaryPanel = InGamePrimaryPanelType.None;
+    private InGameSecondaryPanelType currentSecondaryPanel = InGameSecondaryPanelType.None;
 
     private bool canReturnByESC = true;
     private bool hasSubscribedArchiveManager = false;
 
     private MainInput mainInput;
-
-    // 记录被二级面板盖住的主面板，它们原来的 blocksRaycasts 状态。
-    // 关闭二级面板时再恢复。
-    private readonly Dictionary<InGamePanelType, bool> coveredPanelOriginalBlocksRaycasts = new Dictionary<InGamePanelType, bool>();
-
-    // 缓存各主面板根物体上的 CanvasGroup。
-    // 二级面板打开时，会通过这些 CanvasGroup 禁用底下面板的鼠标交互。
-    private readonly Dictionary<InGamePanelType, CanvasGroup> panelCanvasGroups = new Dictionary<InGamePanelType, CanvasGroup>();
 
     private void Awake()
     {
@@ -66,18 +59,10 @@ public class InGameUI : MonoBehaviour
         merchantUI = GetComponentInChildren<MerchantUI>(true);
         intelligencerUI = GetComponentInChildren<IntelligencerUI>(true);
         dialogueUI = GetComponentInChildren<DialogueUI>(true);
-
-        backpackUIEnabled = backpackUI.gameObject.activeSelf;
-        lootUIEnabled = lootUI.gameObject.activeSelf;
-        retrieveUIEnabled = retrieveUI.gameObject.activeSelf;
-        mapUIEnabled = mapUI.gameObject.activeSelf;
-        notebookUIEnabled = notebookUI.gameObject.activeSelf;
-        merchantUIEnabled = merchantUI.gameObject.activeSelf;
-        intelligencerUIEnabled = intelligencerUI.gameObject.activeSelf;
-
         itemToolTip = GetComponentInChildren<ItemToolTip>(true);
 
-        CachePanelCanvasGroups();
+        AutoFillCanvasGroupsIfNeeded();
+        InitializePanelStateFromHierarchy();
 
         if (HudCanvasGroup != null)
         {
@@ -116,53 +101,92 @@ public class InGameUI : MonoBehaviour
         UnsubscribeArchiveManager();
     }
 
-    private void CachePanelCanvasGroups()
+    private void AutoFillCanvasGroupsIfNeeded()
     {
-        panelCanvasGroups.Clear();
+        if (backpackCanvasGroup == null && backpackUI != null)
+        {
+            backpackCanvasGroup = backpackUI.GetComponent<CanvasGroup>();
+        }
 
-        RegisterPanelCanvasGroup(InGamePanelType.Backpack, backpackUI != null ? backpackUI.gameObject : null);
-        RegisterPanelCanvasGroup(InGamePanelType.Loot, lootUI != null ? lootUI.gameObject : null);
-        RegisterPanelCanvasGroup(InGamePanelType.Retrieve, retrieveUI != null ? retrieveUI.gameObject : null);
-        RegisterPanelCanvasGroup(InGamePanelType.Map, mapUI != null ? mapUI.gameObject : null);
-        RegisterPanelCanvasGroup(InGamePanelType.NoteBook, notebookUI != null ? notebookUI.gameObject : null);
-        RegisterPanelCanvasGroup(InGamePanelType.Merchant, merchantUI != null ? merchantUI.gameObject : null);
-        RegisterPanelCanvasGroup(InGamePanelType.Intelligencer, intelligencerUI != null ? intelligencerUI.gameObject : null);
+        if (lootCanvasGroup == null && lootUI != null)
+        {
+            lootCanvasGroup = lootUI.GetComponent<CanvasGroup>();
+        }
+
+        if (retrieveCanvasGroup == null && retrieveUI != null)
+        {
+            retrieveCanvasGroup = retrieveUI.GetComponent<CanvasGroup>();
+        }
+
+        if (mapCanvasGroup == null && mapUI != null)
+        {
+            mapCanvasGroup = mapUI.GetComponent<CanvasGroup>();
+        }
+
+        if (merchantCanvasGroup == null && merchantUI != null)
+        {
+            merchantCanvasGroup = merchantUI.GetComponent<CanvasGroup>();
+        }
+
+        if (intelligencerCanvasGroup == null && intelligencerUI != null)
+        {
+            intelligencerCanvasGroup = intelligencerUI.GetComponent<CanvasGroup>();
+        }
+
+        if (noteBookCanvasGroup == null && notebookUI != null)
+        {
+            noteBookCanvasGroup = notebookUI.GetComponent<CanvasGroup>();
+        }
     }
 
-    private void RegisterPanelCanvasGroup(InGamePanelType panelType, GameObject panelObject)
+    private void InitializePanelStateFromHierarchy()
     {
-        if (panelObject == null)
+        currentPrimaryPanel = InGamePrimaryPanelType.None;
+        currentSecondaryPanel = InGameSecondaryPanelType.None;
+
+        if (backpackUI != null && backpackUI.gameObject.activeSelf)
         {
-            return;
+            currentPrimaryPanel = InGamePrimaryPanelType.Backpack;
+        }
+        else if (lootUI != null && lootUI.gameObject.activeSelf)
+        {
+            currentPrimaryPanel = InGamePrimaryPanelType.Loot;
+        }
+        else if (retrieveUI != null && retrieveUI.gameObject.activeSelf)
+        {
+            currentPrimaryPanel = InGamePrimaryPanelType.Retrieve;
+        }
+        else if (mapUI != null && mapUI.gameObject.activeSelf)
+        {
+            currentPrimaryPanel = InGamePrimaryPanelType.Map;
+        }
+        else if (merchantUI != null && merchantUI.gameObject.activeSelf)
+        {
+            currentPrimaryPanel = InGamePrimaryPanelType.Merchant;
+        }
+        else if (intelligencerUI != null && intelligencerUI.gameObject.activeSelf)
+        {
+            currentPrimaryPanel = InGamePrimaryPanelType.Intelligencer;
         }
 
-        CanvasGroup canvasGroup = panelObject.GetComponent<CanvasGroup>();
-
-        if (canvasGroup == null)
+        if (notebookUI != null && notebookUI.gameObject.activeSelf)
         {
-            canvasGroup = panelObject.AddComponent<CanvasGroup>();
-        }
+            currentSecondaryPanel = InGameSecondaryPanelType.NoteBook;
 
-        panelCanvasGroups[panelType] = canvasGroup;
+            if (currentPrimaryPanel != InGamePrimaryPanelType.None)
+            {
+                SetPrimaryPanelBlocksRaycasts(currentPrimaryPanel, false);
+            }
+        }
     }
 
     private void OnCheckBackpackPerformed(UnityEngine.InputSystem.InputAction.CallbackContext context)
     {
-        if (AnySecondaryPanelOpen())
-        {
-            return;
-        }
-
         ToggleBackpackUI();
     }
 
     private void OnMapPerformed(UnityEngine.InputSystem.InputAction.CallbackContext context)
     {
-        if (AnySecondaryPanelOpen())
-        {
-            return;
-        }
-
         ToggleMapUI();
     }
 
@@ -219,414 +243,394 @@ public class InGameUI : MonoBehaviour
             return;
         }
 
-        // 情报解锁自动打开笔记本时，不再关闭当前主面板。
-        // 它会作为二级面板盖在当前面板上方。
-        OpenNoteBookAsSecondaryPanel(unlockRecord);
+        OpenNoteBookToArchiveUnlockRecord(unlockRecord);
 
         HideToolTips();
     }
 
     private void HandleEscape()
     {
-        if (!canReturnByESC) // 如果此刻禁用ESC返回
+        if (!canReturnByESC)
         {
             return;
         }
 
-        // 二级面板优先级最高。
-        // 如果自动打开的 NoteBookUI 正在翻页，不允许 ESC 关闭。
-        if (notebookUIOpenedAsSecondary)
+        // 1. ESC 优先处理二级面板
+        if (currentSecondaryPanel != InGameSecondaryPanelType.None)
         {
-            if (notebookUI != null && notebookUI.IsBusy)
+            if (IsCurrentSecondaryPanelBusy())
             {
                 return;
             }
 
-            CloseSecondaryNoteBookPanel();
+            CloseCurrentSecondaryPanel();
             return;
         }
 
-        if (notebookUIEnabled && notebookUI != null && notebookUI.IsBusy) // 如果正在自动翻页
+        // 2. 其次处理 PauseUI 以外的一级面板
+        if (currentPrimaryPanel != InGamePrimaryPanelType.None
+            && currentPrimaryPanel != InGamePrimaryPanelType.Pause)
         {
+            CloseCurrentPrimaryPanel();
             return;
         }
 
-        // 如果已经有面板开着：只关闭“当前最上层”的那个（按优先级）
-        if (AnyPanelOpen())
-        {
-            if (notebookUIEnabled)
-            {
-                ToggleNoteBookUI();
-                return;
-            }
-
-            if (backpackUIEnabled)
-            {
-                ToggleBackpackUI();
-                return;
-            }
-
-            if (lootUIEnabled)
-            {
-                ToggleLootUI(null);
-                return;
-            }
-
-            if (retrieveUIEnabled)
-            {
-                ToggleRetrieveUI(null);
-                return;
-            }
-
-            if (mapUIEnabled)
-            {
-                ToggleMapUI();
-                return;
-            }
-
-            if (merchantUIEnabled)
-            {
-                ToggleMerchantUI();
-                return;
-            }
-
-            if (intelligencerUIEnabled)
-            {
-                ToggleIntelligencerUI();
-                return;
-            }
-
-            //// 选项（最高优先级）
-            //if (pauseUIEnabled)
-            //{
-            //    TogglePauseUI();
-            //    return;
-            //}
-
-            return;
-        }
-
-        //if (!pauseUIEnabled)
-        //{
-        //    TogglePauseUI();
-        //}
+        // 3. 最后处理 PauseUI
+        TogglePauseUI();
     }
 
     public void ToggleBackpackUI()
     {
-        if (AnySecondaryPanelOpen())
-        {
-            return;
-        }
-
-        bool willOpen = !backpackUIEnabled;
-
-        if (willOpen)
-        {
-            CloseAllPanelsBeforeOpening(InGamePanelType.Backpack);
-        }
-
-        backpackUIEnabled = willOpen;
-
-        SwitchBackpackUI(backpackUIEnabled);
-        HideToolTips();
+        TryTogglePrimaryPanel(InGamePrimaryPanelType.Backpack);
     }
 
     public void ToggleLootUI(InventoryBase lootInventory)
     {
-        if (AnySecondaryPanelOpen())
-        {
-            return;
-        }
-
-        bool willOpen = !lootUIEnabled;
-
-        if (willOpen)
-        {
-            CloseAllPanelsBeforeOpening(InGamePanelType.Loot);
-        }
-
-        lootUIEnabled = willOpen;
-
-        SwitchLootUI(lootUIEnabled, lootInventory);
-        HideToolTips();
+        TryTogglePrimaryPanel(InGamePrimaryPanelType.Loot, lootInventory);
     }
 
     public void ToggleRetrieveUI(InventoryBase retrieveInventory)
     {
-        if (AnySecondaryPanelOpen())
-        {
-            return;
-        }
-
-        bool willOpen = !retrieveUIEnabled;
-
-        if (willOpen)
-        {
-            CloseAllPanelsBeforeOpening(InGamePanelType.Retrieve);
-        }
-
-        retrieveUIEnabled = willOpen;
-
-        SwitchRetrieveUI(retrieveUIEnabled, retrieveInventory);
-        HideToolTips();
+        TryTogglePrimaryPanel(InGamePrimaryPanelType.Retrieve, retrieveInventory);
     }
 
     public void ToggleMapUI()
     {
-        if (AnySecondaryPanelOpen())
-        {
-            return;
-        }
-
-        bool willOpen = !mapUIEnabled;
-
-        if (willOpen)
-        {
-            CloseAllPanelsBeforeOpening(InGamePanelType.Map);
-        }
-
-        mapUIEnabled = willOpen;
-
-        SwitchMapUI(mapUIEnabled);
-        HideToolTips();
-    }
-
-    public void ToggleNoteBookUI()
-    {
-        if (notebookUI != null && notebookUI.IsBusy)
-        {
-            return;
-        }
-
-        // 如果笔记本当前是二级面板，按笔记本键或者关闭按钮时，
-        // 应该只关闭二级笔记本，并恢复底下主面板的鼠标交互。
-        if (notebookUIOpenedAsSecondary)
-        {
-            CloseSecondaryNoteBookPanel();
-            return;
-        }
-
-        bool willOpen = !notebookUIEnabled;
-
-        if (willOpen)
-        {
-            CloseAllPanelsBeforeOpening(InGamePanelType.NoteBook);
-        }
-
-        notebookUIEnabled = willOpen;
-
-        SwitchNoteBookUI(notebookUIEnabled);
-        HideToolTips();
+        TryTogglePrimaryPanel(InGamePrimaryPanelType.Map);
     }
 
     public void ToggleMerchantUI()
     {
-        if (AnySecondaryPanelOpen())
-        {
-            return;
-        }
-
-        bool willOpen = !merchantUIEnabled;
-
-        if (willOpen)
-        {
-            CloseAllPanelsBeforeOpening(InGamePanelType.Merchant);
-        }
-
-        merchantUIEnabled = willOpen;
-
-        SwitchMerchantUI(merchantUIEnabled);
-        HideToolTips();
+        TryTogglePrimaryPanel(InGamePrimaryPanelType.Merchant);
     }
 
     public void ToggleIntelligencerUI()
     {
-        if (AnySecondaryPanelOpen())
+        TryTogglePrimaryPanel(InGamePrimaryPanelType.Intelligencer);
+    }
+
+    public void ToggleNoteBookUI()
+    {
+        TryToggleSecondaryPanel(InGameSecondaryPanelType.NoteBook);
+    }
+
+    // PauseUI 现在还没有实装，所以先留一个空壳。
+    public void TogglePauseUI()
+    {
+        //if (currentSecondaryPanel != InGameSecondaryPanelType.None)
+        //{
+        //    return;
+        //}
+
+        //if (currentPrimaryPanel == InGamePrimaryPanelType.Pause)
+        //{
+        //    CloseCurrentPrimaryPanel();
+        //    return;
+        //}
+
+        //if (currentPrimaryPanel != InGamePrimaryPanelType.None)
+        //{
+        //    return;
+        //}
+
+        //currentPrimaryPanel = InGamePrimaryPanelType.Pause;
+
+        //// TODO：之后实装 PauseUI 时，在这里写：
+        //// pauseUI.Open();
+
+        //HideToolTips();
+        TryTogglePrimaryPanel(InGamePrimaryPanelType.Pause);
+    }
+
+    private bool TryTogglePrimaryPanel(InGamePrimaryPanelType targetPanel, InventoryBase inventory = null)
+    {
+        if (targetPanel == InGamePrimaryPanelType.None)
+        {
+            return false;
+        }
+
+        // 有二级面板打开时，不允许开启 / 切换一级面板。
+        // 因为二级面板可能是独立打开，也可能盖在一级面板上方。
+        if (currentSecondaryPanel != InGameSecondaryPanelType.None)
+        {
+            return false;
+        }
+
+        // 当前已经打开的就是这个一级面板，则本次 Toggle 表示关闭它。
+        if (currentPrimaryPanel == targetPanel)
+        {
+            CloseCurrentPrimaryPanel();
+            return true;
+        }
+
+        // 已经有其它一级面板时，拦截新一级面板开启。
+        if (currentPrimaryPanel != InGamePrimaryPanelType.None)
+        {
+            return false;
+        }
+
+        OpenPrimaryPanel(targetPanel, inventory);
+        return true;
+    }
+
+    private bool TryToggleSecondaryPanel(InGameSecondaryPanelType targetPanel)
+    {
+        if (targetPanel == InGameSecondaryPanelType.None)
+        {
+            return false;
+        }
+
+        if (IsCurrentSecondaryPanelBusy())
+        {
+            return false;
+        }
+
+        // 当前已经打开的就是这个二级面板，则本次 Toggle 表示关闭它。
+        if (currentSecondaryPanel == targetPanel)
+        {
+            CloseCurrentSecondaryPanel();
+            return true;
+        }
+
+        // 已经有其它二级面板时，拦截新二级面板开启。
+        if (currentSecondaryPanel != InGameSecondaryPanelType.None)
+        {
+            return false;
+        }
+
+        OpenSecondaryPanel(targetPanel);
+        return true;
+    }
+
+    private void OpenPrimaryPanel(InGamePrimaryPanelType targetPanel, InventoryBase inventory = null)
+    {
+        currentPrimaryPanel = targetPanel;
+
+        SetPrimaryPanelBlocksRaycasts(targetPanel, true);
+
+        switch (targetPanel)
+        {
+            case InGamePrimaryPanelType.Backpack:
+                SwitchBackpackUI(true);
+                break;
+
+            case InGamePrimaryPanelType.Loot:
+                SwitchLootUI(true, inventory);
+                break;
+
+            case InGamePrimaryPanelType.Retrieve:
+                SwitchRetrieveUI(true, inventory);
+                break;
+
+            case InGamePrimaryPanelType.Map:
+                SwitchMapUI(true);
+                break;
+
+            case InGamePrimaryPanelType.Merchant:
+                SwitchMerchantUI(true);
+                break;
+
+            case InGamePrimaryPanelType.Intelligencer:
+                SwitchIntelligencerUI(true);
+                break;
+
+            case InGamePrimaryPanelType.Pause:
+                // TODO：之后实装 PauseUI 时，在这里写 pauseUI.Open();
+                break;
+        }
+
+        HideToolTips();
+    }
+
+    private void CloseCurrentPrimaryPanel()
+    {
+        if (currentPrimaryPanel == InGamePrimaryPanelType.None)
         {
             return;
         }
 
-        bool willOpen = !intelligencerUIEnabled;
+        InGamePrimaryPanelType panelToClose = currentPrimaryPanel;
 
-        if (willOpen)
+        switch (panelToClose)
         {
-            CloseAllPanelsBeforeOpening(InGamePanelType.Intelligencer);
+            case InGamePrimaryPanelType.Backpack:
+                SwitchBackpackUI(false);
+                break;
+
+            case InGamePrimaryPanelType.Loot:
+                SwitchLootUI(false, null);
+                break;
+
+            case InGamePrimaryPanelType.Retrieve:
+                SwitchRetrieveUI(false, null);
+                break;
+
+            case InGamePrimaryPanelType.Map:
+                SwitchMapUI(false);
+                break;
+
+            case InGamePrimaryPanelType.Merchant:
+                SwitchMerchantUI(false);
+                break;
+
+            case InGamePrimaryPanelType.Intelligencer:
+                SwitchIntelligencerUI(false);
+                break;
+
+            case InGamePrimaryPanelType.Pause:
+                // TODO：之后实装 PauseUI 时，在这里写 pauseUI.Close();
+                break;
         }
 
-        intelligencerUIEnabled = willOpen;
+        SetPrimaryPanelBlocksRaycasts(panelToClose, true);
 
-        SwitchIntelligencerUI(intelligencerUIEnabled);
+        currentPrimaryPanel = InGamePrimaryPanelType.None;
+
         HideToolTips();
     }
 
-    // 情报自动解锁时使用这个函数。
-    // 它不会关闭当前主面板，只会把笔记本盖在上面。
-    private void OpenNoteBookAsSecondaryPanel(ArchiveUnlockRecord unlockRecord)
+    private void OpenSecondaryPanel(InGameSecondaryPanelType targetPanel)
+    {
+        currentSecondaryPanel = targetPanel;
+
+        // 如果当前有一级面板，则让下方一级面板看得见但点不到。
+        if (currentPrimaryPanel != InGamePrimaryPanelType.None)
+        {
+            SetPrimaryPanelBlocksRaycasts(currentPrimaryPanel, false);
+        }
+
+        switch (targetPanel)
+        {
+            case InGameSecondaryPanelType.NoteBook:
+                SwitchNoteBookUI(true);
+                break;
+        }
+
+        HideToolTips();
+    }
+
+    private void CloseCurrentSecondaryPanel()
+    {
+        if (currentSecondaryPanel == InGameSecondaryPanelType.None)
+        {
+            return;
+        }
+
+        if (IsCurrentSecondaryPanelBusy())
+        {
+            return;
+        }
+
+        InGameSecondaryPanelType panelToClose = currentSecondaryPanel;
+
+        switch (panelToClose)
+        {
+            case InGameSecondaryPanelType.NoteBook:
+                SwitchNoteBookUI(false);
+                break;
+        }
+
+        currentSecondaryPanel = InGameSecondaryPanelType.None;
+
+        // 如果下方还有一级面板，恢复它的点击。
+        if (currentPrimaryPanel != InGamePrimaryPanelType.None)
+        {
+            SetPrimaryPanelBlocksRaycasts(currentPrimaryPanel, true);
+        }
+
+        HideToolTips();
+    }
+
+    private void OpenNoteBookToArchiveUnlockRecord(ArchiveUnlockRecord unlockRecord)
     {
         if (notebookUI == null)
         {
             return;
         }
 
-        // 如果笔记本已经作为普通主面板打开了，那就不需要再变成二级面板。
-        // 直接让当前笔记本翻到新解锁条目所在页即可。
-        if (notebookUIEnabled && !notebookUIOpenedAsSecondary)
+        // 如果其它二级面板已经打开，拦截
+        if (currentSecondaryPanel != InGameSecondaryPanelType.None
+            && currentSecondaryPanel != InGameSecondaryPanelType.NoteBook)
+        {
+            return;
+        }
+
+        // 如果 NoteBook 已经打开，只需要重新定位到新增条目。
+        if (currentSecondaryPanel == InGameSecondaryPanelType.NoteBook)
         {
             notebookUI.OpenToUnlockedArchiveEntry(unlockRecord);
             return;
         }
 
-        // 如果笔记本已经是二级面板了，直接刷新并重新定位到新条目。
-        if (notebookUIOpenedAsSecondary)
+        currentSecondaryPanel = InGameSecondaryPanelType.NoteBook;
+
+        if (currentPrimaryPanel != InGamePrimaryPanelType.None)
         {
-            notebookUI.OpenToUnlockedArchiveEntry(unlockRecord);
-            return;
+            SetPrimaryPanelBlocksRaycasts(currentPrimaryPanel, false);
         }
-
-        DisableBlocksRaycastsForOpenedPrimaryPanels();
-
-        notebookUIOpenedAsSecondary = true;
-        notebookUIEnabled = true;
 
         notebookUI.OpenToUnlockedArchiveEntry(unlockRecord);
     }
 
-    private void CloseSecondaryNoteBookPanel()
+    private bool IsCurrentSecondaryPanelBusy()
     {
-        if (!notebookUIOpenedAsSecondary)
+        if (currentSecondaryPanel == InGameSecondaryPanelType.NoteBook)
+        {
+            return notebookUI != null && notebookUI.IsBusy;
+        }
+
+        return false;
+    }
+
+    private void SetPrimaryPanelBlocksRaycasts(InGamePrimaryPanelType panelType, bool blocksRaycasts)
+    {
+        CanvasGroup targetCanvasGroup = GetPrimaryPanelCanvasGroup(panelType);
+
+        if (targetCanvasGroup == null)
         {
             return;
         }
 
-        if (notebookUI != null && notebookUI.IsBusy)
-        {
-            return;
-        }
-
-        if (notebookUI != null)
-        {
-            notebookUI.Close();
-        }
-
-        notebookUIOpenedAsSecondary = false;
-        notebookUIEnabled = false;
-
-        RestoreBlocksRaycastsForCoveredPrimaryPanels();
-
-        HideToolTips();
+        targetCanvasGroup.blocksRaycasts = blocksRaycasts;
     }
 
-    private bool AnySecondaryPanelOpen()
+    private CanvasGroup GetPrimaryPanelCanvasGroup(InGamePrimaryPanelType panelType)
     {
-        return notebookUIOpenedAsSecondary;
-    }
-
-    // 开新主面板前，关闭其它所有已开启主面板。
-    // 注意：二级面板不应该走这个函数。
-    private void CloseAllPanelsBeforeOpening(InGamePanelType panelToOpen)
-    {
-        if (backpackUIEnabled && panelToOpen != InGamePanelType.Backpack)
+        switch (panelType)
         {
-            ToggleBackpackUI();
+            case InGamePrimaryPanelType.Backpack:
+                return backpackCanvasGroup;
+
+            case InGamePrimaryPanelType.Loot:
+                return lootCanvasGroup;
+
+            case InGamePrimaryPanelType.Retrieve:
+                return retrieveCanvasGroup;
+
+            case InGamePrimaryPanelType.Map:
+                return mapCanvasGroup;
+
+            case InGamePrimaryPanelType.Merchant:
+                return merchantCanvasGroup;
+
+            case InGamePrimaryPanelType.Intelligencer:
+                return intelligencerCanvasGroup;
+
+            case InGamePrimaryPanelType.Pause:
+                // TODO：之后实装 PauseUI 后，给 PauseUI 也加 CanvasGroup 并在这里返回。
+                return null;
         }
 
-        if (lootUIEnabled && panelToOpen != InGamePanelType.Loot)
-        {
-            ToggleLootUI(null);
-        }
-
-        if (retrieveUIEnabled && panelToOpen != InGamePanelType.Retrieve)
-        {
-            ToggleRetrieveUI(null);
-        }
-
-        if (mapUIEnabled && panelToOpen != InGamePanelType.Map)
-        {
-            ToggleMapUI();
-        }
-
-        if (notebookUIEnabled && !notebookUIOpenedAsSecondary && panelToOpen != InGamePanelType.NoteBook)
-        {
-            ToggleNoteBookUI();
-        }
-
-        if (merchantUIEnabled && panelToOpen != InGamePanelType.Merchant)
-        {
-            ToggleMerchantUI();
-        }
-
-        if (intelligencerUIEnabled && panelToOpen != InGamePanelType.Intelligencer)
-        {
-            ToggleIntelligencerUI();
-        }
-
-        // 统一收起各种 ToolTip
-        HideToolTips();
-    }
-
-    private void DisableBlocksRaycastsForOpenedPrimaryPanels()
-    {
-        coveredPanelOriginalBlocksRaycasts.Clear();
-
-        TryDisablePanelBlocksRaycasts(InGamePanelType.Backpack, backpackUIEnabled);
-        TryDisablePanelBlocksRaycasts(InGamePanelType.Loot, lootUIEnabled);
-        TryDisablePanelBlocksRaycasts(InGamePanelType.Retrieve, retrieveUIEnabled);
-        TryDisablePanelBlocksRaycasts(InGamePanelType.Map, mapUIEnabled);
-        TryDisablePanelBlocksRaycasts(InGamePanelType.Merchant, merchantUIEnabled);
-        TryDisablePanelBlocksRaycasts(InGamePanelType.Intelligencer, intelligencerUIEnabled);
-
-        // 如果未来你允许“普通主面板笔记本上面再盖另一个二级面板”，可以在这里处理 NoteBook。
-        // 现在笔记本自己就是这个二级面板，所以不需要禁用它自己。
-    }
-
-    private void TryDisablePanelBlocksRaycasts(InGamePanelType panelType, bool panelEnabled)
-    {
-        if (!panelEnabled)
-        {
-            return;
-        }
-
-        if (!panelCanvasGroups.TryGetValue(panelType, out CanvasGroup canvasGroup))
-        {
-            return;
-        }
-
-        if (canvasGroup == null)
-        {
-            return;
-        }
-
-        if (!coveredPanelOriginalBlocksRaycasts.ContainsKey(panelType))
-        {
-            coveredPanelOriginalBlocksRaycasts.Add(panelType, canvasGroup.blocksRaycasts);
-        }
-
-        canvasGroup.blocksRaycasts = false;
-    }
-
-    private void RestoreBlocksRaycastsForCoveredPrimaryPanels()
-    {
-        foreach (KeyValuePair<InGamePanelType, bool> pair in coveredPanelOriginalBlocksRaycasts)
-        {
-            if (!panelCanvasGroups.TryGetValue(pair.Key, out CanvasGroup canvasGroup))
-            {
-                continue;
-            }
-
-            if (canvasGroup == null)
-            {
-                continue;
-            }
-
-            canvasGroup.blocksRaycasts = pair.Value;
-        }
-
-        coveredPanelOriginalBlocksRaycasts.Clear();
+        return null;
     }
 
     private void SwitchBackpackUI(bool enabled)
     {
+        if (backpackUI == null)
+        {
+            return;
+        }
+
         if (enabled)
         {
             backpackUI.Open();
@@ -639,6 +643,11 @@ public class InGameUI : MonoBehaviour
 
     private void SwitchLootUI(bool enabled, InventoryBase lootInventory)
     {
+        if (lootUI == null)
+        {
+            return;
+        }
+
         if (enabled)
         {
             lootUI.Open(lootInventory);
@@ -651,6 +660,11 @@ public class InGameUI : MonoBehaviour
 
     private void SwitchRetrieveUI(bool enabled, InventoryBase retrieveInventory)
     {
+        if (retrieveUI == null)
+        {
+            return;
+        }
+
         if (enabled)
         {
             retrieveUI.Open(retrieveInventory);
@@ -663,23 +677,40 @@ public class InGameUI : MonoBehaviour
 
     private void SwitchMapUI(bool enabled)
     {
+        if (mapUI == null)
+        {
+            return;
+        }
+
         mapUI.gameObject.SetActive(enabled);
     }
 
     private void SwitchNoteBookUI(bool enabled)
     {
+        if (notebookUI == null)
+        {
+            return;
+        }
+
         if (enabled)
         {
             notebookUI.Open();
+            ShowDraggedItem(false);
         }
         else
         {
             notebookUI.Close();
+            ShowDraggedItem(true);
         }
     }
 
     private void SwitchMerchantUI(bool enabled)
     {
+        if (merchantUI == null)
+        {
+            return;
+        }
+
         if (enabled)
         {
             merchantUI.Open();
@@ -694,6 +725,11 @@ public class InGameUI : MonoBehaviour
 
     private void SwitchIntelligencerUI(bool enabled)
     {
+        if (intelligencerUI == null)
+        {
+            return;
+        }
+
         if (enabled)
         {
             intelligencerUI.Open();
@@ -714,15 +750,24 @@ public class InGameUI : MonoBehaviour
         }
     }
 
-    private bool AnyPanelOpen()
+    public bool HasPrimaryPanelOpen()
     {
-        return backpackUIEnabled
-            || lootUIEnabled
-            || retrieveUIEnabled
-            || mapUIEnabled
-            || notebookUIEnabled
-            || merchantUIEnabled
-            || intelligencerUIEnabled;
+        return currentPrimaryPanel != InGamePrimaryPanelType.None;
+    }
+
+    public bool HasSecondaryPanelOpen()
+    {
+        return currentSecondaryPanel != InGameSecondaryPanelType.None;
+    }
+
+    public InGamePrimaryPanelType GetCurrentPrimaryPanel()
+    {
+        return currentPrimaryPanel;
+    }
+
+    public InGameSecondaryPanelType GetCurrentSecondaryPanel()
+    {
+        return currentSecondaryPanel;
     }
 
     public void ShowHud(bool show)
@@ -741,16 +786,34 @@ public class InGameUI : MonoBehaviour
             HudCanvasGroup.alpha = 0;
         }
     }
+
+    public void ShowDraggedItem(bool show)
+    {
+        if(!show)
+        {
+            draggedItemCanvasGroup.alpha = 1;
+        }
+        else
+        {
+            draggedItemCanvasGroup.alpha = 0;
+        }
+    }
 }
 
-public enum InGamePanelType
+public enum InGamePrimaryPanelType
 {
     None,
     Backpack,
     Loot,
     Retrieve,
     Map,
-    NoteBook,
     Merchant,
-    Intelligencer
+    Intelligencer,
+    Pause
+}
+
+public enum InGameSecondaryPanelType
+{
+    None,
+    NoteBook
 }

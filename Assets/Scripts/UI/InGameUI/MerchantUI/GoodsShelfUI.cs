@@ -188,12 +188,10 @@ public class GoodsShelfUI : MonoBehaviour
 
         playerInventory.AddMoney(soldItemData.itemSellPrice);
 
-        //// 如果这个拖拽物本来还在玩家背包里，就把它从背包里清掉。
-        //// 如果它是刚从商店买出来的，还没进背包，RemoveItem 会自然失败，不影响结果。
-        //playerInventory.ClearQuickItem(itemToSell);
-        //playerInventory.RemoveItem(itemToSell);
-        //playerInventory.ValidateQuickItems(null);
-        //playerInventory.ValidateHoldingItem(null);
+        if(soldItemData.itemType==ItemType.Note)
+        {
+            IntelligenceArchiveManager.Instance.UnlockRandomNonImportantIntelligenceByNote();
+        }
 
         draggedItemUI.EndDrag();
 

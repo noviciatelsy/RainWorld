@@ -5,10 +5,10 @@ public class NPCSpringIdle2D : MonoBehaviour
     [Header("弹簧待机参数")]
 
     [Tooltip("每秒弹动次数")]
-    [SerializeField] private float frequency = 1.5f;
+    [SerializeField] private float frequency = 1f;
 
     [Tooltip("Y方向最大压缩/拉伸比例")]
-    [SerializeField] private float squashAmount = 0.02f;
+    [SerializeField] private float squashAmount = 0.015f;
 
     [Tooltip("是否在启用时随机起始动画时间，避免一群NPC同步弹")]
     [SerializeField] private bool randomStartTime = true;
