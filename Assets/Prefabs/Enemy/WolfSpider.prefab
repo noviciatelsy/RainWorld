@@ -75,6 +75,8 @@ MonoBehaviour:
   surfaceSnapMaxDistance: 0.85
   visualSurfaceOffset: 0.1
   bodyVisual: {fileID: 8924309763885876675}
+  enableDebugLog: 1
+  drawDebugGizmos: 1
 --- !u!1 &2740227717384332534
 GameObject:
   m_ObjectHideFlags: 0
