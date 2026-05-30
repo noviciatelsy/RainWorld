@@ -19,6 +19,9 @@ public class InGameUI : MonoBehaviour
     [Header("Secondary Panel CanvasGroups")]
     private CanvasGroup noteBookCanvasGroup;
 
+    [Header("Special Panel CanvasGroups")]
+    private CanvasGroup pauseCanvasGroup;
+
     public DraggedItemUI draggedItemUI { get; private set; }
     public BackpackUI backpackUI { get; private set; }
     public LootUI lootUI { get; private set; }
@@ -27,13 +30,16 @@ public class InGameUI : MonoBehaviour
     public NoteBookUI notebookUI { get; private set; }
     public MerchantUI merchantUI { get; private set; }
     public IntelligencerUI intelligencerUI { get; private set; }
+    public PauseUI pauseUI { get; private set; }
     public DialogueUI dialogueUI { get; private set; }
     public ItemToolTip itemToolTip { get; private set; }
 
     private InGamePrimaryPanelType currentPrimaryPanel = InGamePrimaryPanelType.None;
     private InGameSecondaryPanelType currentSecondaryPanel = InGameSecondaryPanelType.None;
 
-    private bool canReturnByESC = true;
+    // PauseUI 是特殊面板，不放进一级/二级枚举里
+    private bool pauseUIEnabled = false;
+
     private bool hasSubscribedArchiveManager = false;
 
     private MainInput mainInput;
@@ -58,6 +64,7 @@ public class InGameUI : MonoBehaviour
         notebookUI = GetComponentInChildren<NoteBookUI>(true);
         merchantUI = GetComponentInChildren<MerchantUI>(true);
         intelligencerUI = GetComponentInChildren<IntelligencerUI>(true);
+        pauseUI = GetComponentInChildren<PauseUI>(true);
         dialogueUI = GetComponentInChildren<DialogueUI>(true);
         itemToolTip = GetComponentInChildren<ItemToolTip>(true);
 
@@ -137,12 +144,26 @@ public class InGameUI : MonoBehaviour
         {
             noteBookCanvasGroup = notebookUI.GetComponent<CanvasGroup>();
         }
+
+        if (pauseCanvasGroup == null && pauseUI != null)
+        {
+            pauseCanvasGroup = pauseUI.GetComponent<CanvasGroup>();
+        }
     }
 
     private void InitializePanelStateFromHierarchy()
     {
         currentPrimaryPanel = InGamePrimaryPanelType.None;
         currentSecondaryPanel = InGameSecondaryPanelType.None;
+        pauseUIEnabled = false;
+
+        // PauseUI 是特殊层。
+        // 如果初始状态 PauseUI 开着，就以 PauseUI 为最高优先级。
+        if (pauseUI != null && pauseUI.gameObject.activeSelf)
+        {
+            pauseUIEnabled = true;
+            return;
+        }
 
         if (backpackUI != null && backpackUI.gameObject.activeSelf)
         {
@@ -243,6 +264,12 @@ public class InGameUI : MonoBehaviour
             return;
         }
 
+        // PauseUI 打开时，不允许因为情报解锁自动打开笔记本。
+        if (pauseUIEnabled)
+        {
+            return;
+        }
+
         OpenNoteBookToArchiveUnlockRecord(unlockRecord);
 
         HideToolTips();
@@ -250,12 +277,8 @@ public class InGameUI : MonoBehaviour
 
     private void HandleEscape()
     {
-        if (!canReturnByESC)
-        {
-            return;
-        }
 
-        // 1. ESC 优先处理二级面板
+        // 1. 优先处理二级面板
         if (currentSecondaryPanel != InGameSecondaryPanelType.None)
         {
             if (IsCurrentSecondaryPanelBusy())
@@ -267,9 +290,8 @@ public class InGameUI : MonoBehaviour
             return;
         }
 
-        // 2. 其次处理 PauseUI 以外的一级面板
-        if (currentPrimaryPanel != InGamePrimaryPanelType.None
-            && currentPrimaryPanel != InGamePrimaryPanelType.Pause)
+        // 2. 其次处理一级面板
+        if (currentPrimaryPanel != InGamePrimaryPanelType.None)
         {
             CloseCurrentPrimaryPanel();
             return;
@@ -314,32 +336,27 @@ public class InGameUI : MonoBehaviour
         TryToggleSecondaryPanel(InGameSecondaryPanelType.NoteBook);
     }
 
-    // PauseUI 现在还没有实装，所以先留一个空壳。
     public void TogglePauseUI()
     {
-        //if (currentSecondaryPanel != InGameSecondaryPanelType.None)
-        //{
-        //    return;
-        //}
+        // PauseUI 开启时，再次 Toggle 就是关闭自己。
+        if (pauseUIEnabled)
+        {
+            ClosePausePanel();
+            return;
+        }
 
-        //if (currentPrimaryPanel == InGamePrimaryPanelType.Pause)
-        //{
-        //    CloseCurrentPrimaryPanel();
-        //    return;
-        //}
+        // 只要一级或二级面板还开着，就不允许打开 PauseUI。
+        if (currentPrimaryPanel != InGamePrimaryPanelType.None)
+        {
+            return;
+        }
 
-        //if (currentPrimaryPanel != InGamePrimaryPanelType.None)
-        //{
-        //    return;
-        //}
+        if (currentSecondaryPanel != InGameSecondaryPanelType.None)
+        {
+            return;
+        }
 
-        //currentPrimaryPanel = InGamePrimaryPanelType.Pause;
-
-        //// TODO：之后实装 PauseUI 时，在这里写：
-        //// pauseUI.Open();
-
-        //HideToolTips();
-        TryTogglePrimaryPanel(InGamePrimaryPanelType.Pause);
+        OpenPausePanel();
     }
 
     private bool TryTogglePrimaryPanel(InGamePrimaryPanelType targetPanel, InventoryBase inventory = null)
@@ -349,8 +366,13 @@ public class InGameUI : MonoBehaviour
             return false;
         }
 
-        // 有二级面板打开时，不允许开启 / 切换一级面板。
-        // 因为二级面板可能是独立打开，也可能盖在一级面板上方。
+        // PauseUI 开启时，不允许开启任何一级面板。
+        if (pauseUIEnabled)
+        {
+            return false;
+        }
+
+        // 二级面板独立开启，或者盖在一级面板上方时，都不允许开启 / 切换一级面板。
         if (currentSecondaryPanel != InGameSecondaryPanelType.None)
         {
             return false;
@@ -376,6 +398,12 @@ public class InGameUI : MonoBehaviour
     private bool TryToggleSecondaryPanel(InGameSecondaryPanelType targetPanel)
     {
         if (targetPanel == InGameSecondaryPanelType.None)
+        {
+            return false;
+        }
+
+        // PauseUI 开启时，不允许开启任何二级面板。
+        if (pauseUIEnabled)
         {
             return false;
         }
@@ -433,10 +461,6 @@ public class InGameUI : MonoBehaviour
             case InGamePrimaryPanelType.Intelligencer:
                 SwitchIntelligencerUI(true);
                 break;
-
-            case InGamePrimaryPanelType.Pause:
-                // TODO：之后实装 PauseUI 时，在这里写 pauseUI.Open();
-                break;
         }
 
         HideToolTips();
@@ -475,10 +499,6 @@ public class InGameUI : MonoBehaviour
 
             case InGamePrimaryPanelType.Intelligencer:
                 SwitchIntelligencerUI(false);
-                break;
-
-            case InGamePrimaryPanelType.Pause:
-                // TODO：之后实装 PauseUI 时，在这里写 pauseUI.Close();
                 break;
         }
 
@@ -541,6 +561,24 @@ public class InGameUI : MonoBehaviour
         HideToolTips();
     }
 
+    private void OpenPausePanel()
+    {
+        pauseUIEnabled = true;
+
+        SwitchPauseUI(true);
+
+        HideToolTips();
+    }
+
+    private void ClosePausePanel()
+    {
+        pauseUIEnabled = false;
+
+        SwitchPauseUI(false);
+
+        HideToolTips();
+    }
+
     private void OpenNoteBookToArchiveUnlockRecord(ArchiveUnlockRecord unlockRecord)
     {
         if (notebookUI == null)
@@ -548,7 +586,12 @@ public class InGameUI : MonoBehaviour
             return;
         }
 
-        // 如果其它二级面板已经打开，拦截
+        if (pauseUIEnabled)
+        {
+            return;
+        }
+
+        // 如果其它二级面板已经打开，拦截。
         if (currentSecondaryPanel != InGameSecondaryPanelType.None
             && currentSecondaryPanel != InGameSecondaryPanelType.NoteBook)
         {
@@ -570,6 +613,7 @@ public class InGameUI : MonoBehaviour
         }
 
         notebookUI.OpenToUnlockedArchiveEntry(unlockRecord);
+        ShowDraggedItem(false);
     }
 
     private bool IsCurrentSecondaryPanelBusy()
@@ -615,10 +659,6 @@ public class InGameUI : MonoBehaviour
 
             case InGamePrimaryPanelType.Intelligencer:
                 return intelligencerCanvasGroup;
-
-            case InGamePrimaryPanelType.Pause:
-                // TODO：之后实装 PauseUI 后，给 PauseUI 也加 CanvasGroup 并在这里返回。
-                return null;
         }
 
         return null;
@@ -742,6 +782,23 @@ public class InGameUI : MonoBehaviour
         }
     }
 
+    private void SwitchPauseUI(bool enabled)
+    {
+        if (pauseUI == null)
+        {
+            return;
+        }
+
+        if (enabled)
+        {
+            pauseUI.Open();
+        }
+        else
+        {
+            pauseUI.Close();
+        }
+    }
+
     private void HideToolTips()
     {
         if (itemToolTip != null)
@@ -758,6 +815,11 @@ public class InGameUI : MonoBehaviour
     public bool HasSecondaryPanelOpen()
     {
         return currentSecondaryPanel != InGameSecondaryPanelType.None;
+    }
+
+    public bool IsPauseUIOpen()
+    {
+        return pauseUIEnabled;
     }
 
     public InGamePrimaryPanelType GetCurrentPrimaryPanel()
@@ -789,7 +851,12 @@ public class InGameUI : MonoBehaviour
 
     public void ShowDraggedItem(bool show)
     {
-        if(!show)
+        if (draggedItemCanvasGroup == null)
+        {
+            return;
+        }
+
+        if (show)
         {
             draggedItemCanvasGroup.alpha = 1;
         }
@@ -808,8 +875,7 @@ public enum InGamePrimaryPanelType
     Retrieve,
     Map,
     Merchant,
-    Intelligencer,
-    Pause
+    Intelligencer
 }
 
 public enum InGameSecondaryPanelType
