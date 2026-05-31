@@ -11,6 +11,8 @@ public class GlobalUI : MonoBehaviour
 
     private bool gameIsPaused = false;
 
+    private int pauseCount;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -20,6 +22,7 @@ public class GlobalUI : MonoBehaviour
         Instance = this;
         fadeScreenUI = GetComponentInChildren<FadeScreenUI>();
         hintMessageUI = GetComponentInChildren<HintMessageUI>();
+        pauseCount = 0;
     }
 
     public void PlayButtonClick()
@@ -31,23 +34,31 @@ public class GlobalUI : MonoBehaviour
     {
         if (pause)
         {
+            pauseCount++;
             if (gameIsPaused)
             {
                 return;
             }
-            Time.timeScale = 0f;
-            InputManager.Instance.mainInput.Player.Disable();
-            gameIsPaused = true;
+            if(pauseCount>0)
+            {
+                Time.timeScale = 0f;
+                InputManager.Instance.mainInput.Player.Disable();
+                gameIsPaused = true;
+            }
         }
         else
         {
+            pauseCount--;
             if (!gameIsPaused)
             {
                 return;
             }
-            Time.timeScale = 1;
-            InputManager.Instance.mainInput.Player.Enable();
-            gameIsPaused = false;
+            if(pauseCount==0)
+            {
+                Time.timeScale = 1;
+                InputManager.Instance.mainInput.Player.Enable();
+                gameIsPaused = false;
+            }
         }
     }
 

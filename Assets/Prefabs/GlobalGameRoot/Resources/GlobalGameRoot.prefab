@@ -690,7 +690,7 @@ MonoBehaviour:
     type: 2}
   enemyIntelligenceDataBase: {fileID: 11400000, guid: 8b05ce23fd11ede4e9f393fbdfbbcdef,
     type: 2}
-  saveImmediatelyWhenUnlock: 1
+  saveImmediatelyWhenUnlock: 0
   autoUnlockEnemyWhenUnlockEnemyIntelligence: 1
   autoUnlockEnemyWhenUnlockEnemyPicture: 1
 --- !u!1 &3408192366164122419
