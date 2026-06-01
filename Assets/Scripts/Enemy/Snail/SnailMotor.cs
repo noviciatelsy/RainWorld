@@ -34,12 +34,90 @@ public class SnailMotor : IMonsterMotor
             return;
         }
 
+        if (move.holdPosition)
+        {
+            sw.Arrived = true;
+            return;
+        }
+
+        if (move.behavior == SnailBehavior.IdleWander)
+        {
+            if (!sw.HasEdge)
+            {
+                Fall(sw, mgr);
+                return;
+            }
+
+            DriveIdleOnEdge(sw, mgr);
+            return;
+        }
+
         if (!sw.HasEdge)
         {
             Fall(sw, mgr);
         }
 
         sw.Arrived = true;
+    }
+
+    /// <summary>
+    /// Idle：沿当前边朝前顶点爬行，出 Idle 区域边界时反向。
+    /// </summary>
+    private void DriveIdleOnEdge(Snail2D sw, TileMapGuideManager mgr)
+    {
+        sw.Arrived = false;
+
+        Edge edge = sw.CurrentEdge;
+        Vector2 onEdge = SurfaceEdgeTraversal.ClosestPointOnSegment(sw.Position, edge.a, edge.b);
+        sw.Transform.position = onEdge;
+
+        bool clockwise = sw.idleClockwise;
+        Vector2 forwardCorner = SurfaceEdgePath.GetForwardCorner(mgr, sw.EdgeIndex, onEdge, clockwise);
+        sw.CurrentTarget = forwardCorner;
+        sw.Target = forwardCorner;
+
+        float step = sw.moveSpeed * Time.fixedDeltaTime;
+        Vector2 newPos = Vector2.MoveTowards(onEdge, forwardCorner, step);
+        newPos = SurfaceEdgeTraversal.ClosestPointOnSegment(newPos, edge.a, edge.b);
+
+        if (SurfaceEdgePath.HasArea(snail.idleArea))
+        {
+            bool wasInside = snail.IsInsideIdleArea(onEdge);
+
+            if (!wasInside)
+            {
+                sw.Arrived = true;
+                return;
+            }
+
+            if (!snail.IsInsideIdleArea(newPos))
+            {
+                sw.idleClockwise = !sw.idleClockwise;
+                newPos = onEdge;
+            }
+        }
+
+        sw.Transform.position = newPos;
+        UpdateFacing(sw, forwardCorner);
+
+        if (Vector2.Distance(newPos, forwardCorner) <= sw.arriveThreshold)
+        {
+            sw.Transform.position = forwardCorner;
+
+            Vector2 nextTarget = forwardCorner;
+            SurfaceEdgeTraversal.AdvanceToNextEdge(
+                mgr,
+                ref sw.EdgeIndex,
+                ref sw.CurrentEdge,
+                ref nextTarget,
+                forwardCorner,
+                sw.idleClockwise
+            );
+
+            sw.Target = nextTarget;
+            sw.CurrentTarget = nextTarget;
+            sw.UpdateVisualOffset();
+        }
     }
 
     private void DrivePath(Snail2D sw, List<Vector2> path)

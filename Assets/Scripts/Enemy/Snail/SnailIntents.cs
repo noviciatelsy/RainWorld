@@ -12,4 +12,5 @@ public struct SnailMoveIntent : IIntent
     public SnailBehavior behavior;
     public bool clockwise;
     public List<Vector2> pathVertices;
+    public bool holdPosition;
 }
