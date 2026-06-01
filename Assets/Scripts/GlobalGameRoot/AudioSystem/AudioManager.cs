@@ -655,7 +655,7 @@ public class AudioManager : MonoBehaviour
     }
     public void LoadVolume()
     {
-        GameData data = SaveManager.Instance.GetRunTimeGameData();
+        GlobalGameData data = SaveManager.Instance.GetGlobalGameData();
         if (data == null)
         {
             return;
