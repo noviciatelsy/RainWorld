@@ -7,7 +7,7 @@ public class SettingsPanel : MonoBehaviour
 {
     [SerializeField] private Slider BGMVolumeSlider;
     [SerializeField] private Slider SFXVolumeSlider;
-    private GameData gameData;
+    private GlobalGameData GlobalGameData;
     private UI_PanelOpenCloseAnimation panelOpenCloseAnimation;
 
     private void Awake()
@@ -18,22 +18,22 @@ public class SettingsPanel : MonoBehaviour
     private void OnEnable()
     {
         // 更新Slider数值
-        gameData = SaveManager.Instance.GetRunTimeGameData();
+        GlobalGameData = SaveManager.Instance.GetGlobalGameData();
 
-        BGMVolumeSlider.value = gameData.bgmVolume;
-        SFXVolumeSlider.value = gameData.sfxVolume;
+        BGMVolumeSlider.value = GlobalGameData.bgmVolume;
+        SFXVolumeSlider.value = GlobalGameData.sfxVolume;
     }
 
 
     public void OnBGMVolumeChanged(float volume)
     {
-        gameData.bgmVolume = volume;
+        GlobalGameData.bgmVolume = volume;
         AudioManager.Instance.LoadVolume();
     }
 
     public void OnSFXVolumeChanged(float volume)
     {
-        gameData.sfxVolume = volume;
+        GlobalGameData.sfxVolume = volume;
         AudioManager.Instance.LoadVolume();
     }
 
@@ -45,7 +45,7 @@ public class SettingsPanel : MonoBehaviour
 
     public void Close()
     {
-        SaveManager.Instance.SaveGame();
+        SaveManager.Instance.SaveGlobalGameData();
         panelOpenCloseAnimation.PlayClose();
     }
 }

@@ -76,7 +76,7 @@ public class IntelligenceArchiveManager : MonoBehaviour
     //[Header("Test")]
     //[SerializeField] private IntelligenceDataSO test;
 
-    private GameData gameData;
+    private GameRunData gameRunData;
 
     private readonly HashSet<string> unlockedIntelligenceIDSet = new HashSet<string>();
     private readonly HashSet<string> unlockedEnemyIDSet = new HashSet<string>();
@@ -91,6 +91,8 @@ public class IntelligenceArchiveManager : MonoBehaviour
     // 统一事件：给 UI 使用，告诉图鉴“刚刚新增了哪类条目”
     public event Action<ArchiveUnlockRecord> OnArchiveEntryUnlocked;
 
+    private bool hasInitializedFromSave = false;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -104,38 +106,34 @@ public class IntelligenceArchiveManager : MonoBehaviour
 
     private void Start()
     {
-        InitializeFromSave();
+        hasInitializedFromSave = true;
+        SaveManager.Instance.OnCurrentGameRunDataChanged += HandleCurrentGameRunDataChanged;
     }
 
-
-    public void InitializeFromSave()
+    private void OnEnable()
     {
-        if (SaveManager.Instance == null)
+        if (!hasInitializedFromSave)
         {
-            Debug.LogWarning("IntelligenceArchiveManager 初始化失败：场景中找不到 SaveManager。");
             return;
         }
+        SaveManager.Instance.OnCurrentGameRunDataChanged += HandleCurrentGameRunDataChanged;
+    }
 
-        gameData = SaveManager.Instance.GetRunTimeGameData();
+    private void OnDisable()
+    {
+        SaveManager.Instance.OnCurrentGameRunDataChanged -= HandleCurrentGameRunDataChanged;
+    }
 
-        if (gameData == null)
-        {
-            Debug.LogWarning("IntelligenceArchiveManager 初始化失败：SaveManager 中的 GameData 为空。");
-            return;
-        }
-
+    private void HandleCurrentGameRunDataChanged(int mySlotIndex, GameRunData myRunData)
+    {
+        gameRunData = myRunData;
         EnsureGameDataLists();
         RebuildRuntimeCache();
     }
 
     private bool TryPrepareGameData()
     {
-        if (gameData == null)
-        {
-            InitializeFromSave();
-        }
-
-        if (gameData == null)
+        if (gameRunData == null)
         {
             Debug.LogWarning("无法操作图鉴数据：GameData 为空。");
             return false;
@@ -147,24 +145,24 @@ public class IntelligenceArchiveManager : MonoBehaviour
 
     private void EnsureGameDataLists()
     {
-        if (gameData.unlockedIntelligences == null)
+        if (gameRunData.unlockedIntelligences == null)
         {
-            gameData.unlockedIntelligences = new List<string>();
+            gameRunData.unlockedIntelligences = new List<string>();
         }
 
-        if (gameData.unlockedEnemyIntelligences == null)
+        if (gameRunData.unlockedEnemyIntelligences == null)
         {
-            gameData.unlockedEnemyIntelligences = new List<string>();
+            gameRunData.unlockedEnemyIntelligences = new List<string>();
         }
 
-        if (gameData.unlockedEnemies == null)
+        if (gameRunData.unlockedEnemies == null)
         {
-            gameData.unlockedEnemies = new List<string>();
+            gameRunData.unlockedEnemies = new List<string>();
         }
 
-        if (gameData.unlockedEnemyPicture == null)
+        if (gameRunData.unlockedEnemyPicture == null)
         {
-            gameData.unlockedEnemyPicture = new SerializableDictionary<string, bool>();
+            gameRunData.unlockedEnemyPicture = new SerializableDictionary<string, bool>();
         }
     }
 
@@ -175,10 +173,10 @@ public class IntelligenceArchiveManager : MonoBehaviour
         unlockedEnemyIntelligenceIDSet.Clear();
         unlockedEnemyPictureIDSet.Clear();
 
-        AddIDsToSet(gameData.unlockedIntelligences, unlockedIntelligenceIDSet);
-        AddIDsToSet(gameData.unlockedEnemies, unlockedEnemyIDSet);
-        AddIDsToSet(gameData.unlockedEnemyIntelligences, unlockedEnemyIntelligenceIDSet);
-        AddUnlockedPictureIDsToSet(gameData.unlockedEnemyPicture, unlockedEnemyPictureIDSet);
+        AddIDsToSet(gameRunData.unlockedIntelligences, unlockedIntelligenceIDSet);
+        AddIDsToSet(gameRunData.unlockedEnemies, unlockedEnemyIDSet);
+        AddIDsToSet(gameRunData.unlockedEnemyIntelligences, unlockedEnemyIntelligenceIDSet);
+        AddUnlockedPictureIDsToSet(gameRunData.unlockedEnemyPicture, unlockedEnemyPictureIDSet);
     }
 
     private void AddIDsToSet(List<string> sourceList, HashSet<string> targetSet)
@@ -231,7 +229,7 @@ public class IntelligenceArchiveManager : MonoBehaviour
 
         bool unlocked = AddUnlockID(
             intelligenceData.SaveID,
-            gameData.unlockedIntelligences,
+            gameRunData.unlockedIntelligences,
             unlockedIntelligenceIDSet
         );
 
@@ -265,7 +263,7 @@ public class IntelligenceArchiveManager : MonoBehaviour
 
         bool unlocked = AddUnlockID(
             enemyInformationData.SaveID,
-            gameData.unlockedEnemies,
+            gameRunData.unlockedEnemies,
             unlockedEnemyIDSet
         );
 
@@ -300,7 +298,7 @@ public class IntelligenceArchiveManager : MonoBehaviour
 
         bool unlocked = AddUnlockFlag(
             enemyInformationData.SaveID,
-            gameData.unlockedEnemyPicture,
+            gameRunData.unlockedEnemyPicture,
             unlockedEnemyPictureIDSet
         );
 
@@ -365,7 +363,7 @@ public class IntelligenceArchiveManager : MonoBehaviour
 
         bool unlocked = AddUnlockID(
             enemyIntelligenceData.SaveID,
-            gameData.unlockedEnemyIntelligences,
+            gameRunData.unlockedEnemyIntelligences,
             unlockedEnemyIntelligenceIDSet
         );
 
@@ -567,9 +565,9 @@ public class IntelligenceArchiveManager : MonoBehaviour
             return result;
         }
 
-        for (int i = 0; i < gameData.unlockedIntelligences.Count; i++)
+        for (int i = 0; i < gameRunData.unlockedIntelligences.Count; i++)
         {
-            string saveID = gameData.unlockedIntelligences[i];
+            string saveID = gameRunData.unlockedIntelligences[i];
             IntelligenceDataSO data = intelligenceDataBase.GetIntelligenceData(saveID);
 
             if (data != null)
@@ -597,9 +595,9 @@ public class IntelligenceArchiveManager : MonoBehaviour
             return result;
         }
 
-        for (int i = 0; i < gameData.unlockedEnemies.Count; i++)
+        for (int i = 0; i < gameRunData.unlockedEnemies.Count; i++)
         {
-            string saveID = gameData.unlockedEnemies[i];
+            string saveID = gameRunData.unlockedEnemies[i];
             EnemyInformationDataSO data = enemyInformationDataBase.GetEnemyInformationData(saveID);
 
             if (data != null)
