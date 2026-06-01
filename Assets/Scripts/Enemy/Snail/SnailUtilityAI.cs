@@ -8,7 +8,7 @@ public class SnailUtilityAI : IMonsterAI
         IdleWander,
         GoToItem,
         WaitEat,
-        ReturnHome
+        ReturnToIdle
     }
 
     private readonly Snail2D snail;
@@ -17,7 +17,6 @@ public class SnailUtilityAI : IMonsterAI
     private PickableObject targetItem;
     private float waitTimer;
     private List<Vector2> activePath;
-    private bool clockwise = true;
 
     public SnailUtilityAI(Snail2D snail)
     {
@@ -28,31 +27,28 @@ public class SnailUtilityAI : IMonsterAI
     {
         if (owner is not Snail2D sw)
         {
-            return IdleIntent(true);
+            return IdleIntent(null, false);
         }
 
         TickMode(sw);
 
+        if (mode == SnailMode.ReturnToIdle)
+        {
+            return EvaluateReturnToIdle(sw);
+        }
+
         switch (mode)
         {
             case SnailMode.GoToItem:
-            case SnailMode.ReturnHome:
                 if (activePath != null && activePath.Count > 0 && !sw.Arrived)
                 {
                     return PathIntent(activePath);
                 }
 
-                if (mode == SnailMode.ReturnHome && sw.Arrived)
-                {
-                    mode = SnailMode.IdleWander;
-                    activePath = null;
-                    return BuildIdleWanderIntent(sw);
-                }
-
-                return IdleIntent(clockwise);
+                return IdleIntent(sw, false);
 
             case SnailMode.WaitEat:
-                return IdleIntent(clockwise);
+                return IdleIntent(sw, true);
 
             default:
                 if (activePath != null && activePath.Count > 0 && !sw.Arrived)
@@ -60,46 +56,87 @@ public class SnailUtilityAI : IMonsterAI
                     return PathIntent(activePath);
                 }
 
-                PickableObject detected = FindBestPickableInDetectArea(sw);
-
-                if (detected != null)
+                if (sw.NeedsReturnToIdle())
                 {
-                    List<Vector2> path = SnailEdgePath.FindVertexPath(sw.Position, detected.transform.position);
-
-                    if (path.Count > 0)
-                    {
-                        targetItem = detected;
-                        activePath = path;
-                        mode = SnailMode.GoToItem;
-                        sw.Arrived = false;
-                        return PathIntent(activePath);
-                    }
+                    BeginReturnToIdle(sw);
+                    return EvaluateReturnToIdle(sw);
                 }
 
-                return BuildIdleWanderIntent(sw);
+                if (TryStartEatItem(sw))
+                {
+                    return PathIntent(activePath);
+                }
+
+                return IdleIntent(sw, false);
         }
     }
 
-    private SnailMoveIntent BuildIdleWanderIntent(Snail2D sw)
+    private IIntent EvaluateReturnToIdle(Snail2D sw)
     {
-        TileMapGuideManager mgr = TileMapGuideManager.Instance;
-
-        if (mgr == null)
+        if (activePath != null && activePath.Count > 0 && !sw.Arrived)
         {
-            return IdleIntent(true);
+            return PathIntent(activePath);
         }
 
-        bool cw = ScoreDirection(sw);
-        activePath = SurfaceEdgePath.BuildWanderPath(
-            mgr,
-            sw.Position,
-            sw.EdgeIndex,
-            cw,
-            6
-        );
-        sw.Arrived = false;
+        if (sw.Arrived)
+        {
+            snail.SnapToIdleAnchor();
+        }
 
-        return PathIntent(activePath);
+        if (!sw.NeedsReturnToIdle())
+        {
+            mode = SnailMode.IdleWander;
+            activePath = null;
+            sw.Arrived = true;
+            return IdleIntent(sw, false);
+        }
+
+        if (sw.Arrived)
+        {
+            if (Vector2.Distance(sw.Position, snail.GetIdleAnchorOnEdge()) <= sw.arriveThreshold * 2f)
+            {
+                mode = SnailMode.IdleWander;
+                activePath = null;
+                return IdleIntent(sw, false);
+            }
+
+            BeginReturnToIdle(sw);
+
+            if (activePath != null && activePath.Count > 0 && !sw.Arrived)
+            {
+                return PathIntent(activePath);
+            }
+        }
+
+        return IdleIntent(sw, true);
+    }
+
+    private bool TryStartEatItem(Snail2D sw)
+    {
+        if (sw.NeedsReturnToIdle())
+        {
+            return false;
+        }
+
+        PickableObject detected = FindBestPickableInDetectArea(sw);
+
+        if (detected == null)
+        {
+            return false;
+        }
+
+        List<Vector2> path = SnailEdgePath.FindVertexPath(sw.Position, detected.transform.position);
+
+        if (path.Count <= 0)
+        {
+            return false;
+        }
+
+        targetItem = detected;
+        activePath = path;
+        mode = SnailMode.GoToItem;
+        sw.Arrived = false;
+        return true;
     }
 
     private void TickMode(Snail2D sw)
@@ -112,7 +149,7 @@ public class SnailUtilityAI : IMonsterAI
                 return;
             }
 
-            if (sw.Arrived && activePath != null)
+            if (sw.Arrived)
             {
                 mode = SnailMode.WaitEat;
                 waitTimer = snail.eatWaitDuration;
@@ -139,34 +176,34 @@ public class SnailUtilityAI : IMonsterAI
 
             Object.Destroy(targetItem.gameObject);
             targetItem = null;
-            BeginReturnHome(sw);
-            return;
-        }
-
-        if (mode == SnailMode.ReturnHome && sw.Arrived)
-        {
-            mode = SnailMode.IdleWander;
-            activePath = null;
+            BeginReturnToIdle(sw);
         }
     }
 
     private void CancelEatAndReturn(Snail2D sw)
     {
         targetItem = null;
-        BeginReturnHome(sw);
+        BeginReturnToIdle(sw);
     }
 
-    private void BeginReturnHome(Snail2D sw)
+    private void BeginReturnToIdle(Snail2D sw)
     {
-        activePath = SnailEdgePath.FindVertexPath(sw.Position, snail.spawnPoint);
-        mode = SnailMode.ReturnHome;
-        sw.Arrived = activePath == null || activePath.Count == 0;
+        Vector2 anchor = snail.GetIdleAnchorOnEdge();
+        List<Vector2> path = SnailEdgePath.FindVertexPath(sw.Position, anchor);
+
+        activePath = path;
+        mode = SnailMode.ReturnToIdle;
+        sw.Arrived = path == null || path.Count == 0;
 
         if (sw.Arrived)
         {
-            sw.Transform.position = snail.spawnPoint;
-            mode = SnailMode.IdleWander;
-            activePath = null;
+            snail.SnapToIdleAnchor();
+
+            if (!sw.NeedsReturnToIdle())
+            {
+                mode = SnailMode.IdleWander;
+                activePath = null;
+            }
         }
     }
 
@@ -211,43 +248,14 @@ public class SnailUtilityAI : IMonsterAI
         return best;
     }
 
-    private bool ScoreDirection(Snail2D sw)
-    {
-        TileMapGuideManager mgr = TileMapGuideManager.Instance;
-
-        if (mgr == null)
-        {
-            return clockwise;
-        }
-
-        float cw = Score(sw, mgr, true);
-        float ccw = Score(sw, mgr, false);
-        clockwise = cw >= ccw;
-        return clockwise;
-    }
-
-    private float Score(Snail2D sw, TileMapGuideManager mgr, bool cw)
-    {
-        int next = mgr.GetNextIndex(sw.EdgeIndex, cw);
-        Edge e = mgr.GetEdge(next);
-        Vector2 mid = (e.a + e.b) * 0.5f;
-        float score = 1f / (1f + Vector2.Distance(sw.Position, mid));
-
-        if (snail.idleArea.size.sqrMagnitude > 0.01f && !snail.idleArea.Contains(mid))
-        {
-            score *= 0.25f;
-        }
-
-        return score;
-    }
-
-    private static SnailMoveIntent IdleIntent(bool cw)
+    private static SnailMoveIntent IdleIntent(Snail2D sw, bool holdPosition)
     {
         return new SnailMoveIntent
         {
             behavior = SnailBehavior.IdleWander,
-            clockwise = cw,
-            pathVertices = null
+            clockwise = sw != null && sw.idleClockwise,
+            pathVertices = null,
+            holdPosition = holdPosition
         };
     }
 
@@ -257,7 +265,8 @@ public class SnailUtilityAI : IMonsterAI
         {
             behavior = SnailBehavior.FollowPath,
             clockwise = true,
-            pathVertices = path
+            pathVertices = path,
+            holdPosition = false
         };
     }
 }
