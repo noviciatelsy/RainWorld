@@ -18,7 +18,6 @@ public class WarningPanel_ReturnToMainMenu : MonoBehaviour
 
     public void Close()
     {
-        SaveManager.Instance.SaveGame();
         panelOpenCloseAnimation.PlayClose();
     }
 
