@@ -5,7 +5,10 @@ public class Snail2D : MonsterBase
     [Header("Movement")]
     public float moveSpeed = 2.5f;
     public float fallSpeed = 6f;
+
+    [Header("Visual")]
     public Transform bodyVisual;
+    public float visualNormalOffset = 0.1f;
 
     [Header("Areas (世界坐标 Center/Size)")]
     [Tooltip("平时随机游走范围，应小于识别区")]
@@ -29,12 +32,17 @@ public class Snail2D : MonsterBase
 
     public SnailBehavior CurrentBehavior { get; set; } = SnailBehavior.IdleWander;
 
+    private Vector3 baseVisualScale = Vector3.one;
+
     protected override void Init()
     {
         ai = new SnailUtilityAI(this);
         motor = new SnailMotor(this);
 
         EnsureDefaultAreas();
+
+        SurfaceCrawlerVisual.CacheBaseScale(bodyVisual, ref baseVisualScale);
+        transform.rotation = Quaternion.identity;
 
         TileMapGuideManager mgr = TileMapGuideManager.Instance;
 
@@ -166,14 +174,31 @@ public class Snail2D : MonsterBase
 
     public void UpdateVisualOffset()
     {
-        if (bodyVisual == null)
+        if (!HasEdge)
         {
             return;
         }
 
-        Vector2 dir = (CurrentEdge.b - CurrentEdge.a).normalized;
-        Vector2 normal = new Vector2(-dir.y, dir.x);
-        bodyVisual.localPosition = normal * 0.1f;
+        SurfaceCrawlerVisual.Apply(
+            transform,
+            bodyVisual,
+            CurrentEdge,
+            baseVisualScale,
+            visualNormalOffset
+        );
+    }
+
+    private void LateUpdate()
+    {
+        if (bodyVisual != null && bodyVisual.localRotation != Quaternion.identity)
+        {
+            bodyVisual.localRotation = Quaternion.identity;
+        }
+
+        if (transform.rotation != Quaternion.identity)
+        {
+            transform.rotation = Quaternion.identity;
+        }
     }
 
     public bool IsInsideIdleArea(Vector2 point)
