@@ -1,99 +1,121 @@
-﻿using UnityEngine;
-using static UnityEngine.Rendering.VolumeComponent;
+using System.Collections.Generic;
+using UnityEngine;
 
-
+/// <summary>
+/// 与 MoleMotor 相同：AI 提供路点列表，逐点 MoveTowards；路点来自同一 loop 外轮廓拐角。
+/// </summary>
 public class SurfaceWalkerMotor : IMonsterMotor
 {
-    public bool facingLeft = true;
-    public Transform bodyVisual;
+    private const float ArriveThreshold = 0.08f;
+
+    private List<Vector2> activePath;
+    private int pathIndex;
 
     public void Execute(MonsterBase owner, IIntent intent)
     {
-        if (intent is not SurfaceMoveIntent move) return;
+        if (intent is not SurfaceMoveIntent move)
+        {
+            return;
+        }
 
-        var sw = owner as SurfaceWalker2D;
+        SurfaceWalker2D sw = owner as SurfaceWalker2D;
 
-        if (sw.HasEdge)
-            Move(sw, move.clockwise);
-        else
-            Fall(sw);
+        if (sw == null)
+        {
+            return;
+        }
+
+        TileMapGuideManager mgr = TileMapGuideManager.Instance;
+
+        if (mgr == null)
+        {
+            return;
+        }
+
+        if (move.pathVertices == null || move.pathVertices.Count == 0)
+        {
+            if (!sw.HasEdge)
+            {
+                Fall(sw, mgr);
+            }
+
+            sw.Arrived = true;
+            return;
+        }
+
+        DrivePath(sw, move.pathVertices);
     }
 
-    void Move(SurfaceWalker2D sw, bool clockwise)
+    private void DrivePath(SurfaceWalker2D sw, List<Vector2> path)
     {
-        UpdateFacing(sw, clockwise);
+        if (activePath != path)
+        {
+            activePath = path;
+            pathIndex = 0;
+            sw.Arrived = false;
+        }
+
+        if (pathIndex >= path.Count)
+        {
+            activePath = null;
+            pathIndex = 0;
+            sw.Arrived = true;
+            sw.HasEdge = true;
+            SurfaceEdgePath.SyncEdgeStateFromPosition(sw);
+            sw.UpdateVisualOffset();
+            return;
+        }
+
+        Vector2 nodeTarget = path[pathIndex];
+        sw.CurrentTarget = nodeTarget;
 
         sw.Transform.position = Vector2.MoveTowards(
-            sw.Transform.position,
-            sw.Target,
+            sw.Position,
+            nodeTarget,
             sw.moveSpeed * Time.fixedDeltaTime
         );
 
-        if (Vector2.Distance(sw.Transform.position, sw.Target) < 0.01f)
+        UpdateFacing(sw, nodeTarget);
+
+        if (Vector2.Distance(sw.Position, nodeTarget) > ArriveThreshold)
         {
-            Advance(sw, clockwise);
+            return;
         }
+
+        pathIndex++;
     }
 
-    void Advance(SurfaceWalker2D sw, bool clockwise)
-    {
-        var mgr = TileMapGuideManager.Instance;
-
-        sw.EdgeIndex = mgr.GetNextIndex(sw.EdgeIndex, clockwise);
-        Edge e = mgr.GetEdge(sw.EdgeIndex);
-
-        sw.CurrentEdge = e;
-
-        sw.Target =
-            Vector2.Distance(sw.Transform.position, e.a) <
-            Vector2.Distance(sw.Transform.position, e.b)
-            ? e.b : e.a;
-
-    }
-
-    void Fall(SurfaceWalker2D sw)
+    private void Fall(SurfaceWalker2D sw, TileMapGuideManager mgr)
     {
         sw.Transform.position += Vector3.down * sw.fallSpeed * Time.fixedDeltaTime;
 
-        var mgr = TileMapGuideManager.Instance;
-
-        int nearest = mgr.FindClosestEdgeIndex(sw.Transform.position);
-        Edge e = mgr.GetEdge(nearest);
-
-        float dist = Vector2.Distance(sw.Transform.position, (e.a + e.b) * 0.5f);
-
-        if (dist < 0.1f)
+        if (SurfaceEdgePath.TrySnapToNearestEdge(mgr, sw.Position, out int edgeIndex, out Edge edge, out Vector2 snapped))
         {
-            sw.EdgeIndex = nearest;
-            sw.CurrentEdge = e;
+            sw.EdgeIndex = edgeIndex;
+            sw.CurrentEdge = edge;
+            sw.Transform.position = snapped;
             sw.HasEdge = true;
+            SurfaceEdgePath.SyncEdgeStateFromPosition(sw, snapPositionToEdge: false);
+            sw.UpdateVisualOffset();
+            UpdateFacing(sw, sw.Target);
         }
     }
 
-
-    void UpdateFacing(SurfaceWalker2D sw, bool clockwise)
+    private void UpdateFacing(SurfaceWalker2D sw, Vector2 lookTarget)
     {
-        Vector2 dir = (sw.CurrentEdge.b - sw.CurrentEdge.a).normalized;
+        Vector2 dir = lookTarget - sw.Position;
 
-        float angle;
-
-        if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y))
+        if (dir.sqrMagnitude < 0.0001f)
         {
-            // horizontal
-            angle = dir.x > 0 ? 0 : 180;
-        }
-        else
-        {
-            // vertical
-            angle = dir.y > 0 ? 90 : -90;
+            return;
         }
 
-        // 修正：不要直接 flip angle（这是抖动源）
-        if (clockwise)
-        {
-            angle += 0; // ❌ 不再翻转
-        }
+        dir.Normalize();
 
-        sw.Transform.rotation = Quaternion.Euler(0, 0, angle);
+        float angle = Mathf.Abs(dir.x) > Mathf.Abs(dir.y)
+            ? (dir.x > 0f ? 0f : 180f)
+            : (dir.y > 0f ? 90f : -90f);
+
+        sw.Transform.rotation = Quaternion.Euler(0f, 0f, angle);
     }
 }
