@@ -4,12 +4,20 @@ public class SurfaceWalker2D : MonsterBase
 {
     public float moveSpeed = 3f;
     public float fallSpeed = 6f;
+
+    [Header("Visual")]
     public Transform bodyVisual;
+    public float visualNormalOffset = 0.1f;
+
+    private Vector3 baseVisualScale = Vector3.one;
 
     protected override void Init()
     {
         ai = new SurfaceWalkerUtilityAI();
         motor = new SurfaceWalkerMotor();
+
+        SurfaceCrawlerVisual.CacheBaseScale(bodyVisual, ref baseVisualScale);
+        transform.rotation = Quaternion.identity;
 
         TileMapGuideManager mgr = TileMapGuideManager.Instance;
 
@@ -39,13 +47,30 @@ public class SurfaceWalker2D : MonsterBase
 
     public void UpdateVisualOffset()
     {
-        if (bodyVisual == null)
+        if (!HasEdge)
         {
             return;
         }
 
-        Vector2 dir = (CurrentEdge.b - CurrentEdge.a).normalized;
-        Vector2 normal = new Vector2(-dir.y, dir.x);
-        bodyVisual.localPosition = normal * 0.1f;
+        SurfaceCrawlerVisual.Apply(
+            transform,
+            bodyVisual,
+            CurrentEdge,
+            baseVisualScale,
+            visualNormalOffset
+        );
+    }
+
+    private void LateUpdate()
+    {
+        if (bodyVisual != null && bodyVisual.localRotation != Quaternion.identity)
+        {
+            bodyVisual.localRotation = Quaternion.identity;
+        }
+
+        if (transform.rotation != Quaternion.identity)
+        {
+            transform.rotation = Quaternion.identity;
+        }
     }
 }

@@ -98,6 +98,8 @@ public class SnailMotor : IMonsterMotor
         }
 
         sw.Transform.position = newPos;
+        SurfaceEdgePath.SyncEdgeStateFromPosition(sw, snapPositionToEdge: false);
+        sw.UpdateVisualOffset();
 
         if (Vector2.Distance(newPos, forwardCorner) <= sw.arriveThreshold)
         {
@@ -147,6 +149,9 @@ public class SnailMotor : IMonsterMotor
             nodeTarget,
             sw.moveSpeed * Time.fixedDeltaTime
         );
+
+        SurfaceEdgePath.SyncEdgeStateFromPosition(sw, snapPositionToEdge: false);
+        sw.UpdateVisualOffset();
 
         if (Vector2.Distance(sw.Position, nodeTarget) > sw.arriveThreshold)
         {
