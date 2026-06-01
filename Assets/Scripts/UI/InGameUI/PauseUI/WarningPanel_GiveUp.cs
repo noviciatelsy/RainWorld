@@ -18,7 +18,6 @@ public class WarningPanel_GiveUp : MonoBehaviour
 
     public void Close()
     {
-        SaveManager.Instance.SaveGame();
         panelOpenCloseAnimation.PlayClose();
     }
 
