@@ -98,7 +98,6 @@ public class SnailMotor : IMonsterMotor
         }
 
         sw.Transform.position = newPos;
-        UpdateFacing(sw, forwardCorner);
 
         if (Vector2.Distance(newPos, forwardCorner) <= sw.arriveThreshold)
         {
@@ -149,8 +148,6 @@ public class SnailMotor : IMonsterMotor
             sw.moveSpeed * Time.fixedDeltaTime
         );
 
-        UpdateFacing(sw, nodeTarget);
-
         if (Vector2.Distance(sw.Position, nodeTarget) > sw.arriveThreshold)
         {
             return;
@@ -171,25 +168,6 @@ public class SnailMotor : IMonsterMotor
             sw.HasEdge = true;
             SurfaceEdgePath.SyncEdgeStateFromPosition(sw, snapPositionToEdge: false);
             sw.UpdateVisualOffset();
-            UpdateFacing(sw, sw.Target);
         }
-    }
-
-    private void UpdateFacing(Snail2D sw, Vector2 lookTarget)
-    {
-        Vector2 dir = lookTarget - sw.Position;
-
-        if (dir.sqrMagnitude < 0.0001f)
-        {
-            return;
-        }
-
-        dir.Normalize();
-
-        float angle = Mathf.Abs(dir.x) > Mathf.Abs(dir.y)
-            ? (dir.x > 0f ? 0f : 180f)
-            : (dir.y > 0f ? 90f : -90f);
-
-        sw.Transform.rotation = Quaternion.Euler(0f, 0f, angle);
     }
 }
