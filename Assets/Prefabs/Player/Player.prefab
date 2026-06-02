@@ -264,7 +264,7 @@ MonoBehaviour:
     m_Bits: 640
   groundCheck: {fileID: 316811649123266590}
   wallCheck: {fileID: 316811649123266590}
-  moveSpeed: 3
+  moveSpeed: 3.5
   jumpForce: 10.5
   inAirMoveMultiplier: 1
   playerCollider: {fileID: 7815576328976498153}
