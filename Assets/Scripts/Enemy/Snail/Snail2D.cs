@@ -33,6 +33,12 @@ public class Snail2D : MonsterBase
     public SnailBehavior CurrentBehavior { get; set; } = SnailBehavior.IdleWander;
 
     private Vector3 baseVisualScale = Vector3.one;
+    private float visualScaleSignX = -1f;
+
+    /// <summary>
+    /// 由 Motor 写入，避免用瞬时速度导致 scale.x 来回翻转。
+    /// </summary>
+    public int TravelSignAlongEdge { get; set; }
 
     protected override void Init()
     {
@@ -184,20 +190,30 @@ public class Snail2D : MonsterBase
             bodyVisual,
             CurrentEdge,
             baseVisualScale,
-            visualNormalOffset
+            visualNormalOffset,
+            TravelSignAlongEdge,
+            ref visualScaleSignX
         );
     }
 
     private void LateUpdate()
     {
-        if (bodyVisual != null && bodyVisual.localRotation != Quaternion.identity)
-        {
-            bodyVisual.localRotation = Quaternion.identity;
-        }
-
         if (transform.rotation != Quaternion.identity)
         {
             transform.rotation = Quaternion.identity;
+        }
+
+        if (HasEdge && bodyVisual != null)
+        {
+            SurfaceCrawlerVisual.Apply(
+                transform,
+                bodyVisual,
+                CurrentEdge,
+                baseVisualScale,
+                visualNormalOffset,
+                0,
+                ref visualScaleSignX
+            );
         }
     }
 

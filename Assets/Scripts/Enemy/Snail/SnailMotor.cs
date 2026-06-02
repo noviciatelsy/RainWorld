@@ -76,6 +76,16 @@ public class SnailMotor : IMonsterMotor
         sw.CurrentTarget = forwardCorner;
         sw.Target = forwardCorner;
 
+        int fallbackSign = sw.TravelSignAlongEdge != 0
+            ? sw.TravelSignAlongEdge
+            : (clockwise ? 1 : -1);
+        sw.TravelSignAlongEdge = SurfaceCrawlerVisual.ComputeTravelSignAlongEdge(
+            edge,
+            sw.Position,
+            forwardCorner,
+            fallbackSign
+        );
+
         float step = sw.moveSpeed * Time.fixedDeltaTime;
         Vector2 newPos = Vector2.MoveTowards(onEdge, forwardCorner, step);
         newPos = SurfaceEdgeTraversal.ClosestPointOnSegment(newPos, edge.a, edge.b);
@@ -143,6 +153,14 @@ public class SnailMotor : IMonsterMotor
 
         Vector2 nodeTarget = path[pathIndex];
         sw.CurrentTarget = nodeTarget;
+
+        int fallbackSign = sw.TravelSignAlongEdge;
+        sw.TravelSignAlongEdge = SurfaceCrawlerVisual.ComputeTravelSignAlongEdge(
+            sw.CurrentEdge,
+            sw.Position,
+            nodeTarget,
+            fallbackSign
+        );
 
         sw.Transform.position = Vector2.MoveTowards(
             sw.Position,
