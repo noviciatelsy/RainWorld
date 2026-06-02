@@ -49,9 +49,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   throwDirection: -1
-  spawnIntervalRange: {x: 0.75, y: 1.25}
-  horizontalSpeedRange: {x: 250, y: 500}
-  verticalSpeedRange: {x: 450, y: 750}
+  spawnIntervalRange: {x: 0.5, y: 1}
+  horizontalSpeedRange: {x: 300, y: 550}
+  verticalSpeedRange: {x: 500, y: 800}
   initialAngleRange: {x: -25, y: 25}
   angularVelocityMultiplier: 0.1
   angularVelocityRandomRange: {x: 0.85, y: 1.25}
