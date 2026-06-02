@@ -25,9 +25,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 24933697096170577}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.12, z: 0}
-  m_LocalScale: {x: 0.15, y: 0.15, z: 0.15}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.25, y: 0.25, z: 0.25}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 8996429006796953863}
@@ -138,16 +138,20 @@ MonoBehaviour:
   HasEdge: 0
   moveSpeed: 2.5
   fallSpeed: 6
-  bodyVisual: {fileID: 0}
+  bodyVisual: {fileID: 8996429006796953863}
+  visualNormalOffset: 0.1
   idleArea:
-    m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 0, y: 0, z: 0}
+    m_Center: {x: -46, y: -4, z: -0.00049345766}
+    m_Extent: {x: 2, y: 2, z: 0.05}
   itemDetectArea:
-    m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 0, y: 0, z: 0}
-  spawnPoint: {x: 0, y: 0}
-  eatWaitDuration: 5
+    m_Center: {x: -46, y: -4, z: -0.00049345766}
+    m_Extent: {x: 2, y: 6, z: 0.05}
+  spawnPoint: {x: -46, y: -4}
+  idleClockwise: 1
+  idleAreaTolerance: 0.2
+  eatWaitDuration: 4
   arriveThreshold: 0.08
+  drawAreaGizmos: 1
 --- !u!1 &5840493593169919311
 GameObject:
   m_ObjectHideFlags: 0
