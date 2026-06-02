@@ -11,6 +11,7 @@ public class InGameUI : MonoBehaviour
     [Header("Primary Panel CanvasGroups")]
     private CanvasGroup backpackCanvasGroup;
     private CanvasGroup lootCanvasGroup;
+    private CanvasGroup storageCanvasGroup;
     private CanvasGroup retrieveCanvasGroup;
     private CanvasGroup mapCanvasGroup;
     private CanvasGroup merchantCanvasGroup;
@@ -25,6 +26,7 @@ public class InGameUI : MonoBehaviour
     public DraggedItemUI draggedItemUI { get; private set; }
     public BackpackUI backpackUI { get; private set; }
     public LootUI lootUI { get; private set; }
+    public StorageUI storageUI { get; private set; }
     public RetrieveUI retrieveUI { get; private set; }
     public MapUI mapUI { get; private set; }
     public NoteBookUI notebookUI { get; private set; }
@@ -59,6 +61,7 @@ public class InGameUI : MonoBehaviour
         draggedItemUI = GetComponentInChildren<DraggedItemUI>(true);
         backpackUI = GetComponentInChildren<BackpackUI>(true);
         lootUI = GetComponentInChildren<LootUI>(true);
+        storageUI = GetComponentInChildren<StorageUI>(true);
         retrieveUI = GetComponentInChildren<RetrieveUI>(true);
         mapUI = GetComponentInChildren<MapUI>(true);
         notebookUI = GetComponentInChildren<NoteBookUI>(true);
@@ -120,6 +123,11 @@ public class InGameUI : MonoBehaviour
             lootCanvasGroup = lootUI.GetComponent<CanvasGroup>();
         }
 
+        if(storageCanvasGroup == null && storageUI != null)
+        {
+            storageCanvasGroup = storageUI.GetComponent<CanvasGroup>();
+        }
+
         if (retrieveCanvasGroup == null && retrieveUI != null)
         {
             retrieveCanvasGroup = retrieveUI.GetComponent<CanvasGroup>();
@@ -172,6 +180,10 @@ public class InGameUI : MonoBehaviour
         else if (lootUI != null && lootUI.gameObject.activeSelf)
         {
             currentPrimaryPanel = InGamePrimaryPanelType.Loot;
+        }
+        else if(storageUI!=null&&storageUI.gameObject.activeSelf)
+        {
+            currentPrimaryPanel = InGamePrimaryPanelType.Storage;
         }
         else if (retrieveUI != null && retrieveUI.gameObject.activeSelf)
         {
@@ -311,6 +323,11 @@ public class InGameUI : MonoBehaviour
         TryTogglePrimaryPanel(InGamePrimaryPanelType.Loot, lootInventory);
     }
 
+    public void ToggleStorageUI(InventoryBase storageInventory)
+    {
+        TryTogglePrimaryPanel(InGamePrimaryPanelType.Storage, storageInventory);
+    }
+
     public void ToggleRetrieveUI(InventoryBase retrieveInventory)
     {
         TryTogglePrimaryPanel(InGamePrimaryPanelType.Retrieve, retrieveInventory);
@@ -446,6 +463,10 @@ public class InGameUI : MonoBehaviour
                 SwitchLootUI(true, inventory);
                 break;
 
+            case InGamePrimaryPanelType.Storage:
+                SwitchStorageUI(true,inventory);
+                break;
+
             case InGamePrimaryPanelType.Retrieve:
                 SwitchRetrieveUI(true, inventory);
                 break;
@@ -483,6 +504,10 @@ public class InGameUI : MonoBehaviour
 
             case InGamePrimaryPanelType.Loot:
                 SwitchLootUI(false, null);
+                break;
+
+            case InGamePrimaryPanelType.Storage:
+                SwitchStorageUI(false, null);
                 break;
 
             case InGamePrimaryPanelType.Retrieve:
@@ -648,6 +673,9 @@ public class InGameUI : MonoBehaviour
             case InGamePrimaryPanelType.Loot:
                 return lootCanvasGroup;
 
+            case InGamePrimaryPanelType.Storage:
+                return storageCanvasGroup;
+
             case InGamePrimaryPanelType.Retrieve:
                 return retrieveCanvasGroup;
 
@@ -695,6 +723,22 @@ public class InGameUI : MonoBehaviour
         else
         {
             lootUI.Close();
+        }
+    }
+
+    private void SwitchStorageUI(bool enabled,InventoryBase storageInventory)
+    {
+        if (storageUI == null)
+        {
+            return ;
+        }
+        if (enabled)
+        {
+            storageUI.Open(storageInventory);
+        }
+        else
+        {
+            storageUI.Close();
         }
     }
 
@@ -872,6 +916,7 @@ public enum InGamePrimaryPanelType
     None,
     Backpack,
     Loot,
+    Storage,
     Retrieve,
     Map,
     Merchant,
