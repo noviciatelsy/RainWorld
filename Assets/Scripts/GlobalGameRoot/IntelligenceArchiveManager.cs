@@ -127,8 +127,11 @@ public class IntelligenceArchiveManager : MonoBehaviour
     private void HandleCurrentGameRunDataChanged(int mySlotIndex, GameRunData myRunData)
     {
         gameRunData = myRunData;
-        EnsureGameDataLists();
-        RebuildRuntimeCache();
+        if (gameRunData != null)
+        {
+            EnsureGameDataLists();
+            RebuildRuntimeCache();
+        }
     }
 
     private bool TryPrepareGameData()
