@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class SurfaceWalkerLegSystem : MonoBehaviour
@@ -7,28 +5,49 @@ public class SurfaceWalkerLegSystem : MonoBehaviour
     [System.Serializable]
     public class Leg
     {
-        public Transform target;      // 腿的IK目标
-        public Vector3 restOffset;    // 初始位置偏移
+        public Transform target;
+        public Vector3 restOffset;
 
-        public Vector3 worldPos;      // 当前目标点
+        public Vector3 worldPos;
         public bool isMoving;
 
-        public float moveThreshold = 0.4f; // 触发移动距离
+        public float moveThreshold = 0.4f;
     }
 
     public SurfaceWalker2D sw;
+    [Tooltip("Prefab 整体（骨骼 + 贴图）；仅改此 Transform 的 localScale")]
     public Transform body;
+
+    public Leg[] legs = new Leg[6];
+    public float legMoveSpeed = 8f;
+
+    private Vector3 baseBodyScale = Vector3.one;
     private Vector3 lastBodyPos;
     private Vector3 bodyVelocity;
 
-    public Leg[] legs = new Leg[6];
-
-    public float legMoveSpeed = 8f;
-
-    void Start()
+    private void Awake()
     {
-        // 初始化6条腿的初始位置（你给的）
-        Vector3[] offsets = new Vector3[]
+        if (body == null)
+        {
+            body = transform;
+        }
+
+        baseBodyScale = body.localScale;
+
+        if (Mathf.Abs(baseBodyScale.x) < 0.001f)
+        {
+            baseBodyScale.x = 1f;
+        }
+
+        if (Mathf.Abs(baseBodyScale.y) < 0.001f)
+        {
+            baseBodyScale.y = 1f;
+        }
+    }
+
+    private void Start()
+    {
+        Vector3[] offsets =
         {
             new Vector3(-1.0f, -0.35f, 0),
             new Vector3(-0.87f, -0.31f, 0),
@@ -45,17 +64,40 @@ public class SurfaceWalkerLegSystem : MonoBehaviour
         }
     }
 
-    void Update()
+    private void Update()
     {
         UpdateLegs();
     }
-    void LateUpdate()
+
+    private void LateUpdate()
     {
+        ApplyBodyScale();
+
         bodyVelocity = (body.position - lastBodyPos) / Time.deltaTime;
         lastBodyPos = body.position;
     }
 
-    void UpdateLegs()
+    /// <summary>
+    /// 贴图默认朝左；顺时针沿 loop 移动时整体 scale *= -1。
+    /// </summary>
+    private void ApplyBodyScale()
+    {
+        if (body == null)
+        {
+            return;
+        }
+        Debug.Log("11");
+        Vector3 scale = baseBodyScale;
+
+        if (sw != null && sw.TravelClockwise)
+        {
+            scale *= -1f;
+        }
+
+        body.localScale = scale;
+    }
+
+    private void UpdateLegs()
     {
         for (int i = 0; i < legs.Length; i++)
         {
@@ -63,18 +105,17 @@ public class SurfaceWalkerLegSystem : MonoBehaviour
         }
     }
 
-    Vector3 PredictBodyPosition(float timeAhead)
+    private void UpdateLeg(int i)
     {
-        return body.position + bodyVelocity * timeAhead;
-    }
+        Leg leg = legs[i];
+        TileMapGuideManager mgr = TileMapGuideManager.Instance;
 
-    void UpdateLeg(int i)
-    {
-        var leg = legs[i];
-        var mgr = TileMapGuideManager.Instance;
+        if (mgr == null || body == null)
+        {
+            return;
+        }
 
-        // 用 body 位置找最近边，与贴边逻辑一致
-        Vector2 bodyPos = body != null ? (Vector2)body.position : (Vector2)sw.transform.position;
+        Vector2 bodyPos = body.position;
         int edgeIndex = mgr.FindClosestEdgeIndex(bodyPos);
         Edge e = mgr.GetEdge(edgeIndex);
 
@@ -84,15 +125,12 @@ public class SurfaceWalkerLegSystem : MonoBehaviour
         Vector2 dir = (b - a).normalized;
         float length = Vector2.Distance(a, b);
 
-        // ✅ 用body而不是pivot（关键）
         float tOnEdge = GetTOnEdge(bodyPos, a, b);
         float basePos = tOnEdge * length;
 
-        // ✅ 腿分布（局部 spacing）
         float spacing = 0.25f;
         float offset = (i - legs.Length * 0.5f) * spacing;
 
-        // ✅ 动态前瞻（关键）
         float forward = bodyVelocity.magnitude * 0.25f;
 
         float finalPos = basePos + offset + forward;
@@ -102,20 +140,23 @@ public class SurfaceWalkerLegSystem : MonoBehaviour
 
         float dist = Vector3.Distance(leg.worldPos, desired);
 
-        // ✅ 每条腿独立判断（你这点是对的）
         if (!leg.isMoving && dist > leg.moveThreshold)
         {
             leg.isMoving = true;
             leg.worldPos = desired;
         }
 
-        leg.target.position = Vector3.MoveTowards(
-            leg.target.position,
-            leg.worldPos,
-            legMoveSpeed * Time.deltaTime
-        );
+        if (leg.target != null)
+        {
+            leg.target.position = Vector3.MoveTowards(
+                leg.target.position,
+                leg.worldPos,
+                legMoveSpeed * Time.deltaTime
+            );
+        }
 
-        if (Vector3.Distance(leg.target.position, leg.worldPos) < 0.01f)
+        if (leg.target != null &&
+            Vector3.Distance(leg.target.position, leg.worldPos) < 0.01f)
         {
             leg.isMoving = false;
         }
@@ -123,56 +164,10 @@ public class SurfaceWalkerLegSystem : MonoBehaviour
         legs[i] = leg;
     }
 
-
-    float GetTOnEdge(Vector2 p, Vector2 a, Vector2 b)
+    private static float GetTOnEdge(Vector2 p, Vector2 a, Vector2 b)
     {
         Vector2 ab = b - a;
         float t = Vector2.Dot(p - a, ab) / ab.sqrMagnitude;
         return Mathf.Clamp01(t);
     }
-
-    int CountMovingLegs()
-    {
-        int count = 0;
-        for (int i = 0; i < legs.Length; i++)
-        {
-            if (legs[i].isMoving) count++;
-        }
-        return count;
-    }
-
-    Vector3 ClampToRestRange(Vector3 restCenter, Vector3 target, float maxRadius)
-    {
-        Vector3 dir = target - restCenter;
-
-        float dist = dir.magnitude;
-
-        if (dist <= maxRadius)
-            return target;
-
-        return restCenter + dir.normalized * maxRadius;
-    }
-
-    // =================================================
-    // 落点计算（关键：贴edge）
-    // =================================================
-    Vector3 FindGroundPoint(Vector3 pos)
-    {
-        var mgr = TileMapGuideManager.Instance;
-
-        int edgeIndex = mgr.FindClosestEdgeIndex(pos);
-        Edge e = mgr.GetEdge(edgeIndex);
-
-        // 投影到线段
-        Vector3 a = e.a;
-        Vector3 b = e.b;
-
-        Vector3 ab = (b - a);
-        float t = Vector3.Dot(pos - a, ab) / ab.sqrMagnitude;
-        t = Mathf.Clamp01(t);
-
-        return a + ab * t;
-    }
-
-
 }

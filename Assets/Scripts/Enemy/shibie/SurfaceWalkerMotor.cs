@@ -43,16 +43,19 @@ public class SurfaceWalkerMotor : IMonsterMotor
             return;
         }
 
-        DrivePath(sw, move.pathVertices);
+        DrivePath(sw, mgr, move);
     }
 
-    private void DrivePath(SurfaceWalker2D sw, List<Vector2> path)
+    private void DrivePath(SurfaceWalker2D sw, TileMapGuideManager mgr, SurfaceMoveIntent move)
     {
+        List<Vector2> path = move.pathVertices;
+
         if (activePath != path)
         {
             activePath = path;
             pathIndex = 0;
             sw.Arrived = false;
+            sw.TravelClockwise = move.clockwise;
         }
 
         if (pathIndex >= path.Count)
@@ -62,19 +65,18 @@ public class SurfaceWalkerMotor : IMonsterMotor
             sw.Arrived = true;
             sw.HasEdge = true;
             SurfaceEdgePath.SyncEdgeStateFromPosition(sw);
-            sw.UpdateVisualOffset();
             return;
         }
 
         Vector2 nodeTarget = path[pathIndex];
         sw.CurrentTarget = nodeTarget;
 
-        int fallbackSign = sw.TravelSignAlongEdge;
-        sw.TravelSignAlongEdge = SurfaceCrawlerVisual.ComputeTravelSignAlongEdge(
-            sw.CurrentEdge,
+        sw.TravelClockwise = SurfaceCrawlerVisual.ComputeTravelClockwise(
+            mgr,
+            sw.EdgeIndex,
             sw.Position,
             nodeTarget,
-            fallbackSign
+            sw.TravelClockwise
         );
 
         sw.Transform.position = Vector2.MoveTowards(
@@ -83,20 +85,7 @@ public class SurfaceWalkerMotor : IMonsterMotor
             sw.moveSpeed * Time.fixedDeltaTime
         );
 
-        if (sw.crawlBody != null)
-        {
-            if (sw.crawlBody.parent == sw.Transform)
-            {
-                sw.crawlBody.localPosition = Vector3.zero;
-            }
-            else
-            {
-                sw.crawlBody.position = sw.Transform.position;
-            }
-        }
-
         SurfaceEdgePath.SyncEdgeStateFromPosition(sw, snapPositionToEdge: false);
-        sw.UpdateVisualOffset();
 
         if (Vector2.Distance(sw.Position, nodeTarget) > ArriveThreshold)
         {
@@ -117,7 +106,6 @@ public class SurfaceWalkerMotor : IMonsterMotor
             sw.Transform.position = snapped;
             sw.HasEdge = true;
             SurfaceEdgePath.SyncEdgeStateFromPosition(sw, snapPositionToEdge: false);
-            sw.UpdateVisualOffset();
         }
     }
 }

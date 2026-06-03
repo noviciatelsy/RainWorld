@@ -4,7 +4,7 @@ public enum SurfaceCrawlerVisualStyle
 {
     /// <summary>蜗牛：贴图默认朝上，旋转到边法线。</summary>
     Snail,
-    /// <summary>识别行者：贴图默认朝左，旋转到沿边行走方向（骨骼驱动）。</summary>
+    /// <summary>识别行者：贴图默认朝左，骨骼驱动；顺时针时 scale *= -1。</summary>
     SurfaceWalker
 }
 
@@ -49,7 +49,7 @@ public static class SurfaceCrawlerVisual
     {
         if (style == SurfaceCrawlerVisualStyle.SurfaceWalker)
         {
-            ApplySurfaceWalker(root, bodyVisual, currentEdge, baseScale, travelSignAlongEdge, ref cachedSignX);
+            ApplySurfaceWalker(bodyVisual, baseScale, false);
             return;
         }
 
@@ -91,39 +91,70 @@ public static class SurfaceCrawlerVisual
     }
 
     /// <summary>
-    /// 识别行者：贴图默认朝左，旋转到切线方向；不偏移 body 位置（避免破坏腿 restOffset）。
+    /// 识别行者：骨骼驱动，不改 rotation/position；默认朝左，顺时针时 scale *= -1。
     /// </summary>
     public static void ApplySurfaceWalker(
-        Transform root,
         Transform bodyVisual,
-        Edge currentEdge,
         Vector3 baseScale,
-        int travelSignAlongEdge,
-        ref float cachedSignX)
+        bool travelClockwise)
     {
-        if (root != null)
-        {
-            root.rotation = Quaternion.identity;
-        }
-
         if (bodyVisual == null)
         {
             return;
         }
 
-        Vector2 dir = (currentEdge.b - currentEdge.a).normalized;
-        Vector2 tangent = GetTangentAlongTravel(dir, travelSignAlongEdge, ref cachedSignX);
+        Vector3 scale = baseScale;
 
-        float angle = Vector2.SignedAngle(Vector2.left, tangent);
-        bodyVisual.localRotation = Quaternion.Euler(0f, 0f, angle);
+        if (travelClockwise)
+        {
+            scale *= -1f;
+        }
 
-        float signX = ResolveScaleSignX(travelSignAlongEdge, ref cachedSignX);
-        bodyVisual.localScale = new Vector3(
-            signX * Mathf.Abs(baseScale.x),
-            -Mathf.Abs(baseScale.y),
-            baseScale.z
-        );
-        bodyVisual.localPosition = Vector3.zero;
+        bodyVisual.localScale = scale;
+    }
+
+    /// <summary>
+    /// 当前移动是否沿 loop 顺时针（用于识别行者 scale 翻转）。
+    /// </summary>
+    public static bool ComputeTravelClockwise(
+        TileMapGuideManager mgr,
+        int edgeIndex,
+        Vector2 fromPosition,
+        Vector2 targetPosition,
+        bool fallbackClockwise)
+    {
+        if (mgr == null)
+        {
+            return fallbackClockwise;
+        }
+
+        Vector2 delta = targetPosition - fromPosition;
+
+        if (delta.sqrMagnitude < MinTravelDeltaSqr)
+        {
+            return fallbackClockwise;
+        }
+
+        Edge edge = mgr.GetEdge(edgeIndex);
+        Vector2 onEdge = SurfaceEdgeTraversal.ClosestPointOnSegment(fromPosition, edge.a, edge.b);
+        Vector2 cwCorner = SurfaceEdgePath.GetForwardCorner(mgr, edgeIndex, onEdge, true);
+        Vector2 ccwCorner = SurfaceEdgePath.GetForwardCorner(mgr, edgeIndex, onEdge, false);
+
+        Vector2 moveDir = delta.normalized;
+        float dotCw = Vector2.Dot(moveDir, (cwCorner - onEdge).normalized);
+        float dotCcw = Vector2.Dot(moveDir, (ccwCorner - onEdge).normalized);
+
+        if (dotCw >= TravelDotThreshold && dotCw > dotCcw)
+        {
+            return true;
+        }
+
+        if (dotCcw >= TravelDotThreshold && dotCcw > dotCw)
+        {
+            return false;
+        }
+
+        return fallbackClockwise;
     }
 
     public static int ComputeTravelSignAlongEdge(
@@ -153,24 +184,6 @@ public static class SurfaceCrawlerVisual
         }
 
         return fallbackSign;
-    }
-
-    private static Vector2 GetTangentAlongTravel(
-        Vector2 edgeDirection,
-        int travelSignAlongEdge,
-        ref float cachedSignX)
-    {
-        if (travelSignAlongEdge > 0)
-        {
-            return edgeDirection;
-        }
-
-        if (travelSignAlongEdge < 0)
-        {
-            return -edgeDirection;
-        }
-
-        return cachedSignX > 0f ? edgeDirection : -edgeDirection;
     }
 
     private static float ResolveScaleSignX(int travelSignAlongEdge, ref float cachedSignX)
