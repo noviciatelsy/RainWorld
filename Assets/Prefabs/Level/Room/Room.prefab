@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6239586464118742442}
   m_Layer: 0
-  m_Name: Minimaps
+  m_Name: RoomContents
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -116,7 +116,7 @@ MonoBehaviour:
   switchTriggerCollider: {fileID: 5716387108933479486}
   autoCollectEnemiesInChildren: 1
   roomEnemies: []
-  minimap: {fileID: 7732784145518214502}
+  roomContent: {fileID: 763046268880138166}
 --- !u!1 &5172021405048634452
 GameObject:
   m_ObjectHideFlags: 0

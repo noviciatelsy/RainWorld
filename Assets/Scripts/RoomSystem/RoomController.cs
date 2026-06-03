@@ -15,8 +15,8 @@ public class RoomController : MonoBehaviour
     [SerializeField] private bool autoCollectEnemiesInChildren = true;
     [SerializeField] private List<RoomEnemyMember> roomEnemies = new List<RoomEnemyMember>();
 
-    [Header("小地图")]
-    [SerializeField] private GameObject minimap;
+    [Header("房间所有物")]
+    [SerializeField] private GameObject roomContent;
     private RoomManager manager;
 
     private bool hasStarted;
@@ -35,7 +35,7 @@ public class RoomController : MonoBehaviour
         {
             switchTriggerCollider.isTrigger = true;
         }
-        minimap.gameObject.SetActive(false);
+        roomContent.gameObject.SetActive(false);
         hasEnableMinimap = false;
     }
 
@@ -173,7 +173,7 @@ public class RoomController : MonoBehaviour
         {
             return;
         }
-        minimap.gameObject.SetActive(true);
+        roomContent.gameObject.SetActive(true);
         hasEnableMinimap = true;
     }
 
