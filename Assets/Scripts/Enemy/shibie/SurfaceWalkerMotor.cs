@@ -69,6 +69,14 @@ public class SurfaceWalkerMotor : IMonsterMotor
         Vector2 nodeTarget = path[pathIndex];
         sw.CurrentTarget = nodeTarget;
 
+        int fallbackSign = sw.TravelSignAlongEdge;
+        sw.TravelSignAlongEdge = SurfaceCrawlerVisual.ComputeTravelSignAlongEdge(
+            sw.CurrentEdge,
+            sw.Position,
+            nodeTarget,
+            fallbackSign
+        );
+
         sw.Transform.position = Vector2.MoveTowards(
             sw.Position,
             nodeTarget,
