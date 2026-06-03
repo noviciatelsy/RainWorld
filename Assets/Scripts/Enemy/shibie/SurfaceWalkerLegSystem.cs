@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -73,8 +73,9 @@ public class SurfaceWalkerLegSystem : MonoBehaviour
         var leg = legs[i];
         var mgr = TileMapGuideManager.Instance;
 
-        // ✅ 用body位置找最近edge（关键）
-        int edgeIndex = mgr.FindClosestEdgeIndex(body.position);
+        // 用 body 位置找最近边，与贴边逻辑一致
+        Vector2 bodyPos = body != null ? (Vector2)body.position : (Vector2)sw.transform.position;
+        int edgeIndex = mgr.FindClosestEdgeIndex(bodyPos);
         Edge e = mgr.GetEdge(edgeIndex);
 
         Vector2 a = e.a;
@@ -84,7 +85,7 @@ public class SurfaceWalkerLegSystem : MonoBehaviour
         float length = Vector2.Distance(a, b);
 
         // ✅ 用body而不是pivot（关键）
-        float tOnEdge = GetTOnEdge(body.position, a, b);
+        float tOnEdge = GetTOnEdge(bodyPos, a, b);
         float basePos = tOnEdge * length;
 
         // ✅ 腿分布（局部 spacing）

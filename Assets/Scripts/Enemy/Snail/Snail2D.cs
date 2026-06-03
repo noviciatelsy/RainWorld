@@ -186,6 +186,7 @@ public class Snail2D : MonsterBase
         }
 
         SurfaceCrawlerVisual.Apply(
+            SurfaceCrawlerVisualStyle.Snail,
             transform,
             bodyVisual,
             CurrentEdge,
@@ -206,6 +207,7 @@ public class Snail2D : MonsterBase
         if (HasEdge && bodyVisual != null)
         {
             SurfaceCrawlerVisual.Apply(
+                SurfaceCrawlerVisualStyle.Snail,
                 transform,
                 bodyVisual,
                 CurrentEdge,

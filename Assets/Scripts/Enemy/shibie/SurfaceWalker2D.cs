@@ -5,7 +5,13 @@ public class SurfaceWalker2D : MonsterBase
     public float moveSpeed = 3f;
     public float fallSpeed = 6f;
 
+    [Header("Skeleton")]
+    [Tooltip("与 SurfaceWalkerLegSystem.body 一致，贴图/骨骼根")]
+    public Transform crawlBody;
+    public SurfaceWalkerLegSystem legSystem;
+
     [Header("Visual")]
+    [Tooltip("可选；未设置时使用 crawlBody")]
     public Transform bodyVisual;
     public float visualNormalOffset = 0.1f;
 
@@ -19,8 +25,18 @@ public class SurfaceWalker2D : MonsterBase
         ai = new SurfaceWalkerUtilityAI();
         motor = new SurfaceWalkerMotor();
 
-        SurfaceCrawlerVisual.CacheBaseScale(bodyVisual, ref baseVisualScale);
+        ResolveCrawlBody();
+        SurfaceCrawlerVisual.CacheBaseScale(GetVisualTransform(), ref baseVisualScale);
         transform.rotation = Quaternion.identity;
+
+        if (legSystem != null)
+        {
+            legSystem.sw = this;
+            if (legSystem.body == null)
+            {
+                legSystem.body = crawlBody;
+            }
+        }
 
         TileMapGuideManager mgr = TileMapGuideManager.Instance;
 
@@ -30,9 +46,11 @@ public class SurfaceWalker2D : MonsterBase
             return;
         }
 
+        Vector2 snapFrom = crawlBody != null ? (Vector2)crawlBody.position : Position;
+
         SurfaceEdgePath.TrySnapToNearestEdge(
             mgr,
-            Position,
+            snapFrom,
             out int edgeIndex,
             out Edge edge,
             out Vector2 snapped
@@ -48,6 +66,30 @@ public class SurfaceWalker2D : MonsterBase
         UpdateVisualOffset();
     }
 
+    private void ResolveCrawlBody()
+    {
+        if (legSystem == null)
+        {
+            legSystem = GetComponent<SurfaceWalkerLegSystem>();
+        }
+
+        if (crawlBody == null && legSystem != null)
+        {
+            crawlBody = legSystem.body;
+        }
+
+        if (bodyVisual == null)
+        {
+            bodyVisual = crawlBody;
+        }
+    }
+
+    public Transform GetVisualTransform()
+    {
+        ResolveCrawlBody();
+        return crawlBody != null ? crawlBody : bodyVisual;
+    }
+
     public void UpdateVisualOffset()
     {
         if (!HasEdge)
@@ -55,12 +97,18 @@ public class SurfaceWalker2D : MonsterBase
             return;
         }
 
-        SurfaceCrawlerVisual.Apply(
+        Transform visual = GetVisualTransform();
+
+        if (visual == null)
+        {
+            return;
+        }
+
+        SurfaceCrawlerVisual.ApplySurfaceWalker(
             transform,
-            bodyVisual,
+            visual,
             CurrentEdge,
             baseVisualScale,
-            visualNormalOffset,
             TravelSignAlongEdge,
             ref visualScaleSignX
         );
@@ -73,14 +121,27 @@ public class SurfaceWalker2D : MonsterBase
             transform.rotation = Quaternion.identity;
         }
 
-        if (HasEdge && bodyVisual != null)
+        if (!HasEdge)
         {
-            SurfaceCrawlerVisual.Apply(
+            return;
+        }
+
+        TileMapGuideManager mgr = TileMapGuideManager.Instance;
+
+        if (mgr != null)
+        {
+            SurfaceEdgePath.SyncEdgeStateFromPosition(this, snapPositionToEdge: false);
+        }
+
+        Transform visual = GetVisualTransform();
+
+        if (visual != null)
+        {
+            SurfaceCrawlerVisual.ApplySurfaceWalker(
                 transform,
-                bodyVisual,
+                visual,
                 CurrentEdge,
                 baseVisualScale,
-                visualNormalOffset,
                 0,
                 ref visualScaleSignX
             );

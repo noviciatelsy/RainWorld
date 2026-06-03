@@ -1,8 +1,15 @@
 using UnityEngine;
 
+public enum SurfaceCrawlerVisualStyle
+{
+    /// <summary>蜗牛：贴图默认朝上，旋转到边法线。</summary>
+    Snail,
+    /// <summary>识别行者：贴图默认朝左，旋转到沿边行走方向（骨骼驱动）。</summary>
+    SurfaceWalker
+}
+
 /// <summary>
-/// 贴边爬行者（Snail / SurfaceWalker）共用：
-/// 贴图默认朝上，旋转到边法线；scale.x 仅随明确行进方向翻转（避免在路点附近抖动）。
+/// 贴边爬行者（Snail / SurfaceWalker）视觉对齐。
 /// </summary>
 public static class SurfaceCrawlerVisual
 {
@@ -30,10 +37,26 @@ public static class SurfaceCrawlerVisual
         }
     }
 
-    /// <param name="travelSignAlongEdge">
-    /// 沿边行进方向：1 = 与 a→b 同向，-1 = 反向，0 = 保持上一帧 scale.x 符号。
-    /// </param>
     public static void Apply(
+        SurfaceCrawlerVisualStyle style,
+        Transform root,
+        Transform bodyVisual,
+        Edge currentEdge,
+        Vector3 baseScale,
+        float normalOffset,
+        int travelSignAlongEdge,
+        ref float cachedSignX)
+    {
+        if (style == SurfaceCrawlerVisualStyle.SurfaceWalker)
+        {
+            ApplySurfaceWalker(root, bodyVisual, currentEdge, baseScale, travelSignAlongEdge, ref cachedSignX);
+            return;
+        }
+
+        ApplySnail(root, bodyVisual, currentEdge, baseScale, normalOffset, travelSignAlongEdge, ref cachedSignX);
+    }
+
+    public static void ApplySnail(
         Transform root,
         Transform bodyVisual,
         Edge currentEdge,
@@ -68,8 +91,41 @@ public static class SurfaceCrawlerVisual
     }
 
     /// <summary>
-    /// 根据「当前位置 → 目标点」相对边方向计算稳定行进符号；距离过近时返回 fallback。
+    /// 识别行者：贴图默认朝左，旋转到切线方向；不偏移 body 位置（避免破坏腿 restOffset）。
     /// </summary>
+    public static void ApplySurfaceWalker(
+        Transform root,
+        Transform bodyVisual,
+        Edge currentEdge,
+        Vector3 baseScale,
+        int travelSignAlongEdge,
+        ref float cachedSignX)
+    {
+        if (root != null)
+        {
+            root.rotation = Quaternion.identity;
+        }
+
+        if (bodyVisual == null)
+        {
+            return;
+        }
+
+        Vector2 dir = (currentEdge.b - currentEdge.a).normalized;
+        Vector2 tangent = GetTangentAlongTravel(dir, travelSignAlongEdge, ref cachedSignX);
+
+        float angle = Vector2.SignedAngle(Vector2.left, tangent);
+        bodyVisual.localRotation = Quaternion.Euler(0f, 0f, angle);
+
+        float signX = ResolveScaleSignX(travelSignAlongEdge, ref cachedSignX);
+        bodyVisual.localScale = new Vector3(
+            signX * Mathf.Abs(baseScale.x),
+            -Mathf.Abs(baseScale.y),
+            baseScale.z
+        );
+        bodyVisual.localPosition = Vector3.zero;
+    }
+
     public static int ComputeTravelSignAlongEdge(
         Edge edge,
         Vector2 fromPosition,
@@ -99,9 +155,24 @@ public static class SurfaceCrawlerVisual
         return fallbackSign;
     }
 
-    /// <summary>
-    /// 与边 a→b 同向为 -1，反向为 +1（水平右移时贴图朝右）。
-    /// </summary>
+    private static Vector2 GetTangentAlongTravel(
+        Vector2 edgeDirection,
+        int travelSignAlongEdge,
+        ref float cachedSignX)
+    {
+        if (travelSignAlongEdge > 0)
+        {
+            return edgeDirection;
+        }
+
+        if (travelSignAlongEdge < 0)
+        {
+            return -edgeDirection;
+        }
+
+        return cachedSignX > 0f ? edgeDirection : -edgeDirection;
+    }
+
     private static float ResolveScaleSignX(int travelSignAlongEdge, ref float cachedSignX)
     {
         if (travelSignAlongEdge > 0)
@@ -114,15 +185,12 @@ public static class SurfaceCrawlerVisual
         }
         else if (Mathf.Abs(cachedSignX) < 0.001f)
         {
-            cachedSignX = 1f;
+            cachedSignX = -1f;
         }
 
         return cachedSignX;
     }
 
-    /// <summary>
-    /// 垂直于行走方向的外法线（相对边方向逆时针 90°）。
-    /// </summary>
     public static Vector2 GetOutwardNormal(Vector2 edgeDirection)
     {
         return new Vector2(-edgeDirection.y, edgeDirection.x);

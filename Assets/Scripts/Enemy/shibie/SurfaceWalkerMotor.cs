@@ -83,6 +83,18 @@ public class SurfaceWalkerMotor : IMonsterMotor
             sw.moveSpeed * Time.fixedDeltaTime
         );
 
+        if (sw.crawlBody != null)
+        {
+            if (sw.crawlBody.parent == sw.Transform)
+            {
+                sw.crawlBody.localPosition = Vector3.zero;
+            }
+            else
+            {
+                sw.crawlBody.position = sw.Transform.position;
+            }
+        }
+
         SurfaceEdgePath.SyncEdgeStateFromPosition(sw, snapPositionToEdge: false);
         sw.UpdateVisualOffset();
 
