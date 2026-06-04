@@ -112,6 +112,10 @@ public class GameDataSelectionUI : MonoBehaviour
 
     private void EnterGameScene()
     {
-      
+        GlobalUI.Instance.fadeScreenUI.PlaySceneSwitchFade(() => 
+        {
+            SceneSwitchManager.Instance.SwitchToScene(SceneType.Base);
+        });
+
     }
 }

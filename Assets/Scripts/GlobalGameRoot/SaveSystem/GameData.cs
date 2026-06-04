@@ -106,6 +106,8 @@ public class GameDataSlot
         {
             hasRunData = false;
         }
+
+        runData.EnsureDataValid();
     }
 }
 
@@ -135,6 +137,49 @@ public class GameRunData
 
     // 各物品出售次数
     public SerializableDictionary<string, int> itemSellAmount = new SerializableDictionary<string, int>();
+
+    // 已经访问过的房间
+    // key = RoomController.roomSaveID
+    // value = 是否已经访问过
+    public SerializableDictionary<string, bool> visitedRooms = new SerializableDictionary<string, bool>();
+
+    public void EnsureDataValid()
+    {
+        if (unlockedIntelligences == null)
+        {
+            unlockedIntelligences = new List<string>();
+        }
+
+        if (unlockedEnemyIntelligences == null)
+        {
+            unlockedEnemyIntelligences = new List<string>();
+        }
+
+        if (unlockedEnemies == null)
+        {
+            unlockedEnemies = new List<string>();
+        }
+
+        if (unlockedEnemyPicture == null)
+        {
+            unlockedEnemyPicture = new SerializableDictionary<string, bool>();
+        }
+
+        if (unlockedMerchantItems == null)
+        {
+            unlockedMerchantItems = new List<string>();
+        }
+
+        if (itemSellAmount == null)
+        {
+            itemSellAmount = new SerializableDictionary<string, int>();
+        }
+
+        if (visitedRooms == null)
+        {
+            visitedRooms = new SerializableDictionary<string, bool>();
+        }
+    }
 }
 
 [Serializable]

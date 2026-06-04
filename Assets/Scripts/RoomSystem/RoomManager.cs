@@ -249,7 +249,7 @@ public class RoomManager : MonoBehaviour
         }
 
         CurrentRoom.SetRoomActive(true);
-        CurrentRoom.TryEnableMinimap();
+        CurrentRoom.TryEnableRoomContent();
         if (roomCameraController != null)
         {
             roomCameraController.ApplyRoom(CurrentRoom, forceCameraImmediately);
