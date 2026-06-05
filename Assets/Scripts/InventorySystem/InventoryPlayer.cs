@@ -30,6 +30,8 @@ public class InventoryPlayer : InventoryBase
     [Header("测试物品")]
     [SerializeField] private ItemDataSO[] testItems;
 
+    [Header("遗失物品存档id")]
+    [SerializeField] private string retrieveInventorySaveID = "retrieveInventory";
 
     public int QuickItemSlotSize
     {
@@ -49,6 +51,22 @@ public class InventoryPlayer : InventoryBase
         SanitizeEmptyItemShells();
         ValidateQuickItems(null);
         ValidateHoldingItem(null);
+    }
+
+    private void Start()
+    {
+        if(GameStateManager.Instance.currentGameState==GameState.Base)
+        {
+            LoadData();
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (GameStateManager.Instance.currentGameState == GameState.Base)
+        {
+            SaveData();
+        }
     }
 
     private void Update()
@@ -639,5 +657,206 @@ public class InventoryPlayer : InventoryBase
     public bool MoneyCanAfford(int amount)
     {
         return money >=amount;
+    }
+    public void SetMoney(int amount)
+    {
+        money = Mathf.Max(0, amount);
+        onMoneyChanged?.Invoke(money);
+    }
+    public override void ClearInventoryItems()
+    {
+        ClearHoldingItem();
+
+        for (int i = 0; i < quickItemSlotList.Count; i++)
+        {
+            if (quickItemSlotList[i] != null)
+            {
+                quickItemSlotList[i].Clear();
+            }
+        }
+
+        for (int i = inventoryItems.Count - 1; i >= 0; i--)
+        {
+            InventoryItem item = inventoryItems[i];
+
+            if (item != null)
+            {
+                OnItemRemoved(item);
+            }
+        }
+
+        ClearAllSlotsOnly();
+        inventoryItems.Clear();
+
+        onQuickItemsChange?.Invoke();
+        TriggerInventoryChanged();
+    }
+
+    private Dictionary<string, InventoryItem> BuildRuntimeItemMap()
+    {
+        Dictionary<string, InventoryItem> result = new Dictionary<string, InventoryItem>();
+
+        for (int i = 0; i < inventoryItems.Count; i++)
+        {
+            InventoryItem item = inventoryItems[i];
+
+            if (item == null || item.ItemData == null)
+            {
+                continue;
+            }
+
+            if (string.IsNullOrEmpty(item.runtimeSaveID))
+            {
+                continue;
+            }
+
+            result[item.runtimeSaveID] = item;
+        }
+
+        return result;
+    }
+
+    public override void SaveData()
+    {
+        GameRunData runData = SaveManager.Instance.GetRunTimeGameData();
+        if (runData == null)
+        {
+            return;
+        }
+
+        runData.EnsureDataValid();
+
+        PlayerInventorySaveData playerSaveData = runData.playerInventorySaveData;
+        playerSaveData.EnsureDataValid();
+
+        playerSaveData.inventorySaveData = CreateInventorySaveData();
+        playerSaveData.inventorySaveData.inventorySaveID = "playerInventory";
+
+        playerSaveData.money = money;
+
+        playerSaveData.quickItemRuntimeIDs.Clear();
+
+        for (int i = 0; i < quickItemSlotList.Count; i++)
+        {
+            InventoryItem quickItem = GetQuickItem(i);
+
+            if (quickItem != null && quickItem.ItemData != null)
+            {
+                playerSaveData.quickItemRuntimeIDs.Add(quickItem.runtimeSaveID);
+            }
+            else
+            {
+                playerSaveData.quickItemRuntimeIDs.Add("");
+            }
+        }
+
+        if (holdingItem != null && holdingItem.ItemData != null)
+        {
+            playerSaveData.holdingItemRuntimeID = holdingItem.runtimeSaveID;
+        }
+        else
+        {
+            playerSaveData.holdingItemRuntimeID = "";
+        }
+    }
+
+    public override void LoadData()
+    {
+        GameRunData runData = SaveManager.Instance.GetRunTimeGameData();
+        if (runData == null)
+        {
+            return;
+        }
+
+        runData.EnsureDataValid();
+
+        PlayerInventorySaveData playerSaveData = runData.playerInventorySaveData;
+
+        if (playerSaveData == null)
+        {
+            ClearInventoryItems();
+            SetMoney(0);
+            return;
+        }
+
+        playerSaveData.EnsureDataValid();
+
+        ClearHoldingItem();
+
+        LoadFromInventorySaveData(playerSaveData.inventorySaveData);
+
+        SetMoney(playerSaveData.money);
+
+        Dictionary<string, InventoryItem> itemMap = BuildRuntimeItemMap();
+
+        EnsureSlotListSize();
+
+        for (int i = 0; i < quickItemSlotList.Count; i++)
+        {
+            quickItemSlotList[i].Clear();
+        }
+
+        for (int i = 0; i < playerSaveData.quickItemRuntimeIDs.Count && i < quickItemSlotList.Count; i++)
+        {
+            string runtimeID = playerSaveData.quickItemRuntimeIDs[i];
+
+            if (string.IsNullOrEmpty(runtimeID))
+            {
+                continue;
+            }
+
+            if (itemMap.TryGetValue(runtimeID, out InventoryItem item))
+            {
+                quickItemSlotList[i].itemInSlot = item;
+            }
+        }
+
+        if (!string.IsNullOrEmpty(playerSaveData.holdingItemRuntimeID))
+        {
+            if (itemMap.TryGetValue(playerSaveData.holdingItemRuntimeID, out InventoryItem holdingItemToLoad))
+            {
+                SetHoldingItem(holdingItemToLoad);
+            }
+        }
+        else
+        {
+            ClearHoldingItem();
+        }
+
+        ValidateQuickItems(null);
+        ValidateHoldingItem(null);
+
+        onQuickItemsChange?.Invoke();
+        TriggerInventoryChanged();
+    }
+
+    public void SaveCurrentItemsToRetrieveInventoryAndClearSelf()
+    {
+        if (SaveManager.Instance == null)
+        {
+            Debug.LogWarning("保存遗失物品失败：SaveManager.Instance 为空。");
+            return;
+        }
+
+        GameRunData runData = SaveManager.Instance.GetRunTimeGameData();
+
+        if (runData == null)
+        {
+            Debug.LogWarning("保存遗失物品失败：当前没有 GameRunData。");
+            return;
+        }
+
+        runData.EnsureDataValid();
+
+        InventorySaveData retrieveSaveData = CreateInventorySaveData();
+        retrieveSaveData.inventorySaveID = retrieveInventorySaveID;
+
+        // 直接覆盖最新一份遗失物品
+        runData.inventorySaveDataMap[retrieveInventorySaveID] = retrieveSaveData;
+
+        // 只清物品、快捷栏、手持，不清钱
+        ClearInventoryItems();
+
+        SaveManager.Instance.SaveGame();
     }
 }

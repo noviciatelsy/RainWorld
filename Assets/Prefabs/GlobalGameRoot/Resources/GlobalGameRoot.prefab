@@ -732,6 +732,7 @@ Transform:
   - {fileID: 5300577590111271955}
   - {fileID: 709941824788549305}
   - {fileID: 3602388520571456131}
+  - {fileID: 5014287149793640956}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4666719250213547974
@@ -1026,6 +1027,65 @@ MonoBehaviour:
     itemSellAmount:
       keys: []
       values: 
+    visitedRooms:
+      keys: []
+      values: 
+    playerInventorySaveData:
+      inventorySaveData:
+        inventorySaveID: 
+        columnCount: 7
+        maxInventorySize: 56
+        items: []
+      quickItemRuntimeIDs: []
+      holdingItemRuntimeID: 
+      money: 0
+    inventorySaveDataMap:
+      keys: []
+      values: []
+--- !u!1 &5194314256015458291
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5014287149793640956}
+  - component: {fileID: 3526683610839269079}
+  m_Layer: 0
+  m_Name: GameStateManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5014287149793640956
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5194314256015458291}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1193684985750821440}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3526683610839269079
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5194314256015458291}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc246df966f9a5444a145a213f535e6a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6971042185059060553
 GameObject:
   m_ObjectHideFlags: 0

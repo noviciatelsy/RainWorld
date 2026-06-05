@@ -106,6 +106,8 @@ public class GameDataSlot
         {
             hasRunData = false;
         }
+
+        runData.EnsureDataValid();
     }
 }
 
@@ -135,6 +137,76 @@ public class GameRunData
 
     // 各物品出售次数
     public SerializableDictionary<string, int> itemSellAmount = new SerializableDictionary<string, int>();
+
+    // 已经访问过的房间
+    // key = RoomController.roomSaveID
+    // value = 是否已经访问过
+    public SerializableDictionary<string, bool> visitedRooms = new SerializableDictionary<string, bool>();
+
+    [Header("玩家背包数据")]
+    public PlayerInventorySaveData playerInventorySaveData = new PlayerInventorySaveData();
+
+    [Header("场景/系统背包数据")]
+    public SerializableDictionary<string, InventorySaveData> inventorySaveDataMap =
+        new SerializableDictionary<string, InventorySaveData>();
+
+    public void EnsureDataValid()
+    {
+        if (unlockedIntelligences == null)
+        {
+            unlockedIntelligences = new List<string>();
+        }
+
+        if (unlockedEnemyIntelligences == null)
+        {
+            unlockedEnemyIntelligences = new List<string>();
+        }
+
+        if (unlockedEnemies == null)
+        {
+            unlockedEnemies = new List<string>();
+        }
+
+        if (unlockedEnemyPicture == null)
+        {
+            unlockedEnemyPicture = new SerializableDictionary<string, bool>();
+        }
+
+        if (unlockedMerchantItems == null)
+        {
+            unlockedMerchantItems = new List<string>();
+        }
+
+        if (itemSellAmount == null)
+        {
+            itemSellAmount = new SerializableDictionary<string, int>();
+        }
+
+        if (visitedRooms == null)
+        {
+            visitedRooms = new SerializableDictionary<string, bool>();
+        }
+
+        if (playerInventorySaveData == null)
+        {
+            playerInventorySaveData = new PlayerInventorySaveData();
+        }
+
+        playerInventorySaveData.EnsureDataValid();
+
+        if (inventorySaveDataMap == null)
+        {
+            inventorySaveDataMap = new SerializableDictionary<string, InventorySaveData>();
+        }
+
+        foreach (KeyValuePair<string, InventorySaveData> pair in inventorySaveDataMap)
+        {
+            if (pair.Value != null)
+            {
+                pair.Value.EnsureDataValid();
+            }
+        }
+    }
 }
 
 [Serializable]

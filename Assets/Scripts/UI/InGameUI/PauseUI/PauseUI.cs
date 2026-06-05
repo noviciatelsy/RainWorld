@@ -42,6 +42,14 @@ public class PauseUI : MonoBehaviour
 
     public void ReturnToMainMenuButton()
     {
-        warningPanel_ReturnToMainMenu.Open();
+        if(GameStateManager.Instance.currentGameState==GameState.Base)
+        {
+            SceneSwitchManager.Instance.SwitchToScene(SceneType.MainMenu);
+        }
+        else
+        {
+            warningPanel_ReturnToMainMenu.Open();
+        }
+
     }
 }

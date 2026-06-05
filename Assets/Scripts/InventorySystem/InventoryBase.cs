@@ -13,6 +13,10 @@ public class InventoryBase : MonoBehaviour
     [Header("自动塞入设置")]
     [SerializeField] private bool preferTighterPlacement = true; // 是否优先选择更紧密的位置
 
+    [Header("存档")]
+    [SerializeField] protected string inventorySaveID = "";
+
+
     public List<InventoryItemSlot> itemSlotList = new List<InventoryItemSlot>(); // 物品槽位列表
     public List<InventoryItem> inventoryItems = new List<InventoryItem>();
     public ItemListDataSO itemDataBase; // 全物品SO
@@ -32,6 +36,15 @@ public class InventoryBase : MonoBehaviour
             return Mathf.CeilToInt(maxInventorySize / (float)ColumnCount);
         }
     }
+
+    public string InventorySaveID
+    {
+        get
+        {
+            return inventorySaveID;
+        }
+    }
+
 
     protected virtual void Awake()
     {
@@ -678,6 +691,183 @@ public class InventoryBase : MonoBehaviour
                 inventoryItems.RemoveAt(i);
             }
         }
+    }
+
+    public virtual void ClearInventoryItems()
+    {
+        ClearAllSlotsOnly();
+
+        inventoryItems.Clear();
+
+        onInventoryChange?.Invoke();
+    }
+
+    protected void ClearAllSlotsOnly()
+    {
+        EnsureSlotListSize();
+
+        for (int i = 0; i < itemSlotList.Count; i++)
+        {
+            if (itemSlotList[i] == null)
+            {
+                itemSlotList[i] = new InventoryItemSlot();
+            }
+
+            itemSlotList[i].Clear();
+        }
+    }
+
+    public virtual InventorySaveData CreateInventorySaveData()
+    {
+        EnsureSlotListSize();
+        SanitizeEmptyItemShells();
+
+        InventorySaveData saveData = new InventorySaveData();
+        saveData.inventorySaveID = inventorySaveID;
+        saveData.columnCount = columnCount;
+        saveData.maxInventorySize = maxInventorySize;
+        saveData.items = new List<InventoryItemSaveData>();
+
+        HashSet<InventoryItem> savedItems = new HashSet<InventoryItem>();
+
+        for (int i = 0; i < inventoryItems.Count; i++)
+        {
+            InventoryItem item = inventoryItems[i];
+
+            if (item == null || item.ItemData == null)
+            {
+                continue;
+            }
+
+            if (!savedItems.Add(item))
+            {
+                continue;
+            }
+
+            if (!TryGetTopLeftOfItem(item, out Vector2Int topLeft))
+            {
+                continue;
+            }
+
+            InventoryItemSaveData itemSaveData = new InventoryItemSaveData();
+            itemSaveData.itemSaveID = item.ItemData.saveID;
+            itemSaveData.runtimeSaveID = item.runtimeSaveID;
+            itemSaveData.topLeftX = topLeft.x;
+            itemSaveData.topLeftY = topLeft.y;
+            itemSaveData.rotateState = item.rotateState;
+
+            saveData.items.Add(itemSaveData);
+        }
+
+        return saveData;
+    }
+
+    public virtual void LoadFromInventorySaveData(InventorySaveData saveData)
+    {
+        EnsureSlotListSize();
+        SanitizeEmptyItemShells();
+
+        ClearInventoryItems();
+
+        if (saveData == null)
+        {
+            return;
+        }
+
+        saveData.EnsureDataValid();
+
+        for (int i = 0; i < saveData.items.Count; i++)
+        {
+            InventoryItemSaveData itemSaveData = saveData.items[i];
+
+            if (itemSaveData == null)
+            {
+                continue;
+            }
+
+            if (string.IsNullOrEmpty(itemSaveData.itemSaveID))
+            {
+                continue;
+            }
+
+            if (itemDataBase == null)
+            {
+                Debug.LogWarning($"{gameObject.name} 读取背包存档失败：itemDataBase 为空。");
+                continue;
+            }
+
+            ItemDataSO itemData = itemDataBase.GetItemData(itemSaveData.itemSaveID);
+
+            if (itemData == null)
+            {
+                Debug.LogWarning($"{gameObject.name} 读取背包存档失败：找不到物品 saveID = {itemSaveData.itemSaveID}");
+                continue;
+            }
+
+            InventoryItem item = new InventoryItem(itemData, itemSaveData.runtimeSaveID);
+
+            Vector2Int topLeft = new Vector2Int(itemSaveData.topLeftX, itemSaveData.topLeftY);
+
+            bool placed = PlaceItem(item, topLeft, itemSaveData.rotateState);
+
+            if (!placed)
+            {
+                Debug.LogWarning($"{gameObject.name} 读取背包存档失败：{itemData.itemDisplayName} 无法放回原位置 {topLeft}。");
+            }
+        }
+
+        onInventoryChange?.Invoke();
+    }
+
+    public virtual void SaveData()
+    {
+        GameRunData runData = SaveManager.Instance.GetRunTimeGameData();
+
+        if (runData == null)
+        {
+            return;
+        }
+
+        if (string.IsNullOrEmpty(inventorySaveID))
+        {
+            Debug.LogWarning($"{gameObject.name} 没有设置 inventorySaveID，无法保存背包数据。");
+            return;
+        }
+
+        runData.EnsureDataValid();
+
+        InventorySaveData saveData = CreateInventorySaveData();
+        runData.inventorySaveDataMap[inventorySaveID] = saveData;
+    }
+
+    public virtual void LoadData()
+    {
+        GameRunData runData = SaveManager.Instance.GetRunTimeGameData();
+        if (runData == null)
+        {
+            return;
+        }
+
+        if (string.IsNullOrEmpty(inventorySaveID))
+        {
+            Debug.LogWarning($"{gameObject.name} 没有设置 inventorySaveID，无法读取背包数据。");
+            return;
+        }
+
+        runData.EnsureDataValid();
+
+        if (!runData.inventorySaveDataMap.TryGetValue(inventorySaveID, out InventorySaveData saveData))
+        {
+            ClearInventoryItems();
+            return;
+        }
+
+        LoadFromInventorySaveData(saveData);
+    }
+
+    public void TriggerInventoryChanged()
+    {
+        onInventoryChange?.Invoke();
     }
 
     protected virtual void OnItemPlaced(InventoryItem item)
