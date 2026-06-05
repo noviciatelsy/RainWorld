@@ -78,14 +78,12 @@ public class PlayerControl : MonoBehaviour
     {
         mainInput.Player.Move.performed += OnMovePerformed;
         mainInput.Player.Move.canceled += OnMoveCanceled;
-        mainInput.Enable();
     }
 
     private void OnDisable()
     {
         mainInput.Player.Move.performed -= OnMovePerformed;
         mainInput.Player.Move.canceled -= OnMoveCanceled;
-        mainInput.Disable();
     }
 
     private void Update()
