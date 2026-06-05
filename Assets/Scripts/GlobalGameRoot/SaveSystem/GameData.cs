@@ -143,6 +143,13 @@ public class GameRunData
     // value = 是否已经访问过
     public SerializableDictionary<string, bool> visitedRooms = new SerializableDictionary<string, bool>();
 
+    [Header("玩家背包数据")]
+    public PlayerInventorySaveData playerInventorySaveData = new PlayerInventorySaveData();
+
+    [Header("场景/系统背包数据")]
+    public SerializableDictionary<string, InventorySaveData> inventorySaveDataMap =
+        new SerializableDictionary<string, InventorySaveData>();
+
     public void EnsureDataValid()
     {
         if (unlockedIntelligences == null)
@@ -178,6 +185,26 @@ public class GameRunData
         if (visitedRooms == null)
         {
             visitedRooms = new SerializableDictionary<string, bool>();
+        }
+
+        if (playerInventorySaveData == null)
+        {
+            playerInventorySaveData = new PlayerInventorySaveData();
+        }
+
+        playerInventorySaveData.EnsureDataValid();
+
+        if (inventorySaveDataMap == null)
+        {
+            inventorySaveDataMap = new SerializableDictionary<string, InventorySaveData>();
+        }
+
+        foreach (KeyValuePair<string, InventorySaveData> pair in inventorySaveDataMap)
+        {
+            if (pair.Value != null)
+            {
+                pair.Value.EnsureDataValid();
+            }
         }
     }
 }

@@ -289,265 +289,330 @@ MonoBehaviour:
   columnCount: 9
   maxInventorySize: 81
   preferTighterPlacement: 1
+  inventorySaveID: 
   itemSlotList:
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   - itemInSlot:
+      runtimeSaveID: 
       ItemData: {fileID: 0}
       itemEffect: {fileID: 0}
       rotateState: 0
   inventoryItems: []
-  itemDataBase: {fileID: 0}
+  itemDataBase: {fileID: 11400000, guid: 67f3a35b1c96a7c459a28b125f595fcc, type: 2}
   quickItemSlotSize: 4
   quickItemSlotList: []
   clearHoldingItemWhenInvalid: 1
@@ -566,6 +631,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: bb721189e6c567d4b89131f23ab0a7e3, type: 2}
   - {fileID: 11400000, guid: 04ea348198140aa49b7316e34f801621, type: 2}
   - {fileID: 11400000, guid: 98a08a6ff47e0ca499393d79ca873908, type: 2}
+  retrieveInventorySaveID: retrieveInventory
 --- !u!114 &4877479732014819151
 MonoBehaviour:
   m_ObjectHideFlags: 0

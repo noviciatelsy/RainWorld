@@ -149,6 +149,7 @@ MonoBehaviour:
   columnCount: 11
   maxInventorySize: 154
   preferTighterPlacement: 1
+  inventorySaveID: storageInventory
   itemSlotList: []
   inventoryItems: []
   itemDataBase: {fileID: 11400000, guid: 67f3a35b1c96a7c459a28b125f595fcc, type: 2}
