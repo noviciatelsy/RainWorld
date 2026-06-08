@@ -101,6 +101,8 @@ GameObject:
   - component: {fileID: 2536843987404145219}
   - component: {fileID: 4877479732014819151}
   - component: {fileID: 808092062085497677}
+  - component: {fileID: 970863663164456172}
+  - component: {fileID: 1493099044295405332}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -231,8 +233,8 @@ CapsuleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0.5}
-  m_Size: {x: 0.7, y: 1}
+  m_Offset: {x: 0, y: 0.45}
+  m_Size: {x: 0.35, y: 0.9}
   m_Direction: 0
 --- !u!114 &2660588595327728199
 MonoBehaviour:
@@ -274,6 +276,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 512
   dropIgnoreTime: 0.3
+  climbHorizontalSpeed: 2.5
+  climbVerticalSpeed: 2.5
+  climbInputDeadZone: 0.1
   jumpBufferTimer: -999
 --- !u!114 &2536843987404145219
 MonoBehaviour:
@@ -668,6 +673,54 @@ MonoBehaviour:
   holdingItemSprite: {fileID: 7874282980875062518}
   baseScaleMultiplier: 3
   secondaryUseHoldThreshold: 0.35
+--- !u!114 &970863663164456172
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 129472153574247727}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df9d090573591fd4184d1035bb7f6223, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ropePrefab: {fileID: 5176435523434406264, guid: fd8f4fde3c1cf12418a5cbcaa0ac5edf,
+    type: 3}
+  ropeSpawnPosition: {fileID: 7842083597360158186}
+  groundLayerMask:
+    serializedVersion: 2
+    m_Bits: 640
+  minimumSpawnLength: 0.25
+  maxRopeLength: 5
+  groundClearance: 0
+  previewColor: {r: 0, g: 1, b: 0, a: 0.78431374}
+  previewSortingOrderOffset: 100
+--- !u!114 &1493099044295405332
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 129472153574247727}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85ab592c57c35ca41bcefba988eb6f30, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  antigravityRopePrefab: {fileID: 3512863197903922308, guid: b242ed76d08cc3742a0fd54d3106da98,
+    type: 3}
+  ropeSpawnPosition: {fileID: 7842083597360158186}
+  groundLayerMask:
+    serializedVersion: 2
+    m_Bits: 640
+  minimumSpawnLength: 0.25
+  maxRopeLength: 5
+  groundClearance: 0
+  previewColor: {r: 0, g: 1, b: 0, a: 0.78431374}
+  previewSortingOrderOffset: 100
+  togglePreviewKey: 117
+  spawnRopeKey: 105
 --- !u!1 &1217730150107730534
 GameObject:
   m_ObjectHideFlags: 0

@@ -26,6 +26,11 @@ public class PlayerControl : MonoBehaviour
     [SerializeField] private LayerMask oneWayPlatformLayer;   // 单向平台所在层
     [SerializeField] private float dropIgnoreTime = 0.25f;    // 忽略碰撞持续时间
 
+    [Header("Climb details")]
+    public float climbHorizontalSpeed = 2.5f; // 攀爬时的水平移动速度
+    public float climbVerticalSpeed = 2.5f; // 攀爬时的竖直移动速度
+    public float climbInputDeadZone = 0.1f; // 攀爬输入死区
+
 
     public Player player { get; private set; }
     public Animator anim {  get; private set; }
@@ -49,6 +54,7 @@ public class PlayerControl : MonoBehaviour
     public PlayerJumpState jumpState { get; private set; }
     public PlayerFallState fallState { get; private set; }
     public PlayerDropPlatformState dropPlatformState { get; private set; }
+    public PlayerClimbState climbState { get; private set; }
     #endregion
 
 
@@ -67,6 +73,7 @@ public class PlayerControl : MonoBehaviour
         jumpState = new PlayerJumpState(stateMachine, "jumpFall", this);
         fallState = new PlayerFallState(stateMachine, "jumpFall", this);
         dropPlatformState=new PlayerDropPlatformState(stateMachine,"jumpFall",this);
+        climbState = new PlayerClimbState(stateMachine, "climb", this);
         #endregion
     }
 
@@ -77,12 +84,14 @@ public class PlayerControl : MonoBehaviour
 
     private void OnEnable()
     {
+        mainInput.Player.Enable();
         mainInput.Player.Move.performed += OnMovePerformed;
         mainInput.Player.Move.canceled += OnMoveCanceled;
     }
 
     private void OnDisable()
     {
+        mainInput.Player.Disable();
         mainInput.Player.Move.performed -= OnMovePerformed;
         mainInput.Player.Move.canceled -= OnMoveCanceled;
     }
@@ -205,7 +214,20 @@ public class PlayerControl : MonoBehaviour
         }
         return false;
     }
+    public bool CanEnterClimbState()
+    {
+        if (isInRopeArea == false)
+        {
+            return false;
+        }
 
+        if (Mathf.Abs(moveInput.y) <= climbInputDeadZone)
+        {
+            return false;
+        }
+
+        return true;
+    }
     private IEnumerator DropDownRoutine(Collider2D platformCollider)
     {
         isDropping = true;

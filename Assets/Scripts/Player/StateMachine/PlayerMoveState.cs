@@ -11,11 +11,17 @@ public class PlayerMoveState : PlayerGroundedState
     public override void Update()
     {
         base.Update();
+        if (IsCurrentState() == false)
+        {
+            return;
+        }
+
         if (playerControl.moveInput.x == 0 || playerControl.wallDetected)
         // 如果人物无移动输入或接触到墙
         {
             stateMachine.ChangeState(playerControl.idleState);
             // 切换至待机状态
+            //return;
         }
 
         playerControl.SetVelocity(playerControl.moveInput.x * playerControl.moveSpeed, rb.velocity.y);

@@ -20,12 +20,20 @@ public class PlayerFallState : PlayerAiredState
     public override void Update()
     {
         base.Update();
+
+        if (IsCurrentState() == false)
+        {
+            return;
+        }
+
         coyoteTimer += Time.deltaTime;
+
         if (coyoteTimer < coyoteTime)
         {
             if (mainInput.Player.Jump.WasPerformedThisFrame()) // 如果人物按下跳跃键
             {
                 stateMachine.ChangeState(playerControl.jumpState); // 切换至跳跃状态
+                return;
             }
         }
     }

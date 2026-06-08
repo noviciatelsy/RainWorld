@@ -13,6 +13,12 @@ public class PlayerGroundedState : PlayerBaseState
     {
         base.Update();
 
+        if (TryEnterClimbState())
+        // 如果人物处于可攀爬区域，并且有竖直方向输入
+        {
+            return;
+        }
+
         if (mainInput.Player.Jump.WasPerformedThisFrame()) // 如果人物按下跳跃键
         {
             if (playerControl.moveInput.y >= 0)
@@ -27,8 +33,8 @@ public class PlayerGroundedState : PlayerBaseState
                     stateMachine.ChangeState(playerControl.dropPlatformState); // 切换至跳下平台状态
                     return;
                 }
-
             }
+
             return;
         }
 
@@ -40,9 +46,5 @@ public class PlayerGroundedState : PlayerBaseState
 
             return;
         }
-
-      
-
-      
     }
 }

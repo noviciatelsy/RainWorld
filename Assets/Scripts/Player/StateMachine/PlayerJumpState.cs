@@ -26,6 +26,12 @@ public class PlayerJumpState : PlayerAiredState
     public override void Update()
     {
         base.Update();
+
+        if (IsCurrentState() == false)
+        {
+            return;
+        }
+
         if (mainInput.Player.Jump.WasPerformedThisFrame()) // 如果人物按下跳跃键
         {
             playerControl.jumpBufferTimer = Time.time; // 记录跳跃缓存时间

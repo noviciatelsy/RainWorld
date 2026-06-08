@@ -1,0 +1,88 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &8581141632938558972
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 5720089061300941279, guid: fd8f4fde3c1cf12418a5cbcaa0ac5edf,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 68578399a34102947afcc8129a8294ff,
+        type: 3}
+    - target: {fileID: 5910960700751276260, guid: fd8f4fde3c1cf12418a5cbcaa0ac5edf,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5910960700751276260, guid: fd8f4fde3c1cf12418a5cbcaa0ac5edf,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5910960700751276260, guid: fd8f4fde3c1cf12418a5cbcaa0ac5edf,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5910960700751276260, guid: fd8f4fde3c1cf12418a5cbcaa0ac5edf,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5910960700751276260, guid: fd8f4fde3c1cf12418a5cbcaa0ac5edf,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5910960700751276260, guid: fd8f4fde3c1cf12418a5cbcaa0ac5edf,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5910960700751276260, guid: fd8f4fde3c1cf12418a5cbcaa0ac5edf,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5910960700751276260, guid: fd8f4fde3c1cf12418a5cbcaa0ac5edf,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5910960700751276260, guid: fd8f4fde3c1cf12418a5cbcaa0ac5edf,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5910960700751276260, guid: fd8f4fde3c1cf12418a5cbcaa0ac5edf,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6677505640618662009, guid: fd8f4fde3c1cf12418a5cbcaa0ac5edf,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: -419648477, guid: bb128bd8e7ea91a4f8882b5921db7da4,
+        type: 3}
+    - target: {fileID: 6892689935388731607, guid: fd8f4fde3c1cf12418a5cbcaa0ac5edf,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: -589592193, guid: ab32f47d28f7821479a25ff4065e2f83,
+        type: 3}
+    - target: {fileID: 7885001488347445100, guid: fd8f4fde3c1cf12418a5cbcaa0ac5edf,
+        type: 3}
+      propertyPath: m_Name
+      value: AntigravityRope
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: fd8f4fde3c1cf12418a5cbcaa0ac5edf, type: 3}

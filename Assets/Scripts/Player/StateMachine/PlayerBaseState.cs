@@ -43,4 +43,20 @@ public class PlayerBaseState
         anim.SetBool(animBoolName, false);
         // 退出状态时将动画器对应的bool参数设为false
     }
+
+    protected bool IsCurrentState()
+    {
+        return stateMachine.currentState == this;
+    }
+
+    protected bool TryEnterClimbState()
+    {
+        if (playerControl.CanEnterClimbState())
+        {
+            stateMachine.ChangeState(playerControl.climbState);
+            return true;
+        }
+
+        return false;
+    }
 }

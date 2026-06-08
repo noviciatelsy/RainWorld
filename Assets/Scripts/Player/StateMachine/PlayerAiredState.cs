@@ -20,7 +20,15 @@ public class PlayerAiredState : PlayerBaseState
     public override void Update()
     {
         base.Update();
+
+        if (TryEnterClimbState())
+        // 如果人物处于可攀爬区域，并且有竖直方向输入
+        {
+            return;
+        }
+
         groundDetectDelayTimer += Time.deltaTime;
+
         if (playerControl.moveInput.x != 0)
         // 如果有横向移动输入
         {
@@ -32,16 +40,16 @@ public class PlayerAiredState : PlayerBaseState
             playerControl.SetVelocity(0, rb.velocity.y);
             // 获取相应方向横向速度
         }
+
         if (groundDetectDelayTimer > groundDetectDelay)
         {
             if (playerControl.groundDetected)
             // 如果下落至地面
             {
-
                 stateMachine.ChangeState(playerControl.idleState);
                 // 切换至待机状态
+                return;
             }
         }
-
     }
 }

@@ -22,19 +22,26 @@ public class PlayerIdleState : PlayerGroundedState
     public override void Update()
     {
         base.Update();
+        if (IsCurrentState() == false)
+        {
+            return;
+        }
+
+
         if (playerControl.moveInput.x == playerControl.facingDir && playerControl.wallDetected)
         // 如果人物在墙边并尝试朝墙方向移动
         {
             return; // 不响应
         }
+
         playerControl.SetVelocity(0, rb.velocity.y);
+
         if (playerControl.moveInput.x != 0)
         // 如果人物有移动输入
         {
             stateMachine.ChangeState(playerControl.moveState);
             // 切换至移动状态
-            return ;
+            return;
         }
-
     }
 }
