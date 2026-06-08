@@ -19955,7 +19955,7 @@ GameObject:
   - component: {fileID: 1070823392}
   - component: {fileID: 1070823391}
   m_Layer: 0
-  m_Name: BaseSceneInitializer
+  m_Name: BaseSceneManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

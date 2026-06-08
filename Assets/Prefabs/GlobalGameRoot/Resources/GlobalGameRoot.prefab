@@ -932,7 +932,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mainMenuSceneName: MainMenuScene
   gameSceneName: GameScene
-  baseSceneName: Lv_TestScene2
+  baseSceneName: BaseScene
 --- !u!1 &4092636064746298310
 GameObject:
   m_ObjectHideFlags: 0
