@@ -150,6 +150,10 @@ public class GameRunData
     public SerializableDictionary<string, InventorySaveData> inventorySaveDataMap =
         new SerializableDictionary<string, InventorySaveData>();
 
+    public Vector3 playerDiePosition = new Vector3(0,0,0);
+
+    public Vector3 retrieveBackpackSpawnPosition = new Vector3(0,0,0);
+
     public void EnsureDataValid()
     {
         if (unlockedIntelligences == null)
@@ -205,6 +209,16 @@ public class GameRunData
             {
                 pair.Value.EnsureDataValid();
             }
+        }
+
+        if(playerDiePosition == null)
+        {
+            playerDiePosition = new Vector3(0, 0, 0);
+        }
+
+        if(retrieveBackpackSpawnPosition == null)
+        {
+            retrieveBackpackSpawnPosition = new Vector3(0, 0, 0);
         }
     }
 }

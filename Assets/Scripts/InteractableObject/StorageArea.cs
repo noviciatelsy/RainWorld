@@ -10,7 +10,22 @@ public class StorageArea : PlayerSensorTarget
     {
         base.Awake();
         storageInventory = GetComponent<InventoryBase>();
+        storageInventory.LoadData();
     }
+    private void OnEnable()
+    {
+        SaveManager.Instance.OnGameRunDataOverwrite += storageInventory.LoadData;
+    }
+
+    private void OnDisable()
+    {
+        SaveManager.Instance.OnGameRunDataOverwrite -= storageInventory.LoadData;
+    }
+    private void OnDestroy()
+    {
+        storageInventory.SaveData();
+    }
+
     public override void Interact()
     {
         base.Interact();
@@ -19,4 +34,6 @@ public class StorageArea : PlayerSensorTarget
             InGameUI.Instance.ToggleStorageUI(storageInventory);
         }
     }
+
+    
 }

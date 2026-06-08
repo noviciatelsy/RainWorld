@@ -7,6 +7,8 @@ public class PlayerManager : MonoBehaviour
 {
     public static PlayerManager Instance { get; private set; }
 
+    private Vector3 pendingPlayerShowUpPosition= Vector3.zero;
+    private int playerFacingDirection = 0;
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -24,6 +26,16 @@ public class PlayerManager : MonoBehaviour
         {
             return players;
         }
+    }
+
+    private void OnEnable()
+    {
+        OnCurrentPlayerChanged += TranslatePlayer;
+    }
+
+    private void OnDisable()
+    {
+        OnCurrentPlayerChanged -= TranslatePlayer;
     }
 
 
@@ -144,4 +156,24 @@ public class PlayerManager : MonoBehaviour
         return currentPlayer;
     }
 
+    public void SetPendingPlayerShowUpPosition(Vector3 targetPosition,int targetPlayerFacingDirection)
+    {
+        pendingPlayerShowUpPosition = targetPosition;
+        playerFacingDirection = targetPlayerFacingDirection;
+    }
+
+    private void TranslatePlayer(Player player)
+    {
+        if(pendingPlayerShowUpPosition!=Vector3.zero&&player!=null)
+        {
+            player.transform.position = pendingPlayerShowUpPosition;
+            pendingPlayerShowUpPosition=Vector3.zero;
+
+            if(playerFacingDirection==-1)
+            {
+                player.GetComponent<PlayerControl>().Flip();
+            }
+            playerFacingDirection=0;
+        }
+    }
 }

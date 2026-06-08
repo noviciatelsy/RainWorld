@@ -23,6 +23,10 @@ public class WarningPanel_GiveUp : MonoBehaviour
 
     public void ConfirmButton()
     {
-
+        Player player=PlayerManager.Instance.TryGetCurrentPlayer();
+        if (player != null)
+        {
+            player.GetComponent <PlayerVitals>().KillPlayer();
+        }
     }
 }

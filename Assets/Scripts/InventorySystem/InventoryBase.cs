@@ -52,7 +52,6 @@ public class InventoryBase : MonoBehaviour
         SanitizeEmptyItemShells();
     }
 
-
     protected virtual void EnsureSlotListSize()
     {
         if (maxInventorySize < 1)
@@ -838,6 +837,7 @@ public class InventoryBase : MonoBehaviour
 
         InventorySaveData saveData = CreateInventorySaveData();
         runData.inventorySaveDataMap[inventorySaveID] = saveData;
+        SaveManager.Instance.SaveGame();
     }
 
     public virtual void LoadData()

@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 
 public enum SceneType
 {
+    None,
     MainMenu,
     Base,
     Game
@@ -52,8 +53,8 @@ public sealed class SceneSwitchManager : MonoBehaviour
             Debug.LogError($"场景名为空，无法切换到：{sceneType}");
             return;
         }
-
         SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
+
     }
 
 

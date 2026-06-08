@@ -34,10 +34,25 @@ public class HintMessageUI : MonoBehaviour
 
     private bool isLongActive;
     private string longMessage;
+    private Player player;
 
     private void Awake()
     {
         HideAllImmediately();
+    }
+
+    private void Start()
+    {
+        PlayerManager.Instance.OnPlayerRegistered += TrySubscribeToPlayer;
+    }
+
+    private void OnDisable()
+    {
+        if(player != null)
+        {
+            player.GetComponent<PlayerVitals>().PlayerDied-=StopLongTimeMessage;
+        }
+        PlayerManager.Instance.OnPlayerRegistered -= TrySubscribeToPlayer;
     }
 
     // Public API
@@ -393,4 +408,16 @@ public class HintMessageUI : MonoBehaviour
 
         cg.alpha = target;
     }
+
+    private void TrySubscribeToPlayer(Player player)
+    {
+        if(player == null)
+        {
+            return;
+        }
+        this.player=player;
+        player.GetComponent<PlayerVitals>().PlayerDied += StopLongTimeMessage;
+    }
+
+
 }

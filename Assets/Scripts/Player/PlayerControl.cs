@@ -41,7 +41,8 @@ public class PlayerControl : MonoBehaviour
     public float jumpBufferTimer = -999f;
     private float originalGravityScale;
     private Collider2D currentOneWayPlatform;                 // 当前脚下的平台
-    private bool isDropping;                                  
+    private bool isDropping;
+    public bool isInRopeArea {  get; private set; }
     #region State Variables
     public PlayerIdleState idleState { get; private set; }
     public PlayerMoveState moveState { get; private set; }
@@ -222,6 +223,11 @@ public class PlayerControl : MonoBehaviour
         }
 
         isDropping = false;
+    }
+
+    public void SetInRopeArea(bool inRopeArea)
+    {
+        isInRopeArea = inRopeArea;
     }
 
     protected virtual void OnDrawGizmos()

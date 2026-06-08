@@ -411,6 +411,9 @@ public class InventoryGridUI : MonoBehaviour
         float left = rect.xMin + GetPaddingLeft();
         float top = rect.yMax - GetPaddingTop();
 
+   
+
+
         Vector2 rectPixelSize = GetVisualSize(rotatedSize);
 
         int column = Mathf.RoundToInt((localPoint.x - left - rectPixelSize.x * 0.5f) / pitchX);

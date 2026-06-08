@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using TMPro;
 
 public class FadeScreenUI : MonoBehaviour
 {
@@ -16,6 +17,12 @@ public class FadeScreenUI : MonoBehaviour
     [SerializeField] private float roomSwitchFadeOutDuration = 0.2f; // 变黑时间
     [SerializeField] private float roomSwitchFadeInDuration = 0.15f;  // 变亮时间
 
+    [Header("PlayerDeath Fade Settings")]
+    [SerializeField] private TextMeshProUGUI playerDeathText;
+    [SerializeField] private float playerDeathHoldTime = 1f;     // 黑屏停留时间
+    [SerializeField] private float playerDeathFadeOutDuration = 0.5f; // 变黑时间
+    [SerializeField] private float playerDeathFadeInDuration = 0.5f;  // 变亮时间
+
     private Coroutine fadeCoroutine;
 
     public bool IsFading => fadeCoroutine != null;
@@ -27,6 +34,8 @@ public class FadeScreenUI : MonoBehaviour
         // 默认不挡视野
         SetAlpha(0f);
         SetCanvasGroupBlocking(false);
+
+        playerDeathText.gameObject.SetActive(false);
     }
 
     public void PlaySceneSwitchFade(System.Action onBlackReached)
@@ -59,6 +68,21 @@ public class FadeScreenUI : MonoBehaviour
         fadeCoroutine = StartCoroutine(RoomSwitchFadeCo(onBlackReached, onFadeCompleted));
     }
 
+    public void PlayPlayerDeathFade(System.Action onBlackReached)
+    {
+        PlayPlayerDeathFade(onBlackReached, null);    
+    }
+
+    public void PlayPlayerDeathFade(System.Action onBlackReached, System.Action onFadeCompleted)
+    {
+        if (fadeCoroutine != null)
+        {
+            StopCoroutine(fadeCoroutine);
+        }
+
+        fadeCoroutine = StartCoroutine(PlayerDeathFadeCo(onBlackReached, onFadeCompleted));
+    }
+
     private IEnumerator SceneSwitchFadeCo(System.Action onBlackReached, System.Action onFadeCompleted)
     {
         SetCanvasGroupBlocking(true);
@@ -86,6 +110,23 @@ public class FadeScreenUI : MonoBehaviour
         yield return WaitUnscaledSeconds(roomSwitchHoldTime);
 
         yield return FadeRoutine(0f, roomSwitchFadeInDuration);
+
+        SetCanvasGroupBlocking(false);
+
+        fadeCoroutine = null;
+        onFadeCompleted?.Invoke();
+    }
+
+    private IEnumerator PlayerDeathFadeCo(System.Action onBlackReached, System.Action onFadeCompleted)
+    {
+        SetCanvasGroupBlocking(true);
+
+        yield return FadeRoutine(1f, playerDeathFadeOutDuration);
+        onBlackReached?.Invoke();
+        playerDeathText.gameObject.SetActive(true);
+        yield return WaitUnscaledSeconds(playerDeathHoldTime);
+        playerDeathText.gameObject.SetActive(false);
+        yield return FadeRoutine(0f, playerDeathFadeInDuration);
 
         SetCanvasGroupBlocking(false);
 

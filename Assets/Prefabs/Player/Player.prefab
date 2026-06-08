@@ -124,6 +124,7 @@ Transform:
   - {fileID: 2215873389839772225}
   - {fileID: 135645245198764402}
   - {fileID: 7641026868507517884}
+  - {fileID: 7842083597360158186}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!50 &6739359061223012118
@@ -264,7 +265,7 @@ MonoBehaviour:
     m_Bits: 640
   groundCheck: {fileID: 316811649123266590}
   wallCheck: {fileID: 316811649123266590}
-  moveSpeed: 3.5
+  moveSpeed: 3
   jumpForce: 10.5
   inAirMoveMultiplier: 1
   playerCollider: {fileID: 7815576328976498153}
@@ -289,7 +290,7 @@ MonoBehaviour:
   columnCount: 9
   maxInventorySize: 81
   preferTighterPlacement: 1
-  inventorySaveID: 
+  inventorySaveID: playerInventory
   itemSlotList:
   - itemInSlot:
       runtimeSaveID: 
@@ -650,6 +651,8 @@ MonoBehaviour:
   autoIncreaseHunger: 1
   hungerIncreaseInterval: 15
   hungerIncreaseAmount: 1
+  playerBackpackSprite: {fileID: 3019942942140580155, guid: 448f2dbad3de3eb4dbddf9023991c160,
+    type: 3}
 --- !u!114 &808092062085497677
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -755,6 +758,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b154447572b65049928df6b9044bdf1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &3879805355172102763
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7842083597360158186}
+  m_Layer: 6
+  m_Name: RopeSpawnPosition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7842083597360158186
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3879805355172102763}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.5, y: 0.5, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 316811649123266590}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8150497666571950502
 GameObject:
   m_ObjectHideFlags: 0

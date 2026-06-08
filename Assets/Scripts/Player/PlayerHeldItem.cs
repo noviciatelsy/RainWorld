@@ -97,6 +97,10 @@ public class PlayerHeldItem : MonoBehaviour
 
     private void OnUseHoldingItemStarted(InputAction.CallbackContext context)
     {
+        if (GameStateManager.Instance.currentGameState == GameState.Base)
+        {
+            return;
+        }
         isPressingUseHoldingItem = true;
         hasTriggeredSecondaryUseHoldingItem = false;
         useHoldingItemStartTime = Time.unscaledTime;
@@ -104,6 +108,10 @@ public class PlayerHeldItem : MonoBehaviour
 
     private void OnUseHoldingItemCanceled(InputAction.CallbackContext context)
     {
+        if (GameStateManager.Instance.currentGameState == GameState.Base)
+        {
+            return;
+        }
         if (!isPressingUseHoldingItem)
         {
             return;

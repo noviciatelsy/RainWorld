@@ -23,6 +23,10 @@ public class WarningPanel_ReturnToMainMenu : MonoBehaviour
 
     public void ConfirmButton()
     {
-
+        SaveManager.Instance.OverwriteCurrentGameRunData(); // 还原局内存档
+        GlobalUI.Instance.fadeScreenUI.PlaySceneSwitchFade(() =>
+        {
+            SceneSwitchManager.Instance.SwitchToScene(SceneType.MainMenu);
+        });
     }
 }

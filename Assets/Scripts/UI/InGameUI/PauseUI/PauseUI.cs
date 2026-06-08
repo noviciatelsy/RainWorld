@@ -37,14 +37,26 @@ public class PauseUI : MonoBehaviour
 
     public void GiveUpButton()
     {
-        warningPanel_GiveUp.Open();
+        if(GameStateManager.Instance.currentGameState==GameState.Base)
+        {
+            return;
+        }
+        else
+        {
+            warningPanel_GiveUp.Open();
+        }
+
     }
 
     public void ReturnToMainMenuButton()
     {
         if(GameStateManager.Instance.currentGameState==GameState.Base)
         {
-            SceneSwitchManager.Instance.SwitchToScene(SceneType.MainMenu);
+            GlobalUI.Instance.fadeScreenUI.PlaySceneSwitchFade(() =>
+            {
+                SceneSwitchManager.Instance.SwitchToScene(SceneType.MainMenu);
+            });
+
         }
         else
         {

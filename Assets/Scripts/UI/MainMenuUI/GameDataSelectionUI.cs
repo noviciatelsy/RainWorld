@@ -112,10 +112,10 @@ public class GameDataSelectionUI : MonoBehaviour
 
     private void EnterGameScene()
     {
-        GlobalUI.Instance.fadeScreenUI.PlaySceneSwitchFade(() => 
+        GlobalUI.Instance.fadeScreenUI.PlaySceneSwitchFade(() =>
         {
+            PlayerManager.Instance.SetPendingPlayerShowUpPosition(new Vector3(-13, 0.95f, 0),1);
             SceneSwitchManager.Instance.SwitchToScene(SceneType.Base);
         });
-
     }
 }

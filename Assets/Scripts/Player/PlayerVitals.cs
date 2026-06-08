@@ -28,6 +28,9 @@ public class PlayerVitals : MonoBehaviour
     [SerializeField, Min(0)]
     private int hungerIncreaseAmount = 1;
 
+    [Header("死亡设置")]
+    [SerializeField] private SpriteRenderer playerBackpackSprite;
+
 
     public event Action<int> CurrentHealthChanged;
 
@@ -41,6 +44,7 @@ public class PlayerVitals : MonoBehaviour
     private int currentHunger;
     private bool isDead;
     private Coroutine hungerCoroutine;
+    private InventoryPlayer playerInventory;
 
     public int BaseMaxHealth => baseMaxHealth;
 
@@ -51,6 +55,8 @@ public class PlayerVitals : MonoBehaviour
     public int CurrentMaxHealth => Mathf.Max(0, baseMaxHealth - currentHunger);
 
     public bool IsDead => isDead;
+
+    private bool hasStartedAutoIncreaseHunger = false;
 
     public float HealthRate
     {
@@ -79,12 +85,18 @@ public class PlayerVitals : MonoBehaviour
         }
 
         isDead = currentHealth <= 0;
+        playerInventory = GetComponent<InventoryPlayer>();
     }
 
     private void OnEnable()
     {
+
         if (autoIncreaseHunger)
         {
+            if (!hasStartedAutoIncreaseHunger)
+            {
+                return;
+            }
             StartAutoIncreaseHunger();
         }
     }
@@ -99,6 +111,19 @@ public class PlayerVitals : MonoBehaviour
         CurrentHealthChanged?.Invoke(currentHealth);
         HungerChanged?.Invoke(currentHunger);
         MaxHealthChanged?.Invoke(baseMaxHealth);
+        if (autoIncreaseHunger)
+        {
+            hasStartedAutoIncreaseHunger = true;
+            StartAutoIncreaseHunger();
+        }
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.H))
+        {
+            KillPlayer();
+        }
     }
 
     /// <summary>
@@ -108,6 +133,10 @@ public class PlayerVitals : MonoBehaviour
     {
         StopAutoIncreaseHunger();
 
+        if (GameStateManager.Instance.currentGameState == GameState.Base)
+        {
+            return;
+        }
         hungerCoroutine = StartCoroutine(AutoIncreaseHungerCoroutine());
     }
 
@@ -224,26 +253,6 @@ public class PlayerVitals : MonoBehaviour
         ChangeHunger(delta);
     }
 
-    ///// 复活。
-    //public void Revive(int reviveHealth = -1)
-    //{
-    //    if (!isDead)
-    //    {
-    //        return;
-    //    }
-
-    //    isDead = false;
-
-    //    int targetHealth = reviveHealth < 0 ? CurrentMaxHealth : reviveHealth;
-    //    currentHealth = Mathf.Clamp(targetHealth, 1, Mathf.Max(1, CurrentMaxHealth));
-
-    //    CurrentHealthChanged?.Invoke(currentHealth);
-
-    //    if (autoIncreaseHunger)
-    //    {
-    //        StartAutoIncreaseHunger();
-    //    }
-    //}
 
     private void ChangeHunger(int delta)
     {
@@ -279,6 +288,11 @@ public class PlayerVitals : MonoBehaviour
         CheckDeath();
     }
 
+    public void KillPlayer()
+    {
+        ReduceHealth(currentHealth);
+    }
+
     private void CheckDeath()
     {
         if (isDead)
@@ -291,11 +305,30 @@ public class PlayerVitals : MonoBehaviour
             return;
         }
 
+        if (GameStateManager.Instance.currentGameState != GameState.Game)
+        {
+            return;
+        }
+
         isDead = true;
 
-        StopAutoIncreaseHunger();
 
+        StopAutoIncreaseHunger();
+        SaveManager.Instance.GetRunTimeGameData().playerDiePosition = transform.position;
+        playerInventory.SaveCurrentItemsToRetrieveInventoryAndClearSelf(); // 记录遗失物品
+        SaveManager.Instance.SaveGame();
         PlayerDied?.Invoke();
+        DeathEffect();
+    }
+
+    private void DeathEffect()
+    {
+        Instantiate(playerBackpackSprite, transform.position, Quaternion.identity);
+        GlobalUI.Instance.fadeScreenUI.PlayPlayerDeathFade(() =>
+        {
+            SceneSwitchManager.Instance.SwitchToScene(SceneType.Base);
+        });
+        Destroy(gameObject);
     }
 
 }

@@ -45,7 +45,7 @@ public class InGameUI : MonoBehaviour
     private bool hasSubscribedArchiveManager = false;
 
     private MainInput mainInput;
-
+    private InventoryBase retrieveInventory;
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -331,6 +331,7 @@ public class InGameUI : MonoBehaviour
     public void ToggleRetrieveUI(InventoryBase retrieveInventory)
     {
         TryTogglePrimaryPanel(InGamePrimaryPanelType.Retrieve, retrieveInventory);
+        this.retrieveInventory = retrieveInventory;
     }
 
     public void ToggleMapUI()
@@ -756,6 +757,7 @@ public class InGameUI : MonoBehaviour
         else
         {
             retrieveUI.Close();
+            this.retrieveInventory.SaveData();
         }
     }
 

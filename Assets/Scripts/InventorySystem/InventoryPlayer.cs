@@ -55,7 +55,8 @@ public class InventoryPlayer : InventoryBase
 
     private void Start()
     {
-        if(GameStateManager.Instance.currentGameState==GameState.Base)
+        if(GameStateManager.Instance.currentGameState==GameState.Base
+            || GameStateManager.Instance.currentGameState == GameState.Game)
         {
             LoadData();
         }
@@ -63,10 +64,21 @@ public class InventoryPlayer : InventoryBase
 
     private void OnDestroy()
     {
-        if (GameStateManager.Instance.currentGameState == GameState.Base)
+        if (GameStateManager.Instance.currentGameState == GameState.Base
+            || GameStateManager.Instance.currentGameState == GameState.Game)
         {
             SaveData();
         }
+    }
+
+    private void OnEnable()
+    {
+        SaveManager.Instance.OnGameRunDataOverwrite += LoadData;
+    }
+
+    private void OnDisable()
+    {
+        SaveManager.Instance.OnGameRunDataOverwrite -= LoadData;
     }
 
     private void Update()
@@ -758,6 +770,7 @@ public class InventoryPlayer : InventoryBase
         {
             playerSaveData.holdingItemRuntimeID = "";
         }
+        SaveManager.Instance.SaveGame();
     }
 
     public override void LoadData()
@@ -856,7 +869,7 @@ public class InventoryPlayer : InventoryBase
 
         // 只清物品、快捷栏、手持，不清钱
         ClearInventoryItems();
-
+        SaveData();
         SaveManager.Instance.SaveGame();
     }
 }

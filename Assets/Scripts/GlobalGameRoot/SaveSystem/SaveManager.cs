@@ -19,6 +19,8 @@ public class SaveManager : MonoBehaviour
     [SerializeField] private GameRunData currentGameRunData;
     private GameRunData clonedCurrentGameRunData;
 
+    public event Action OnGameRunDataOverwrite;
+
     public int CurrentSelectedSlotIndex
     {
         get
@@ -288,6 +290,7 @@ public class SaveManager : MonoBehaviour
             SaveGame();
         }
 
+        OnGameRunDataOverwrite?.Invoke();
         return true;
     }
 
