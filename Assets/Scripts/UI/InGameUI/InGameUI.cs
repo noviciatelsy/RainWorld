@@ -39,7 +39,7 @@ public class InGameUI : MonoBehaviour
     private InGamePrimaryPanelType currentPrimaryPanel = InGamePrimaryPanelType.None;
     private InGameSecondaryPanelType currentSecondaryPanel = InGameSecondaryPanelType.None;
 
-    // PauseUI ÊÇÌØÊâÃæ°å£¬²»·Å½øÒ»¼¶/¶þ¼¶Ã¶¾ÙÀï
+    // PauseUI ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½å£¬ï¿½ï¿½ï¿½Å½ï¿½Ò»ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½Ã¶ï¿½ï¿½ï¿½ï¿½
     private bool pauseUIEnabled = false;
 
     private bool hasSubscribedArchiveManager = false;
@@ -165,8 +165,8 @@ public class InGameUI : MonoBehaviour
         currentSecondaryPanel = InGameSecondaryPanelType.None;
         pauseUIEnabled = false;
 
-        // PauseUI ÊÇÌØÊâ²ã¡£
-        // Èç¹û³õÊ¼×´Ì¬ PauseUI ¿ª×Å£¬¾ÍÒÔ PauseUI Îª×î¸ßÓÅÏÈ¼¶¡£
+        // PauseUI ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ã¡£
+        // ï¿½ï¿½ï¿½ï¿½ï¿½Ê¼×´Ì¬ PauseUI ï¿½ï¿½ï¿½Å£ï¿½ï¿½ï¿½ï¿½ï¿½ PauseUI Îªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¼ï¿½ï¿½ï¿½
         if (pauseUI != null && pauseUI.gameObject.activeSelf)
         {
             pauseUIEnabled = true;
@@ -276,7 +276,7 @@ public class InGameUI : MonoBehaviour
             return;
         }
 
-        // PauseUI ´ò¿ªÊ±£¬²»ÔÊÐíÒòÎªÇé±¨½âËø×Ô¶¯´ò¿ª±Ê¼Ç±¾¡£
+        // PauseUI ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½é±¨ï¿½ï¿½ï¿½ï¿½ï¿½Ô¶ï¿½ï¿½ò¿ª±Ê¼Ç±ï¿½ï¿½ï¿½
         if (pauseUIEnabled)
         {
             return;
@@ -290,7 +290,7 @@ public class InGameUI : MonoBehaviour
     private void HandleEscape()
     {
 
-        // 1. ÓÅÏÈ´¦Àí¶þ¼¶Ãæ°å
+        // 1. ï¿½ï¿½ï¿½È´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         if (currentSecondaryPanel != InGameSecondaryPanelType.None)
         {
             if (IsCurrentSecondaryPanelBusy())
@@ -302,14 +302,14 @@ public class InGameUI : MonoBehaviour
             return;
         }
 
-        // 2. Æä´Î´¦ÀíÒ»¼¶Ãæ°å
+        // 2. ï¿½ï¿½Î´ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
         if (currentPrimaryPanel != InGamePrimaryPanelType.None)
         {
             CloseCurrentPrimaryPanel();
             return;
         }
 
-        // 3. ×îºó´¦Àí PauseUI
+        // 3. ï¿½ï¿½ï¿½ï¿½ï¿½ PauseUI
         TogglePauseUI();
     }
 
@@ -356,14 +356,14 @@ public class InGameUI : MonoBehaviour
 
     public void TogglePauseUI()
     {
-        // PauseUI ¿ªÆôÊ±£¬ÔÙ´Î Toggle ¾ÍÊÇ¹Ø±Õ×Ô¼º¡£
+        // PauseUI ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½Ù´ï¿½ Toggle ï¿½ï¿½ï¿½Ç¹Ø±ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½
         if (pauseUIEnabled)
         {
             ClosePausePanel();
             return;
         }
 
-        // Ö»ÒªÒ»¼¶»ò¶þ¼¶Ãæ°å»¹¿ª×Å£¬¾Í²»ÔÊÐí´ò¿ª PauseUI¡£
+        // Ö»ÒªÒ»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½å»¹ï¿½ï¿½ï¿½Å£ï¿½ï¿½Í²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ PauseUIï¿½ï¿½
         if (currentPrimaryPanel != InGamePrimaryPanelType.None)
         {
             return;
@@ -384,26 +384,26 @@ public class InGameUI : MonoBehaviour
             return false;
         }
 
-        // PauseUI ¿ªÆôÊ±£¬²»ÔÊÐí¿ªÆôÈÎºÎÒ»¼¶Ãæ°å¡£
+        // PauseUI ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îºï¿½Ò»ï¿½ï¿½ï¿½ï¿½å¡£
         if (pauseUIEnabled)
         {
             return false;
         }
 
-        // ¶þ¼¶Ãæ°å¶ÀÁ¢¿ªÆô£¬»òÕß¸ÇÔÚÒ»¼¶Ãæ°åÉÏ·½Ê±£¬¶¼²»ÔÊÐí¿ªÆô / ÇÐ»»Ò»¼¶Ãæ°å¡£
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß¸ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï·ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ / ï¿½Ð»ï¿½Ò»ï¿½ï¿½ï¿½ï¿½å¡£
         if (currentSecondaryPanel != InGameSecondaryPanelType.None)
         {
             return false;
         }
 
-        // µ±Ç°ÒÑ¾­´ò¿ªµÄ¾ÍÊÇÕâ¸öÒ»¼¶Ãæ°å£¬Ôò±¾´Î Toggle ±íÊ¾¹Ø±ÕËü¡£
+        // ï¿½ï¿½Ç°ï¿½Ñ¾ï¿½ï¿½ò¿ªµÄ¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½å£¬ï¿½ò±¾´ï¿½ Toggle ï¿½ï¿½Ê¾ï¿½Ø±ï¿½ï¿½ï¿½ï¿½ï¿½
         if (currentPrimaryPanel == targetPanel)
         {
             CloseCurrentPrimaryPanel();
             return true;
         }
 
-        // ÒÑ¾­ÓÐÆäËüÒ»¼¶Ãæ°åÊ±£¬À¹½ØÐÂÒ»¼¶Ãæ°å¿ªÆô¡£
+        // ï¿½Ñ¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½å¿ªï¿½ï¿½ï¿½ï¿½
         if (currentPrimaryPanel != InGamePrimaryPanelType.None)
         {
             return false;
@@ -420,7 +420,7 @@ public class InGameUI : MonoBehaviour
             return false;
         }
 
-        // PauseUI ¿ªÆôÊ±£¬²»ÔÊÐí¿ªÆôÈÎºÎ¶þ¼¶Ãæ°å¡£
+        // PauseUI ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÎºÎ¶ï¿½ï¿½ï¿½ï¿½ï¿½å¡£
         if (pauseUIEnabled)
         {
             return false;
@@ -431,14 +431,14 @@ public class InGameUI : MonoBehaviour
             return false;
         }
 
-        // µ±Ç°ÒÑ¾­´ò¿ªµÄ¾ÍÊÇÕâ¸ö¶þ¼¶Ãæ°å£¬Ôò±¾´Î Toggle ±íÊ¾¹Ø±ÕËü¡£
+        // ï¿½ï¿½Ç°ï¿½Ñ¾ï¿½ï¿½ò¿ªµÄ¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½å£¬ï¿½ò±¾´ï¿½ Toggle ï¿½ï¿½Ê¾ï¿½Ø±ï¿½ï¿½ï¿½ï¿½ï¿½
         if (currentSecondaryPanel == targetPanel)
         {
             CloseCurrentSecondaryPanel();
             return true;
         }
 
-        // ÒÑ¾­ÓÐÆäËü¶þ¼¶Ãæ°åÊ±£¬À¹½ØÐÂ¶þ¼¶Ãæ°å¿ªÆô¡£
+        // ï¿½Ñ¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â¶ï¿½ï¿½ï¿½ï¿½ï¿½å¿ªï¿½ï¿½ï¿½ï¿½
         if (currentSecondaryPanel != InGameSecondaryPanelType.None)
         {
             return false;
@@ -539,7 +539,7 @@ public class InGameUI : MonoBehaviour
     {
         currentSecondaryPanel = targetPanel;
 
-        // Èç¹ûµ±Ç°ÓÐÒ»¼¶Ãæ°å£¬ÔòÈÃÏÂ·½Ò»¼¶Ãæ°å¿´µÃ¼ûµ«µã²»µ½¡£
+        // ï¿½ï¿½ï¿½ï¿½ï¿½Ç°ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½å£¬ï¿½ï¿½ï¿½ï¿½ï¿½Â·ï¿½Ò»ï¿½ï¿½ï¿½ï¿½å¿´ï¿½Ã¼ï¿½ï¿½ï¿½ï¿½ã²»ï¿½ï¿½ï¿½ï¿½
         if (currentPrimaryPanel != InGamePrimaryPanelType.None)
         {
             SetPrimaryPanelBlocksRaycasts(currentPrimaryPanel, false);
@@ -578,7 +578,7 @@ public class InGameUI : MonoBehaviour
 
         currentSecondaryPanel = InGameSecondaryPanelType.None;
 
-        // Èç¹ûÏÂ·½»¹ÓÐÒ»¼¶Ãæ°å£¬»Ö¸´ËüµÄµã»÷¡£
+        // ï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½å£¬ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½Äµï¿½ï¿½ï¿½ï¿½
         if (currentPrimaryPanel != InGamePrimaryPanelType.None)
         {
             SetPrimaryPanelBlocksRaycasts(currentPrimaryPanel, true);
@@ -617,14 +617,14 @@ public class InGameUI : MonoBehaviour
             return;
         }
 
-        // Èç¹ûÆäËü¶þ¼¶Ãæ°åÒÑ¾­´ò¿ª£¬À¹½Ø¡£
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¾ï¿½ï¿½ò¿ª£ï¿½ï¿½ï¿½ï¿½Ø¡ï¿½
         if (currentSecondaryPanel != InGameSecondaryPanelType.None
             && currentSecondaryPanel != InGameSecondaryPanelType.NoteBook)
         {
             return;
         }
 
-        // Èç¹û NoteBook ÒÑ¾­´ò¿ª£¬Ö»ÐèÒªÖØÐÂ¶¨Î»µ½ÐÂÔöÌõÄ¿¡£
+        // ï¿½ï¿½ï¿½ NoteBook ï¿½Ñ¾ï¿½ï¿½ò¿ª£ï¿½Ö»ï¿½ï¿½Òªï¿½ï¿½ï¿½Â¶ï¿½Î»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½
         if (currentSecondaryPanel == InGameSecondaryPanelType.NoteBook)
         {
             notebookUI.OpenToUnlockedArchiveEntry(unlockRecord);

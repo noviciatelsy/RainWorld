@@ -15,38 +15,21 @@ public class SurfaceWalkerLegSystem : MonoBehaviour
     }
 
     public SurfaceWalker2D sw;
-    [Tooltip("Prefab 整体（骨骼 + 贴图）；仅改此 Transform 的 localScale")]
     public Transform body;
 
     public Leg[] legs = new Leg[6];
     public float legMoveSpeed = 8f;
 
-    private Vector3 baseBodyScale = Vector3.one;
     private Vector3 lastBodyPos;
     private Vector3 bodyVelocity;
 
-    private void Awake()
+    private void Start()
     {
         if (body == null)
         {
             body = transform;
         }
 
-        baseBodyScale = body.localScale;
-
-        if (Mathf.Abs(baseBodyScale.x) < 0.001f)
-        {
-            baseBodyScale.x = 1f;
-        }
-
-        if (Mathf.Abs(baseBodyScale.y) < 0.001f)
-        {
-            baseBodyScale.y = 1f;
-        }
-    }
-
-    private void Start()
-    {
         Vector3[] offsets =
         {
             new Vector3(-1.0f, -0.35f, 0),
@@ -57,10 +40,12 @@ public class SurfaceWalkerLegSystem : MonoBehaviour
             new Vector3(-0.19f, -0.28f, 0),
         };
 
+        Transform anchor = body != null ? body : transform;
+
         for (int i = 0; i < legs.Length; i++)
         {
             legs[i].restOffset = offsets[i];
-            legs[i].worldPos = body.position + offsets[i];
+            legs[i].worldPos = anchor.position + offsets[i];
         }
     }
 
@@ -71,30 +56,9 @@ public class SurfaceWalkerLegSystem : MonoBehaviour
 
     private void LateUpdate()
     {
-        ApplyBodyScale();
-
-        bodyVelocity = (body.position - lastBodyPos) / Time.deltaTime;
-        lastBodyPos = body.position;
-    }
-
-    /// <summary>
-    /// 贴图默认朝左；顺时针沿 loop 移动时整体 scale *= -1。
-    /// </summary>
-    private void ApplyBodyScale()
-    {
-        if (body == null)
-        {
-            return;
-        }
-        Debug.Log("11");
-        Vector3 scale = baseBodyScale;
-
-        if (sw != null && sw.TravelClockwise)
-        {
-            scale *= -1f;
-        }
-
-        body.localScale = scale;
+        Transform anchor = body != null ? body : transform;
+        bodyVelocity = (anchor.position - lastBodyPos) / Time.deltaTime;
+        lastBodyPos = anchor.position;
     }
 
     private void UpdateLegs()

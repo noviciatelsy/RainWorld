@@ -932,7 +932,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mainMenuSceneName: MainMenuScene
   gameSceneName: GameScene
-  baseSceneName: BaseScene
+  baseSceneName: Lv_TestScene2
 --- !u!1 &4092636064746298310
 GameObject:
   m_ObjectHideFlags: 0
@@ -1182,6 +1182,7 @@ MonoBehaviour:
       keys: []
       values: []
     playerDiePosition: {x: 0, y: 0, z: 0}
+    retrieveBackpackSpawnPosition: {x: 0, y: 0, z: 0}
 --- !u!1 &5194314256015458291
 GameObject:
   m_ObjectHideFlags: 0

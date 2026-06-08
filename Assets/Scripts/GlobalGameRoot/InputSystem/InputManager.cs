@@ -4,7 +4,7 @@ public class InputManager : MonoBehaviour
 {
     public static InputManager Instance { get; private set; }
 
-    // È«ÏîÄ¿¹²ÏíµÄÊäÈëÊµÀı
+    // È«ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½
     public MainInput mainInput { get; private set; }
 
     private void Awake()

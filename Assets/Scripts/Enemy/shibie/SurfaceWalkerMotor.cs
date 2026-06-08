@@ -55,7 +55,6 @@ public class SurfaceWalkerMotor : IMonsterMotor
             activePath = path;
             pathIndex = 0;
             sw.Arrived = false;
-            sw.TravelClockwise = move.clockwise;
         }
 
         if (pathIndex >= path.Count)
@@ -71,14 +70,6 @@ public class SurfaceWalkerMotor : IMonsterMotor
         Vector2 nodeTarget = path[pathIndex];
         sw.CurrentTarget = nodeTarget;
 
-        sw.TravelClockwise = SurfaceCrawlerVisual.ComputeTravelClockwise(
-            mgr,
-            sw.EdgeIndex,
-            sw.Position,
-            nodeTarget,
-            sw.TravelClockwise
-        );
-
         sw.Transform.position = Vector2.MoveTowards(
             sw.Position,
             nodeTarget,
@@ -86,6 +77,7 @@ public class SurfaceWalkerMotor : IMonsterMotor
         );
 
         SurfaceEdgePath.SyncEdgeStateFromPosition(sw, snapPositionToEdge: false);
+        sw.ApplyVisual();
 
         if (Vector2.Distance(sw.Position, nodeTarget) > ArriveThreshold)
         {
@@ -106,6 +98,7 @@ public class SurfaceWalkerMotor : IMonsterMotor
             sw.Transform.position = snapped;
             sw.HasEdge = true;
             SurfaceEdgePath.SyncEdgeStateFromPosition(sw, snapPositionToEdge: false);
+            sw.ApplyVisual();
         }
     }
 }

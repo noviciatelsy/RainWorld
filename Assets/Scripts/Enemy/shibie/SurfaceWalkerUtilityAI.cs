@@ -9,8 +9,13 @@ public struct SurfaceMoveIntent : IIntent
 
 public class SurfaceWalkerUtilityAI : IMonsterAI
 {
+    private readonly SurfaceWalker2D walker;
     private List<Vector2> currentPath;
-    private bool clockwise = true;
+
+    public SurfaceWalkerUtilityAI(SurfaceWalker2D walker)
+    {
+        this.walker = walker;
+    }
 
     public IIntent Evaluate(MonsterBase owner)
     {
@@ -23,12 +28,11 @@ public class SurfaceWalkerUtilityAI : IMonsterAI
 
         if (currentPath == null || currentPath.Count == 0 || owner.Arrived)
         {
-            clockwise = ScoreDirection(owner, mgr);
             currentPath = SurfaceEdgePath.BuildWanderPath(
                 mgr,
                 owner.Position,
                 owner.EdgeIndex,
-                clockwise,
+                walker.travelClockwise,
                 6
             );
             owner.Arrived = false;
@@ -37,22 +41,7 @@ public class SurfaceWalkerUtilityAI : IMonsterAI
         return new SurfaceMoveIntent
         {
             pathVertices = currentPath,
-            clockwise = clockwise
+            clockwise = walker.travelClockwise
         };
-    }
-
-    private bool ScoreDirection(MonsterBase owner, TileMapGuideManager mgr)
-    {
-        float cw = Score(owner, mgr, true);
-        float ccw = Score(owner, mgr, false);
-        return cw >= ccw;
-    }
-
-    private float Score(MonsterBase owner, TileMapGuideManager mgr, bool cw)
-    {
-        int next = mgr.GetNextIndex(owner.EdgeIndex, cw);
-        Edge e = mgr.GetEdge(next);
-        Vector2 mid = (e.a + e.b) * 0.5f;
-        return 1f / (1f + Vector2.Distance(owner.Position, mid));
     }
 }

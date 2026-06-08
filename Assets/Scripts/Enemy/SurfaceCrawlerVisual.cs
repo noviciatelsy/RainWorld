@@ -4,7 +4,7 @@ public enum SurfaceCrawlerVisualStyle
 {
     /// <summary>蜗牛：贴图默认朝上，旋转到边法线。</summary>
     Snail,
-    /// <summary>识别行者：贴图默认朝左，骨骼驱动；顺时针时 scale *= -1。</summary>
+    /// <summary>识别行者：Inspector 设 travelClockwise；只改 rotation.z 与 scale.x。</summary>
     SurfaceWalker
 }
 
@@ -49,7 +49,15 @@ public static class SurfaceCrawlerVisual
     {
         if (style == SurfaceCrawlerVisualStyle.SurfaceWalker)
         {
-            ApplySurfaceWalker(bodyVisual, baseScale, false);
+            ApplySurfaceWalker(
+                bodyVisual,
+                0,
+                currentEdge,
+                baseScale,
+                false,
+                0f,
+                Vector2.zero
+            );
             return;
         }
 
@@ -91,26 +99,79 @@ public static class SurfaceCrawlerVisual
     }
 
     /// <summary>
-    /// 识别行者：骨骼驱动，不改 rotation/position；默认朝左，顺时针时 scale *= -1。
+    /// 只改 localEulerAngles.z 与 localScale.x。
+    /// 旋转仅由当前边几何 + travelClockwise 决定，同一条边上保持不变。
     /// </summary>
-    public static void ApplySurfaceWalker(
-        Transform bodyVisual,
+    public static void ComputeSurfaceWalkerVisual(
+        int edgeIndex,
+        Edge currentEdge,
         Vector3 baseScale,
-        bool travelClockwise)
+        bool travelClockwise,
+        float rotationOffset,
+        Vector2 worldPosition,
+        out float zAngle,
+        out float scaleX)
     {
-        if (bodyVisual == null)
+        TileMapGuideManager mgr = TileMapGuideManager.Instance;
+        Vector2 tangent = ResolveEdgeTravelTangent(mgr, edgeIndex, currentEdge, travelClockwise, worldPosition);
+        zAngle = Vector2.SignedAngle(Vector2.left, tangent) + rotationOffset;
+        scaleX = travelClockwise ? -baseScale.x : baseScale.x;
+    }
+
+    public static void ApplySurfaceWalker(
+        Transform target,
+        int edgeIndex,
+        Edge currentEdge,
+        Vector3 baseScale,
+        bool travelClockwise,
+        float rotationOffset,
+        Vector2 worldPosition)
+    {
+        if (target == null)
         {
             return;
         }
 
-        Vector3 scale = baseScale;
+        ComputeSurfaceWalkerVisual(
+            edgeIndex,
+            currentEdge,
+            baseScale,
+            travelClockwise,
+            rotationOffset,
+            worldPosition,
+            out float z,
+            out float scaleX
+        );
 
-        if (travelClockwise)
+        Vector3 euler = target.localEulerAngles;
+        target.localEulerAngles = new Vector3(euler.x, euler.y, z);
+        target.localScale = new Vector3(scaleX, baseScale.y, baseScale.z);
+    }
+
+    /// <summary>
+    /// 沿 loop 的前进切线；不读移动目标，避免每帧抖动/上下翻转。
+    /// </summary>
+    private static Vector2 ResolveEdgeTravelTangent(
+        TileMapGuideManager mgr,
+        int edgeIndex,
+        Edge edge,
+        bool travelClockwise,
+        Vector2 worldPosition)
+    {
+        if (mgr != null)
         {
-            scale *= -1f;
+            Vector2 onEdge = SurfaceEdgeTraversal.ClosestPointOnSegment(worldPosition, edge.a, edge.b);
+            Vector2 corner = SurfaceEdgePath.GetForwardCorner(mgr, edgeIndex, onEdge, travelClockwise);
+            Vector2 along = corner - onEdge;
+
+            if (along.sqrMagnitude >= MinTravelDeltaSqr)
+            {
+                return along.normalized;
+            }
         }
 
-        bodyVisual.localScale = scale;
+        Vector2 edgeDir = (edge.b - edge.a).normalized;
+        return travelClockwise ? -edgeDir : edgeDir;
     }
 
     /// <summary>
