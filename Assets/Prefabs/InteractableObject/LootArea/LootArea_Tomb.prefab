@@ -79,8 +79,58 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 21300000, guid: 0441bbccdd65f1d44b62a7e5508f5aa7,
         type: 3}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 1010285803866091084, guid: 623049e23bc2f6f478ca8b4371f0be68, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3524002720783377463, guid: 623049e23bc2f6f478ca8b4371f0be68,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8362948260137449388}
   m_SourcePrefab: {fileID: 100100000, guid: 623049e23bc2f6f478ca8b4371f0be68, type: 3}
+--- !u!114 &2777423185341635200 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6330223915987944919, guid: 623049e23bc2f6f478ca8b4371f0be68,
+    type: 3}
+  m_PrefabInstance: {fileID: 8165618448263290711}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9541d86e2fd84c1d9990edf0852d74ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1 &4734936300808944480 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3524002720783377463, guid: 623049e23bc2f6f478ca8b4371f0be68,
+    type: 3}
+  m_PrefabInstance: {fileID: 8165618448263290711}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &8362948260137449388
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4734936300808944480}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 24304904903e22e44aa698bb49825af1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayText: {fileID: 2777423185341635200}
+  itemDataBase: {fileID: 11400000, guid: 67f3a35b1c96a7c459a28b125f595fcc, type: 2}
+  specialItems: {fileID: 11400000, guid: d198ba4aa00bb034fb19ba63871cb4b4, type: 2}
+  minGenerateItemCount: 2
+  maxGenerateItemCount: 4
+  commonWeight: 50
+  rareWeight: 30
+  epicWeight: 15
+  legendaryWeight: 5
+  generateOnAwake: 1
+  cursedTreasureData: {fileID: 11400000, guid: 37e51293344c4b341a2e6b37517d97b8, type: 2}
+  ghostPrefab: {fileID: 6845061922351269542, guid: f16307e7d15eb774cb1eb46c5339017d,
+    type: 3}
+  minGhostSpawnDistance: 5
+  maxGhostSpawnDistance: 9

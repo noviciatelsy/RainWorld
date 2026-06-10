@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d547d2da65a263c4884d1b1907147301, type: 3}
+  m_Name: ItemEffectData_Torch
+  m_EditorClassIdentifier: 
+  effectDescription: "\u624B\u6301\u65F6\u5728\u9ED1\u6697\u7684\u623F\u95F4\u80FD\u591F\u63D0\u4F9B\u5149\u7167\uFF0C\u4E5F\u53EF\u4EE5\u6295\u63B7\u51FA\u53BB\u9A71\u8D76\u6015\u706B\u7684\u602A\u7269"
+  holdingHintMessage: "\u70B9\u51FB\u5DE6\u952E\u6295\u63B7\u706B\u628A\n\u957F\u6309\u5DE6\u952E\u4E22\u5F03\u8BE5\u7269\u54C1"

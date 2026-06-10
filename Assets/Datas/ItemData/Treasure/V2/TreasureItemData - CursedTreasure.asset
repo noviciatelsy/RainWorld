@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 897fa93c7d38228458e3620aba7d0259, type: 3}
+  m_Name: TreasureItemData - CursedTreasure
+  m_EditorClassIdentifier: 
+  saveID: 37e51293344c4b341a2e6b37517d97b8
+  itemDisplayName: "\u5947\u602A\u7684\u5B9D\u7269"
+  itemDescription: "\u4E00\u4E2A\u6563\u53D1\u51FA\u4E0D\u8BE6\u6C14\u606F\u7684\u5B9D\u7269\uFF0C\u4F46\u770B\u4E0A\u53BB\u80FD\u5356\u9AD8\u4EF7\u94B1"
+  itemIcon: {fileID: 21300000, guid: a44397af0092d06488dc64a6fce2d571, type: 3}
+  itemEffectData: {fileID: 11400000, guid: c05fe8b75d025264a89a5450f0c0768c, type: 2}
+  backpackItemData: {fileID: 11400000, guid: ddcb494efd956ed40b435ef08eea3b0e, type: 2}
+  itemType: 3
+  rarity: 2
+  itemBuyPrice: 54
+  itemSellPrice: 27
+  canBuyFromMerchant: 0
+  autoUnlock: 0
+  sellAmountToUnlock: 1

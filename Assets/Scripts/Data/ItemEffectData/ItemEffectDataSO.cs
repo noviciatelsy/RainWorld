@@ -14,7 +14,7 @@ public class ItemEffectDataSO : ScriptableObject
 
     public virtual void Unsubscribe()
     {
-        player = null; // »¹Ô­player
+
     }
 
 

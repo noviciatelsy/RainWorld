@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class PickableObject : MonoBehaviour
 {
@@ -35,6 +37,9 @@ public class PickableObject : MonoBehaviour
 
     [Header("Item Details")]
     [SerializeField] private ItemDataSO itemData;
+
+    public event Action onItemStop;
+    private bool onItemStopHasTriggered;
 
     private void Awake()
     {
@@ -140,6 +145,10 @@ public class PickableObject : MonoBehaviour
 
     private void TryFreezeItem()
     {
+        if(canRotate==false)
+        {
+            return;
+        }
         settleCheckTimer -= Time.fixedDeltaTime;
         if (settleCheckTimer <= 0f)
         {
@@ -158,6 +167,11 @@ public class PickableObject : MonoBehaviour
         yield return new WaitForSeconds(settleExtraDelay);
 
         playerPickableTriggerCollider.enabled = true; // 开启玩家拾取
+        if(!onItemStopHasTriggered)
+        {
+            onItemStop?.Invoke();
+            onItemStopHasTriggered = true;
+        }
     }
 
     private IEnumerator FreezeCo()
@@ -169,7 +183,6 @@ public class PickableObject : MonoBehaviour
         rb.angularVelocity = 0f;
         rb.constraints = RigidbodyConstraints2D.FreezeAll;
         canRotate = false;
-
         StartCoroutine(SettleCo()); // 一小段时间后开启玩家拾取
     }
 
