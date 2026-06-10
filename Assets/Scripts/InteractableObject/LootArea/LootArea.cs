@@ -6,6 +6,9 @@ public class LootArea : PlayerSensorTarget
     [Header("Item Database")]
     [SerializeField] private ItemListDataSO itemDataBase;
 
+    [Header("无法搜刮被搜刮出的特殊物品")]
+    [SerializeField] private ItemListDataSO specialItems;
+
     [Header("Generate Count")]
     [SerializeField] private int minGenerateItemCount = 2;
     [SerializeField] private int maxGenerateItemCount = 4;
@@ -22,7 +25,7 @@ public class LootArea : PlayerSensorTarget
     // 防止之后手动调用生成时重复生成
     private bool hasGeneratedLoot = false;
 
-    private InventoryBase inventory;
+    protected InventoryBase inventory;
 
     protected override void Awake()
     {
@@ -46,7 +49,7 @@ public class LootArea : PlayerSensorTarget
         }
     }
 
-    public void GenerateLoot()
+    public virtual void GenerateLoot()
     {
         if (hasGeneratedLoot)
         {
@@ -60,21 +63,31 @@ public class LootArea : PlayerSensorTarget
 
         if (inventory == null)
         {
-            Debug.LogWarning($"{gameObject.name} 生成可搜刮物品失败：没有 InventoryBase。");
+            Debug.LogWarning(
+                $"{gameObject.name} 生成可搜刽物品失败：没有 InventoryBase。");
+
             return;
         }
 
-        if (itemDataBase == null || itemDataBase.itemList == null || itemDataBase.itemList.Length == 0)
+        if (itemDataBase == null ||
+            itemDataBase.itemList == null ||
+            itemDataBase.itemList.Length == 0)
         {
-            Debug.LogWarning($"{gameObject.name} 生成可搜刮物品失败：itemDataBase 为空或没有物品。");
+            Debug.LogWarning(
+                $"{gameObject.name} 生成可搜刽物品失败：itemDataBase 为空或没有物品。");
+
             return;
         }
 
         minGenerateItemCount = Mathf.Max(0, minGenerateItemCount);
-        maxGenerateItemCount = Mathf.Max(minGenerateItemCount, maxGenerateItemCount);
+        maxGenerateItemCount = Mathf.Max(
+            minGenerateItemCount,
+            maxGenerateItemCount);
 
         // Unity 的 Random.Range(int, int) 上限不包含，所以要 +1
-        int generateCount = Random.Range(minGenerateItemCount, maxGenerateItemCount + 1);
+        int generateCount = Random.Range(
+            minGenerateItemCount,
+            maxGenerateItemCount + 1);
 
         for (int i = 0; i < generateCount; i++)
         {
@@ -82,7 +95,8 @@ public class LootArea : PlayerSensorTarget
 
             if (!success)
             {
-                Debug.Log($"{gameObject.name} 第 {i + 1} 个物品生成失败，可能是没有可用物品或背包空间不足。");
+                Debug.Log(
+                    $"{gameObject.name} 第 {i + 1} 个物品生成失败，可能是没有可用物品或背包空间不足。");
             }
         }
 
@@ -96,6 +110,7 @@ public class LootArea : PlayerSensorTarget
         for (int i = 0; i < maxTryCount; i++)
         {
             ItemRarity targetRarity = GetRandomRarityByWeight();
+
             ItemDataSO itemData = GetRandomItemByRarity(targetRarity);
 
             if (itemData == null)
@@ -183,12 +198,64 @@ public class LootArea : PlayerSensorTarget
             candidates.Add(itemData);
         }
 
-        if (candidates.Count <= 0)
+        /*
+         * 持续随机选择候选物品。
+         *
+         * 如果选中了特殊物品，这次随机结果不作数，
+         * 将其从本轮候选列表中移除，然后重新随机。
+         */
+        while (candidates.Count > 0)
         {
-            return null;
+            int randomIndex = Random.Range(0, candidates.Count);
+            ItemDataSO selectedItem = candidates[randomIndex];
+
+            if (IsSpecialItem(selectedItem))
+            {
+                candidates.RemoveAt(randomIndex);
+                continue;
+            }
+
+            return selectedItem;
         }
 
-        int randomIndex = Random.Range(0, candidates.Count);
-        return candidates[randomIndex];
+        /*
+         * 当前稀有度下没有普通物品，
+         * 或者该稀有度下的物品全部都是特殊物品。
+         */
+        return null;
+    }
+
+    /// <summary>
+    /// 判断指定物品是否存在于特殊物品数据库中。
+    /// </summary>
+    private bool IsSpecialItem(ItemDataSO itemData)
+    {
+        if (itemData == null)
+        {
+            return false;
+        }
+
+        if (specialItems == null ||
+            specialItems.itemList == null ||
+            specialItems.itemList.Length == 0)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < specialItems.itemList.Length; i++)
+        {
+            ItemDataSO specialItem = specialItems.itemList[i];
+
+            /*
+             * ItemDataSO 是 ScriptableObject。
+             * 这里比较的是两个字段是否引用同一个物品资源。
+             */
+            if (specialItem == itemData)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

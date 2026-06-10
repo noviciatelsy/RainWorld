@@ -148,6 +148,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   displayText: {fileID: 6330223915987944919}
   itemDataBase: {fileID: 11400000, guid: 67f3a35b1c96a7c459a28b125f595fcc, type: 2}
+  specialItems: {fileID: 11400000, guid: d198ba4aa00bb034fb19ba63871cb4b4, type: 2}
   minGenerateItemCount: 2
   maxGenerateItemCount: 4
   commonWeight: 50
@@ -170,6 +171,7 @@ MonoBehaviour:
   columnCount: 8
   maxInventorySize: 48
   preferTighterPlacement: 1
+  inventorySaveID: 
   itemSlotList: []
   inventoryItems: []
   itemDataBase: {fileID: 11400000, guid: 67f3a35b1c96a7c459a28b125f595fcc, type: 2}

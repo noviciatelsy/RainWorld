@@ -27,8 +27,8 @@ public class InventoryPlayer : InventoryBase
     [Header("可拾取物品")]
     [SerializeField] private PickableObject pickableObject;
 
-    [Header("测试物品")]
-    [SerializeField] private ItemDataSO[] testItems;
+    [Header("丢弃物品")]
+    [SerializeField] private Transform itemDropPosition;
 
     [Header("遗失物品存档id")]
     [SerializeField] private string retrieveInventorySaveID = "retrieveInventory";
@@ -91,8 +91,8 @@ public class InventoryPlayer : InventoryBase
 
     private void GetRandomItem()
     {
-        int randomIndex = Random.Range(0, testItems.Length);
-        AddItem(testItems[randomIndex]);
+        int randomIndex = Random.Range(0, itemDataBase.itemList.Length);
+        AddItem(itemDataBase.itemList[randomIndex]);
     }
 
     public InventoryItem GetHoldingItem()
@@ -631,16 +631,17 @@ public class InventoryPlayer : InventoryBase
         return changed;
     }
 
-    public void DropItem(ItemDataSO itemToDrop)
+    public GameObject DropItem(ItemDataSO itemToDrop)
     {
         bool facingRight = GetComponent<PlayerControl>().facingDir > 0 ? true : false;
         GameObject itemDropped = Instantiate(
         pickableObject.gameObject,
-        gameObject.transform.position,
+        itemDropPosition.position,
         Quaternion.identity
     );
         itemDropped.GetComponent<PickableObject>()
                    .SetupObject(itemToDrop, facingRight);
+        return itemDropped;
     }
 
     public void AddMoney(int amount)

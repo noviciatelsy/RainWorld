@@ -16,26 +16,7 @@ public class ParallaxBackground : MonoBehaviour
         InitializeLayers();
     }
 
-    //private void Update()
-    //{
-    //    float currentCameraPositionX = mainCamera.transform.position.x; // 获取当前主相机x位置
-    //    float distanceToMove = currentCameraPositionX - lastCameraPositionX; // 需移动距离
-    //    lastCameraPositionX = currentCameraPositionX; // 更新上一帧x位置
-
-    //    float cameraLeftEdge = currentCameraPositionX - cameraHalfWidth; // 相机左边缘位置
-    //    float cameraRightEdge = currentCameraPositionX + cameraHalfWidth; // 相机右边缘位置
-
-    //    foreach (ParallaxLayer layer in backgroundLayers)
-    //    {
-    //        layer.Move(distanceToMove);
-    //        // 移动各层级的背景
-
-    //        layer.LoopBackground(cameraLeftEdge, cameraRightEdge);
-    //        // 当超出相机边界时循环背景图像位置
-    //    }
-    //}
-
-    private void FixedUpdate()
+    private void Update()
     {
         float currentCameraPositionX = mainCamera.transform.position.x; // 获取当前主相机x位置
         float distanceToMove = currentCameraPositionX - lastCameraPositionX; // 需移动距离
@@ -53,6 +34,27 @@ public class ParallaxBackground : MonoBehaviour
             // 当超出相机边界时循环背景图像位置
         }
     }
+
+
+
+    //private void FixedUpdate()
+    //{
+    //    float currentCameraPositionX = mainCamera.transform.position.x; // 获取当前主相机x位置
+    //    float distanceToMove = currentCameraPositionX - lastCameraPositionX; // 需移动距离
+    //    lastCameraPositionX = currentCameraPositionX; // 更新上一帧x位置
+
+    //    float cameraLeftEdge = currentCameraPositionX - cameraHalfWidth; // 相机左边缘位置
+    //    float cameraRightEdge = currentCameraPositionX + cameraHalfWidth; // 相机右边缘位置
+
+    //    foreach (ParallaxLayer layer in backgroundLayers)
+    //    {
+    //        layer.Move(distanceToMove);
+    //        // 移动各层级的背景
+
+    //        layer.LoopBackground(cameraLeftEdge, cameraRightEdge);
+    //        // 当超出相机边界时循环背景图像位置
+    //    }
+    //}
 
     private void InitializeLayers()
     {

@@ -9,9 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a0b88256a34ec44a827df6201901aa7, type: 3}
-  m_Name: ItemDataBase
+  m_Script: {fileID: 11500000, guid: d5cf969bce683e24591f31947322bb7f, type: 3}
+  m_Name: ItemEffectDataSO_NoneEffect
   m_EditorClassIdentifier: 
-  itemList:
-  - {fileID: 11400000, guid: eafd94d2ff48cf5468663c69dd016355, type: 2}
-  - {fileID: 11400000, guid: 37e51293344c4b341a2e6b37517d97b8, type: 2}
+  effectDescription: 
+  holdingHintMessage: "\u957F\u6309\u5DE6\u952E\u4E22\u5F03\u8BE5\u7269\u54C1"
