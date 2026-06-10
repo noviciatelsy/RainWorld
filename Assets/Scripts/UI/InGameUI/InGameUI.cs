@@ -36,6 +36,8 @@ public class InGameUI : MonoBehaviour
     public DialogueUI dialogueUI { get; private set; }
     public ItemToolTip itemToolTip { get; private set; }
 
+    public DarknessMaskController darknessMaskController { get; private set; }
+
     private InGamePrimaryPanelType currentPrimaryPanel = InGamePrimaryPanelType.None;
     private InGameSecondaryPanelType currentSecondaryPanel = InGameSecondaryPanelType.None;
 
@@ -70,6 +72,7 @@ public class InGameUI : MonoBehaviour
         pauseUI = GetComponentInChildren<PauseUI>(true);
         dialogueUI = GetComponentInChildren<DialogueUI>(true);
         itemToolTip = GetComponentInChildren<ItemToolTip>(true);
+        darknessMaskController=GetComponentInChildren<DarknessMaskController>(true);
 
         AutoFillCanvasGroupsIfNeeded();
         InitializePanelStateFromHierarchy();
