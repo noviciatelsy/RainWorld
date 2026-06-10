@@ -735,7 +735,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   radius: 1
-  edgeSoftness: 0.5
+  edgeSoftness: 0.25
   centerOffset: {x: 0, y: 0.45}
   revealEnabled: 1
 --- !u!1 &1217730150107730534

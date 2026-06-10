@@ -30,20 +30,10 @@ public sealed class DarknessMaskController : MonoBehaviour
 
     [Tooltip("场景开始时是否立即启用黑暗遮罩。")]
     [SerializeField]
-    private bool startDarknessActive;
+    private bool startDarknessActive=false;
 
     private Image darknessImage;
     private Material runtimeMaterial;
-
-    /*
-     * 当前玩家正在接触的所有黑暗房间。
-     *
-     * 使用集合而不是简单的 bool，
-     * 可以正确处理相互重叠的房间触发器。
-     */
-    private readonly HashSet<DarkRoomZone>
-        activeDarkRooms =
-            new HashSet<DarkRoomZone>();
 
     /*
      * 固定长度的 Shader 数据数组。
@@ -308,37 +298,6 @@ public sealed class DarknessMaskController : MonoBehaviour
         );
     }
 
-    /// <summary>
-    /// 通知管理器：玩家进入了一个黑暗房间。
-    /// </summary>
-    public void EnterDarkRoom(DarkRoomZone room)
-    {
-        if (room == null)
-        {
-            return;
-        }
-
-        if (activeDarkRooms.Add(room))
-        {
-            RefreshMaskState();
-        }
-    }
-
-    /// <summary>
-    /// 通知管理器：玩家离开了一个黑暗房间。
-    /// </summary>
-    public void ExitDarkRoom(DarkRoomZone room)
-    {
-        if (room == null)
-        {
-            return;
-        }
-
-        if (activeDarkRooms.Remove(room))
-        {
-            RefreshMaskState();
-        }
-    }
 
     /// <summary>
     /// 手动启用或关闭黑暗效果。
@@ -364,8 +323,7 @@ public sealed class DarknessMaskController : MonoBehaviour
         }
 
         darknessImage.enabled =
-            manualDarknessActive ||
-            activeDarkRooms.Count > 0;
+            manualDarknessActive;
     }
 
     private void OnDestroy()

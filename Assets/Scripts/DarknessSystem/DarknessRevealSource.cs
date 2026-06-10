@@ -39,7 +39,7 @@ public sealed class DarknessRevealSource : MonoBehaviour
     [Tooltip("可视区域边缘的柔和宽度，单位为 Unity 世界单位。")]
     [SerializeField]
     [Min(0f)]
-    private float edgeSoftness = 0.5f;
+    private float edgeSoftness = 0.25f;
 
     [Tooltip("可视区域圆心相对于当前物体的本地坐标偏移。")]
     [SerializeField]
@@ -136,6 +136,16 @@ public sealed class DarknessRevealSource : MonoBehaviour
         radius = Mathf.Max(0f, newRadius);
     }
 
+
+    public void AddRadius(float radiusToAdd)
+    {
+        radius += radiusToAdd;
+    }
+
+    public void RemoveRadius(float radiusToRemove)
+    {
+        radius -= radiusToRemove;
+    }
     /// <summary>
     /// 在运行时修改边缘柔和宽度。
     /// </summary>

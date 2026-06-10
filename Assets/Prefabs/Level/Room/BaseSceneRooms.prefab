@@ -270090,6 +270090,11 @@ PrefabInstance:
       propertyPath: m_ColliderPaths.Array.data[0].m_ColliderPaths.Array.data[0].Array.data[3].Y
       value: -90000000
       objectReference: {fileID: 0}
+    - target: {fileID: 4366399694363826961, guid: efb375b2b99f78140a2301857034a97b,
+        type: 3}
+      propertyPath: isDark
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7320228343898618147, guid: efb375b2b99f78140a2301857034a97b,
         type: 3}
       propertyPath: m_Name

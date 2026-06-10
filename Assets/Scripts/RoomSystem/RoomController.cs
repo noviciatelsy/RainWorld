@@ -43,6 +43,7 @@ public class RoomController : MonoBehaviour
         }
 
         SyncRoomContentFromCurrentRunData();
+  
     }
 
     private void OnEnable()

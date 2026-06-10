@@ -10,7 +10,7 @@ using UnityEngine;
 [RequireComponent(typeof(Collider2D))]
 public sealed class DarkRoomZone : MonoBehaviour
 {
-
+    [SerializeField] private bool isDark=false;
 
     private void OnTriggerEnter2D(Collider2D other)
     {
@@ -21,19 +21,14 @@ public sealed class DarkRoomZone : MonoBehaviour
         
         if(InGameUI.Instance.darknessMaskController != null)
         {
-            InGameUI.Instance.darknessMaskController.EnterDarkRoom(this);
-        }
-    }
-
-    private void OnTriggerExit2D(Collider2D other)
-    {
-        if (other.GetComponent<Player>() == null)
-        {
-            return;
-        }
-        if (InGameUI.Instance.darknessMaskController != null)
-        {
-            InGameUI.Instance.darknessMaskController.ExitDarkRoom(this);
+            if(isDark)
+            {
+                InGameUI.Instance.darknessMaskController.SetDarknessActive(true);
+            }
+            else
+            {
+                InGameUI.Instance.darknessMaskController.SetDarknessActive(false);
+            }
         }
     }
 
