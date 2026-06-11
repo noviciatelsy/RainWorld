@@ -47,6 +47,10 @@ public class PlayerControl : MonoBehaviour
     private float originalGravityScale;
     private Collider2D currentOneWayPlatform;                 // 当前脚下的平台
     private bool isDropping;
+
+    public float baseGravityMultiplier { get; private set; } = 1;
+    public float BonusGravityMultiplier { get; private set; } = 1;
+
     public bool isInRopeArea {  get; private set; }
     #region State Variables
     public PlayerIdleState idleState { get; private set; }
@@ -101,7 +105,8 @@ public class PlayerControl : MonoBehaviour
         stateMachine.UpdateActiveState();
         // 调用当前状态对象的update方法（只响应当前状态的操作）
         // 只对当前状态对象的行为监听
-     
+
+        rb.gravityScale = originalGravityScale * baseGravityMultiplier * BonusGravityMultiplier;
     }
 
     private void FixedUpdate()
@@ -179,14 +184,14 @@ public class PlayerControl : MonoBehaviour
         mainInput.Player.Disable();
     }
 
-    public void EnableGravity()
+    public void SetBaseGravityMultiplier(float multiplier)
     {
-        rb.gravityScale = originalGravityScale;
+        baseGravityMultiplier= multiplier;
     }
 
-    public void DisableGravity()
+    public void SetBonusGravityMultiplier(float multiplier)
     {
-        rb.gravityScale = 0;
+        BonusGravityMultiplier= multiplier;
     }
 
     public bool TryDropDown()

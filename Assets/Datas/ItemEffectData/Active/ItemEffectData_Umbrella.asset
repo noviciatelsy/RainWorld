@@ -9,9 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a0b88256a34ec44a827df6201901aa7, type: 3}
-  m_Name: SpecialItems
+  m_Script: {fileID: 11500000, guid: 0e0e654541188d74e8132acdc943521b, type: 3}
+  m_Name: ItemEffectData_Umbrella
   m_EditorClassIdentifier: 
-  itemList:
-  - {fileID: 11400000, guid: 37e51293344c4b341a2e6b37517d97b8, type: 2}
-  - {fileID: 11400000, guid: d28e91883df10b14c8ab0081b5c0211f, type: 2}
+  effectDescription: "\u624B\u6301\u65F6\u53EF\u63D0\u4F9B\u7F13\u964D\u6548\u679C"
+  holdingHintMessage: "\u957F\u6309\u5DE6\u952E\u4E22\u5F03\u8BE5\u7269\u54C1"

@@ -20,14 +20,6 @@ public class PlayerTorchThrower : MonoBehaviour
         playerControl = GetComponentInParent<PlayerControl>();
     }
 
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.L))
-        {
-            TryThrowTorch();
-        }
-    }
-
     /// <summary>
     /// 尝试向指定方向投掷火把。
     /// </summary>

@@ -57,19 +57,6 @@ public class PlayerRopeSpawner : MonoBehaviour
         UpdatePreviewRope();
     }
 
-    private void Update()
-    {
-        // ²âÊÔ°´¼ü
-        if(Input.GetKeyDown(KeyCode.J))
-        {
-            TogglePreview();
-        }
-        if (Input.GetKeyDown(KeyCode.K))
-        {
-            SpawnRope();
-        }
-
-    }
 
     public void SetPreviewEnabled(bool enabled)
     {

@@ -9,9 +9,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a0b88256a34ec44a827df6201901aa7, type: 3}
-  m_Name: SpecialItems
+  m_Script: {fileID: 11500000, guid: d724ef6e8d7fd6d42a480c1e3f054999, type: 3}
+  m_Name: BackpackItemData - T - 3x3
   m_EditorClassIdentifier: 
-  itemList:
-  - {fileID: 11400000, guid: 37e51293344c4b341a2e6b37517d97b8, type: 2}
-  - {fileID: 11400000, guid: d28e91883df10b14c8ab0081b5c0211f, type: 2}
+  imageSize: {x: 3, y: 3}
+  occupationArea:
+  - {x: 2, y: 1}
+  - {x: 2, y: 2}
+  - {x: 1, y: 3}
+  - {x: 2, y: 3}
+  - {x: 3, y: 3}

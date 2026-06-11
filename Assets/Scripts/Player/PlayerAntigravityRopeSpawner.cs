@@ -37,13 +37,6 @@ public class PlayerAntigravityRopeSpawner : MonoBehaviour
     [SerializeField] private int previewSortingOrderOffset = 100;
     // 让预览绳子显示得更靠前一点，避免被场景物体挡住
 
-
-    [SerializeField] private KeyCode togglePreviewKey = KeyCode.U;
-    // 测试用：切换预览
-
-    [SerializeField] private KeyCode spawnRopeKey = KeyCode.I;
-    // 测试用：生成反重力绳子
-
     private Rope previewRope;
     // 用于预览的反重力绳子实例
 
@@ -66,20 +59,6 @@ public class PlayerAntigravityRopeSpawner : MonoBehaviour
         UpdatePreviewRope();
     }
 
-    private void Update()
-    {
-    
-
-        if (Input.GetKeyDown(togglePreviewKey))
-        {
-            TogglePreview();
-        }
-
-        if (Input.GetKeyDown(spawnRopeKey))
-        {
-            SpawnRope();
-        }
-    }
 
     public void SetPreviewEnabled(bool enabled)
     {

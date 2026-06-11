@@ -16,7 +16,7 @@ public class PlayerClimbState : PlayerBaseState
     {
         base.Enter();
 
-        playerControl.DisableGravity();
+        playerControl.SetBaseGravityMultiplier(0);
         // 进入攀爬状态时，不再受到重力影响
 
         playerControl.SetVelocity(0, 0);
@@ -104,7 +104,7 @@ public class PlayerClimbState : PlayerBaseState
         // 离开攀爬状态时必须恢复动画速度
         // 否则之后待机、移动、跳跃动画都会被暂停
 
-        playerControl.EnableGravity();
+        playerControl.SetBaseGravityMultiplier(1);
         // 离开攀爬状态后恢复重力
 
         base.Exit();

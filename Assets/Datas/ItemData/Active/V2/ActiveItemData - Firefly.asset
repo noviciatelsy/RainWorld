@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fdf35bc37bd521d41925e66a18fb75bf, type: 3}
+  m_Name: ActiveItemData - Firefly
+  m_EditorClassIdentifier: 
+  saveID: d28e91883df10b14c8ab0081b5c0211f
+  itemDisplayName: "\u8424\u706B\u866B"
+  itemDescription: "\u6D1E\u7A74\u4E2D\u5E38\u89C1\u7684\u8424\u706B\u866B"
+  itemIcon: {fileID: 21300000, guid: 5d637bc37c00365499586cd93acda1fe, type: 3}
+  itemEffectData: {fileID: 11400000, guid: e15e14791732f784c8e54312f308c23e, type: 2}
+  backpackItemData: {fileID: 11400000, guid: 18236b910c591ca41a1a6b329b359312, type: 2}
+  itemType: 1
+  rarity: 0
+  itemBuyPrice: 2
+  itemSellPrice: 1
+  canBuyFromMerchant: 1
+  autoUnlock: 0
+  sellAmountToUnlock: 3
+  isConsumable: 1
