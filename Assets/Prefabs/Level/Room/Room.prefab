@@ -114,8 +114,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   roomSaveID: 
   saveImmediatelyWhenFirstVisited: 1
-  boxBoundsCollider: {fileID: 4034579767202791195}
-  cameraBoundsCollider: {fileID: 8583618822364186860}
+  cameraBoundsCollider: {fileID: 5094046838095933680}
   switchTriggerCollider: {fileID: 5716387108933479486}
   autoCollectEnemiesInChildren: 1
   roomEnemies: []
@@ -130,8 +129,8 @@ GameObject:
   m_Component:
   - component: {fileID: 7449119117463383157}
   - component: {fileID: 4034579767202791195}
-  - component: {fileID: 4184608365424965381}
-  - component: {fileID: 8583618822364186860}
+  - component: {fileID: 2100492736738577503}
+  - component: {fileID: 5094046838095933680}
   m_Layer: 0
   m_Name: CameraBoundsCollider
   m_TagString: Untagged
@@ -199,7 +198,7 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 16, y: 9}
   m_EdgeRadius: 0
---- !u!50 &4184608365424965381
+--- !u!50 &2100492736738577503
 Rigidbody2D:
   serializedVersion: 4
   m_ObjectHideFlags: 0
@@ -208,7 +207,7 @@ Rigidbody2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5172021405048634452}
   m_BodyType: 2
-  m_Simulated: 1
+  m_Simulated: 0
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
   m_Mass: 1
@@ -226,7 +225,7 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!66 &8583618822364186860
+--- !u!66 &5094046838095933680
 CompositeCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -255,7 +254,7 @@ CompositeCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}

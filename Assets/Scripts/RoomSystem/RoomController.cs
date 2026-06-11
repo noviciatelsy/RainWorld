@@ -10,7 +10,6 @@ public class RoomController : MonoBehaviour
     [SerializeField] private bool saveImmediatelyWhenFirstVisited = true;
 
     [Header("摄像机限制范围")]
-    [SerializeField] private BoxCollider2D boxBoundsCollider;
     [SerializeField] private Collider2D cameraBoundsCollider;
 
     [Header("房间切换判定范围")]
@@ -239,7 +238,7 @@ public class RoomController : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        if (boxBoundsCollider == null)
+        if (cameraBoundsCollider == null)
         {
             return;
         }
@@ -249,7 +248,6 @@ public class RoomController : MonoBehaviour
         // 保存原本的 Gizmos 矩阵，避免影响别的 Gizmos
         Matrix4x4 oldMatrix = Gizmos.matrix;
         Gizmos.matrix = transform.localToWorldMatrix;
-        Gizmos.DrawWireCube(boxBoundsCollider.offset, boxBoundsCollider.size);
         Gizmos.matrix = oldMatrix;
     }
 }
