@@ -26,6 +26,12 @@ public class DemonRevealingMirror : MonoBehaviour
     // 是否一次解除范围内所有拟态怪物
     // 如果为 false，则只解除第一个找到的目标
 
+    [Header("VFX")]
+    [SerializeField] private MirrorRevealCircleVFX revealCircleVFXPrefab;
+    // 照妖镜使用时生成的扩散圆圈特效
+
+    [SerializeField] private bool circleFollowsPlayer = true;
+    // 扩散圆圈播放期间是否跟随玩家
 
     private float nextAllowedUseTime;
 
@@ -49,6 +55,8 @@ public class DemonRevealingMirror : MonoBehaviour
         }
 
         nextAllowedUseTime = Time.time + useCooldown;
+
+        PlayRevealCircleVFX();
 
         RevealMimicryTargets();
 
@@ -163,7 +171,41 @@ public class DemonRevealingMirror : MonoBehaviour
         return transform.position;
     }
 
+    private void PlayRevealCircleVFX()
+    {
+        if (revealCircleVFXPrefab == null)
+        {
+            return;
+        }
 
+        Vector2 centerPosition =
+            GetDetectionCenterPosition();
+
+        MirrorRevealCircleVFX newVFX =
+            Instantiate
+            (
+                revealCircleVFXPrefab,
+                centerPosition,
+                Quaternion.identity
+            );
+
+        if (circleFollowsPlayer && detectionCenter != null)
+        {
+            newVFX.PlayAroundTarget
+            (
+                detectionCenter,
+                revealRadius
+            );
+        }
+        else
+        {
+            newVFX.PlayAtPosition
+            (
+                centerPosition,
+                revealRadius
+            );
+        }
+    }
     private void OnDrawGizmosSelected()
     {
         Vector3 centerPosition;

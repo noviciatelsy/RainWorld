@@ -1404,10 +1404,13 @@ MonoBehaviour:
   mimicMonsterLayerMask:
     serializedVersion: 2
     m_Bits: 256
-  revealRadius: 16
+  revealRadius: 9
   includeInactiveParents: 0
   useCooldown: 1
   canRevealMultipleTargets: 1
+  revealCircleVFXPrefab: {fileID: 1079060960214219344, guid: 6c7e920fd71d8104ebe12bbce5c9de05,
+    type: 3}
+  circleFollowsPlayer: 1
 --- !u!1 &8150497666571950502
 GameObject:
   m_ObjectHideFlags: 0
@@ -1481,7 +1484,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -2120415309
-  m_SortingLayer: -1
+  m_SortingLayer: -2
   m_SortingOrder: 0
   m_Sprite: {fileID: 349988813, guid: 5ecb783e848a4004b8dd3bf636ca678f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -1617,7 +1620,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -2120415309
-  m_SortingLayer: -1
+  m_SortingLayer: -2
   m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: 2b9564e86a6bfe146bcb9ad11e6b4fee, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

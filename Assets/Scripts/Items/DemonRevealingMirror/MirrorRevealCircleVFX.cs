@@ -5,7 +5,7 @@ using UnityEngine;
 public class MirrorRevealCircleVFX : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private SpriteRenderer circleRenderer;
+    private SpriteRenderer circleRenderer;
     // ԲȦ SpriteRenderer
 
 
@@ -43,11 +43,8 @@ public class MirrorRevealCircleVFX : MonoBehaviour
 
     private void Awake()
     {
-        if (circleRenderer == null)
-        {
-            circleRenderer = GetComponent<SpriteRenderer>();
-        }
 
+        circleRenderer = GetComponent<SpriteRenderer>();
         originalColor = circleRenderer.color;
     }
 

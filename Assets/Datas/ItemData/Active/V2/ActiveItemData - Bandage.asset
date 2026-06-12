@@ -14,15 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   saveID: f8e7e67aa5cc6aa42b722f9e844711e4
   itemDisplayName: "\u7EF7\u5E26"
-  itemDescription: "\u7ED3\u5B9E\u7684\u7EF7\u5E26\uFF0C\u53EF\u5904\u7406\u7B80\u5355\u7684\u4F24\u52BF"
+  itemDescription: "\u666E\u901A\u7684\u7EF7\u5E26\uFF0C\u53EF\u5904\u7406\u7B80\u5355\u7684\u4F24\u52BF"
   itemIcon: {fileID: 21300000, guid: d39ee57d3473db24fa25b550feb275f1, type: 3}
-  itemEffectData: {fileID: 0}
+  itemEffectData: {fileID: 11400000, guid: d2850376e66ba07418c8ffc98fb25b8d, type: 2}
   backpackItemData: {fileID: 11400000, guid: 43ae5d4e0e273ce4b998f84bbde81ecc, type: 2}
   itemType: 1
   rarity: 1
   itemBuyPrice: 8
   itemSellPrice: 4
   canBuyFromMerchant: 1
-  autoUnlock: 1
+  autoUnlock: 0
   sellAmountToUnlock: 1
   isConsumable: 1
