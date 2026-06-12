@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e3545ae2a29c37d4ca265944fa1cf840, type: 3}
+  m_Name: ItemEffectData_DemonRevealingMirror
+  m_EditorClassIdentifier: 
+  effectDescription: "\u4F7F\u7528\u65F6\u53EF\u663E\u793A\u63ED\u9732\u5468\u56F4\u654C\u4EBA\u7684\u9690\u85CF"
+  holdingHintMessage: "\u70B9\u51FB\u5DE6\u952E\u4F7F\u7528\u7167\u5996\u955C\n\u957F\u6309\u5DE6\u952E\u4E22\u5F03\u8BE5\u7269\u54C1"

@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93cba8fc30873524abb34e7daca4b766, type: 3}
+  m_Name: ItemEffectData_MinerHelmet
+  m_EditorClassIdentifier: 
+  effectDescription: "\u53EF\u63D0\u4F9B\u5934\u9876\u4FDD\u62A4\uFF0C\u5E76\u63D0\u4F9B\u7167\u660E\u6548\u679C"
+  holdingHintMessage: "\u957F\u6309\u5DE6\u952E\u4E22\u5F03\u8BE5\u7269\u54C1"

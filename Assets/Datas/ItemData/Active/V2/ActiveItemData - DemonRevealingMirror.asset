@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fdf35bc37bd521d41925e66a18fb75bf, type: 3}
+  m_Name: ActiveItemData - DemonRevealingMirror
+  m_EditorClassIdentifier: 
+  saveID: b196accae8170b34dad50d5fcdccdefd
+  itemDisplayName: "\u7167\u5996\u955C"
+  itemDescription: "\u4E00\u9762\u770B\u4F3C\u666E\u901A\u7684\u5C0F\u955C\u5B50\uFF0C\u5F53\u955C\u9762\u53D1\u751F\u53D8\u5316\u65F6\uFF0C\u4F60\u5C31\u8BE5\u5C0F\u5FC3\u4E86"
+  itemIcon: {fileID: 21300000, guid: 9d3b88f179d9c45428aa8f5092ef76c9, type: 3}
+  itemEffectData: {fileID: 11400000, guid: 9d732e8d88ad2a54c8184914a72aa927, type: 2}
+  backpackItemData: {fileID: 11400000, guid: 18236b910c591ca41a1a6b329b359312, type: 2}
+  itemType: 1
+  rarity: 0
+  itemBuyPrice: 2
+  itemSellPrice: 1
+  canBuyFromMerchant: 1
+  autoUnlock: 0
+  sellAmountToUnlock: 1
+  isConsumable: 0
