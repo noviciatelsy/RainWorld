@@ -123,7 +123,7 @@ public class MinerHelmetPassiveEffect : MonoBehaviour
         DarknessRevealSource darknessRevealSource = GetComponentInParent<DarknessRevealSource>();
         if (darknessRevealSource != null)
         {
-            darknessRevealSource.RemoveRadius(2);
+            darknessRevealSource.ReduceRadius(2);
         }
     }
 }

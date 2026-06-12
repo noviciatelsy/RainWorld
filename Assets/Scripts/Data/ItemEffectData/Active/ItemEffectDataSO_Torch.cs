@@ -22,7 +22,7 @@ public class ItemEffectDataSO_Torch : ItemEffectDataSO
         DarknessRevealSource darknessRevealSource = player.GetComponent<DarknessRevealSource>();
         if (darknessRevealSource != null)
         {
-            darknessRevealSource.RemoveRadius(2);
+            darknessRevealSource.ReduceRadius(2);
         }
     }
 

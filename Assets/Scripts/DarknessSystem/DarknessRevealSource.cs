@@ -142,7 +142,7 @@ public sealed class DarknessRevealSource : MonoBehaviour
         radius += radiusToAdd;
     }
 
-    public void RemoveRadius(float radiusToRemove)
+    public void ReduceRadius(float radiusToRemove)
     {
         radius -= radiusToRemove;
     }

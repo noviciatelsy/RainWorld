@@ -15,6 +15,10 @@ public class PlayerVitals : MonoBehaviour
     [SerializeField, Min(0)]
     private int customStartHealth = 100;
 
+    [Header("防御设置")]
+    [SerializeField, Min(0)]
+    private int startDefense = 0;
+
     [Header("饥饿设置")]
     [SerializeField, Min(0)]
     private int startHunger = 0;
@@ -38,12 +42,16 @@ public class PlayerVitals : MonoBehaviour
 
     public event Action<int> HungerChanged;
 
+
     public event Action PlayerDied;
 
     private int currentHealth;
     private int currentHunger;
+    private int currentDefense;
     private bool isDead;
     private Coroutine hungerCoroutine;
+    private Coroutine pauseAutoIncreaseHungerCoroutine;
+    private bool isAutoIncreaseHungerPaused;
     private InventoryPlayer playerInventory;
 
     public int BaseMaxHealth => baseMaxHealth;
@@ -51,6 +59,8 @@ public class PlayerVitals : MonoBehaviour
     public int CurrentHealth => currentHealth;
 
     public int CurrentHunger => currentHunger;
+
+    public int CurrentDefense => currentDefense;
 
     public int CurrentMaxHealth => Mathf.Max(0, baseMaxHealth - currentHunger);
 
@@ -74,6 +84,7 @@ public class PlayerVitals : MonoBehaviour
     private void Awake()
     {
         currentHunger = Mathf.Clamp(startHunger, 0, baseMaxHealth);
+        currentDefense = Mathf.Max(0, startDefense);
 
         if (startWithFullHealth)
         {
@@ -104,6 +115,7 @@ public class PlayerVitals : MonoBehaviour
     private void OnDisable()
     {
         StopAutoIncreaseHunger();
+        StopAutoIncreaseHungerPause();
     }
 
     private void Start()
@@ -111,6 +123,7 @@ public class PlayerVitals : MonoBehaviour
         CurrentHealthChanged?.Invoke(currentHealth);
         HungerChanged?.Invoke(currentHunger);
         MaxHealthChanged?.Invoke(baseMaxHealth);
+
         if (autoIncreaseHunger)
         {
             hasStartedAutoIncreaseHunger = true;
@@ -126,6 +139,108 @@ public class PlayerVitals : MonoBehaviour
         }
     }
 
+    public void TakeDamage(int damageAmount)
+    {
+        if (damageAmount <= 0 || isDead)
+        {
+            return;
+        }
+
+        int actualDamageAmount = Mathf.Max(0, damageAmount - currentDefense);
+
+        ReduceHealth(actualDamageAmount);
+    }
+
+    /// <summary>
+    /// 增加防御力。
+    /// 防御力会减少 TakeDamage 中实际受到的伤害。
+    /// </summary>
+    public void AddDefense(int amount)
+    {
+        if (amount <= 0 || isDead)
+        {
+            return;
+        }
+
+        SetDefense(currentDefense + amount);
+    }
+
+    /// <summary>
+    /// 减少防御力。
+    /// 防御力不会低于 0。
+    /// </summary>
+    public void ReduceDefense(int amount)
+    {
+        if (amount <= 0 || isDead)
+        {
+            return;
+        }
+
+        SetDefense(currentDefense - amount);
+    }
+
+    /// <summary>
+    /// 临时增加防御力。
+    /// 指定时间结束后，会移除本次增加的防御力。
+    /// </summary>
+    public void AddDefenseTemporarily(int amount, float time)
+    {
+        if (amount <= 0 || time <= 0f || isDead)
+        {
+            return;
+        }
+
+        StartCoroutine(AddDefenseTemporarilyCoroutine(amount, time));
+    }
+
+    private IEnumerator AddDefenseTemporarilyCoroutine(int amount, float time)
+    {
+        AddDefense(amount);
+
+        yield return new WaitForSeconds(time);
+
+        ReduceDefense(amount);
+    }
+
+    /// <summary>
+    /// 临时减少防御力。
+    /// 指定时间结束后，会恢复本次实际减少的防御力。
+    /// </summary>
+    public void ReduceDefenseTemporarily(int amount, float time)
+    {
+        if (amount <= 0 || time <= 0f || isDead)
+        {
+            return;
+        }
+
+        StartCoroutine(ReduceDefenseTemporarilyCoroutine(amount, time));
+    }
+
+    private IEnumerator ReduceDefenseTemporarilyCoroutine(int amount, float time)
+    {
+        int defenseBeforeReduce = currentDefense;
+
+        ReduceDefense(amount);
+
+        int actualReducedAmount = defenseBeforeReduce - currentDefense;
+
+        yield return new WaitForSeconds(time);
+
+        AddDefense(actualReducedAmount);
+    }
+
+    /// <summary>
+    /// 直接设置防御力。
+    /// 防御力不会低于 0。
+    /// </summary>
+    public void SetDefense(int value)
+    {
+        int oldDefense = currentDefense;
+
+        currentDefense = Mathf.Max(0, value);
+
+    }
+
     /// <summary>
     /// 开始自动增加饥饿度。
     /// </summary>
@@ -133,11 +248,67 @@ public class PlayerVitals : MonoBehaviour
     {
         StopAutoIncreaseHunger();
 
+        if (isAutoIncreaseHungerPaused)
+        {
+            return;
+        }
+
         if (GameStateManager.Instance.currentGameState == GameState.Base)
         {
             return;
         }
+
         hungerCoroutine = StartCoroutine(AutoIncreaseHungerCoroutine());
+    }
+
+    /// <summary>
+    /// 暂停自动增加饥饿度。
+    /// 在指定秒数结束后，如果条件允许，会继续自动增加饥饿度。
+    /// </summary>
+    public void PauseAutoIncreaseHunger(float pauseTime)
+    {
+        if (pauseTime <= 0f || isDead)
+        {
+            return;
+        }
+
+        if (pauseAutoIncreaseHungerCoroutine != null)
+        {
+            StopCoroutine(pauseAutoIncreaseHungerCoroutine);
+            pauseAutoIncreaseHungerCoroutine = null;
+        }
+
+        pauseAutoIncreaseHungerCoroutine = StartCoroutine(PauseAutoIncreaseHungerCoroutine(pauseTime));
+    }
+
+    private IEnumerator PauseAutoIncreaseHungerCoroutine(float pauseTime)
+    {
+        isAutoIncreaseHungerPaused = true;
+
+        StopAutoIncreaseHunger();
+
+        yield return new WaitForSeconds(pauseTime);
+
+        pauseAutoIncreaseHungerCoroutine = null;
+        isAutoIncreaseHungerPaused = false;
+
+        if (!autoIncreaseHunger || isDead || !isActiveAndEnabled || !hasStartedAutoIncreaseHunger)
+        {
+            yield return null;
+        }
+
+        StartAutoIncreaseHunger();
+    }
+
+    private void StopAutoIncreaseHungerPause()
+    {
+        if (pauseAutoIncreaseHungerCoroutine != null)
+        {
+            StopCoroutine(pauseAutoIncreaseHungerCoroutine);
+            pauseAutoIncreaseHungerCoroutine = null;
+        }
+
+        isAutoIncreaseHungerPaused = false;
     }
 
     /// <summary>
@@ -330,5 +501,6 @@ public class PlayerVitals : MonoBehaviour
         });
         Destroy(gameObject);
     }
+
 
 }

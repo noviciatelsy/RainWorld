@@ -10,18 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fdf35bc37bd521d41925e66a18fb75bf, type: 3}
-  m_Name: ActiveItemData - BigBread
+  m_Name: ActiveItemData - Coffee
   m_EditorClassIdentifier: 
-  saveID: 9105d4426d3ba6d40a49cf7095646ad3
-  itemDisplayName: "\u5927\u9762\u5305"
-  itemDescription: "\u4E00\u5927\u888B\u9762\u5305\uFF0C\u677E\u8F6F\u53C8\u7F8E\u5473"
-  itemIcon: {fileID: 21300000, guid: 604466f70c668a7488fa657aa3aeee97, type: 3}
-  itemEffectData: {fileID: 0}
-  backpackItemData: {fileID: 11400000, guid: b302d6cb59a6d03449fbf7414396d771, type: 2}
+  saveID: 2c2cdb083138f21488eb853f8ef1fbdb
+  itemDisplayName: "\u5496\u5561"
+  itemDescription: "\u63D0\u795E\u9192\u8111\u7684\u996E\u54C1"
+  itemIcon: {fileID: 21300000, guid: e4f8c9b181fc91b4ab2a94c60f2159b3, type: 3}
+  itemEffectData: {fileID: 11400000, guid: e9bd40d47f63e1d428ce9e79b2bee522, type: 2}
+  backpackItemData: {fileID: 11400000, guid: 43ae5d4e0e273ce4b998f84bbde81ecc, type: 2}
   itemType: 1
   rarity: 1
-  itemBuyPrice: 12
-  itemSellPrice: 6
+  itemBuyPrice: 8
+  itemSellPrice: 4
   canBuyFromMerchant: 1
   autoUnlock: 1
   sellAmountToUnlock: 1

@@ -257,6 +257,73 @@ public class PlayerControl : MonoBehaviour
         isInRopeArea = inRopeArea;
     }
 
+    public void AddMoveSpeed(float amountToAdd)
+    {
+        // 防止传入负数导致逻辑反过来
+        if (amountToAdd <= 0f)
+        {
+            return;
+        }
+
+        moveSpeed += amountToAdd;
+    }
+
+    public void ReduceMoveSpeed(float amountToReduce)
+    {
+        // 防止传入负数导致逻辑反过来
+        if (amountToReduce <= 0f)
+        {
+            return;
+        }
+
+        // 防止速度被减成负数
+        moveSpeed = Mathf.Max(0f, moveSpeed - amountToReduce);
+    }
+
+    public void AddMoveSpeedTemporarily(float amountToAdd, float time)
+    {
+        if (amountToAdd <= 0f || time <= 0f)
+        {
+            return;
+        }
+
+        StartCoroutine(AddMoveSpeedTemporarilyCoroutine(amountToAdd, time));
+    }
+
+    private IEnumerator AddMoveSpeedTemporarilyCoroutine(float amountToAdd, float time)
+    {
+        AddMoveSpeed(amountToAdd);
+
+        yield return new WaitForSeconds(time);
+
+        ReduceMoveSpeed(amountToAdd);
+    }
+
+    public void ReduceMoveSpeedTemporarily(float amountToReduce, float time)
+    {
+        if (amountToReduce <= 0f || time <= 0f)
+        {
+            return;
+        }
+
+        StartCoroutine(ReduceMoveSpeedTemporarilyCoroutine(amountToReduce, time));
+    }
+
+    private IEnumerator ReduceMoveSpeedTemporarilyCoroutine(float amountToReduce, float time)
+    {
+        float speedBeforeReduce = moveSpeed;
+
+        ReduceMoveSpeed(amountToReduce);
+
+        // 实际减少了多少，就只恢复多少
+        // 比如当前速度是 3，但要减少 10，实际只能减少 3
+        float actualReducedAmount = speedBeforeReduce - moveSpeed;
+
+        yield return new WaitForSeconds(time);
+
+        AddMoveSpeed(actualReducedAmount);
+    }
+
     protected virtual void OnDrawGizmos()
     {
         Gizmos.DrawLine(groundCheck.position, groundCheck.position + new Vector3(0, -groundCheckDistance));
