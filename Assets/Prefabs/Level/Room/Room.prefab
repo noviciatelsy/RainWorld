@@ -115,6 +115,7 @@ MonoBehaviour:
   roomSaveID: 
   saveImmediatelyWhenFirstVisited: 1
   cameraBoundsCollider: {fileID: 5094046838095933680}
+  roomBoundsCollider: {fileID: 4034579767202791195}
   switchTriggerCollider: {fileID: 5716387108933479486}
   autoCollectEnemiesInChildren: 1
   roomEnemies: []

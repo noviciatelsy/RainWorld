@@ -11,6 +11,7 @@ public class RoomController : MonoBehaviour
 
     [Header("摄像机限制范围")]
     [SerializeField] private Collider2D cameraBoundsCollider;
+    [SerializeField] private BoxCollider2D roomBoundsCollider;
 
     [Header("房间切换判定范围")]
     [SerializeField] private BoxCollider2D switchTriggerCollider;
@@ -238,16 +239,28 @@ public class RoomController : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        if (cameraBoundsCollider == null)
+        DrawBoxColliderGizmo(roomBoundsCollider, Color.blue);
+        DrawBoxColliderGizmo(switchTriggerCollider, Color.green);
+    }
+
+    private void DrawBoxColliderGizmo(BoxCollider2D targetCollider, Color color)
+    {
+        if (targetCollider == null)
         {
             return;
         }
 
-        Gizmos.color = Color.blue;
+        Gizmos.color = color;
 
         // 保存原本的 Gizmos 矩阵，避免影响别的 Gizmos
         Matrix4x4 oldMatrix = Gizmos.matrix;
-        Gizmos.matrix = transform.localToWorldMatrix;
+
+        // 使用 Collider 自己的 Transform，避免 Collider 在子物体上时画错位置
+        Gizmos.matrix = targetCollider.transform.localToWorldMatrix;
+
+        // BoxCollider2D 的 offset 和 size 都是本地空间数据
+        Gizmos.DrawWireCube(targetCollider.offset, targetCollider.size);
+
         Gizmos.matrix = oldMatrix;
     }
 }
