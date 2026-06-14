@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bab0001acb5caeb4fba1676653109571, type: 3}
+  m_Name: ItemEffectData_TeleportScroll
+  m_EditorClassIdentifier: 
+  effectDescription: "\u53EF\u4EE5\u77AC\u95F4\u4F20\u9001\u56DE\u57FA\u5730\uFF0C\u4F46\u662F\u4F1A\u968F\u673A\u4E22\u5931\u4E00\u6837\u7269\u54C1"
+  holdingHintMessage: "\u70B9\u51FB\u5DE6\u952E\u4F7F\u7528\u56DE\u57CE\u5377\u8F74\n\u957F\u6309\u5DE6\u952E\u4E22\u5F03\u8BE5\u7269\u54C1"
+  targetPosition: {x: 0, y: 0.95, z: 0}

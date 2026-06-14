@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f388cc5c2ab3cbc49976e88c9fac4ab0, type: 3}
+  m_Name: PassiveItemData - Helmet
+  m_EditorClassIdentifier: 
+  saveID: 9cd0247a6d17a694da14eda1f72f92f3
+  itemDisplayName: "\u5934\u76D4"
+  itemDescription: "\u4EFF\u4F5B\u80FD\u770B\u5230\u5B83\u7684\u5408\u6210\u8868"
+  itemIcon: {fileID: 21300000, guid: 9d4b5e530ad84234a939ec1767e83df2, type: 3}
+  itemEffectData: {fileID: 11400000, guid: d89d73449df30c1499bc99c9abeb77ba, type: 2}
+  backpackItemData: {fileID: 11400000, guid: a2e05ac93f6ede34a86a46b92f0f69f8, type: 2}
+  itemType: 0
+  rarity: 1
+  itemBuyPrice: 10
+  itemSellPrice: 5
+  canBuyFromMerchant: 1
+  autoUnlock: 0
+  sellAmountToUnlock: 1

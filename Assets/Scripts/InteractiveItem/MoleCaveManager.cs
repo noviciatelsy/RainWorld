@@ -9,19 +9,52 @@ public class MoleCaveManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
+            return;
         }
+
+        Instance = this;
+        RefreshAllCaves();
+    }
+
+    /// <summary>
+    /// É¨ï¿½è³¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¶ï¿½Ñ¨ï¿½ï¿½×¢ï¿½á£¨ï¿½ï¿½ï¿½ï¿½ Awake Ë³ï¿½ï¿½ï¿½ï¿½Â©×¢ï¿½á£©ï¿½ï¿½
+    /// </summary>
+    public void RefreshAllCaves()
+    {
+        allCaves.Clear();
+
+        MoleCave[] caves = Object.FindObjectsOfType<MoleCave>(true);
+
+        for (int i = 0; i < caves.Length; i++)
+        {
+            RegisterCave(caves[i]);
+        }
+    }
+
+    public static bool CaveHasConnections(MoleCave cave)
+    {
+        if (cave == null || cave.connectedCaves == null)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < cave.connectedCaves.Count; i++)
+        {
+            if (cave.connectedCaves[i] != null)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public void RegisterCave(MoleCave cave)
     {
-        if (!allCaves.Contains(cave))
+        if (cave != null && !allCaves.Contains(cave))
         {
             allCaves.Add(cave);
         }
@@ -29,17 +62,15 @@ public class MoleCaveManager : MonoBehaviour
 
     public void UnregisterCave(MoleCave cave)
     {
-        if (allCaves.Contains(cave))
+        if (cave != null && allCaves.Contains(cave))
         {
             allCaves.Remove(cave);
         }
     }
 
     /// <summary>
-    /// Ñ°ÕÒ¾àÀëÖ¸¶¨Î»ÖÃ×î½ü£¬ÇÒÔÚÍ¼½á¹¹ÖÐÓµÓÐÖÁÉÙÒ»¸öÁ¬Í¨³ö¿ÚµÄÓÐÐ§¶´Ñ¨
+    /// Ñ°ï¿½Ò¾ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¼ï¿½á¹¹ï¿½ï¿½Óµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½Í¨ï¿½ï¿½ï¿½Úµï¿½ï¿½ï¿½Ð§ï¿½ï¿½Ñ¨ï¿½ï¿½
     /// </summary>
-    /// <param name="searchPos">÷úÊóµ±Ç°µÄÎ»ÖÃ</param>
-    /// <returns>ÕÒµ½µÄÓÐÐ§¶´Ñ¨£¬ÈôÎÞÔò·µ»Ø null</returns>
     public MoleCave FindClosestValidCave(Vector2 searchPos)
     {
         MoleCave bestCave = null;
@@ -49,11 +80,13 @@ public class MoleCaveManager : MonoBehaviour
         {
             MoleCave cave = allCaves[i];
 
-            // ²¹³ä2ºËÐÄ£º±ØÐë±£Ö¤Õâ¸ö cave ÓµÓÐ¿Éµ½´ïµÄÁ¬Í¨¹ØÏµ£¬·ñÔòÌø¹ý
-            if (cave.connectedCaves == null || cave.connectedCaves.Count == 0)
+            if (!CaveHasConnections(cave))
+            {
                 continue;
+            }
 
             float dist = Vector2.Distance(searchPos, cave.Position);
+
             if (dist < minDistance)
             {
                 minDistance = dist;
@@ -65,17 +98,44 @@ public class MoleCaveManager : MonoBehaviour
     }
 
     /// <summary>
-    /// »ñÈ¡ÓëÖ¸¶¨¶´Ñ¨ÏàÁ¬Í¨µÄËùÓÐÄ¿±ê¶´Ñ¨ÁÐ±í£¨Í¼µÄÁÚ½Ó½Úµã²éÑ¯£©
+    /// ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½Í¨ï¿½ï¿½Ïµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú³ï¿½ï¿½ï¿½ï¿½ã¶µï¿½×¡ï¿½
     /// </summary>
+    public MoleCave FindClosestCave(Vector2 searchPos)
+    {
+        MoleCave bestCave = null;
+        float minDistance = float.MaxValue;
+
+        for (int i = 0; i < allCaves.Count; i++)
+        {
+            MoleCave cave = allCaves[i];
+
+            if (cave == null)
+            {
+                continue;
+            }
+
+            float dist = Vector2.Distance(searchPos, cave.Position);
+
+            if (dist < minDistance)
+            {
+                minDistance = dist;
+                bestCave = cave;
+            }
+        }
+
+        return bestCave;
+    }
+
     public List<MoleCave> GetLinkedCaves(MoleCave srcCave)
     {
-        if (srcCave == null) return null;
+        if (srcCave == null)
+        {
+            return null;
+        }
+
         return srcCave.connectedCaves;
     }
 
-    /// <summary>
-    /// ¹©Íâ²¿¶¯Ì¬¹¹½¨ÎÞÏòÍ¼±ßµÄ API
-    /// </summary>
     public void ConnectTwoCaves(MoleCave a, MoleCave b)
     {
         if (a != null && b != null)

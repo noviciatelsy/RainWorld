@@ -26,3 +26,4 @@ MonoBehaviour:
   autoUnlock: 0
   sellAmountToUnlock: 1
   isConsumable: 1
+  isMushroom: 1

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d724ef6e8d7fd6d42a480c1e3f054999, type: 3}
   m_Name: BackpackItemData - Square - 2x1
   m_EditorClassIdentifier: 
-  pixelAmount: 80
-  imageSize: {x: 1, y: 1}
+  imageSize: {x: 2, y: 1}
   occupationArea:
   - {x: 1, y: 1}
+  - {x: 2, y: 1}

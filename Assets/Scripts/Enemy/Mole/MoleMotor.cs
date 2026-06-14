@@ -10,6 +10,14 @@ public class MoleMotor : IMonsterMotor
 
     private float internalTeleportTimer = 0f;
 
+    private int activeSegmentIndex = -1;
+    private Vector2 segmentStartPos;
+    private float segmentProgress;
+
+    private const float JumpArcHeight = 0.32f;
+    private const float JumpMinHeightDelta = 0.04f;
+    private const float ArriveThreshold = 0.08f;
+
     public MoleMotor(Mole2D mole)
     {
         this.mole = mole;
@@ -32,7 +40,7 @@ public class MoleMotor : IMonsterMotor
 
         if (intent is MoleIdleIntent idleIntent)
         {
-            // 改造点：把意图里的标记传进去
+            // ???????????????????
             ExecuteStrictIdle(idleIntent.strictPath, idleIntent.isTeleportCleanup);
             return;
         }
@@ -57,13 +65,14 @@ public class MoleMotor : IMonsterMotor
             edgePath = aiStrictPath;
             pathIndex = 0;
             mole.Arrived = false;
+            ResetSegmentTracking();
         }
 
-        // 改造点：如果是保底空路径或到站判定
+        // ?????????????????????????
         if (edgePath == null || edgePath.Count == 0)
         {
             mole.Arrived = true;
-            // 【核心修复】如果是传送清理期间的单点，绝对不增加 arrivalCount 避免突变！
+            // ??????????????????????????????????????? arrivalCount ???????
             if (!isTeleportCleanup)
             {
                 mole.idleArrivalCount++;
@@ -88,6 +97,7 @@ public class MoleMotor : IMonsterMotor
             edgePath = GeneratePathToCave(targetCave.Position);
             pathIndex = 0;
             mole.CurrentTarget = targetCave.Position;
+            ResetSegmentTracking();
         }
 
         if (edgePath != null && edgePath.Count > 0 && pathIndex < edgePath.Count)
@@ -107,7 +117,7 @@ public class MoleMotor : IMonsterMotor
                     mole.Transform.position = exitCave.Position;
 
                     mole.currentHomeCave = exitCave;
-                    mole.idleArrivalCount = 0; // 物理层切断归零
+                    mole.idleArrivalCount = 0; // ?????????????
 
                     lastTargetCave = exitCave;
                     edgePath = null;
@@ -118,35 +128,81 @@ public class MoleMotor : IMonsterMotor
         }
     }
 
+    private void ResetSegmentTracking()
+    {
+        activeSegmentIndex = -1;
+        segmentProgress = 0f;
+    }
+
     private void DriveMovement(bool isGoingToCave, bool isTeleportCleanup)
     {
-        if (edgePath == null || pathIndex >= edgePath.Count) return;
+        if (edgePath == null || pathIndex >= edgePath.Count)
+        {
+            return;
+        }
 
         Vector2 nodeTarget = edgePath[pathIndex];
         mole.CurrentTarget = nodeTarget;
 
-        mole.Transform.position = Vector2.MoveTowards(
-            mole.Transform.position,
-            nodeTarget,
-            mole.moveSpeed * Time.fixedDeltaTime
-        );
+        BeginSegmentIfNeeded(nodeTarget);
 
-        if (Vector2.Distance(mole.Position, nodeTarget) < 0.08f)
+        float segmentLength = Vector2.Distance(segmentStartPos, nodeTarget);
+
+        if (segmentLength < 0.0001f)
         {
-            pathIndex++;
+            AdvancePathSegment(isGoingToCave, isTeleportCleanup);
+            return;
+        }
 
-            if (pathIndex >= edgePath.Count)
+        float step = mole.moveSpeed * Time.fixedDeltaTime;
+        segmentProgress = Mathf.Min(1f, segmentProgress + step / segmentLength);
+
+        Vector2 basePos = Vector2.Lerp(segmentStartPos, nodeTarget, segmentProgress);
+        float heightDelta = nodeTarget.y - segmentStartPos.y;
+        float jumpArc = 0f;
+
+        if (Mathf.Abs(heightDelta) >= JumpMinHeightDelta)
+        {
+            jumpArc = JumpArcHeight * 4f * segmentProgress * (1f - segmentProgress);
+        }
+
+        Vector3 pos = mole.Transform.position;
+        mole.Transform.position = new Vector3(basePos.x, basePos.y + jumpArc, pos.z);
+
+        if (segmentProgress >= 1f || Vector2.Distance(mole.Position, nodeTarget) < ArriveThreshold)
+        {
+            AdvancePathSegment(isGoingToCave, isTeleportCleanup);
+        }
+    }
+
+    private void BeginSegmentIfNeeded(Vector2 nodeTarget)
+    {
+        if (activeSegmentIndex == pathIndex)
+        {
+            return;
+        }
+
+        activeSegmentIndex = pathIndex;
+        segmentProgress = 0f;
+        segmentStartPos = pathIndex > 0 ? edgePath[pathIndex - 1] : mole.Position;
+    }
+
+    private void AdvancePathSegment(bool isGoingToCave, bool isTeleportCleanup)
+    {
+        pathIndex++;
+        activeSegmentIndex = -1;
+
+        if (pathIndex >= edgePath.Count)
+        {
+            edgePath = null;
+
+            if (!isGoingToCave)
             {
-                edgePath = null;
+                mole.Arrived = true;
 
-                if (!isGoingToCave)
+                if (!isTeleportCleanup)
                 {
-                    mole.Arrived = true;
-                    // 【核心修复】同样，在这里也增加拦截，防止走完单步点时突变
-                    if (!isTeleportCleanup)
-                    {
-                        mole.idleArrivalCount++;
-                    }
+                    mole.idleArrivalCount++;
                 }
             }
         }

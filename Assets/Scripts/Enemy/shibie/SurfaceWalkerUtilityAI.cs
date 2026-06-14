@@ -30,7 +30,7 @@ public class SurfaceWalkerUtilityAI : IMonsterAI
         {
             currentPath = SurfaceEdgePath.BuildWanderPath(
                 mgr,
-                owner.Position,
+                walker.GetOnEdgeWorldPosition(),
                 owner.EdgeIndex,
                 walker.travelClockwise,
                 6

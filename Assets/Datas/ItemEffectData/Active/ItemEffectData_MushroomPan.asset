@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36d29b97bf8dad647bfc298f82e98d38, type: 3}
   m_Name: ItemEffectData_MushroomPan
   m_EditorClassIdentifier: 
-  effectDescription: 
-  holdingHintMessage: "\u957F\u6309\u5DE6\u952E\u4E22\u5F03\u8BE5\u7269\u54C1"
+  effectDescription: "\u80FD\u591F\u5C06\u80CC\u5305\u4E2D\u6240\u6709\u7684\u8611\u83C7\u70E4\u719F"
+  holdingHintMessage: "\u70B9\u51FB\u5DE6\u952E\u70E4\u5236\u8611\u83C7\n\u957F\u6309\u5DE6\u952E\u4E22\u5F03\u8BE5\u7269\u54C1"

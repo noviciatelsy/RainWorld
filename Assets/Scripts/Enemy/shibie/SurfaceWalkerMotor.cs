@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 与 MoleMotor 相同：AI 提供路点列表，逐点 MoveTowards；路点来自同一 loop 外轮廓拐角。
+/// AI 提供 loop 拐角路点；沿当前边爬行，到顶点显式切边，避免拐角 Sync 切错边。
 /// </summary>
 public class SurfaceWalkerMotor : IMonsterMotor
 {
@@ -64,22 +64,57 @@ public class SurfaceWalkerMotor : IMonsterMotor
             sw.Arrived = true;
             sw.HasEdge = true;
             SurfaceEdgePath.SyncEdgeStateFromPosition(sw);
+            sw.ApplyRootNormalOffset();
             return;
         }
 
         Vector2 nodeTarget = path[pathIndex];
         sw.CurrentTarget = nodeTarget;
 
-        sw.Transform.position = Vector2.MoveTowards(
-            sw.Position,
+        bool clockwise = sw.travelClockwise;
+        Vector2 onEdge = sw.GetOnEdgeWorldPosition();
+        Edge edge = sw.CurrentEdge;
+        Vector2 forwardCorner = SurfaceEdgePath.GetForwardCorner(mgr, sw.EdgeIndex, onEdge, clockwise);
+        Vector2 stepTarget = nodeTarget;
+
+        Vector2 nodeOnCurrentEdge = SurfaceEdgeTraversal.ClosestPointOnSegment(
             nodeTarget,
-            sw.moveSpeed * Time.fixedDeltaTime
+            edge.a,
+            edge.b
         );
 
-        SurfaceEdgePath.SyncEdgeStateFromPosition(sw, snapPositionToEdge: false);
+        if (!SurfaceEdgePath.SameVertex(nodeOnCurrentEdge, nodeTarget)
+            && Vector2.Distance(onEdge, forwardCorner) > ArriveThreshold)
+        {
+            stepTarget = forwardCorner;
+        }
+
+        float step = sw.moveSpeed * Time.fixedDeltaTime;
+        Vector2 newOnEdge = Vector2.MoveTowards(onEdge, stepTarget, step);
+        newOnEdge = SurfaceEdgeTraversal.ClosestPointOnSegment(newOnEdge, edge.a, edge.b);
+
+        sw.transform.position = newOnEdge;
+
+        if (Vector2.Distance(newOnEdge, forwardCorner) <= ArriveThreshold)
+        {
+            newOnEdge = forwardCorner;
+            sw.transform.position = newOnEdge;
+
+            Vector2 nextTarget = forwardCorner;
+            SurfaceEdgeTraversal.AdvanceToNextEdge(
+                mgr,
+                ref sw.EdgeIndex,
+                ref sw.CurrentEdge,
+                ref nextTarget,
+                forwardCorner,
+                clockwise
+            );
+        }
+
+        sw.ApplyRootNormalOffset();
         sw.ApplyVisual();
 
-        if (Vector2.Distance(sw.Position, nodeTarget) > ArriveThreshold)
+        if (Vector2.Distance(newOnEdge, nodeTarget) > ArriveThreshold)
         {
             return;
         }
@@ -91,13 +126,14 @@ public class SurfaceWalkerMotor : IMonsterMotor
     {
         sw.Transform.position += Vector3.down * sw.fallSpeed * Time.fixedDeltaTime;
 
-        if (SurfaceEdgePath.TrySnapToNearestEdge(mgr, sw.Position, out int edgeIndex, out Edge edge, out Vector2 snapped))
+        if (SurfaceEdgePath.TrySnapToNearestEdge(mgr, sw.GetOnEdgeWorldPosition(), out int edgeIndex, out Edge edge, out Vector2 snapped))
         {
             sw.EdgeIndex = edgeIndex;
             sw.CurrentEdge = edge;
-            sw.Transform.position = snapped;
+            sw.transform.position = snapped;
             sw.HasEdge = true;
             SurfaceEdgePath.SyncEdgeStateFromPosition(sw, snapPositionToEdge: false);
+            sw.ApplyRootNormalOffset();
             sw.ApplyVisual();
         }
     }

@@ -86,4 +86,185 @@ public static class SurfaceEdgeTraversal
     {
         return DistanceToSegment(position, edge.a, edge.b) <= maxDistance;
     }
+
+    public struct LoopFootState
+    {
+        public int edgeIndex;
+        public Vector2 point;
+    }
+
+    public static LoopFootState ResolveFootOnLoop(
+        TileMapGuideManager mgr,
+        int loopId,
+        int previousEdgeIndex,
+        Vector2 worldPoint,
+        float stickThreshold = 0.35f)
+    {
+        Edge previous = mgr.GetEdge(previousEdgeIndex);
+
+        if (previous.loopId == loopId)
+        {
+            float distPrev = DistanceToSegment(worldPoint, previous.a, previous.b);
+
+            if (distPrev <= stickThreshold)
+            {
+                return new LoopFootState
+                {
+                    edgeIndex = previousEdgeIndex,
+                    point = ClosestPointOnSegment(worldPoint, previous.a, previous.b)
+                };
+            }
+        }
+
+        int edgeIndex = SurfaceEdgePath.FindClosestEdgeIndexInLoop(mgr, worldPoint, loopId);
+        Edge edge = mgr.GetEdge(edgeIndex);
+
+        return new LoopFootState
+        {
+            edgeIndex = edgeIndex,
+            point = ClosestPointOnSegment(worldPoint, edge.a, edge.b)
+        };
+    }
+
+    public static Vector2 ProjectOntoEdge(TileMapGuideManager mgr, int edgeIndex, Vector2 worldPoint)
+    {
+        Edge edge = mgr.GetEdge(edgeIndex);
+        return ClosestPointOnSegment(worldPoint, edge.a, edge.b);
+    }
+
+    public static LoopFootState WalkAlongLoop(
+        TileMapGuideManager mgr,
+        int edgeIndex,
+        Vector2 fromPoint,
+        bool clockwise,
+        float distance,
+        int loopId)
+    {
+        float remaining = Mathf.Max(0f, distance);
+        int currentEdgeIndex = edgeIndex;
+        Vector2 currentPoint = fromPoint;
+        int safety = 0;
+
+        while (remaining > 0.0001f && safety++ < 128)
+        {
+            Edge edge = mgr.GetEdge(currentEdgeIndex);
+
+            if (edge.loopId != loopId)
+            {
+                break;
+            }
+
+            currentPoint = ClosestPointOnSegment(currentPoint, edge.a, edge.b);
+            Vector2 corner = SurfaceEdgePath.GetForwardCorner(mgr, currentEdgeIndex, currentPoint, clockwise);
+            float distToCorner = Vector2.Distance(currentPoint, corner);
+
+            if (remaining <= distToCorner + ArriveEpsilon)
+            {
+                Vector2 dir = corner - currentPoint;
+
+                if (dir.sqrMagnitude < 0.0001f)
+                {
+                    dir = PickForwardEndpoint(edge, corner) - corner;
+                }
+
+                if (dir.sqrMagnitude < 0.0001f)
+                {
+                    return new LoopFootState { edgeIndex = currentEdgeIndex, point = corner };
+                }
+
+                currentPoint += dir.normalized * remaining;
+                currentPoint = ClosestPointOnSegment(currentPoint, edge.a, edge.b);
+
+                return new LoopFootState { edgeIndex = currentEdgeIndex, point = currentPoint };
+            }
+
+            remaining -= distToCorner;
+            currentPoint = corner;
+            currentEdgeIndex = mgr.GetNextIndex(currentEdgeIndex, clockwise);
+        }
+
+        Edge finalEdge = mgr.GetEdge(currentEdgeIndex);
+        currentPoint = ClosestPointOnSegment(currentPoint, finalEdge.a, finalEdge.b);
+
+        return new LoopFootState { edgeIndex = currentEdgeIndex, point = currentPoint };
+    }
+
+    public static float DistanceAlongLoopForward(
+        TileMapGuideManager mgr,
+        int fromEdgeIndex,
+        Vector2 fromPoint,
+        int toEdgeIndex,
+        Vector2 toPoint,
+        bool clockwise,
+        int loopId)
+    {
+        float total = 0f;
+        int currentEdgeIndex = fromEdgeIndex;
+        Vector2 currentPoint = fromPoint;
+        int safety = 0;
+
+        while (safety++ < 256)
+        {
+            Edge edge = mgr.GetEdge(currentEdgeIndex);
+
+            if (edge.loopId != loopId)
+            {
+                break;
+            }
+
+            currentPoint = ClosestPointOnSegment(currentPoint, edge.a, edge.b);
+
+            if (currentEdgeIndex == toEdgeIndex)
+            {
+                Vector2 target = ClosestPointOnSegment(toPoint, edge.a, edge.b);
+                total += Vector2.Distance(currentPoint, target);
+                return total;
+            }
+
+            Vector2 corner = SurfaceEdgePath.GetForwardCorner(mgr, currentEdgeIndex, currentPoint, clockwise);
+            total += Vector2.Distance(currentPoint, corner);
+            currentPoint = corner;
+            currentEdgeIndex = mgr.GetNextIndex(currentEdgeIndex, clockwise);
+        }
+
+        return total;
+    }
+
+    public static LoopFootState MoveOnLoopTowards(
+        TileMapGuideManager mgr,
+        int edgeIndex,
+        Vector2 fromPoint,
+        int targetEdgeIndex,
+        Vector2 targetPoint,
+        bool clockwise,
+        float maxStep,
+        int loopId)
+    {
+        float remaining = DistanceAlongLoopForward(
+            mgr,
+            edgeIndex,
+            fromPoint,
+            targetEdgeIndex,
+            targetPoint,
+            clockwise,
+            loopId
+        );
+
+        if (remaining <= ArriveEpsilon)
+        {
+            return new LoopFootState
+            {
+                edgeIndex = targetEdgeIndex,
+                point = ProjectOntoEdge(mgr, targetEdgeIndex, targetPoint)
+            };
+        }
+
+        float step = Mathf.Min(maxStep, remaining);
+        return WalkAlongLoop(mgr, edgeIndex, fromPoint, clockwise, step, loopId);
+    }
+
+    public static bool SameLoopFoot(LoopFootState a, LoopFootState b)
+    {
+        return a.edgeIndex == b.edgeIndex && Vector2.Distance(a.point, b.point) <= ArriveEpsilon;
+    }
 }
