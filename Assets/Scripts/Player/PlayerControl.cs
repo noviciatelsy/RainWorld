@@ -52,6 +52,10 @@ public class PlayerControl : MonoBehaviour
     public float BonusGravityMultiplier { get; private set; } = 1;
 
     public bool isInRopeArea {  get; private set; }
+
+    public bool enableDoubleJump {  get; private set; }
+    private bool hasPreparedDoubleJump;
+    private bool hasUsedDoubleJump;
     #region State Variables
     public PlayerIdleState idleState { get; private set; }
     public PlayerMoveState moveState { get; private set; }
@@ -322,6 +326,127 @@ public class PlayerControl : MonoBehaviour
         yield return new WaitForSeconds(time);
 
         AddMoveSpeed(actualReducedAmount);
+    }
+
+    public void AddJumpForce(float amountToAdd)
+    {
+        // 防止传入负数导致逻辑反过来
+        if (amountToAdd <= 0f)
+        {
+            return;
+        }
+
+        jumpForce += amountToAdd;
+    }
+
+    public void ReduceJumpForce(float amountToReduce)
+    {
+        // 防止传入负数导致逻辑反过来
+        if (amountToReduce <= 0f)
+        {
+            return;
+        }
+
+        // 防止跳跃力度被减成负数
+        jumpForce = Mathf.Max(0f, jumpForce - amountToReduce);
+    }
+
+    public void AddJumpForceTemporarily(float amountToAdd, float time)
+    {
+        if (amountToAdd <= 0f || time <= 0f)
+        {
+            return;
+        }
+
+        StartCoroutine(AddJumpForceTemporarilyCoroutine(amountToAdd, time));
+    }
+
+    private IEnumerator AddJumpForceTemporarilyCoroutine(float amountToAdd, float time)
+    {
+        AddJumpForce(amountToAdd);
+
+        yield return new WaitForSeconds(time);
+
+        ReduceJumpForce(amountToAdd);
+    }
+
+    public void ReduceJumpForceTemporarily(float amountToReduce, float time)
+    {
+        if (amountToReduce <= 0f || time <= 0f)
+        {
+            return;
+        }
+
+        StartCoroutine(ReduceJumpForceTemporarilyCoroutine(amountToReduce, time));
+    }
+
+    private IEnumerator ReduceJumpForceTemporarilyCoroutine(float amountToReduce, float time)
+    {
+        float jumpForceBeforeReduce = jumpForce;
+
+        ReduceJumpForce(amountToReduce);
+
+        // 实际减少了多少，就只恢复多少
+        // 比如当前跳跃力度是 3，但要减少 10，实际只能减少 3
+        float actualReducedAmount = jumpForceBeforeReduce - jumpForce;
+
+        yield return new WaitForSeconds(time);
+
+        AddJumpForce(actualReducedAmount);
+    }
+
+    public void EnableDoubleJump(bool enable)
+    {
+        enableDoubleJump = enable;
+    }
+
+    public bool CanDoubleJump()
+    {
+        if(enableDoubleJump)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public void PrepareDoubleJump()
+    {
+        if (hasPreparedDoubleJump)
+        {
+            return;
+        }
+
+        hasPreparedDoubleJump = true;
+        hasUsedDoubleJump = false;
+        // 第一次进入跳跃状态时，准备一次二段跳机会
+    }
+
+    public void ResetDoubleJump()
+    {
+        hasPreparedDoubleJump = false;
+        hasUsedDoubleJump = false;
+        // 回到地面，或者进入某些可重新支撑玩家的状态时，重置二段跳
+    }
+
+    public bool TryConsumeDoubleJump()
+    {
+        if (CanDoubleJump() == false)
+        {
+            return false;
+        }
+
+        if (hasPreparedDoubleJump == false)
+        {
+            return false;
+        }
+
+        if (hasUsedDoubleJump)
+        {
+            return false;
+        }
+
+        hasUsedDoubleJump = true;
+        return true;
     }
 
     protected virtual void OnDrawGizmos()

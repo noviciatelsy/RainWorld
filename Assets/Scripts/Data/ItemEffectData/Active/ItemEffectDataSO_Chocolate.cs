@@ -10,8 +10,9 @@ public class ItemEffectDataSO_Chocolate : ItemEffectDataSO
         PlayerVitals playerVitals = player.GetComponent<PlayerVitals>();
         if (playerVitals != null)
         {
-            playerVitals.AddHealth(15);
             playerVitals.ReduceHunger(5);
+            playerVitals.AddHealth(15);
+
             return true;
         }
         return false;

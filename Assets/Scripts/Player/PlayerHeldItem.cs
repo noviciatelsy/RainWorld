@@ -97,10 +97,10 @@ public class PlayerHeldItem : MonoBehaviour
 
     private void OnUseHoldingItemStarted(InputAction.CallbackContext context)
     {
-        if (GameStateManager.Instance.currentGameState == GameState.Base)
-        {
-            return;
-        }
+        //if (GameStateManager.Instance.currentGameState == GameState.Base)
+        //{
+        //    return;
+        //}
         isPressingUseHoldingItem = true;
         hasTriggeredSecondaryUseHoldingItem = false;
         useHoldingItemStartTime = Time.unscaledTime;
@@ -108,10 +108,10 @@ public class PlayerHeldItem : MonoBehaviour
 
     private void OnUseHoldingItemCanceled(InputAction.CallbackContext context)
     {
-        if (GameStateManager.Instance.currentGameState == GameState.Base)
-        {
-            return;
-        }
+        //if (GameStateManager.Instance.currentGameState == GameState.Base)
+        //{
+        //    return;
+        //}
         if (!isPressingUseHoldingItem)
         {
             return;
@@ -193,7 +193,6 @@ public class PlayerHeldItem : MonoBehaviour
         }
 
         holdingItemSprite.sprite = itemToHold.itemIcon;
-        holdingItemSprite.enabled = true;
 
         BackpackItemDataSO backpackItemData = itemToHold.backpackItemData;
 
@@ -225,7 +224,6 @@ public class PlayerHeldItem : MonoBehaviour
             return;
         }
 
-        holdingItemSprite.enabled = false;
         holdingItemSprite.sprite = null;
         holdingItemSprite.transform.localScale = Vector3.one;
     }

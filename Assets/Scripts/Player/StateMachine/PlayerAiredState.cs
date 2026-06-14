@@ -27,6 +27,17 @@ public class PlayerAiredState : PlayerBaseState
             return;
         }
 
+        if (mainInput.Player.Jump.WasPerformedThisFrame()) // 如果人物在空中按下跳跃键
+        {
+            if (playerControl.TryConsumeDoubleJump())
+            {
+                stateMachine.ChangeState(playerControl.jumpState);
+                // 消耗二段跳机会，并重新进入跳跃状态
+
+                return;
+            }
+        }
+
         groundDetectDelayTimer += Time.deltaTime;
 
         if (playerControl.moveInput.x != 0)

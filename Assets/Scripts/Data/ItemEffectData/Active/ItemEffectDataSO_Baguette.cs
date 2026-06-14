@@ -10,8 +10,9 @@ public class ItemEffectDataSO_Baguette : ItemEffectDataSO
         PlayerVitals playerVitals = player.GetComponent<PlayerVitals>();
         if (playerVitals != null)
         {
-            playerVitals.AddHealth(60);
             playerVitals.ReduceHunger(60);
+            playerVitals.AddHealth(60);
+
             return true;
         }
         return false;

@@ -6,7 +6,7 @@ public class MoleAmuletPassiveEffect : MonoBehaviour
 {
     public bool canUseMoleCave {  get; private set; }
 
-    [SerializeField] private int equippedCount;
+    private int equippedCount;
 
     public void EnableEffect()
     {

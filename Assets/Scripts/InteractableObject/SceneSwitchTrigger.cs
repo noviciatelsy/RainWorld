@@ -8,6 +8,7 @@ public class SceneSwitchTrigger : MonoBehaviour
     [SerializeField] private Vector3 targetPosition=Vector3.zero;
     [SerializeField] private int playerFacingDirection=1;
 
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         Player player = collision.GetComponent<Player>();
@@ -24,6 +25,27 @@ public class SceneSwitchTrigger : MonoBehaviour
         GlobalUI.Instance.fadeScreenUI.PlayRoomSwitchFade(() =>
         {
             PlayerManager.Instance.SetPendingPlayerShowUpPosition(targetPosition,playerFacingDirection);
+            SceneSwitchManager.Instance.SwitchToScene(targetScene);
+        });
+    }
+
+    private void OnTriggerStay2D(Collider2D collision)
+    {
+
+        Player player = collision.GetComponent<Player>();
+        if (player == null)
+        {
+            return;
+        }
+
+        if (targetScene == SceneType.None)
+        {
+            return;
+        }
+
+        GlobalUI.Instance.fadeScreenUI.PlayRoomSwitchFade(() =>
+        {
+            PlayerManager.Instance.SetPendingPlayerShowUpPosition(targetPosition, playerFacingDirection);
             SceneSwitchManager.Instance.SwitchToScene(targetScene);
         });
     }

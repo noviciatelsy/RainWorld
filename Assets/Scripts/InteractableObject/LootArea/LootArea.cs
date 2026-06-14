@@ -19,8 +19,12 @@ public class LootArea : PlayerSensorTarget
     [SerializeField] private int epicWeight = 15;
     [SerializeField] private int legendaryWeight = 5;
 
-    [Header("Generate Settings")]
-    [SerializeField] private bool generateOnAwake = true;
+    [Header("Player Luck")]
+    [Tooltip("每 1 点 bonusLuck 带来的稀有度权重成长率。0.03 表示每点幸运约提高 3% 的对应稀有度倍率。")]
+    [SerializeField] private float bonusLuckWeightGrowthPerPoint = 0.03f;
+
+    [Tooltip("参与掉落计算的最大 bonusLuck，防止幸运值过高导致权重膨胀失控。")]
+    [SerializeField] private int maxBonusLuckAffect = 50;
 
     // 防止之后手动调用生成时重复生成
     private bool hasGeneratedLoot = false;
@@ -32,17 +36,13 @@ public class LootArea : PlayerSensorTarget
         base.Awake();
 
         inventory = GetComponent<InventoryBase>();
-
-        if (generateOnAwake)
-        {
-            GenerateLoot();
-        }
     }
 
     public override void Interact()
     {
         base.Interact();
 
+        GenerateLoot();
         if (InGameUI.Instance != null)
         {
             InGameUI.Instance.ToggleLootUI(inventory);
@@ -79,6 +79,20 @@ public class LootArea : PlayerSensorTarget
             return;
         }
 
+        PlayerLuck playerLuck = GetPlayerLuck();
+
+        int bonusItemLootAmount = 0;
+        int bonusLuck = 0;
+
+        if (playerLuck != null)
+        {
+            bonusItemLootAmount = Mathf.Max(0, playerLuck.bonusItemLootAmount);
+            bonusLuck = Mathf.Clamp(
+                playerLuck.bonusLuck,
+                0,
+                Mathf.Max(0, maxBonusLuckAffect));
+        }
+
         minGenerateItemCount = Mathf.Max(0, minGenerateItemCount);
         maxGenerateItemCount = Mathf.Max(
             minGenerateItemCount,
@@ -89,9 +103,12 @@ public class LootArea : PlayerSensorTarget
             minGenerateItemCount,
             maxGenerateItemCount + 1);
 
+        // PlayerLuck 中的 bonusItemLootAmount 每 1 点额外增加 1 个实际生成物品
+        generateCount += bonusItemLootAmount;
+
         for (int i = 0; i < generateCount; i++)
         {
-            bool success = TryGenerateOneItem();
+            bool success = TryGenerateOneItem(bonusLuck);
 
             if (!success)
             {
@@ -103,13 +120,13 @@ public class LootArea : PlayerSensorTarget
         hasGeneratedLoot = true;
     }
 
-    private bool TryGenerateOneItem()
+    private bool TryGenerateOneItem(int bonusLuck)
     {
         const int maxTryCount = 20;
 
         for (int i = 0; i < maxTryCount; i++)
         {
-            ItemRarity targetRarity = GetRandomRarityByWeight();
+            ItemRarity targetRarity = GetRandomRarityByWeight(bonusLuck);
 
             ItemDataSO itemData = GetRandomItemByRarity(targetRarity);
 
@@ -129,46 +146,89 @@ public class LootArea : PlayerSensorTarget
         return false;
     }
 
-    private ItemRarity GetRandomRarityByWeight()
+    private ItemRarity GetRandomRarityByWeight(int bonusLuck)
     {
         int safeCommonWeight = Mathf.Max(0, commonWeight);
         int safeRareWeight = Mathf.Max(0, rareWeight);
         int safeEpicWeight = Mathf.Max(0, epicWeight);
         int safeLegendaryWeight = Mathf.Max(0, legendaryWeight);
 
-        int totalWeight =
-            safeCommonWeight +
-            safeRareWeight +
-            safeEpicWeight +
-            safeLegendaryWeight;
+        float adjustedCommonWeight = safeCommonWeight;
+        float adjustedRareWeight = safeRareWeight * GetBonusLuckWeightMultiplier(
+            bonusLuck,
+            1);
 
-        if (totalWeight <= 0)
+        float adjustedEpicWeight = safeEpicWeight * GetBonusLuckWeightMultiplier(
+            bonusLuck,
+            2);
+
+        float adjustedLegendaryWeight = safeLegendaryWeight * GetBonusLuckWeightMultiplier(
+            bonusLuck,
+            3);
+
+        float totalWeight =
+            adjustedCommonWeight +
+            adjustedRareWeight +
+            adjustedEpicWeight +
+            adjustedLegendaryWeight;
+
+        if (totalWeight <= 0f)
         {
             return ItemRarity.Common;
         }
 
-        int randomValue = Random.Range(0, totalWeight);
+        float randomValue = Random.Range(0f, totalWeight);
 
-        if (randomValue < safeCommonWeight)
+        if (randomValue < adjustedCommonWeight)
         {
             return ItemRarity.Common;
         }
 
-        randomValue -= safeCommonWeight;
+        randomValue -= adjustedCommonWeight;
 
-        if (randomValue < safeRareWeight)
+        if (randomValue < adjustedRareWeight)
         {
             return ItemRarity.Rare;
         }
 
-        randomValue -= safeRareWeight;
+        randomValue -= adjustedRareWeight;
 
-        if (randomValue < safeEpicWeight)
+        if (randomValue < adjustedEpicWeight)
         {
             return ItemRarity.Epic;
         }
 
         return ItemRarity.Legendary;
+    }
+
+    /// <summary>
+    /// 根据 bonusLuck 计算稀有度权重倍率。
+    /// 
+    /// 稀有度等级：
+    /// Common = 0，不受 bonusLuck 影响
+    /// Rare = 1
+    /// Epic = 2
+    /// Legendary = 3
+    /// 
+    /// 公式：
+    /// 实际权重 = 基础权重 * Pow(1 + 每点幸运成长率, bonusLuck * 稀有度等级)
+    /// </summary>
+    private float GetBonusLuckWeightMultiplier(
+        int bonusLuck,
+        int rarityLevel)
+    {
+        if (bonusLuck <= 0 || rarityLevel <= 0)
+        {
+            return 1f;
+        }
+
+        float safeGrowthPerPoint = Mathf.Max(
+            0f,
+            bonusLuckWeightGrowthPerPoint);
+
+        return Mathf.Pow(
+            1f + safeGrowthPerPoint,
+            bonusLuck * rarityLevel);
     }
 
     private ItemDataSO GetRandomItemByRarity(ItemRarity rarity)
@@ -257,5 +317,17 @@ public class LootArea : PlayerSensorTarget
         }
 
         return false;
+    }
+
+    private PlayerLuck GetPlayerLuck()
+    {
+        Player player = PlayerManager.Instance.TryGetCurrentPlayer();
+
+        if (player != null)
+        {
+            return player.GetComponentInChildren<PlayerLuck>();
+        }
+
+        return null;
     }
 }

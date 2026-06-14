@@ -16,14 +16,13 @@ public class PlayerClimbState : PlayerBaseState
     {
         base.Enter();
 
-        playerControl.SetBaseGravityMultiplier(0);
-        // 进入攀爬状态时，不再受到重力影响
+        playerControl.ResetDoubleJump();
+        // 抓到绳子后，视为重新获得支撑，重置二段跳
 
+        playerControl.SetBaseGravityMultiplier(0f);
         playerControl.SetVelocity(0, 0);
-        // 刚进入攀爬时先停住，避免继承跳跃/下落速度导致角色滑出绳子
 
         anim.speed = 1f;
-        // 确保刚进入攀爬状态时动画是正常播放的
 
         if (Mathf.Abs(playerControl.moveInput.y) > playerControl.climbInputDeadZone)
         {

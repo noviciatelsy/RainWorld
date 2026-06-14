@@ -8,6 +8,9 @@ public class ActiveItemDataSO : ItemDataSO
     [Header("是否为消耗品")]
     public bool isConsumable=true;
 
+    [Header("是否为蘑菇")]
+    public bool isMushroom=false;
+
     protected override void OnValidate()
     {
         base.OnValidate();

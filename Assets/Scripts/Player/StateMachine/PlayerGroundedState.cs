@@ -9,6 +9,13 @@ public class PlayerGroundedState : PlayerBaseState
     {
     }
 
+    public override void Enter()
+    {
+        base.Enter();
+        playerControl.ResetDoubleJump();
+        // 回到地面状态时，重置二段跳
+    }
+
     public override void Update()
     {
         base.Update();

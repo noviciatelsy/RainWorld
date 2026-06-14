@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fdf35bc37bd521d41925e66a18fb75bf, type: 3}
+  m_Name: ActiveItemData - RoastedMushroom
+  m_EditorClassIdentifier: 
+  saveID: cc429baa2b3794742bbed32e4ea47806
+  itemDisplayName: "\u70E4\u8611\u83C7"
+  itemDescription: "\u70E4\u719F\u7684\u8611\u83C7\uFF0C\u53BB\u9664\u4E86\u6240\u6709\u7684\u6BD2\u7D20"
+  itemIcon: {fileID: 21300000, guid: 9f5b610a7dabb73479e76703bc8aadc6, type: 3}
+  itemEffectData: {fileID: 11400000, guid: f320762c025f99a4a94158684eb682d6, type: 2}
+  backpackItemData: {fileID: 11400000, guid: 43ae5d4e0e273ce4b998f84bbde81ecc, type: 2}
+  itemType: 1
+  rarity: 1
+  itemBuyPrice: 8
+  itemSellPrice: 4
+  canBuyFromMerchant: 1
+  autoUnlock: 0
+  sellAmountToUnlock: 1
+  isConsumable: 1

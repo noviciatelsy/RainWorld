@@ -9,7 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d7fd9488000d3734a9e00ee676215985, type: 3}
-  m_Name: GlobalVolume Profile 1
+  m_Script: {fileID: 11500000, guid: e9a757bc8dd061842aabd725f7da886f, type: 3}
+  m_Name: ItemEffectData_DoubleJumpShoes
   m_EditorClassIdentifier: 
-  components: []
+  effectDescription: "\u7ED9\u4E88\u4F60\u4E8C\u6BB5\u8DF3\u7684\u80FD\u529B"
+  holdingHintMessage: "\u957F\u6309\u5DE6\u952E\u4E22\u5F03\u8BE5\u7269\u54C1"

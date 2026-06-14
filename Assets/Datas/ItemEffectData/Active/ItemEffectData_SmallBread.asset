@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: ItemEffectData_SmallBread
   m_EditorClassIdentifier: 
   effectDescription: "\u53EF\u6062\u590D10\u9971\u98DF\u5EA6\uFF0C10\u751F\u547D\u503C"
-  holdingHintMessage: "\u957F\u6309\u5DE6\u952E\u4E22\u5F03\u8BE5\u7269\u54C1"
+  holdingHintMessage: "\u70B9\u51FB\u5DE6\u952E\u98DF\u7528\u5C0F\u9762\u5305\n\u957F\u6309\u5DE6\u952E\u4E22\u5F03\u8BE5\u7269\u54C1"

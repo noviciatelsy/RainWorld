@@ -409,6 +409,95 @@ public class PlayerVitals : MonoBehaviour
     }
 
     /// <summary>
+    /// 在指定时间内持续减少当前血量。
+    /// healthAmount 表示这段时间内总共减少的血量。
+    /// 例如：time 为 5，healthAmount 为 20，表示 5 秒内合计减少 20 点生命值。
+    /// </summary>
+    public void ReduceHealthOverTime(float time, int healthAmount)
+    {
+        if (time <= 0f || healthAmount <= 0 || isDead)
+        {
+            return;
+        }
+
+        StartCoroutine(ReduceHealthOverTimeCoroutine(time, healthAmount));
+    }
+
+    private IEnumerator ReduceHealthOverTimeCoroutine(float time, int healthAmount)
+    {
+        float elapsedTime = 0f;
+        int reducedAmount = 0;
+
+        while (elapsedTime < time && reducedAmount < healthAmount && !isDead)
+        {
+            elapsedTime += Time.deltaTime;
+
+            int targetReducedAmount = Mathf.FloorToInt(healthAmount * Mathf.Clamp01(elapsedTime / time));
+            int amountThisFrame = targetReducedAmount - reducedAmount;
+
+            if (amountThisFrame > 0)
+            {
+                ReduceHealth(amountThisFrame);
+                reducedAmount += amountThisFrame;
+            }
+
+            yield return null;
+        }
+
+        int remainingAmount = healthAmount - reducedAmount;
+
+        if (remainingAmount > 0 && !isDead)
+        {
+            ReduceHealth(remainingAmount);
+        }
+    }
+
+    /// <summary>
+    /// 在指定时间内持续增加当前血量。
+    /// healthAmount 表示这段时间内总共增加的血量。
+    /// 回血不会超过当前血上限。
+    /// 例如：time 为 5，healthAmount 为 20，表示 5 秒内合计恢复 20 点生命值。
+    /// </summary>
+    public void AddHealthOverTime(float time, int healthAmount)
+    {
+        if (time <= 0f || healthAmount <= 0 || isDead)
+        {
+            return;
+        }
+
+        StartCoroutine(AddHealthOverTimeCoroutine(time, healthAmount));
+    }
+
+    private IEnumerator AddHealthOverTimeCoroutine(float time, int healthAmount)
+    {
+        float elapsedTime = 0f;
+        int addedAmount = 0;
+
+        while (elapsedTime < time && addedAmount < healthAmount && !isDead)
+        {
+            elapsedTime += Time.deltaTime;
+
+            int targetAddedAmount = Mathf.FloorToInt(healthAmount * Mathf.Clamp01(elapsedTime / time));
+            int amountThisFrame = targetAddedAmount - addedAmount;
+
+            if (amountThisFrame > 0)
+            {
+                AddHealth(amountThisFrame);
+                addedAmount += amountThisFrame;
+            }
+
+            yield return null;
+        }
+
+        int remainingAmount = healthAmount - addedAmount;
+
+        if (remainingAmount > 0 && !isDead)
+        {
+            AddHealth(remainingAmount);
+        }
+    }
+
+    /// <summary>
     /// 直接设置饥饿度。
     /// </summary>
     public void SetHunger(int value)

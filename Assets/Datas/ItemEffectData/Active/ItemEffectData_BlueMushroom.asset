@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7a87067df41f1b4b80308b20459546a, type: 3}
+  m_Name: ItemEffectData_BlueMushroom
+  m_EditorClassIdentifier: 
+  effectDescription: "\u53EF\u6062\u590D40\u9971\u98DF\u5EA6\uFF0C40\u751F\u547D\u503C\n\u73A9\u5BB6\u9677\u51651\u5206\u949F\u7684\u9F9F\u901F"
+  holdingHintMessage: "\u70B9\u51FB\u5DE6\u952E\u98DF\u7528\u84DD\u8611\u83C7\n\u957F\u6309\u5DE6\u952E\u4E22\u5F03\u8BE5\u7269\u54C1"

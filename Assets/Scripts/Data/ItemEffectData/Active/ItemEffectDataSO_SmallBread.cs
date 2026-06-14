@@ -10,8 +10,9 @@ public class ItemEffectDataSO_SmallBread : ItemEffectDataSO
         PlayerVitals playerVitals = player.GetComponent<PlayerVitals>();
         if (playerVitals != null)
         {
-            playerVitals.AddHealth(10);
             playerVitals.ReduceHunger(10);
+            playerVitals.AddHealth(10);
+
             return true;
         }
         return false;

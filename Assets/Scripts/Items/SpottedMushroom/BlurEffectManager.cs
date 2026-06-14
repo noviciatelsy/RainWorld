@@ -33,14 +33,6 @@ public class BlurEffectManager : MonoBehaviour
         SetBlurValue(0f);
     }
 
-    private void Update()
-    {
-        if (Input.GetKeyUp(KeyCode.L))
-        {
-            StartBlur();
-        }
-    }
-
     /// <summary>
     /// 直接设置屏幕效果强度。
     /// 0 = 完全没有效果，1 = 效果拉满。

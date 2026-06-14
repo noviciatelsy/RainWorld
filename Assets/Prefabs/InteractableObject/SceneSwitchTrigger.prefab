@@ -91,4 +91,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   targetScene: 0
-  targetPosition: {x: 0, y: 0, z: 0}
+  targetPosition: {x: -0.25, y: 0, z: 0}
+  playerFacingDirection: 1

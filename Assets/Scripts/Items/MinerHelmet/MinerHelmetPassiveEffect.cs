@@ -6,7 +6,7 @@ public class MinerHelmetPassiveEffect : MonoBehaviour
     public bool hasHeadProtection {  get; private set; }
     // 是否拥有头部保护
 
-    [SerializeField] private int equippedCount;
+    private int equippedCount;
     // 当前已经装备的矿工头盔数量
     // 注意：
     // 这个数量可以大于 1
