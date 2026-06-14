@@ -12,18 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fdf35bc37bd521d41925e66a18fb75bf, type: 3}
   m_Name: ActiveItemData - MushroomPan
   m_EditorClassIdentifier: 
-  saveID: 
-  itemDisplayName: 
-  itemDescription: 
-  itemIcon: {fileID: 0}
-  itemEffectData: {fileID: 0}
-  backpackItemData: {fileID: 0}
-  itemType: 0
-  rarity: 0
-  itemBuyPrice: 0
-  itemSellPrice: 0
+  saveID: c08d6b6df82bbdc478f751fc275f001a
+  itemDisplayName: "\u8611\u83C7\u714E\u9505"
+  itemDescription: "\u4E13\u95E8\u7528\u4E8E\u70E4\u5236\u8611\u83C7\u7684\u714E\u9505\uFF0C\u53EF\u4EE5\u8F7B\u677E\u5730\u53BB\u9664\u5176\u4E2D\u7684\u6709\u5BB3\u6210\u5206"
+  itemIcon: {fileID: 21300000, guid: 97a4339437a344446b1a39b9ed3b175b, type: 3}
+  itemEffectData: {fileID: 11400000, guid: 355c6269b9599b747841eb264ea91b57, type: 2}
+  backpackItemData: {fileID: 11400000, guid: 43ae5d4e0e273ce4b998f84bbde81ecc, type: 2}
+  itemType: 1
+  rarity: 1
+  itemBuyPrice: 8
+  itemSellPrice: 4
   canBuyFromMerchant: 1
   autoUnlock: 0
   sellAmountToUnlock: 1
-  isConsumable: 1
+  isConsumable: 0
   isMushroom: 0

@@ -17,12 +17,13 @@ MonoBehaviour:
   itemDescription: "\u70E4\u719F\u7684\u8611\u83C7\uFF0C\u53BB\u9664\u4E86\u6240\u6709\u7684\u6BD2\u7D20"
   itemIcon: {fileID: 21300000, guid: 9f5b610a7dabb73479e76703bc8aadc6, type: 3}
   itemEffectData: {fileID: 11400000, guid: f320762c025f99a4a94158684eb682d6, type: 2}
-  backpackItemData: {fileID: 11400000, guid: 43ae5d4e0e273ce4b998f84bbde81ecc, type: 2}
+  backpackItemData: {fileID: 11400000, guid: 61313566e1cca44448890e0c4a08df7f, type: 2}
   itemType: 1
-  rarity: 1
-  itemBuyPrice: 8
-  itemSellPrice: 4
+  rarity: 0
+  itemBuyPrice: 4
+  itemSellPrice: 2
   canBuyFromMerchant: 1
   autoUnlock: 0
   sellAmountToUnlock: 1
   isConsumable: 1
+  isMushroom: 0

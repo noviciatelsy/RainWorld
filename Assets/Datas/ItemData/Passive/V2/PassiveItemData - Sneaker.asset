@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f388cc5c2ab3cbc49976e88c9fac4ab0, type: 3}
+  m_Name: PassiveItemData - Sneaker
+  m_EditorClassIdentifier: 
+  saveID: 4874a86b3719587409f6fdeeb62300a6
+  itemDisplayName: "\u8DD1\u978B"
+  itemDescription: "\u4F60\u611F\u5230\u811A\u4E0B\u6D8C\u73B0\u51FA\u529B\u91CF"
+  itemIcon: {fileID: 21300000, guid: 94191ee0eb38ceb40be1588d7d89f6d8, type: 3}
+  itemEffectData: {fileID: 11400000, guid: 3af6d331832c94c409a717cb0225c23a, type: 2}
+  backpackItemData: {fileID: 11400000, guid: 43ae5d4e0e273ce4b998f84bbde81ecc, type: 2}
+  itemType: 0
+  rarity: 1
+  itemBuyPrice: 8
+  itemSellPrice: 4
+  canBuyFromMerchant: 1
+  autoUnlock: 0
+  sellAmountToUnlock: 1

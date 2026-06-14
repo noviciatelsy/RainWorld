@@ -17,7 +17,7 @@ public class PlayerStatusBarUI : MonoBehaviour
     [SerializeField] private float barOvershootStrength = 1.4f;
 
     private PlayerVitals playerVitals;
-    private int maxHealthAmount;
+    private float maxHealthAmount;
 
     private Coroutine currentHealthSliderCoroutine;
     private Coroutine hungerBarSliderCoroutine;
@@ -71,19 +71,19 @@ public class PlayerStatusBarUI : MonoBehaviour
         }
     }
 
-    private void UpdateCurrentHealth(int currentHealth)
+    private void UpdateCurrentHealth(float currentHealth)
     {
         float targetValue = (float)currentHealth / maxHealthAmount;
         PlaySliderJuicyAnimation(currentHealthSlider, targetValue, ref currentHealthSliderCoroutine);
     }
 
-    private void UpdateMaxHealth(int newMaxHealth)
+    private void UpdateMaxHealth(float newMaxHealth)
     {
         float targetScaleX = (float)newMaxHealth / maxHealthAmount;
         PlayRectScaleXJuicyAnimation(maxHealthHealthRect, targetScaleX, ref maxHealthRectCoroutine);
     }
 
-    private void UpdateHungerBar(int newHungerAmount)
+    private void UpdateHungerBar(float newHungerAmount)
     {
         if (newHungerAmount == 0)
         {
