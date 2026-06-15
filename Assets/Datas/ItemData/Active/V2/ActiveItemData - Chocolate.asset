@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   saveID: 50ae977aa10d57240a75ee89e7789fdd
   itemDisplayName: "\u5DE7\u514B\u529B"
-  itemDescription: "\u6574\u7248\u7684\u5DE7\u514B\u529B\uFF0C\u5B83\u7684\u751C\u871C\u8DB3\u4EE5\u4F7F\u4EBA\u5FD8\u8BB0\u8EAB\u4F53\u7684\u4F24\u75DB"
+  itemDescription: "\u53EA\u8981\u878D\u5316\u518D\u51DD\u56FA\uFF0C\u5C31\u6210\u4E86\u81EA\u5236\u7684\u5DE7\u514B\u529B\u4E86"
   itemIcon: {fileID: 21300000, guid: 04b5180d059d2d34ca62dd7059fd7e50, type: 3}
   itemEffectData: {fileID: 11400000, guid: 47872f552b851d94cacb4c991506adb1, type: 2}
   backpackItemData: {fileID: 11400000, guid: 52023b128b5a5864badc22fabedcfc70, type: 2}
@@ -26,3 +26,4 @@ MonoBehaviour:
   autoUnlock: 1
   sellAmountToUnlock: 1
   isConsumable: 1
+  isMushroom: 0

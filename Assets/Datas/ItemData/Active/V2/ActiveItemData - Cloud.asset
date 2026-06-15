@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fdf35bc37bd521d41925e66a18fb75bf, type: 3}
-  m_Name: ActiveItemData - MosquitoCoil
+  m_Name: ActiveItemData - Cloud
   m_EditorClassIdentifier: 
-  saveID: eadd36b4b24da284788f0a38cae528da
-  itemDisplayName: "\u868A\u9999"
-  itemDescription: "\u5C0F\u5FC3\u4E0D\u8981\u63B0\u65AD\u4E86"
-  itemIcon: {fileID: 21300000, guid: 109e7e2cc2089b44292ea19f9f31432f, type: 3}
-  itemEffectData: {fileID: 11400000, guid: 06a64fe2f39eed14e8afa22190963f1d, type: 2}
+  saveID: 7a1fda4726150b24bbf7486e7d6402fc
+  itemDisplayName: "\u4E91"
+  itemDescription: "\u5F88\u9057\u61BE\uFF0C\u5B83\u4E0D\u80FD\u5403"
+  itemIcon: {fileID: 21300000, guid: 8dd92579d767183438fe6898c01b25ae, type: 3}
+  itemEffectData: {fileID: 11400000, guid: 524ff3272d399f040b2f6aa686eab8d5, type: 2}
   backpackItemData: {fileID: 11400000, guid: 43ae5d4e0e273ce4b998f84bbde81ecc, type: 2}
   itemType: 1
   rarity: 1
