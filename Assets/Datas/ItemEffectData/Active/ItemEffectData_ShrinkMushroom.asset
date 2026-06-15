@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e8c4c0245b388048bc3f6ae55f3d251, type: 3}
+  m_Name: ItemEffectData_ShrinkMushroom
+  m_EditorClassIdentifier: 
+  effectDescription: "\u53EF\u5C06\u8EAB\u4F53\u7F29\u5C0F\u4E3A\u5F53\u524D\u5927\u5C0F\u7684\u4E00\u534A\uFF0C\u6301\u7EED\u4E00\u5206\u949F"
+  holdingHintMessage: "\u70B9\u51FB\u5DE6\u952E\u4F7F\u7528\u7F29\u5C0F\u83C7\n\u957F\u6309\u5DE6\u952E\u4E22\u5F03\u8BE5\u7269\u54C1"

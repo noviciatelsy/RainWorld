@@ -10,19 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fdf35bc37bd521d41925e66a18fb75bf, type: 3}
-  m_Name: ActiveItemData - MosquitoCoil
+  m_Name: ActiveItemData - FragrantFruit
   m_EditorClassIdentifier: 
-  saveID: eadd36b4b24da284788f0a38cae528da
-  itemDisplayName: "\u868A\u9999"
-  itemDescription: "\u5C0F\u5FC3\u4E0D\u8981\u63B0\u65AD\u4E86"
-  itemIcon: {fileID: 21300000, guid: 109e7e2cc2089b44292ea19f9f31432f, type: 3}
-  itemEffectData: {fileID: 11400000, guid: 06a64fe2f39eed14e8afa22190963f1d, type: 2}
+  saveID: 309de58f3fd06ce4b96a486acc55e4ff
+  itemDisplayName: "\u9999\u6C14\u679C\u5B9E"
+  itemDescription: "\u6709\u9635\u9635\u6251\u9F3B\u7684\u9999\u6C14\uFF0C\u636E\u8BF4\u5546\u4EBA\u5F88\u5F88\u559C\u6B22\u5B83"
+  itemIcon: {fileID: 21300000, guid: c5869f1829beb4b429ca4681b7565fc0, type: 3}
+  itemEffectData: {fileID: 11400000, guid: 9b36d97ac1455424982048a73bcca7b7, type: 2}
   backpackItemData: {fileID: 11400000, guid: 43ae5d4e0e273ce4b998f84bbde81ecc, type: 2}
   itemType: 1
   rarity: 1
   itemBuyPrice: 8
   itemSellPrice: 4
-  canBuyFromMerchant: 1
+  canBuyFromMerchant: 0
   autoUnlock: 0
   sellAmountToUnlock: 1
   isConsumable: 1

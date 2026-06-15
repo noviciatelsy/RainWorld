@@ -967,6 +967,7 @@ MonoBehaviour:
     m_Bits: 256
   worldPlaneZ: 0
   disablePlayerControlInPhotographyMode: 0
+  photoCooldown: 1
 --- !u!1 &3228610241194486205
 GameObject:
   m_ObjectHideFlags: 0
@@ -1413,6 +1414,37 @@ MonoBehaviour:
   toyCarPrefab: {fileID: 6607717559240283362, guid: 27a827980ff047b419ad6d1d0e0776c9,
     type: 3}
   toyCarSpawnPosition: {fileID: 1432114132551112636}
+--- !u!1 &5165150191805711037
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5813339296026263602}
+  m_Layer: 6
+  m_Name: 'SpawnPosition  '
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5813339296026263602
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5165150191805711037}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 1, y: 1, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1849014540636665764}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5906364036857562326
 GameObject:
   m_ObjectHideFlags: 0
@@ -1800,6 +1832,55 @@ Transform:
   m_Children: []
   m_Father: {fileID: 3383233465015716613}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7499289279594329072
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5447070746693126785}
+  - component: {fileID: 7635498186027287923}
+  m_Layer: 6
+  m_Name: ShrinkMushroom
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5447070746693126785
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7499289279594329072}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2889453823928920363}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7635498186027287923
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7499289279594329072}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85cff91e060552840b15bacade420031, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  transformToShrink: {fileID: 316811649123266590}
+  shrinkMultiplier: 0.5
+  shrinkDuration: 60
+  affectZScale: 0
+  useUnscaledTime: 0
 --- !u!1 &8015714994019979486
 GameObject:
   m_ObjectHideFlags: 0
@@ -1849,6 +1930,8 @@ Transform:
   - {fileID: 5602293775000002576}
   - {fileID: 2538216236193999974}
   - {fileID: 8060126643385641202}
+  - {fileID: 5447070746693126785}
+  - {fileID: 1849014540636665764}
   m_Father: {fileID: 316811649123266590}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8080625354045286975
@@ -2227,3 +2310,53 @@ SpriteRenderer:
   m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &8706236574712405907
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1849014540636665764}
+  - component: {fileID: 4704500588449775312}
+  m_Layer: 6
+  m_Name: PlayerCloudSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1849014540636665764
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8706236574712405907}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 5813339296026263602}
+  m_Father: {fileID: 2889453823928920363}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4704500588449775312
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8706236574712405907}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fb8bb4303108654880983d7ed203d61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cloudSpawnPosition: {fileID: 5813339296026263602}
+  cloudPlatformPrefab: {fileID: 3495122560455303058, guid: ebf7e710976bff546b505174bed55f1c,
+    type: 3}
+  previewColor: {r: 0.25, g: 1, b: 0.25, a: 0.45}
+  previewFollowSpawnPosition: 1
