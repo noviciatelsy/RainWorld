@@ -7,6 +7,13 @@ public class Bat2D : MonsterBase
     public float moveSpeed = 4f;
     public float arriveThreshold = 0.05f;
 
+    [Header("Hunt Sector")]
+    [Tooltip("追踪玩家/飞虫时，在猎物上方该半径的扇形内选点")]
+    public float huntFanRadius = 2f;
+    [Tooltip("扇形总角度（以正上方为中心，默认 120°）")]
+    [Range(30f, 180f)]
+    public float huntFanAngle = 120f;
+
     [Header("Perception")]
     public float detectRadius = 10f;
     public float perceptionInterval = 0.2f;
@@ -105,8 +112,16 @@ public class Bat2D : MonsterBase
         }
 
         ResolveFlyLayerMask();
+        ResolvePlayerLayerMask();
         RebuildPerceptionMask();
         OnBatInitialized();
+    }
+
+    private void OnValidate()
+    {
+        ResolveFlyLayerMask();
+        ResolvePlayerLayerMask();
+        RebuildPerceptionMask();
     }
 
     protected virtual void CreateAIAndMotor()
@@ -150,6 +165,70 @@ public class Bat2D : MonsterBase
         RebuildPerceptionMask();
     }
 
+    public void ResolvePlayerLayerMask()
+    {
+        if (playerLayer.value != 0)
+        {
+            return;
+        }
+
+        int playerLayerIndex = LayerMask.NameToLayer("Player");
+
+        if (playerLayerIndex >= 0)
+        {
+            playerLayer = 1 << playerLayerIndex;
+            RebuildPerceptionMask();
+        }
+    }
+
+    public Vector2 PickRandomHuntSectorPoint(Vector2 preyWorldPos)
+    {
+        float halfFanRad = huntFanAngle * 0.5f * Mathf.Deg2Rad;
+        const float upAngle = Mathf.PI * 0.5f;
+        float angle = upAngle + Random.Range(-halfFanRad, halfFanRad);
+        float radius = huntFanRadius * Random.Range(0.85f, 1f);
+
+        return preyWorldPos + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius;
+    }
+
+    public bool IsWithinHuntSector(Vector2 preyWorldPos, Vector2 worldPoint)
+    {
+        Vector2 offset = worldPoint - preyWorldPos;
+
+        if (offset.sqrMagnitude < 0.0001f)
+        {
+            return false;
+        }
+
+        if (offset.y <= 0f)
+        {
+            return false;
+        }
+
+        if (offset.magnitude > huntFanRadius + 0.05f)
+        {
+            return false;
+        }
+
+        return Vector2.Angle(Vector2.up, offset) <= huntFanAngle * 0.5f + 0.01f;
+    }
+
+    public bool CanAttackPosition(Vector2 preyWorldPos)
+    {
+        if (IsWithinHuntSector(preyWorldPos, Position))
+        {
+            return true;
+        }
+
+        float attackRangeSqr = attackRange * attackRange;
+        return (preyWorldPos - Position).sqrMagnitude <= attackRangeSqr;
+    }
+
+    public bool IsInsideActivityBounds(Vector2 point)
+    {
+        return activityBounds.size.sqrMagnitude < 0.01f || activityBounds.Contains(point);
+    }
+
     public virtual void NotifyAttackPerformed()
     {
         batAI?.NotifyAttackPerformed();
@@ -184,6 +263,11 @@ public class Bat2D : MonsterBase
         if (collider == null)
         {
             return false;
+        }
+
+        if (collider.GetComponentInParent<Player>() != null)
+        {
+            return true;
         }
 
         if (collider.CompareTag("Player"))
@@ -273,7 +357,7 @@ public class Bat2D : MonsterBase
             }
         }
 
-        Collider2D[] hits = Physics2D.OverlapCircleAll(Position, attackRange);
+        Collider2D[] hits = Physics2D.OverlapCircleAll(Position, GetStrikeRange());
 
         for (int i = 0; i < hits.Length; i++)
         {
@@ -291,7 +375,7 @@ public class Bat2D : MonsterBase
             return false;
         }
 
-        if ((preyTransform.position - (Vector3)Position).sqrMagnitude > attackRange * attackRange)
+        if ((preyTransform.position - (Vector3)Position).sqrMagnitude > GetStrikeRangeSqr())
         {
             return false;
         }
@@ -323,6 +407,17 @@ public class Bat2D : MonsterBase
         }
 
         return ApplyPlayerAttack(player);
+    }
+
+    private float GetStrikeRange()
+    {
+        return IsInAttackSequence ? attackRange * 1.2f : attackRange;
+    }
+
+    private float GetStrikeRangeSqr()
+    {
+        float range = GetStrikeRange();
+        return range * range;
     }
 
     protected virtual bool ApplyPlayerAttack(Player player)
@@ -443,6 +538,7 @@ public class Bat2D : MonsterBase
             Gizmos.color = DebugPreyIsFly ? Color.cyan : Color.magenta;
             Gizmos.DrawLine(transform.position, DebugPreyPosition);
             Gizmos.DrawWireSphere(DebugPreyPosition, 0.25f);
+            DrawHuntSectorGizmo(DebugPreyPosition);
         }
 
         Gizmos.color = CurrentBehavior switch
@@ -482,5 +578,27 @@ public class Bat2D : MonsterBase
             Gizmos.color = new Color(0.3f, 0.5f, 1f, 0.25f);
             Gizmos.DrawWireSphere(transform.position, idleWanderRadiusMax);
         }
+    }
+
+    private void DrawHuntSectorGizmo(Vector2 preyPos)
+    {
+        float halfFanRad = huntFanAngle * 0.5f * Mathf.Deg2Rad;
+        const float upAngle = Mathf.PI * 0.5f;
+        const int segments = 16;
+
+        Gizmos.color = new Color(1f, 0.85f, 0.2f, 0.75f);
+        Vector2 prevPoint = preyPos + new Vector2(Mathf.Cos(upAngle - halfFanRad), Mathf.Sin(upAngle - halfFanRad)) * huntFanRadius;
+
+        for (int i = 1; i <= segments; i++)
+        {
+            float t = i / (float)segments;
+            float angle = Mathf.Lerp(upAngle - halfFanRad, upAngle + halfFanRad, t);
+            Vector2 point = preyPos + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * huntFanRadius;
+            Gizmos.DrawLine(prevPoint, point);
+            prevPoint = point;
+        }
+
+        Gizmos.DrawLine(preyPos, preyPos + new Vector2(Mathf.Cos(upAngle - halfFanRad), Mathf.Sin(upAngle - halfFanRad)) * huntFanRadius);
+        Gizmos.DrawLine(preyPos, preyPos + new Vector2(Mathf.Cos(upAngle + halfFanRad), Mathf.Sin(upAngle + halfFanRad)) * huntFanRadius);
     }
 }
