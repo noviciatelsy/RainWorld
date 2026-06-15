@@ -6,6 +6,8 @@ public class Robot2D : MonsterBase
     public float moveSpeed = 2.5f;
     public float chargeSpeed = 7f;
     public float arriveThreshold = 0.08f;
+    [Tooltip("脚底相对格子中心的 Y 偏移（鼹鼠路点约 -0.45；机器人 pivot 不同默认 -0.15，约高 0.3")]
+    public float feetYOffset = -0.15f;
 
     [Header("Areas")]
     [Tooltip("Idle 游荡可移动范围（世界坐标 Center/Size，固定区域）")]
@@ -60,7 +62,7 @@ public class Robot2D : MonsterBase
 
         if (mgr != null)
         {
-            transform.position = RobotGroundPath.SnapToFlatGround(Position);
+            transform.position = RobotGroundPath.SnapToFlatGround(Position, feetYOffset);
         }
 
         Arrived = true;

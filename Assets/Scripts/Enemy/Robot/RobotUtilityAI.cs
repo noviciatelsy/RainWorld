@@ -59,7 +59,7 @@ public class RobotUtilityAI : IMonsterAI
 
                 if (rb.Arrived || activePath == null || activePath.Count == 0)
                 {
-                    activePath = RobotGroundPath.FindRandomIdlePath(rb.Position, robot.idleBounds);
+                    activePath = RobotGroundPath.FindRandomIdlePath(rb.Position, robot.idleBounds, feetYOffset: robot.feetYOffset);
                     rb.Arrived = activePath == null || activePath.Count == 0;
                     rb.DebugPath = activePath;
                 }
@@ -110,7 +110,7 @@ public class RobotUtilityAI : IMonsterAI
         }
 
         chargeTarget = player;
-        activePath = RobotGroundPath.BuildChargePath(rb.Position, player.position);
+        activePath = RobotGroundPath.BuildChargePath(rb.Position, player.position, robot.feetYOffset);
         mode = RobotMode.Charge;
         chargeTimer = robot.chargeMaxDuration;
         rb.Arrived = false;

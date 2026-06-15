@@ -12,8 +12,10 @@ public static class RobotGroundPath
         Vector2Int.right
     };
 
-    private const float FeetYOffset = -0.45f;
     private const float BoundsMargin = 0.15f;
+
+    /// <summary>鼹鼠等沿边单位脚底偏移（格子中心向下）。</summary>
+    public const float DefaultFeetYOffset = -0.45f;
 
     public static bool IsFlatWalkable(TileMapGuideManager mgr, Vector2Int cell)
     {
@@ -25,9 +27,12 @@ public static class RobotGroundPath
         return !mgr.IsSolid(cell) && mgr.IsSolid(cell + Vector2Int.down);
     }
 
-    public static Vector2 CellToFeetWorld(TileMapGuideManager mgr, Vector2Int cell)
+    public static Vector2 CellToFeetWorld(
+        TileMapGuideManager mgr,
+        Vector2Int cell,
+        float feetYOffset = DefaultFeetYOffset)
     {
-        return mgr.CellToWorld(cell) + new Vector2(0f, FeetYOffset);
+        return mgr.CellToWorld(cell) + new Vector2(0f, feetYOffset);
     }
 
     public static bool IsInsideBoundsXY(Bounds bounds, Vector2 point, float margin = BoundsMargin)
@@ -48,7 +53,7 @@ public static class RobotGroundPath
     /// <summary>
     /// 将世界坐标对齐到当前行上最近的可行走格子的脚底点。
     /// </summary>
-    public static Vector2 SnapToFlatGround(Vector2 worldPos)
+    public static Vector2 SnapToFlatGround(Vector2 worldPos, float feetYOffset = DefaultFeetYOffset)
     {
         TileMapGuideManager mgr = TileMapGuideManager.Instance;
 
@@ -62,13 +67,17 @@ public static class RobotGroundPath
 
         if (IsFlatWalkable(mgr, walkable))
         {
-            return CellToFeetWorld(mgr, walkable);
+            return CellToFeetWorld(mgr, walkable, feetYOffset);
         }
 
         return worldPos;
     }
 
-    public static List<Vector2> FindFlatPath(Vector2 fromWorld, Vector2 toWorld, int maxSteps = 500)
+    public static List<Vector2> FindFlatPath(
+        Vector2 fromWorld,
+        Vector2 toWorld,
+        int maxSteps = 500,
+        float feetYOffset = DefaultFeetYOffset)
     {
         List<Vector2> path = new List<Vector2>();
         TileMapGuideManager mgr = TileMapGuideManager.Instance;
@@ -114,15 +123,18 @@ public static class RobotGroundPath
             return path;
         }
 
-        return ReconstructPath(mgr, parentMap, startCell, endCell);
+        return ReconstructPath(mgr, parentMap, startCell, endCell, feetYOffset);
     }
 
     /// <summary>
     /// 同层 BFS 失败时，沿当前行朝目标 X 方向冲刺（最多 12 格）。
     /// </summary>
-    public static List<Vector2> FindFlatDashToward(Vector2 fromWorld, Vector2 toWorld)
+    public static List<Vector2> FindFlatDashToward(
+        Vector2 fromWorld,
+        Vector2 toWorld,
+        float feetYOffset = DefaultFeetYOffset)
     {
-        List<Vector2> path = FindFlatPath(fromWorld, toWorld);
+        List<Vector2> path = FindFlatPath(fromWorld, toWorld, feetYOffset: feetYOffset);
 
         if (path.Count > 0)
         {
@@ -148,7 +160,7 @@ public static class RobotGroundPath
                 break;
             }
 
-            path.Add(CellToFeetWorld(mgr, cell));
+            path.Add(CellToFeetWorld(mgr, cell, feetYOffset));
         }
 
         return path;
@@ -157,16 +169,19 @@ public static class RobotGroundPath
     /// <summary>
     /// 识别到玩家后用的冲刺路径：BFS → 同行冲刺 → 同行直线目标（保证至少有一个路点）。
     /// </summary>
-    public static List<Vector2> BuildChargePath(Vector2 fromWorld, Vector2 toWorld)
+    public static List<Vector2> BuildChargePath(
+        Vector2 fromWorld,
+        Vector2 toWorld,
+        float feetYOffset = DefaultFeetYOffset)
     {
-        List<Vector2> path = FindFlatPath(fromWorld, toWorld);
+        List<Vector2> path = FindFlatPath(fromWorld, toWorld, feetYOffset: feetYOffset);
 
         if (path.Count > 0)
         {
             return path;
         }
 
-        path = FindFlatDashToward(fromWorld, toWorld);
+        path = FindFlatDashToward(fromWorld, toWorld, feetYOffset);
 
         if (path.Count > 0)
         {
@@ -189,7 +204,11 @@ public static class RobotGroundPath
         return path;
     }
 
-    public static List<Vector2> FindRandomIdlePath(Vector2 fromWorld, Bounds idleBounds, int maxSteps = 500)
+    public static List<Vector2> FindRandomIdlePath(
+        Vector2 fromWorld,
+        Bounds idleBounds,
+        int maxSteps = 500,
+        float feetYOffset = DefaultFeetYOffset)
     {
         List<Vector2> path = new List<Vector2>();
         TileMapGuideManager mgr = TileMapGuideManager.Instance;
@@ -213,7 +232,7 @@ public static class RobotGroundPath
         {
             steps++;
             Vector2Int current = queue.Dequeue();
-            Vector2 feetWorld = CellToFeetWorld(mgr, current);
+            Vector2 feetWorld = CellToFeetWorld(mgr, current, feetYOffset);
 
             if (current != startCell
                 && IsFlatWalkable(mgr, current)
@@ -228,10 +247,10 @@ public static class RobotGroundPath
         if (reachableCells.Count > 0)
         {
             Vector2Int chosenEnd = reachableCells[Random.Range(0, reachableCells.Count)];
-            return ReconstructPath(mgr, parentMap, startCell, chosenEnd);
+            return ReconstructPath(mgr, parentMap, startCell, chosenEnd, feetYOffset);
         }
 
-        return BuildBackupPath(fromWorld, idleBounds, mgr, startCell);
+        return BuildBackupPath(fromWorld, idleBounds, mgr, startCell, feetYOffset);
     }
 
     private static void EnqueueHorizontalNeighbors(
@@ -269,14 +288,15 @@ public static class RobotGroundPath
         TileMapGuideManager mgr,
         Dictionary<Vector2Int, Vector2Int> parentMap,
         Vector2Int startCell,
-        Vector2Int endCell)
+        Vector2Int endCell,
+        float feetYOffset = DefaultFeetYOffset)
     {
         List<Vector2> path = new List<Vector2>();
         Vector2Int backtrack = endCell;
 
         while (backtrack != startCell)
         {
-            path.Insert(0, CellToFeetWorld(mgr, backtrack));
+            path.Insert(0, CellToFeetWorld(mgr, backtrack, feetYOffset));
             backtrack = parentMap[backtrack];
         }
 
@@ -298,7 +318,8 @@ public static class RobotGroundPath
         Vector2 fromWorld,
         Bounds idleBounds,
         TileMapGuideManager mgr,
-        Vector2Int startCell)
+        Vector2Int startCell,
+        float feetYOffset = DefaultFeetYOffset)
     {
         List<Vector2> path = new List<Vector2>();
 
@@ -316,7 +337,7 @@ public static class RobotGroundPath
                     break;
                 }
 
-                Vector2 feet = CellToFeetWorld(mgr, cell);
+                Vector2 feet = CellToFeetWorld(mgr, cell, feetYOffset);
 
                 if (!IsInsideBoundsXY(idleBounds, feet))
                 {
