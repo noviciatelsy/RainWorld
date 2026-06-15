@@ -94,6 +94,8 @@ public class RobotMotor : IMonsterMotor
             speed * Time.fixedDeltaTime
         );
 
+        SnapToGround(rb);
+
         rb.UpdateFacingToward(moveTarget);
 
         AdvanceChargePathIndex(rb, path, moveTarget);
@@ -108,18 +110,20 @@ public class RobotMotor : IMonsterMotor
 
     private Vector2 GetChargeMoveTarget(Robot2D rb, List<Vector2> path, Transform chargeTarget)
     {
+        float groundY = RobotGroundPath.SnapToFlatGround(rb.Position, rb.feetYOffset).y;
+
         if (chargeTarget != null)
         {
-            return new Vector2(chargeTarget.position.x, rb.Position.y);
+            return new Vector2(chargeTarget.position.x, groundY);
         }
 
         if (path != null && pathIndex < path.Count)
         {
             Vector2 node = path[pathIndex];
-            return new Vector2(node.x, rb.Position.y);
+            return new Vector2(node.x, groundY);
         }
 
-        return rb.Position;
+        return new Vector2(rb.Position.x, groundY);
     }
 
     private void AdvanceChargePathIndex(Robot2D rb, List<Vector2> path, Vector2 moveTarget)
@@ -202,6 +206,8 @@ public class RobotMotor : IMonsterMotor
             speed * Time.fixedDeltaTime
         );
 
+        SnapToGround(rb);
+
         rb.UpdateFacingToward(nodeTarget);
 
         if (Vector2.Distance(rb.Position, nodeTarget) > rb.arriveThreshold)
@@ -236,5 +242,12 @@ public class RobotMotor : IMonsterMotor
         {
             chargeDamageDealt = true;
         }
+    }
+
+    private static void SnapToGround(Robot2D rb)
+    {
+        float groundY = RobotGroundPath.SnapToFlatGround(rb.Position, rb.feetYOffset).y;
+        Vector3 pos = rb.Transform.position;
+        rb.Transform.position = new Vector3(pos.x, groundY, pos.z);
     }
 }

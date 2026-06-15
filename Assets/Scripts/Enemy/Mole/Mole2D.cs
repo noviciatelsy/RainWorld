@@ -2,38 +2,89 @@ using UnityEngine;
 
 public class Mole2D : MonsterBase
 {
-    [Header("÷úÊóÊôĞÔÅäÖÃ")]
+    [Header("é¼¹é¼ å±æ€§é…ç½®")]
     public float moveSpeed = 2.5f;
-    public float playerCheckRadius = 5f; // Íæ¼Ò¼ì²â·¶Î§
-    public LayerMask playerLayer;        // Íæ¼ÒÍ¼²ã
+    public float playerCheckRadius = 5f;
+    public LayerMask playerLayer;
 
-    [Header("µ±Ç°×´Ì¬Êı¾İ£¨ÓÉ AI Óë Motor Î¬»¤£©")]
-    public int idleArrivalCount = 0;     // Idle ×´Ì¬µ½´ïÄ¿±êµã¼ÆÊı (0~3)
-    public float stealTimer = 0f;        // Steal ×´Ì¬µÄ 3 Ãë³ÖĞø¼ÆÊ±Æ÷
-    public MoleCave currentHomeCave;     // ÷úÊóµ±Ç°ËùÊô/¹ØÁªµÄ¶´Ñ¨½Úµã
+    [Header("åŠ¨ç”»")]
+    public MoleAni moleAni;
+
+    [Header("å½“å‰çŠ¶æ€æ•°æ®ï¼ˆç”± AI ä¸ Motor ç»´æŠ¤ï¼‰")]
+    public int idleArrivalCount = 0;
+    public float stealTimer = 0f;
+    public MoleCave currentHomeCave;
 
     protected override void Init()
     {
-        // 1. ³õÊ¼»¯ÄãµÄ½Ó¿ÚÊµÏÖÀà
         ai = new MoleUtilityAI(this);
         motor = new MoleMotor(this);
 
-        // 2. ½áºÏÈ«¾ÖÍ¼¹ÜÀíÆ÷£¬³õÊ¼»¯÷úÊóµÄÆğÊ¼¶´Ñ¨
-        if (MoleCaveManager.Instance != null)
+        if (moleAni == null)
         {
-            currentHomeCave = MoleCaveManager.Instance.FindClosestValidCave(Position);
-            if (currentHomeCave != null)
-            {
-                // ³õÊ¼Î»ÖÃÇ¿ÖÆ¶ÔÆëµ½ËùÊô¶´Ñ¨
-                transform.position = currentHomeCave.Position;
-            }
-            else
-            {
-                Debug.LogWarning("³¡¾°ÖĞÎ´ÕÒµ½ÈÎºÎÅäÖÃÁËÁ¬Í¨¹ØÏµµÄÓĞĞ§ MoleCave£¡");
-            }
+            moleAni = GetComponent<MoleAni>();
         }
+
+        if (moleAni == null)
+        {
+            moleAni = GetComponentInChildren<MoleAni>(true);
+        }
+
+        ResolveHomeCave();
 
         idleArrivalCount = 0;
         stealTimer = 0f;
+    }
+
+    private void ResolveHomeCave()
+    {
+        MoleCaveManager manager = MoleCaveManager.Instance;
+
+        if (manager == null)
+        {
+            manager = Object.FindObjectOfType<MoleCaveManager>();
+        }
+
+        if (manager != null)
+        {
+            manager.RefreshAllCaves();
+        }
+
+        if (currentHomeCave != null)
+        {
+            transform.position = currentHomeCave.Position;
+            return;
+        }
+
+        if (manager == null)
+        {
+            Debug.LogWarning("Mole2D: åœºæ™¯ä¸­æœªæ‰¾åˆ° MoleCaveManagerã€‚");
+            return;
+        }
+
+        currentHomeCave = manager.FindClosestValidCave(Position);
+
+        if (currentHomeCave == null)
+        {
+            currentHomeCave = manager.FindClosestCave(Position);
+        }
+
+        if (currentHomeCave != null)
+        {
+            transform.position = currentHomeCave.Position;
+
+            if (!MoleCaveManager.CaveHasConnections(currentHomeCave))
+            {
+                Debug.LogWarning(
+                    $"Mole2D: å·²ç»‘å®šæ´ç©´ã€Œ{currentHomeCave.name}ã€ï¼Œä½†å…¶ connectedCaves ä¸ºç©ºã€‚"
+                    + "è¯·åœ¨ Inspector ä¸­ä¸ºè¯¥æ´ç©´æŒ‡å®šè‡³å°‘ä¸€ä¸ªè¿é€šæ´ç©´ã€‚",
+                    currentHomeCave
+                );
+            }
+
+            return;
+        }
+
+        Debug.LogWarning("åœºæ™¯ä¸­æœªæ‰¾åˆ°ä»»ä½• MoleCaveï¼è¯·æ”¾ç½®å¸¦ MoleCave ç»„ä»¶çš„æ´ç©´ã€‚");
     }
 }

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class SurfaceWalker2D : MonsterBase
 {
@@ -8,6 +9,10 @@ public class SurfaceWalker2D : MonsterBase
     [Header("Movement")]
     [Tooltip("勾选 = 顺时针沿 loop；不勾选 = 逆时针")]
     public bool travelClockwise = false;
+
+    [Tooltip("整个 Prefab 根节点沿边法线离边的距离（移动逻辑仍在边线上）")]
+    [FormerlySerializedAs("visualNormalOffset")]
+    public float edgeNormalOffset = 0f;
 
     public SurfaceWalkerLegSystem legSystem;
 
@@ -68,8 +73,87 @@ public class SurfaceWalker2D : MonsterBase
         Arrived = true;
 
         SurfaceEdgePath.SyncEdgeStateFromPosition(this);
+        ApplyRootNormalOffset();
         lastVisualEdgeIndex = -1;
         ApplyVisual(force: true);
+
+        if (legSystem != null)
+        {
+            legSystem.InitializeFromWalker();
+        }
+    }
+
+    /// <summary>边线上的逻辑位置（不含根节点法线 offset）。</summary>
+    public Vector2 GetOnEdgeWorldPosition()
+    {
+        if (!HasEdge || Mathf.Approximately(edgeNormalOffset, 0f))
+        {
+            return Position;
+        }
+
+        Vector2 normal = GetEdgeOutwardNormal();
+        return Position - normal * edgeNormalOffset;
+    }
+
+    public Vector2 GetEdgeOutwardNormal()
+    {
+        Vector2 edgeDir = (CurrentEdge.b - CurrentEdge.a).normalized;
+        return SurfaceCrawlerVisual.GetOutwardNormal(edgeDir);
+    }
+
+    /// <summary>移动后：先落在边线上，再做法线 offset（不影响 SyncEdgeStateFromPosition）。</summary>
+    public void SetOnEdgeThenApplyOffset(Vector2 onEdge)
+    {
+        transform.position = onEdge;
+        ApplyRootNormalOffset();
+    }
+
+    public void ApplyRootNormalOffset()
+    {
+        if (!HasEdge || Mathf.Approximately(edgeNormalOffset, 0f))
+        {
+            return;
+        }
+
+        Vector2 onEdge = SurfaceEdgeTraversal.ClosestPointOnSegment(
+            transform.position,
+            CurrentEdge.a,
+            CurrentEdge.b
+        );
+        transform.position = onEdge + GetEdgeOutwardNormal() * edgeNormalOffset;
+    }
+
+    public Vector2 StripNormalOffset(Vector2 worldPoint)
+    {
+        if (!HasEdge || Mathf.Approximately(edgeNormalOffset, 0f))
+        {
+            return worldPoint;
+        }
+
+        return worldPoint - GetEdgeOutwardNormal() * edgeNormalOffset;
+    }
+
+    /// <summary>供 LegSystem 读取 loop 锚点；不参与移动。</summary>
+    public bool TryGetTravelLoopAnchor(
+        out int loopId,
+        out int bodyEdgeIndex,
+        out Vector2 bodyOnEdge,
+        out bool clockwise)
+    {
+        loopId = -1;
+        bodyEdgeIndex = -1;
+        bodyOnEdge = default;
+        clockwise = travelClockwise;
+
+        if (!HasEdge)
+        {
+            return false;
+        }
+
+        loopId = CurrentEdge.loopId;
+        bodyEdgeIndex = EdgeIndex;
+        bodyOnEdge = GetOnEdgeWorldPosition();
+        return true;
     }
 
     public void ApplyVisual(bool force = false)
@@ -91,7 +175,7 @@ public class SurfaceWalker2D : MonsterBase
                 baseVisualScale,
                 travelClockwise,
                 visualRotationOffset,
-                Position,
+                GetOnEdgeWorldPosition(),
                 out cachedVisualZ,
                 out cachedVisualScaleX
             );
@@ -104,7 +188,7 @@ public class SurfaceWalker2D : MonsterBase
         visualTransform.localEulerAngles = new Vector3(euler.x, euler.y, cachedVisualZ);
         visualTransform.localScale = new Vector3(
             cachedVisualScaleX,
-            baseVisualScale.y,
+            -Mathf.Abs(baseVisualScale.y),
             baseVisualScale.z
         );
 
@@ -117,6 +201,11 @@ public class SurfaceWalker2D : MonsterBase
     private void LateUpdate()
     {
         ApplyVisual();
+
+        if (legSystem != null && HasEdge)
+        {
+            legSystem.UpdateAfterBodyMoved();
+        }
     }
 
 #if UNITY_EDITOR

@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// 扩展意图，让 Motor 知道这个 Idle 只是传送后的硬着陆，不要加计数！
+// ?????????? Motor ?????? Idle ????????????????????????
 public class MoleIdleIntent : IIntent
 {
     public List<Vector2> strictPath;
-    public bool isTeleportCleanup = false; // 新增标记
+    public bool isTeleportCleanup = false; // ???????
 }
 
 public class MoleUtilityAI : IMonsterAI
@@ -13,6 +13,7 @@ public class MoleUtilityAI : IMonsterAI
     private Mole2D mole;
     private List<Vector2> lastIssuedPath = new List<Vector2>();
     private bool isStealing = false;
+    private bool wasStealing = false;
     private bool isMovingToCave = false;
     private float teleportCooldown = 0f;
 
@@ -23,7 +24,7 @@ public class MoleUtilityAI : IMonsterAI
 
     public IIntent Evaluate(MonsterBase owner)
     {
-        // 1. 传送后硬冷却：此时下发的 Idle 带上 cleanup 标记
+        // 1. ???????????????????? Idle ???? cleanup ???
         if (teleportCooldown > 0f)
         {
             teleportCooldown -= Time.fixedDeltaTime;
@@ -34,7 +35,7 @@ public class MoleUtilityAI : IMonsterAI
             };
         }
 
-        // 2. 玩家检测
+        // 2. ?????
         bool hasPlayer = Physics2D.OverlapCircle(mole.Position, mole.playerCheckRadius, mole.playerLayer) != null;
         if (hasPlayer && !isStealing)
         {
@@ -43,26 +44,40 @@ public class MoleUtilityAI : IMonsterAI
             isMovingToCave = false;
         }
 
-        // 3. Steal 状态分流
+        // 3. Steal ??????
         if (isStealing)
         {
             mole.stealTimer -= Time.fixedDeltaTime;
             if (mole.stealTimer <= 0f)
             {
                 isStealing = hasPlayer;
-                if (isStealing) mole.stealTimer = 3f;
+                if (isStealing)
+                {
+                    mole.stealTimer = 3f;
+                }
             }
 
-            if (isStealing) return new MoleStealIntent();
+            if (isStealing)
+            {
+                UpdateStealClawVisual();
+                wasStealing = true;
+                return new MoleStealIntent();
+            }
         }
 
-        // 4. 核心切换判定：一旦发现离组（Count由Motor重置为了0），说明已经传送成功
+        if (wasStealing)
+        {
+            SetStealClawActive(false);
+            wasStealing = false;
+        }
+
+        // 4. ??????????????????????????Count??Motor???????0????????????????
         if (isMovingToCave && mole.idleArrivalCount == 0)
         {
             isMovingToCave = false;
             lastIssuedPath = null;
             mole.Arrived = true;
-            teleportCooldown = 0.4f; // 给予 0.4 秒硬性冷却缓冲
+            teleportCooldown = 0.4f; // ???? 0.4 ????????????
 
             return new MoleIdleIntent
             {
@@ -71,7 +86,7 @@ public class MoleUtilityAI : IMonsterAI
             };
         }
 
-        // 5. 闲逛次数足够（只有真正的闲逛完成才能堆到3），去往洞穴
+        // 5. ????????????????????????????????3??????????
         if (mole.idleArrivalCount >= 3)
         {
             if (MoleCaveManager.Instance != null && mole.currentHomeCave != null)
@@ -86,14 +101,14 @@ public class MoleUtilityAI : IMonsterAI
             return new MoleUseCaveIntent { targetCave = mole.currentHomeCave };
         }
 
-        // 6. 正常的随机闲逛
+        // 6. ?????????????
         if (mole.Arrived || lastIssuedPath == null || lastIssuedPath.Count == 0)
         {
             lastIssuedPath = GenerateStrictEdgePath();
             mole.Arrived = false;
         }
 
-        // 正常的闲逛，isTeleportCleanup 默认为 false
+        // ??????????isTeleportCleanup ???? false
         return new MoleIdleIntent { strictPath = lastIssuedPath, isTeleportCleanup = false };
     }
 
@@ -180,5 +195,34 @@ public class MoleUtilityAI : IMonsterAI
         }
 
         return pathPoints;
+    }
+
+    private void UpdateStealClawVisual()
+    {
+        if (mole.moleAni == null)
+        {
+            return;
+        }
+
+        if (!wasStealing)
+        {
+            SetStealClawActive(true);
+        }
+
+        Collider2D playerHit = Physics2D.OverlapCircle(
+            mole.Position,
+            mole.playerCheckRadius,
+            mole.playerLayer
+        );
+
+        if (playerHit != null)
+        {
+            mole.moleAni.UpdateStealClaw(playerHit.transform.position);
+        }
+    }
+
+    private void SetStealClawActive(bool active)
+    {
+        mole.moleAni?.SetActivate(active);
     }
 }

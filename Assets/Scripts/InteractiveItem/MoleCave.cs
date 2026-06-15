@@ -3,30 +3,50 @@ using UnityEngine;
 
 public class MoleCave : MonoBehaviour
 {
-    [Header("»î¶¯ÇøÓòÅäÖÃ")]
-    [Tooltip("¸Ã¶´Ñ¨¹ÜÏ½µÄ÷úÊó Idle Ëæ»úÓÎ×ß³¤·½ÐÎ·¶Î§")]
+    [Header("ï¿½î¶¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
+    [Tooltip("ï¿½Ã¶ï¿½Ñ¨ï¿½ï¿½Ï½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Idle ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß³ï¿½ï¿½ï¿½ï¿½Î·ï¿½Î§")]
     public Bounds activityBounds;
 
-    [Header("Í¼½á¹¹£ºÁ¬Í¨µÄ¶´Ñ¨")]
-    [Tooltip("Óëµ±Ç°¶´Ñ¨»¥Í¨µÄÆäËû¶´Ñ¨ÁÐ±í£¨ÎÞÏòÍ¼µÄ±ß£©")]
+    [Header("Í¼ï¿½á¹¹ï¿½ï¿½ï¿½ï¿½Í¨ï¿½Ä¶ï¿½Ñ¨")]
+    [Tooltip("ï¿½ëµ±Ç°ï¿½ï¿½Ñ¨ï¿½ï¿½Í¨ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¨ï¿½Ð±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¼ï¿½Ä±ß£ï¿½")]
     public List<MoleCave> connectedCaves = new List<MoleCave>();
 
     public Vector2 Position => transform.position;
 
+    private void OnEnable()
+    {
+        if (MoleCaveManager.Instance != null)
+        {
+            MoleCaveManager.Instance.RegisterCave(this);
+        }
+    }
+
     private void Awake()
     {
-        // ×Ô¶¯½«×Ô¼º×¢²áµ½¹ÜÀíÆ÷ÖÐ
-        MoleCaveManager.Instance?.RegisterCave(this);
+        if (MoleCaveManager.Instance != null)
+        {
+            MoleCaveManager.Instance.RegisterCave(this);
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (MoleCaveManager.Instance != null)
+        {
+            MoleCaveManager.Instance.UnregisterCave(this);
+        }
     }
 
     private void OnDestroy()
     {
-        // Ïú»ÙÊ±°²È«×¢Ïú
-        MoleCaveManager.Instance?.UnregisterCave(this);
+        if (MoleCaveManager.Instance != null)
+        {
+            MoleCaveManager.Instance.UnregisterCave(this);
+        }
     }
 
     /// <summary>
-    /// ÔÚ Inspector ÖÐÊÖ¶¯½¨Á¢Ë«ÏòÁ¬½ÓµÄ¸¨Öú·½·¨
+    /// ï¿½ï¿½ Inspector ï¿½ï¿½ï¿½Ö¶ï¿½ï¿½ï¿½ï¿½ï¿½Ë«ï¿½ï¿½ï¿½ï¿½ï¿½ÓµÄ¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     public void AddConnection(MoleCave other)
     {
@@ -40,26 +60,26 @@ public class MoleCave : MonoBehaviour
     }
 
     // ==========================================
-    // ±à¼­Æ÷¿ÉÊÓ»¯ (Gizmos)
+    // ï¿½à¼­ï¿½ï¿½ï¿½ï¿½ï¿½Ó»ï¿½ (Gizmos)
     // ==========================================
     private void OnDrawGizmos()
     {
-        // 1. »æÖÆ»î¶¯·¶Î§³¤·½ÐÎ (»ÆÉ«)
+        // 1. ï¿½ï¿½ï¿½Æ»î¶¯ï¿½ï¿½Î§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½É«)
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireCube(activityBounds.center, activityBounds.size);
 
-        // 2. »æÖÆ¶´Ñ¨ºËÐÄµã (×ÏÉ«Çò)
+        // 2. ï¿½ï¿½ï¿½Æ¶ï¿½Ñ¨ï¿½ï¿½ï¿½Äµï¿½ (ï¿½ï¿½É«ï¿½ï¿½)
         Gizmos.color = new Color(0.6f, 0.2f, 0.8f);
         Gizmos.DrawSphere(transform.position, 0.3f);
 
-        // 3. »æÖÆÎÞÏòÍ¼µÄÁ¬Í¨Ïß (ÇàÉ«)
+        // 3. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½Í¨ï¿½ï¿½ (ï¿½ï¿½É«)
         if (connectedCaves == null) return;
         Gizmos.color = Color.cyan;
         foreach (var neighbor in connectedCaves)
         {
             if (neighbor != null)
             {
-                // ½öÔÚ ID Ð¡ÓÚ¶Ô·½Ê±»æÖÆ£¬±ÜÃâË«ÏòÏßÖØ¸´»æÖÆµ¼ÖÂÑÕÉ«µþ¼Ó
+                // ï¿½ï¿½ï¿½ï¿½ ID Ð¡ï¿½Ú¶Ô·ï¿½Ê±ï¿½ï¿½ï¿½Æ£ï¿½ï¿½ï¿½ï¿½ï¿½Ë«ï¿½ï¿½ï¿½ï¿½ï¿½Ø¸ï¿½ï¿½ï¿½ï¿½Æµï¿½ï¿½ï¿½ï¿½ï¿½É«ï¿½ï¿½ï¿½ï¿½
                 if (this.GetInstanceID() < neighbor.GetInstanceID())
                 {
                     Gizmos.DrawLine(transform.position, neighbor.transform.position);

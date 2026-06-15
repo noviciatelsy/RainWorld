@@ -145,12 +145,22 @@ public static class SurfaceCrawlerVisual
 
         Vector3 euler = target.localEulerAngles;
         target.localEulerAngles = new Vector3(euler.x, euler.y, z);
-        target.localScale = new Vector3(scaleX, baseScale.y, baseScale.z);
+        target.localScale = new Vector3(scaleX, -Mathf.Abs(baseScale.y), baseScale.z);
     }
 
     /// <summary>
     /// 沿 loop 的前进切线；不读移动目标，避免每帧抖动/上下翻转。
     /// </summary>
+    public static Vector2 GetEdgeTravelTangent(
+        TileMapGuideManager mgr,
+        int edgeIndex,
+        Edge edge,
+        bool travelClockwise,
+        Vector2 worldPosition)
+    {
+        return ResolveEdgeTravelTangent(mgr, edgeIndex, edge, travelClockwise, worldPosition);
+    }
+
     private static Vector2 ResolveEdgeTravelTangent(
         TileMapGuideManager mgr,
         int edgeIndex,
