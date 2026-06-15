@@ -2,12 +2,15 @@ using UnityEngine;
 
 public class Mole2D : MonsterBase
 {
-    [Header("������������")]
+    [Header("鼹鼠属性配置")]
     public float moveSpeed = 2.5f;
     public float playerCheckRadius = 5f;
     public LayerMask playerLayer;
 
-    [Header("��ǰ״̬���ݣ��� AI �� Motor ά����")]
+    [Header("动画")]
+    public MoleAni moleAni;
+
+    [Header("当前状态数据（由 AI 与 Motor 维护）")]
     public int idleArrivalCount = 0;
     public float stealTimer = 0f;
     public MoleCave currentHomeCave;
@@ -16,6 +19,16 @@ public class Mole2D : MonsterBase
     {
         ai = new MoleUtilityAI(this);
         motor = new MoleMotor(this);
+
+        if (moleAni == null)
+        {
+            moleAni = GetComponent<MoleAni>();
+        }
+
+        if (moleAni == null)
+        {
+            moleAni = GetComponentInChildren<MoleAni>(true);
+        }
 
         ResolveHomeCave();
 
@@ -45,7 +58,7 @@ public class Mole2D : MonsterBase
 
         if (manager == null)
         {
-            Debug.LogWarning("Mole2D: ������δ�ҵ� MoleCaveManager��");
+            Debug.LogWarning("Mole2D: 场景中未找到 MoleCaveManager。");
             return;
         }
 
@@ -63,8 +76,8 @@ public class Mole2D : MonsterBase
             if (!MoleCaveManager.CaveHasConnections(currentHomeCave))
             {
                 Debug.LogWarning(
-                    $"Mole2D: �Ѱ󶨶�Ѩ��{currentHomeCave.name}�������� connectedCaves Ϊ�ա�"
-                    + "���� Inspector ��Ϊ�ö�Ѩָ������һ����ͨ��Ѩ��",
+                    $"Mole2D: 已绑定洞穴「{currentHomeCave.name}」，但其 connectedCaves 为空。"
+                    + "请在 Inspector 中为该洞穴指定至少一个连通洞穴。",
                     currentHomeCave
                 );
             }
@@ -72,6 +85,6 @@ public class Mole2D : MonsterBase
             return;
         }
 
-        Debug.LogWarning("������δ�ҵ��κ� MoleCave������ô� MoleCave ����Ķ�Ѩ��");
+        Debug.LogWarning("场景中未找到任何 MoleCave！请放置带 MoleCave 组件的洞穴。");
     }
 }
