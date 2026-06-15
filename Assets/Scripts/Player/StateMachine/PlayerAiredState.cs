@@ -22,17 +22,17 @@ public class PlayerAiredState : PlayerBaseState
         base.Update();
 
         if (TryEnterClimbState())
-        // Èç¹ûÈËÎï´¦ÓÚ¿ÉÅÊÅÀÇøÓò£¬²¢ÇÒÓĞÊúÖ±·½ÏòÊäÈë
+        // å¦‚æœäººç‰©å¤„äºå¯æ”€çˆ¬åŒºåŸŸï¼Œå¹¶ä¸”æœ‰ç«–ç›´æ–¹å‘è¾“å…¥
         {
             return;
         }
 
-        if (mainInput.Player.Jump.WasPerformedThisFrame()) // Èç¹ûÈËÎïÔÚ¿ÕÖĞ°´ÏÂÌøÔ¾¼ü
+        if (mainInput.Player.Jump.WasPerformedThisFrame()) // å¦‚æœäººç‰©åœ¨ç©ºä¸­æŒ‰ä¸‹è·³è·ƒé”®
         {
             if (playerControl.TryConsumeDoubleJump())
             {
                 stateMachine.ChangeState(playerControl.jumpState);
-                // ÏûºÄ¶ş¶ÎÌø»ú»á£¬²¢ÖØĞÂ½øÈëÌøÔ¾×´Ì¬
+                // æ¶ˆè€—äºŒæ®µè·³æœºä¼šï¼Œå¹¶é‡æ–°è¿›å…¥è·³è·ƒçŠ¶æ€
 
                 return;
             }
@@ -41,24 +41,24 @@ public class PlayerAiredState : PlayerBaseState
         groundDetectDelayTimer += Time.deltaTime;
 
         if (playerControl.moveInput.x != 0)
-        // Èç¹ûÓĞºáÏòÒÆ¶¯ÊäÈë
+        // å¦‚æœæœ‰æ¨ªå‘ç§»åŠ¨è¾“å…¥
         {
             playerControl.SetVelocity(playerControl.moveInput.x * playerControl.moveSpeed * playerControl.inAirMoveMultiplier, rb.velocity.y);
-            // »ñÈ¡ÏàÓ¦·½ÏòºáÏòËÙ¶È
+            // è·å–ç›¸åº”æ–¹å‘æ¨ªå‘é€Ÿåº¦
         }
         else
         {
             playerControl.SetVelocity(0, rb.velocity.y);
-            // »ñÈ¡ÏàÓ¦·½ÏòºáÏòËÙ¶È
+            // è·å–ç›¸åº”æ–¹å‘æ¨ªå‘é€Ÿåº¦
         }
 
         if (groundDetectDelayTimer > groundDetectDelay)
         {
-            if (playerControl.groundDetected)
-            // Èç¹ûÏÂÂäÖÁµØÃæ
+            if (playerControl.IsGroundedForLanding())
+            // å¦‚æœä¸‹è½è‡³åœ°é¢ï¼ˆèµ·è·³åçŸ­æš‚å¿½ç•¥ç”µæ¢¯åœ°é¢ï¼Œé¿å…ç«‹åˆ»åˆ‡å› Idleï¼‰
             {
                 stateMachine.ChangeState(playerControl.idleState);
-                // ÇĞ»»ÖÁ´ı»ú×´Ì¬
+                // åˆ‡æ¢è‡³å¾…æœºçŠ¶æ€
                 return;
             }
         }

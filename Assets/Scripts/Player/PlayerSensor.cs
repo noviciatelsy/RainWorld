@@ -1,85 +1,68 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// ç©å®¶äº¤äº’æ„Ÿåº”å™¨ï¼šè¿›å…¥ PlayerSensorTarget åŒºåŸŸåæŒ‰ Interact(E) è§¦å‘äº¤äº’ã€‚
+/// </summary>
 public class PlayerSensor : MonoBehaviour
 {
+    private readonly List<PlayerSensorTarget> targetsInRange = new List<PlayerSensorTarget>();
     private MainInput mainInput;
-
-    // µ±Ç° PlayerSensor ·¶Î§ÄÚµÄ¿É½»»¥Ä¿±ê
-    private readonly List<PlayerSensorTarget> nearbyTargets = new List<PlayerSensorTarget>();
 
     private void Awake()
     {
-        mainInput=InputManager.Instance.mainInput;
+        mainInput = InputManager.Instance.mainInput;
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        PlayerSensorTarget target = other.GetComponent<PlayerSensorTarget>();
+        if (target == null || targetsInRange.Contains(target))
+        {
+            return;
+        }
+
+        targetsInRange.Add(target);
+    }
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        PlayerSensorTarget target = other.GetComponent<PlayerSensorTarget>();
+        if (target == null)
+        {
+            return;
+        }
+
+        targetsInRange.Remove(target);
     }
 
     private void Update()
     {
-        if (mainInput.Player.Interact.WasPerformedThisFrame())
-        {
-            InteractWithNearestTarget();
-        }
-    }
-
-    private void InteractWithNearestTarget()
-    {
-        // ÇåÀíÒÑ¾­±»Ïú»ÙµÄÄ¿±ê£¬±ÜÃâ¿ÕÒıÓÃ
-        nearbyTargets.RemoveAll(target => target == null);
-
-        if (nearbyTargets.Count == 0)
+        if (mainInput == null)
         {
             return;
         }
 
-        PlayerSensorTarget nearestTarget = null;
-        float nearestSqrDistance = float.MaxValue;
-
-        Vector3 sensorPosition = transform.position;
-
-        foreach (PlayerSensorTarget target in nearbyTargets)
+        if (ElevatorInputGate.IsBlocking)
         {
-            // ÓÃ sqrMagnitude ±ÜÃâ¿ªÆ½·½£¬¾àÀë±È½ÏÊ±¸üÊ¡Ò»µãµãĞÔÄÜ
-            float sqrDistance = (target.transform.position - sensorPosition).sqrMagnitude;
+            return;
+        }
 
-            if (sqrDistance < nearestSqrDistance)
+        if (!mainInput.Player.Interact.WasPerformedThisFrame())
+        {
+            return;
+        }
+
+        for (int i = targetsInRange.Count - 1; i >= 0; i--)
+        {
+            PlayerSensorTarget target = targetsInRange[i];
+            if (target == null)
             {
-                nearestSqrDistance = sqrDistance;
-                nearestTarget = target;
+                targetsInRange.RemoveAt(i);
+                continue;
             }
+
+            target.Interact();
         }
-
-        if (nearestTarget != null)
-        {
-            nearestTarget.Interact();
-        }
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        PlayerSensorTarget target = collision.GetComponentInParent<PlayerSensorTarget>();
-
-        if (target == null)
-        {
-            return;
-        }
-
-        if (nearbyTargets.Contains(target))
-        {
-            return;
-        }
-
-        nearbyTargets.Add(target);
-    }
-
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        PlayerSensorTarget target = collision.GetComponentInParent<PlayerSensorTarget>();
-
-        if (target == null)
-        {
-            return;
-        }
-
-        nearbyTargets.Remove(target);
     }
 }

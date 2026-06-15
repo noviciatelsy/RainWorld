@@ -5,32 +5,35 @@ using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[DefaultExecutionOrder(100)]
 public class PlayerControl : MonoBehaviour
 {
     [Header("Collision detection")]
-    [SerializeField] private float groundCheckDistance; // 实体到地面的距离（用于射线检测）
-    [SerializeField] private float wallCheckDistance; // 实体到墙壁的距离（用于射线检测）
-    [SerializeField] LayerMask whatIsGround; // 地面/墙壁layer
-    [SerializeField] private Transform groundCheck; // 地面检测位置
-    [SerializeField] private Transform wallCheck; // 墙壁检测位置
+    [SerializeField] private float groundCheckDistance; // ??????????????????????
+    [SerializeField] private float wallCheckDistance; // ?????????????????????
+    [SerializeField] LayerMask whatIsGround; // ????/???layer
+    [SerializeField] private Transform groundCheck; // ??????????
+    [SerializeField] private Transform wallCheck; // ?????????
 
     [Header("Movement details")]
-    public float moveSpeed = 3.5f; // 人物移速
-    public float jumpForce =11f; // 跳跃力度
+    public float moveSpeed = 3.5f; // ????????
+    public float jumpForce =11f; // ???????
     [Range(0, 1)]
-    public float inAirMoveMultiplier = 1; // 空中移动速度倍率
+    public float inAirMoveMultiplier = 1; // ?????????????
 
     [Header("DropPlatform")]
-    [SerializeField] private Collider2D playerCollider;       // 玩家主碰撞体
+    [SerializeField] private Collider2D playerCollider;       // ??????????
     [SerializeField] private Vector2 groundCheckSize = new Vector2(0.6f, 0.1f);
-    [SerializeField] private LayerMask oneWayPlatformLayer;   // 单向平台所在层
-    [SerializeField] private float dropIgnoreTime = 0.25f;    // 忽略碰撞持续时间
+    [SerializeField] private LayerMask oneWayPlatformLayer;   // ???????????
+    [SerializeField] private float dropIgnoreTime = 0.25f;    // ??????????????
 
     [Header("Climb details")]
-    public float climbHorizontalSpeed = 2.5f; // 攀爬时的水平移动速度
-    public float climbVerticalSpeed = 2.5f; // 攀爬时的竖直移动速度
-    public float climbInputDeadZone = 0.1f; // 攀爬输入死区
+    public float climbHorizontalSpeed = 2.5f; // ???????????????
+    public float climbVerticalSpeed = 2.5f; // ????????????????
+    public float climbInputDeadZone = 0.1f; // ????????????
 
+    [Header("Elevator")]
+    [SerializeField] private float platformJumpGroundIgnoreTime = 0.2f;
 
     public Player player { get; private set; }
     public Animator anim {  get; private set; }
@@ -38,15 +41,21 @@ public class PlayerControl : MonoBehaviour
     public MainInput mainInput { get; private set; }
     public Vector2 moveInput { get; private set; }
     public PlayerStateMachine stateMachine { get; private set; }
-    private bool facingRight = true; // 实体朝向
+    private bool facingRight = true; // ???o??
     public int facingDir { get; private set; } = 1;
-    public bool groundDetected { get; private set; } // 是否处于地面
+    public bool groundDetected { get; private set; } // ????????
 
-    public bool wallDetected { get; private set; } // 是否处于墙壁
+    public bool wallDetected { get; private set; } // ????????
     public float jumpBufferTimer = -999f;
     private float originalGravityScale;
-    private Collider2D currentOneWayPlatform;                 // 当前脚下的平台
+    private Collider2D currentOneWayPlatform;                 // ??????????
     private bool isDropping;
+    private ElevatorPlatform ridingElevator;
+    private float elevatorDetachTimer;
+    private float platformJumpIgnoreTimer;
+    private float inheritedPlatformVelocityY;
+    private bool inheritElevatorVelocityInAir;
+    private const float ElevatorDetachGrace = 0.2f;
 
     public float baseGravityMultiplier { get; private set; } = 1;
     public float BonusGravityMultiplier { get; private set; } = 1;
@@ -107,15 +116,22 @@ public class PlayerControl : MonoBehaviour
     private void Update()
     {
         stateMachine.UpdateActiveState();
-        // 调用当前状态对象的update方法（只响应当前状态的操作）
-        // 只对当前状态对象的行为监听
 
-        rb.gravityScale = originalGravityScale * baseGravityMultiplier * BonusGravityMultiplier;
+        if (!IsGroundedOnMovingElevator())
+        {
+            rb.gravityScale = originalGravityScale * baseGravityMultiplier * BonusGravityMultiplier;
+        }
+
+        UpdateElevatorDetachTimer();
+        UpdatePlatformJumpIgnoreTimer();
+        ApplyElevatorAirVelocityInheritance();
     }
 
     private void FixedUpdate()
     {
-        HandleCollisionDetecion(); // 检测是否接触地面/墙壁
+        HandleCollisionDetecion();
+        UpdateElevatorReference();
+        ApplyElevatorGroundPhysicsBeforeStep();
     }
 
     public void OnMovePerformed(InputAction.CallbackContext context)
@@ -129,27 +145,280 @@ public class PlayerControl : MonoBehaviour
     }
 
 
-    public void SetVelocity(float xVelocity, float yVelocity)
-    // 设置实体速度和朝向
+    public void SetVelocity(float xVelocity, float yVelocity, bool yIsJumpImpulse = false)
     {
-        rb.velocity = new Vector2(xVelocity, yVelocity); // 设置rb速度
-        Handleflip(xVelocity); // 处理朝向
+        if (yIsJumpImpulse)
+        {
+            ApplyJumpVelocity(xVelocity, yVelocity);
+        }
+        else if (IsGroundedOnMovingElevator())
+        {
+            ElevatorPlatform platform = GetElevatorUnderFeet() ?? ridingElevator;
+            Vector2 platformVelocity = platform != null ? platform.Velocity : Vector2.zero;
+            rb.velocity = new Vector2(xVelocity, platformVelocity.y);
+        }
+        else
+        {
+            rb.velocity = new Vector2(xVelocity, yVelocity);
+        }
+
+        Handleflip(xVelocity);
+    }
+
+    public bool IsGroundedForLanding()
+    {
+        if (platformJumpIgnoreTimer > 0f)
+        {
+            return false;
+        }
+
+        return groundDetected;
+    }
+
+    public void NotifyStandingOnElevator(ElevatorPlatform elevator)
+    {
+        ridingElevator = elevator;
+        elevatorDetachTimer = 0f;
+    }
+
+    public void NotifyLeftElevatorPlatform(ElevatorPlatform elevator)
+    {
+        if (ridingElevator != elevator)
+        {
+            return;
+        }
+
+        elevatorDetachTimer = ElevatorDetachGrace;
+    }
+
+    public void SetRidingElevator(ElevatorPlatform elevator)
+    {
+        NotifyStandingOnElevator(elevator);
+    }
+
+    public void ClearRidingElevator(ElevatorPlatform elevator)
+    {
+        NotifyLeftElevatorPlatform(elevator);
+    }
+
+    private void UpdateElevatorDetachTimer()
+    {
+        if (ridingElevator == null || elevatorDetachTimer <= 0f)
+        {
+            return;
+        }
+
+        elevatorDetachTimer -= Time.deltaTime;
+        if (elevatorDetachTimer <= 0f)
+        {
+            ridingElevator = null;
+        }
+    }
+
+    private void UpdatePlatformJumpIgnoreTimer()
+    {
+        if (platformJumpIgnoreTimer <= 0f)
+        {
+            return;
+        }
+
+        platformJumpIgnoreTimer -= Time.deltaTime;
+    }
+
+    private bool IsElevatorRiderActive()
+    {
+        if (ridingElevator == null)
+        {
+            return false;
+        }
+
+        if (elevatorDetachTimer > 0f)
+        {
+            return true;
+        }
+
+        if (platformJumpIgnoreTimer > 0f)
+        {
+            return true;
+        }
+
+        return ridingElevator.HasRider(this) || GetElevatorUnderFeet() == ridingElevator;
+    }
+
+    public bool IsOnMovingElevator()
+    {
+        return ridingElevator != null && ridingElevator.IsMoving && IsElevatorRiderActive();
+    }
+
+    public Vector2 GetElevatorVelocity()
+    {
+        if (!IsElevatorRiderActive())
+        {
+            return Vector2.zero;
+        }
+
+        return ridingElevator.Velocity;
+    }
+
+    private void ApplyJumpVelocity(float xVelocity, float jumpImpulse)
+    {
+        ElevatorPlatform platform = GetElevatorUnderFeet() ?? ridingElevator;
+        if (platform != null && platform.IsMoving)
+        {
+            inheritedPlatformVelocityY = platform.Velocity.y;
+            inheritElevatorVelocityInAir = true;
+            rb.velocity = new Vector2(xVelocity, jumpImpulse + inheritedPlatformVelocityY);
+        }
+        else
+        {
+            inheritElevatorVelocityInAir = false;
+            inheritedPlatformVelocityY = 0f;
+            rb.velocity = new Vector2(xVelocity, jumpImpulse);
+        }
+
+        platformJumpIgnoreTimer = platformJumpGroundIgnoreTime;
+        platform?.UnregisterRider(this);
+    }
+
+    private void ApplyElevatorAirVelocityInheritance()
+    {
+        if (!inheritElevatorVelocityInAir)
+        {
+            return;
+        }
+
+        if (platformJumpIgnoreTimer <= 0f && elevatorDetachTimer <= 0f)
+        {
+            inheritElevatorVelocityInAir = false;
+            inheritedPlatformVelocityY = 0f;
+            return;
+        }
+
+        ElevatorPlatform platform = ridingElevator;
+        if (platform == null || !platform.IsMoving)
+        {
+            inheritElevatorVelocityInAir = false;
+            inheritedPlatformVelocityY = 0f;
+            return;
+        }
+
+        float platformVy = platform.Velocity.y;
+        float relativeVy = rb.velocity.y - inheritedPlatformVelocityY;
+        rb.velocity = new Vector2(rb.velocity.x, relativeVy + platformVy);
+        inheritedPlatformVelocityY = platformVy;
+    }
+
+    private void UpdateElevatorReference()
+    {
+        if (platformJumpIgnoreTimer > 0f)
+        {
+            return;
+        }
+
+        ElevatorPlatform underFeet = GetElevatorUnderFeet();
+        if (underFeet != null)
+        {
+            ridingElevator = underFeet;
+            elevatorDetachTimer = 0f;
+            underFeet.RegisterRider(this);
+            return;
+        }
+
+        if (ridingElevator != null && elevatorDetachTimer <= 0f && !ridingElevator.HasRider(this))
+        {
+            ridingElevator = null;
+        }
+    }
+
+    private void ApplyElevatorGroundPhysicsBeforeStep()
+    {
+        if (!IsGroundedOnMovingElevator())
+        {
+            return;
+        }
+
+        ElevatorPlatform platform = GetElevatorUnderFeet() ?? ridingElevator;
+        if (platform == null)
+        {
+            return;
+        }
+
+        rb.gravityScale = 0f;
+        Vector2 platformVelocity = platform.Velocity;
+        rb.velocity = new Vector2(GetElevatorGroundHorizontalVelocity(), platformVelocity.y);
+    }
+
+    private float GetElevatorGroundHorizontalVelocity()
+    {
+        PlayerBaseState currentState = stateMachine.currentState;
+
+        if (currentState == moveState)
+        {
+            if (moveInput.x == 0f || wallDetected)
+            {
+                return 0f;
+            }
+
+            return moveInput.x * moveSpeed;
+        }
+
+        if (currentState == idleState)
+        {
+            return 0f;
+        }
+
+        return rb.velocity.x;
+    }
+
+    public bool IsGroundedOnMovingElevator()
+    {
+        if (platformJumpIgnoreTimer > 0f || !groundDetected || !IsInGroundedMovementState())
+        {
+            return false;
+        }
+
+        ElevatorPlatform platform = GetElevatorUnderFeet() ?? ridingElevator;
+        return platform != null && platform.IsMoving;
+    }
+
+    private ElevatorPlatform GetElevatorUnderFeet()
+    {
+        RaycastHit2D hit = Physics2D.Raycast(
+            groundCheck.position,
+            Vector2.down,
+            groundCheckDistance + 0.1f,
+            whatIsGround);
+
+        if (hit.collider == null)
+        {
+            return null;
+        }
+
+        return hit.collider.GetComponentInParent<ElevatorPlatform>();
+    }
+
+    private bool IsInGroundedMovementState()
+    {
+        PlayerBaseState currentState = stateMachine.currentState;
+        return currentState == idleState
+            || currentState == moveState
+            || currentState == climbState;
     }
 
     public void Handleflip(float xVelocity)
     {
-        // 极小速度不参与朝向判断
+        // ??????????????????
         if (Mathf.Abs(xVelocity) < 0.01f)
         {
             return;
         }
         if (xVelocity > 0 && facingRight == false)
-        // 如果朝向由左改右
+        // ??????????????
         {
             Flip();
         }
         else if (xVelocity < 0 && facingRight == true)
-        // 如果朝向由右改左
+        // ??????????????
         {
             Flip();
         }
@@ -158,22 +427,22 @@ public class PlayerControl : MonoBehaviour
     public void Flip()
     {
         transform.localScale = new Vector3(-transform.localScale.x, transform.localScale.y, transform.localScale.z);
-        // 左右翻转
+        // ??????
 
         facingRight = !facingRight;
-        // 更新朝向
+        // ???????
 
         facingDir = facingDir * -1;
-        // 更像方向
+        // ??????
     }
 
     private void HandleCollisionDetecion()
     {
         groundDetected = Physics2D.Raycast(groundCheck.position, Vector2.down, groundCheckDistance, whatIsGround);
-        // 检测是否接触地面
+        // ????????????
 
         wallDetected = Physics2D.Raycast(wallCheck.position, Vector2.right * facingDir, wallCheckDistance, whatIsGround);
-        // 是否接触墙壁
+        // ????????
     }
 
 
@@ -200,13 +469,13 @@ public class PlayerControl : MonoBehaviour
 
     public bool TryDropDown()
     {
-        // 正在下落过程中，不重复触发
+        // ????????????????????????
         if (isDropping)
         {
             return false;
         }
 
-        // 先检测脚下是否有单向平台
+        // ??????????????????
         currentOneWayPlatform = Physics2D.OverlapBox
         (
             groundCheck.position,
@@ -241,13 +510,13 @@ public class PlayerControl : MonoBehaviour
     {
         isDropping = true;
 
-        // 临时忽略玩家与当前平台的碰撞
+        // ????????????????????
         Physics2D.IgnoreCollision(playerCollider, platformCollider, true);
 
-        // 等待一小段时间，让玩家掉下去
+        // ????????????????????
         yield return new WaitForSeconds(dropIgnoreTime);
 
-        // 恢复碰撞
+        // ??????
         if (playerCollider != null && platformCollider != null)
         {
             Physics2D.IgnoreCollision(playerCollider, platformCollider, false);
@@ -263,7 +532,7 @@ public class PlayerControl : MonoBehaviour
 
     public void AddMoveSpeed(float amountToAdd)
     {
-        // 防止传入负数导致逻辑反过来
+        // ??????????????????????
         if (amountToAdd <= 0f)
         {
             return;
@@ -274,13 +543,13 @@ public class PlayerControl : MonoBehaviour
 
     public void ReduceMoveSpeed(float amountToReduce)
     {
-        // 防止传入负数导致逻辑反过来
+        // ??????????????????????
         if (amountToReduce <= 0f)
         {
             return;
         }
 
-        // 防止速度被减成负数
+        // ??????????????
         moveSpeed = Mathf.Max(0f, moveSpeed - amountToReduce);
     }
 
@@ -319,8 +588,8 @@ public class PlayerControl : MonoBehaviour
 
         ReduceMoveSpeed(amountToReduce);
 
-        // 实际减少了多少，就只恢复多少
-        // 比如当前速度是 3，但要减少 10，实际只能减少 3
+        // ??????????????????????
+        // ????y?????? 3????????? 10??????????? 3
         float actualReducedAmount = speedBeforeReduce - moveSpeed;
 
         yield return new WaitForSeconds(time);
@@ -330,7 +599,7 @@ public class PlayerControl : MonoBehaviour
 
     public void AddJumpForce(float amountToAdd)
     {
-        // 防止传入负数导致逻辑反过来
+        // ??????????????????????
         if (amountToAdd <= 0f)
         {
             return;
@@ -341,13 +610,13 @@ public class PlayerControl : MonoBehaviour
 
     public void ReduceJumpForce(float amountToReduce)
     {
-        // 防止传入负数导致逻辑反过来
+        // ??????????????????????
         if (amountToReduce <= 0f)
         {
             return;
         }
 
-        // 防止跳跃力度被减成负数
+        // ??????????????????
         jumpForce = Mathf.Max(0f, jumpForce - amountToReduce);
     }
 
@@ -386,8 +655,8 @@ public class PlayerControl : MonoBehaviour
 
         ReduceJumpForce(amountToReduce);
 
-        // 实际减少了多少，就只恢复多少
-        // 比如当前跳跃力度是 3，但要减少 10，实际只能减少 3
+        // ??????????????????????
+        // ????y?????????? 3????????? 10??????????? 3
         float actualReducedAmount = jumpForceBeforeReduce - jumpForce;
 
         yield return new WaitForSeconds(time);
@@ -418,14 +687,14 @@ public class PlayerControl : MonoBehaviour
 
         hasPreparedDoubleJump = true;
         hasUsedDoubleJump = false;
-        // 第一次进入跳跃状态时，准备一次二段跳机会
+        // ?????????????????????????????????
     }
 
     public void ResetDoubleJump()
     {
         hasPreparedDoubleJump = false;
         hasUsedDoubleJump = false;
-        // 回到地面，或者进入某些可重新支撑玩家的状态时，重置二段跳
+        // ?????????????????????????????????????????????
     }
 
     public bool TryConsumeDoubleJump()

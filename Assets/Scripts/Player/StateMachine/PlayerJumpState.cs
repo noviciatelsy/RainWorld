@@ -13,8 +13,8 @@ public class PlayerJumpState : PlayerAiredState
         base.Enter();
 
         playerControl.PrepareDoubleJump();
-        // µÚÒ»´Î½øÈëÌøÔ¾×´Ì¬Ê±£¬×¼±¸¶þ¶ÎÌø»ú»á
-        // Èç¹ûÕâÊÇ¶þ¶ÎÌøÖØÐÂ½øÈë JumpState£¬ÒòÎª hasPreparedDoubleJump ÒÑ¾­ÊÇ true£¬ËùÒÔ²»»áÖØ¸´Ë¢ÐÂ´ÎÊý
+        // ï¿½ï¿½Ò»ï¿½Î½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¾×´Ì¬Ê±ï¿½ï¿½×¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â½ï¿½ï¿½ï¿½ JumpStateï¿½ï¿½ï¿½ï¿½Îª hasPreparedDoubleJump ï¿½Ñ¾ï¿½ï¿½ï¿½ trueï¿½ï¿½ï¿½ï¿½ï¿½Ô²ï¿½ï¿½ï¿½ï¿½Ø¸ï¿½Ë¢ï¿½Â´ï¿½ï¿½ï¿½
 
         float xVelocity = rb.velocity.x;
 
@@ -23,8 +23,8 @@ public class PlayerJumpState : PlayerAiredState
             xVelocity = 0f;
         }
 
-        playerControl.SetVelocity(xVelocity, playerControl.jumpForce);
-        // ÔÚy·½Ïò»ñµÃjumpForce´óÐ¡µÄËÙ¶È
+        playerControl.SetVelocity(xVelocity, playerControl.jumpForce, yIsJumpImpulse: true);
+        // ï¿½ï¿½ y ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ jumpForceï¿½ï¿½ï¿½ï¿½Õ¾ï¿½Úµï¿½ï¿½ï¿½ï¿½Ï»ï¿½ï¿½ï¿½Óµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶ï¿½
 
         playerControl.jumpBufferTimer = -999f;
     }
@@ -38,9 +38,9 @@ public class PlayerJumpState : PlayerAiredState
             return;
         }
 
-        if (mainInput.Player.Jump.WasPerformedThisFrame()) // Èç¹ûÈËÎï°´ÏÂÌøÔ¾¼ü
+        if (mainInput.Player.Jump.WasPerformedThisFrame()) // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï°´ï¿½ï¿½ï¿½ï¿½Ô¾ï¿½ï¿½
         {
-            playerControl.jumpBufferTimer = Time.time; // ¼ÇÂ¼ÌøÔ¾»º´æÊ±¼ä
+            playerControl.jumpBufferTimer = Time.time; // ï¿½ï¿½Â¼ï¿½ï¿½Ô¾ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
         }
     }
 }

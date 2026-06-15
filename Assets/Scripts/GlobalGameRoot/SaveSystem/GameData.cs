@@ -7,10 +7,10 @@ public class GameData
 {
     public const int GameDataSlotCount = 3;
 
-    [Header("全局游戏外数据")]
+    [Header("????????????")]
     public GlobalGameData globalGameData = new GlobalGameData();
 
-    [Header("三个独立的游戏内存档槽")]
+    [Header("???????????????锟斤拷??")]
     public List<GameDataSlot> gameDataSlots = new List<GameDataSlot>();
 
     public void EnsureDataValid()
@@ -62,7 +62,7 @@ public class GameData
 [Serializable]
 public class GlobalGameData
 {
-    // 音频设置（0~1，配合 AudioMixer 使用）
+    // ????????0~1????? AudioMixer ????
     public float bgmVolume = 1f;
     public float sfxVolume = 1f;
     public float uiVolume = 1f;
@@ -114,41 +114,44 @@ public class GameDataSlot
 [Serializable]
 public class GameRunData
 {
-    // 最后一次保存的现实时间
-    // 用 string 存 ISO 时间，避免 DateTime 在 JsonUtility 里序列化不稳定
+    // ?????锟斤拷??????????
+    // ?? string ?? ISO ??????? DateTime ?? JsonUtility ?????锟斤拷??????
     public string lastSaveTimeIso = "";
 
-    // 已解锁情报id
+    // ??????锟絣id
     public List<string> unlockedIntelligences = new List<string>();
 
-    // 已解锁敌人情报id
+    // ??????????锟絣id
     public List<string> unlockedEnemyIntelligences = new List<string>();
 
-    // 已解锁EnemyInformation的id
+    // ?????EnemyInformation??id
     public List<string> unlockedEnemies = new List<string>();
 
-    // 已解锁的敌人照片
+    // ?????????????
     // key = EnemyInformationDataSO.SaveID
-    // value = 是否已经解锁照片
+    // value = ?????????????
     public SerializableDictionary<string, bool> unlockedEnemyPicture = new SerializableDictionary<string, bool>();
 
-    // 已解锁购买资格的物品
+    // ????????????????
     public List<string> unlockedMerchantItems = new List<string>();
 
-    // 各物品出售次数
+    // ????????????
     public SerializableDictionary<string, int> itemSellAmount = new SerializableDictionary<string, int>();
 
-    // 已经访问过的房间
+    // ?????????????
     // key = RoomController.roomSaveID
-    // value = 是否已经访问过
+    // value = ???????????
     public SerializableDictionary<string, bool> visitedRooms = new SerializableDictionary<string, bool>();
 
-    [Header("玩家背包数据")]
+    [Header("??????????")]
     public PlayerInventorySaveData playerInventorySaveData = new PlayerInventorySaveData();
 
-    [Header("场景/系统背包数据")]
+    [Header("????/??????????")]
     public SerializableDictionary<string, InventorySaveData> inventorySaveDataMap =
         new SerializableDictionary<string, InventorySaveData>();
+
+    // ???????????????Ground ??????????????锟斤拷??????????
+    public List<string> unlockedElevatorFloors = new List<string>();
 
     public Vector3 playerDiePosition = new Vector3(0,0,0);
 
@@ -203,6 +206,11 @@ public class GameRunData
             inventorySaveDataMap = new SerializableDictionary<string, InventorySaveData>();
         }
 
+        if (unlockedElevatorFloors == null)
+        {
+            unlockedElevatorFloors = new List<string>();
+        }
+
         foreach (KeyValuePair<string, InventorySaveData> pair in inventorySaveDataMap)
         {
             if (pair.Value != null)
@@ -229,7 +237,7 @@ public class SerializableDictionary<Tkey, TValue> : Dictionary<Tkey, TValue>, IS
     [SerializeField] private List<Tkey> keys = new List<Tkey>();
     [SerializeField] private List<TValue> values = new List<TValue>();
 
-    public void OnAfterDeserialize() // 在反序列化之后，把 keys 和 values 两个 List 还原回来，再把它们重新组装成字典
+    public void OnAfterDeserialize() // ??????锟斤拷????? keys ?? values ???? List ????????????????????????????
     {
         this.Clear();
 
@@ -240,20 +248,20 @@ public class SerializableDictionary<Tkey, TValue> : Dictionary<Tkey, TValue>, IS
 
         for (int i = 0; i < keys.Count; i++)
         {
-            // 用 this[key] = value 可以避免重复 key 直接报错
+            // ?? this[key] = value ?????????? key ??????
             this[keys[i]] = values[i];
         }
     }
 
-    public void OnBeforeSerialize() // 在序列化之前，把当前字典里的所有数据拆成两个 List：
+    public void OnBeforeSerialize() // ?????锟斤拷????????????????????????????? List??
     {
         keys.Clear();
         values.Clear();
 
         foreach (KeyValuePair<Tkey, TValue> pairs in this)
         {
-            keys.Add(pairs.Key);     // 把键按顺序放入 keys
-            values.Add(pairs.Value); // 把值按顺序放入 values
+            keys.Add(pairs.Key);     // ??????????? keys
+            values.Add(pairs.Value); // ??????????? values
         }
     }
 }
