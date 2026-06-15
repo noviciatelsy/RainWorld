@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e9a757bc8dd061842aabd725f7da886f, type: 3}
   m_Name: ItemEffectData_DoubleJumpShoes
   m_EditorClassIdentifier: 
-  effectDescription: "\u7ED9\u4E88\u4F60\u4E8C\u6BB5\u8DF3\u7684\u80FD\u529B"
+  effectDescription: "\u7ED9\u4E88\u4F60\u4E8C\u6BB5\u8DF3\u7684\u80FD\u529B\uFF08\u6548\u679C\u4E0D\u53EF\u53E0\u52A0\uFF09"
   holdingHintMessage: "\u957F\u6309\u5DE6\u952E\u4E22\u5F03\u8BE5\u7269\u54C1"

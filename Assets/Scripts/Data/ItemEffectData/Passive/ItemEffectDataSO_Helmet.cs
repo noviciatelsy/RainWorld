@@ -12,7 +12,7 @@ public class ItemEffectDataSO_Helmet : ItemEffectDataSO
         PlayerControl playerControl = player.GetComponent<PlayerControl>();
         if (playerVitals != null && playerControl != null)
         {
-            playerVitals.AddDefense(2);
+            playerVitals.AddDefense(2.5f);
             playerControl.ReduceMoveSpeed(0.125f);
         }
     }
@@ -24,7 +24,7 @@ public class ItemEffectDataSO_Helmet : ItemEffectDataSO
         PlayerControl playerControl = player.GetComponent<PlayerControl>();
         if (playerVitals != null && playerControl != null)
         {
-            playerVitals.ReduceDefense(2);
+            playerVitals.ReduceDefense(2.5f);
             playerControl.AddMoveSpeed(0.125f);
         }
     }

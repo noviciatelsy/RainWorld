@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c6bdb2e68744344fbdb4bfd8ab6c643, type: 3}
   m_Name: ItemEffectData_Sneaker
   m_EditorClassIdentifier: 
-  effectDescription: "\u7565\u5FAE\u589E\u52A0\u79FB\u52A8\u901F\u5EA6\uFF08\u53EF\u53E0\u52A0\uFF09"
+  effectDescription: "\u7565\u5FAE\u589E\u52A0\u79FB\u52A8\u901F\u5EA6\uFF08\u6548\u679C\u53EF\u53E0\u52A0\uFF09"
   holdingHintMessage: "\u957F\u6309\u5DE6\u952E\u4E22\u5F03\u8BE5\u7269\u54C1"

@@ -37,6 +37,7 @@ public class InGameUI : MonoBehaviour
     public ItemToolTip itemToolTip { get; private set; }
 
     public DarknessMaskController darknessMaskController { get; private set; }
+    public PhotographyOverlayUI photographyOverlayUI { get; private set; }
 
     private InGamePrimaryPanelType currentPrimaryPanel = InGamePrimaryPanelType.None;
     private InGameSecondaryPanelType currentSecondaryPanel = InGameSecondaryPanelType.None;
@@ -73,6 +74,7 @@ public class InGameUI : MonoBehaviour
         dialogueUI = GetComponentInChildren<DialogueUI>(true);
         itemToolTip = GetComponentInChildren<ItemToolTip>(true);
         darknessMaskController=GetComponentInChildren<DarknessMaskController>(true);
+        photographyOverlayUI =GetComponentInChildren<PhotographyOverlayUI>(true);
 
         AutoFillCanvasGroupsIfNeeded();
         InitializePanelStateFromHierarchy();

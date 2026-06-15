@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04637483acc4c2c4e8a4327e6154a646, type: 3}
   m_Name: ItemEffectData_Boot
   m_EditorClassIdentifier: 
-  effectDescription: "\u63D0\u9AD8\u9632\u5FA1\u529B\uFF1B\u7565\u5FAE\u964D\u4F4E\u8DF3\u8DC3\u9AD8\u5EA6"
+  effectDescription: "\u63D0\u9AD8\u9632\u5FA1\u529B\uFF1B\u7565\u5FAE\u964D\u4F4E\u8DF3\u8DC3\u9AD8\u5EA6\uFF08\u6548\u679C\u53EF\u53E0\u52A0\uFF09"
   holdingHintMessage: "\u957F\u6309\u5DE6\u952E\u4E22\u5F03\u8BE5\u7269\u54C1"

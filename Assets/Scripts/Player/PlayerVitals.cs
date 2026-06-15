@@ -68,6 +68,8 @@ public class PlayerVitals : MonoBehaviour
 
     private bool hasStartedAutoIncreaseHunger = false;
 
+    private InvisibleCloakPassiveEffect InvisibleCloakPassiveEffect;
+
     public float HealthRate
     {
         get
@@ -97,6 +99,7 @@ public class PlayerVitals : MonoBehaviour
 
         isDead = currentHealth <= 0;
         playerInventory = GetComponent<InventoryPlayer>();
+        InvisibleCloakPassiveEffect=GetComponentInChildren<InvisibleCloakPassiveEffect>();
     }
 
     private void OnEnable()
@@ -142,6 +145,11 @@ public class PlayerVitals : MonoBehaviour
     public void TakeDamage(float damageAmount)
     {
         if (damageAmount <= 0 || isDead)
+        {
+            return;
+        }
+
+        if(InvisibleCloakPassiveEffect.isInvisible)
         {
             return;
         }
