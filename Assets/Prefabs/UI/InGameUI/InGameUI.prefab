@@ -10182,6 +10182,9 @@ MonoBehaviour:
   merchandisePrefab: {fileID: 6130478512370791497, guid: 57a3048c115b709498822f3ad98b0921,
     type: 3}
   merchandiseCountPerShelf: 3
+  fragrantFruitItemData: {fileID: 11400000, guid: 309de58f3fd06ce4b96a486acc55e4ff,
+    type: 2}
+  canGiftFragrantFruitItself: 0
 --- !u!1 &8076183365915571946
 GameObject:
   m_ObjectHideFlags: 0
@@ -12050,7 +12053,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &8624956704481166978
 RectTransform:
   m_ObjectHideFlags: 0
@@ -12086,13 +12089,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b64ec6ba67e45f4cb363413de4a364c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  overlayRoot: {fileID: 8624956704481166978}
   leftBlackImage: {fileID: 4865045432181884123}
   rightBlackImage: {fileID: 1355772183485413308}
   topBlackImage: {fileID: 7002528889394493312}
   bottomBlackImage: {fileID: 5161621154390600953}
-  visibleRectSize: {x: 480, y: 360}
+  visibleRectSize: {x: 480, y: 320}
   clampVisibleRectInsideScreen: 1
-  showOnAwake: 0
+  shutterCloseDuration: 0.055
+  shutterOpenDuration: 0.18
+  shutterClosedScale: 0.08
+  shutterOvershootStrength: 1.45
+  useUnscaledTimeForShutter: 1
 --- !u!1 &9057372267490042338
 GameObject:
   m_ObjectHideFlags: 0

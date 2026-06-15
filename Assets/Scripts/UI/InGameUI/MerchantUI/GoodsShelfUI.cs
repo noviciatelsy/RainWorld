@@ -13,6 +13,10 @@ public class GoodsShelfUI : MonoBehaviour
     [Header("Shelf Settings")]
     [SerializeField] private int merchandiseCountPerShelf = 3;
 
+    [Header("香气果实")]
+    [SerializeField] private ItemDataSO fragrantFruitItemData;
+    [SerializeField] private bool canGiftFragrantFruitItself = false; // 是否允许赠品再次随机到香气果实本身
+
     private InventoryPlayer playerInventory;
     private DraggedItemUI draggedItemUI;
 
@@ -186,9 +190,11 @@ public class GoodsShelfUI : MonoBehaviour
 
         ItemDataSO soldItemData = itemToSell.ItemData;
 
+        bool isSellingFragrantFruit = IsSameItem(soldItemData, fragrantFruitItemData);
+
         playerInventory.AddMoney(soldItemData.itemSellPrice);
 
-        if(soldItemData.itemType==ItemType.Note)
+        if (soldItemData.itemType == ItemType.Note)
         {
             IntelligenceArchiveManager.Instance.UnlockRandomNonImportantIntelligenceByNote();
         }
@@ -203,6 +209,11 @@ public class GoodsShelfUI : MonoBehaviour
         if (merchantUnlockManager != null)
         {
             merchantUnlockManager.NotifyItemSold(soldItemData);
+        }
+
+        if (isSellingFragrantFruit)
+        {
+            TryGiveRandomUnlockedMerchantItemByFragrantFruit();
         }
     }
 
@@ -228,5 +239,104 @@ public class GoodsShelfUI : MonoBehaviour
         {
             Destroy(contentRoot.GetChild(i).gameObject);
         }
+    }
+
+    private void TryGiveRandomUnlockedMerchantItemByFragrantFruit()
+    {
+        if (playerInventory == null)
+        {
+            return;
+        }
+
+        if (fragrantFruitItemData == null)
+        {
+            Debug.LogWarning("香气果实赠品失败：fragrantFruitItemData 没有配置。");
+            return;
+        }
+
+        if (merchantUnlockManager == null)
+        {
+            merchantUnlockManager = MerchantUnlockManager.Instance;
+        }
+
+        if (merchantUnlockManager == null)
+        {
+            Debug.LogWarning("香气果实赠品失败：场景中没有 MerchantUnlockManager。");
+            return;
+        }
+
+        List<ItemDataSO> unlockedItems = merchantUnlockManager.GetUnlockedMerchantItemsSorted();
+
+        RemoveInvalidGiftCandidates(unlockedItems);
+
+        if (unlockedItems.Count <= 0)
+        {
+            Debug.Log("香气果实赠品失败：当前没有可作为赠品的已解锁商品。");
+            return;
+        }
+
+        int randomIndex = UnityEngine.Random.Range(0, unlockedItems.Count);
+        ItemDataSO giftItemData = unlockedItems[randomIndex];
+
+        bool added = playerInventory.AddItem(giftItemData);
+
+        if (!added)
+        {
+            Debug.Log($"香气果实赠品添加失败：玩家背包没有足够空间放入 {giftItemData.itemDisplayName}。");
+            return;
+        }
+
+        Debug.Log($"香气果实触发赠品：获得 {giftItemData.itemDisplayName}。");
+    }
+
+    private void RemoveInvalidGiftCandidates(List<ItemDataSO> giftCandidates)
+    {
+        if (giftCandidates == null)
+        {
+            return;
+        }
+
+        for (int i = giftCandidates.Count - 1; i >= 0; i--)
+        {
+            ItemDataSO candidate = giftCandidates[i];
+
+            if (candidate == null)
+            {
+                giftCandidates.RemoveAt(i);
+                continue;
+            }
+
+            if (candidate.backpackItemData == null)
+            {
+                giftCandidates.RemoveAt(i);
+                continue;
+            }
+
+            if (!canGiftFragrantFruitItself && IsSameItem(candidate, fragrantFruitItemData))
+            {
+                giftCandidates.RemoveAt(i);
+                continue;
+            }
+        }
+    }
+
+    private bool IsSameItem(ItemDataSO itemA, ItemDataSO itemB)
+    {
+        if (itemA == null || itemB == null)
+        {
+            return false;
+        }
+
+        if (itemA == itemB)
+        {
+            return true;
+        }
+
+        if (string.IsNullOrEmpty(itemA.saveID) || string.IsNullOrEmpty(itemB.saveID))
+        {
+            return false;
+        }
+
+        return itemA.saveID == itemB.saveID;
     }
 }

@@ -26,7 +26,9 @@ public class CameraItem : MonoBehaviour
     [Header("Camera Mode Settings")]
     [SerializeField] private bool disablePlayerControlInPhotographyMode = false;
     // 开启摄影模式时是否禁用玩家操作
-
+    [SerializeField] private float photoCooldown = 1f;
+    // 拍照冷却
+    // 防止玩家按得太快
     public bool IsPhotographyModeOpen
     {
         get
@@ -45,7 +47,8 @@ public class CameraItem : MonoBehaviour
     private Vector2 lastWorldAreaMax;
     // 最近一次拍照检测区域右上角
 
-
+    private float nextAllowedPhotoTime;
+    // 下一次允许拍照的时间
     private void Awake()
     {
         worldCamera = Camera.main;
@@ -126,7 +129,10 @@ public class CameraItem : MonoBehaviour
             return false;
         }
 
-
+        if (Time.time < nextAllowedPhotoTime)
+        {
+            return false;
+        }
 
         if (photographyOverlayUI == null
             || worldCamera == null)
@@ -134,12 +140,19 @@ public class CameraItem : MonoBehaviour
             return false;
         }
 
+        nextAllowedPhotoTime =
+            Time.time + photoCooldown;
 
+        // 先进行拍照检测。
+        // 这样检测范围仍然是按下快门前的完整可视矩形，
+        // 不会被快门闭合动画影响。
         PhotographVisibleTargets();
+
+        // 再播放快门动画。
+        photographyOverlayUI.PlayShutterPulse();
 
         return true;
     }
-
 
     private void PhotographVisibleTargets()
     {
