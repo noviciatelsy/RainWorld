@@ -22,6 +22,9 @@ public class BatUtilityAI : IMonsterAI
     private Transform lastDebugPrey;
     private BatBehavior lastDebugBehavior = BatBehavior.Idle;
 
+    private Vector2 currentHuntPoint;
+    private bool hasHuntPoint;
+
     private const float MoveTargetLockThresholdSqr = 0.12f * 0.12f;
     private const float PreyGoalChangeThresholdSqr = 1.5f * 1.5f;
     private const int MaxPathNodeChecks = 8;
@@ -184,7 +187,7 @@ public class BatUtilityAI : IMonsterAI
                 continue;
             }
 
-            if (bat.IsPlayerCollider(hit))
+            if (bat.IsPlayerCollider(hit) || hit.GetComponentInParent<Player>() != null)
             {
                 if (distSqr < bestPlayerDistSqr)
                 {
@@ -212,14 +215,21 @@ public class BatUtilityAI : IMonsterAI
             bestFly = closestFly.transform;
         }
 
+        TryDetectPlayerFallback(bat, detectRadiusSqr, ref bestPlayer, ref bestPlayerDistSqr);
+
         Transform detected = bestFly != null ? bestFly : (bestPlayer != null ? bestPlayer : bestOther);
 
         if (detected != null)
         {
-            if (currentPrey != detected)
+            bool preyChanged = currentPrey != detected;
+
+            if (preyChanged)
             {
                 string preyType = bestFly != null ? "Fly" : (bestPlayer != null ? "Player" : "Other");
                 bat.LogDebug($"发现目标: {detected.name} ({preyType})");
+                pathPickTimer = 0f;
+                idleTimer = 0f;
+                hasHuntPoint = false;
             }
 
             currentPrey = detected;
@@ -236,6 +246,37 @@ public class BatUtilityAI : IMonsterAI
         }
 
         currentPrey = null;
+        hasHuntPoint = false;
+    }
+
+    private static void TryDetectPlayerFallback(
+        Bat2D bat,
+        float detectRadiusSqr,
+        ref Transform bestPlayer,
+        ref float bestPlayerDistSqr)
+    {
+        if (PlayerManager.Instance == null)
+        {
+            return;
+        }
+
+        Player player = PlayerManager.Instance.TryGetCurrentPlayer();
+
+        if (player == null)
+        {
+            return;
+        }
+
+        Vector2 playerPos = player.transform.position;
+        float distSqr = ((Vector2)bat.Position - playerPos).sqrMagnitude;
+
+        if (distSqr > detectRadiusSqr || distSqr >= bestPlayerDistSqr)
+        {
+            return;
+        }
+
+        bestPlayerDistSqr = distSqr;
+        bestPlayer = player.transform;
     }
 
     private void UpdateDebugState(Bat2D bat)
@@ -320,6 +361,11 @@ public class BatUtilityAI : IMonsterAI
 
     private bool CanAttack(Bat2D bat, Vector2 preyPosition)
     {
+        if (ShouldUseSectorHunt())
+        {
+            return bat.CanAttackPosition(preyPosition);
+        }
+
         float attackRangeSqr = bat.attackRange * bat.attackRange;
         return (preyPosition - bat.Position).sqrMagnitude <= attackRangeSqr;
     }
@@ -336,65 +382,72 @@ public class BatUtilityAI : IMonsterAI
 
     private BatIntent BuildHuntIntent(Bat2D bat)
     {
-        if (!bat.Arrived)
+        Vector2 preyPosition = GetRawPreyPosition(bat);
+        Vector2 moveTarget;
+
+        if (ShouldUseSectorHunt())
         {
-            return hasIssuedIntent && lastIssuedIntent.behaviorState == BatBehavior.Hunt
-                ? lastIssuedIntent
-                : CreateHuntIntent(bat, lastIssuedIntent.moveTarget);
+            if (ShouldPickNewHuntPoint(bat, preyPosition))
+            {
+                currentHuntPoint = bat.PickRandomHuntSectorPoint(preyPosition);
+                hasHuntPoint = true;
+                lastPathGoal = preyPosition;
+            }
+
+            moveTarget = currentHuntPoint;
+            bat.DebugPickReason = "HuntSector";
+        }
+        else
+        {
+            moveTarget = preyPosition;
+            bat.DebugPickReason = "HuntPrey";
         }
 
-        if (ShouldKeepCurrentMoveTarget(bat, BatBehavior.Hunt))
-        {
-            return lastIssuedIntent;
-        }
-
-        Vector2 preyPosition = GetPreyPosition(bat);
-
-        if (pathPickTimer > 0f && !HasPreyGoalChanged(preyPosition))
-        {
-            pathPickTimer -= Time.fixedDeltaTime;
-            return lastIssuedIntent;
-        }
-
-        pathPickTimer = bat.pathPickInterval;
-        lastPathGoal = preyPosition;
-
-        Vector2 moveTarget = PickPathMoveTarget(bat, preyPosition, BatBehavior.Hunt);
+        bat.DebugTarget = moveTarget;
         return CreateHuntIntent(bat, moveTarget);
+    }
+
+    private bool ShouldPickNewHuntPoint(Bat2D bat, Vector2 preyPosition)
+    {
+        if (!hasHuntPoint)
+        {
+            return true;
+        }
+
+        if (bat.Arrived)
+        {
+            return true;
+        }
+
+        if (HasPreyGoalChanged(preyPosition))
+        {
+            return true;
+        }
+
+        return !bat.IsWithinHuntSector(preyPosition, currentHuntPoint);
     }
 
     private BatIntent BuildIdleIntent(Bat2D bat)
     {
-        if (!bat.Arrived)
+        idleTimer -= Time.fixedDeltaTime;
+
+        if (idleTimer <= 0f || bat.Arrived)
         {
-            return hasIssuedIntent ? lastIssuedIntent : CreateIdleIntent(bat, bat.Position);
+            idleTimer = bat.idleMoveInterval;
+
+            Vector2 moveTarget = PickRandomIdleGoal(bat);
+            bat.DebugPickReason = "IdleWander";
+            bat.DebugTarget = moveTarget;
+
+            return CreateIdleIntent(bat, moveTarget);
         }
 
-        if (ShouldKeepCurrentMoveTarget(bat, BatBehavior.Idle))
+        if (hasIssuedIntent && lastIssuedIntent.behaviorState == BatBehavior.Idle)
         {
-            idleTimer -= Time.fixedDeltaTime;
             return lastIssuedIntent;
         }
 
-        idleTimer -= Time.fixedDeltaTime;
-
-        if (idleTimer > 0f)
-        {
-            return hasIssuedIntent && lastIssuedIntent.behaviorState == BatBehavior.Idle
-                ? lastIssuedIntent
-                : CreateIdleIntent(bat, bat.Position);
-        }
-
-        idleTimer = bat.idleMoveInterval;
-        pathPickTimer = bat.pathPickInterval;
-
-        Vector2 moveTarget = PickPathMoveTarget(
-            bat,
-            PickRandomIdleGoal(bat),
-            BatBehavior.Idle
-        );
-
-        return CreateIdleIntent(bat, moveTarget);
+        return CreateIdleIntent(bat, bat.Position);
     }
 
     private bool HasPreyGoalChanged(Vector2 preyPosition)
@@ -432,7 +485,7 @@ public class BatUtilityAI : IMonsterAI
         };
     }
 
-    private Vector2 GetPreyPosition(Bat2D bat)
+    private Vector2 GetRawPreyPosition(Bat2D bat)
     {
         if (currentPrey != null)
         {
@@ -447,26 +500,51 @@ public class BatUtilityAI : IMonsterAI
         return bat.Position;
     }
 
+    private bool ShouldUseSectorHunt()
+    {
+        Transform prey = currentPrey != null ? currentPrey : lastDebugPrey;
+
+        if (prey == null)
+        {
+            return false;
+        }
+
+        if (prey.GetComponentInParent<Player>() != null)
+        {
+            return true;
+        }
+
+        if (prey.GetComponentInParent<Fly2D>() != null)
+        {
+            return true;
+        }
+
+        Collider2D col = prey.GetComponent<Collider2D>();
+        return col != null && owner.IsFlyCollider(col);
+    }
+
+    /// <summary>
+    /// 在 activityBounds 矩形内随机取点并验证可飞行路径（逻辑参考 FlyUtilityAI）。
+    /// </summary>
     private Vector2 PickRandomIdleGoal(Bat2D bat)
     {
         TileMapGuideManager mgr = TileMapGuideManager.Instance;
         Bounds bounds = bat.activityBounds;
-        Vector2 center = bounds.center;
-        Vector2 extents = bounds.extents;
 
-        for (int i = 0; i < 24; i++)
+        if (bounds.size.sqrMagnitude < 0.01f)
         {
-            Vector2 offset = Random.insideUnitCircle
-                * Random.Range(bat.idleWanderRadiusMin, bat.idleWanderRadiusMax);
-            Vector2 candidate = bat.Position + offset;
+            bounds = new Bounds(bat.Position, new Vector3(14f, 10f, 1f));
+        }
 
-            if (!bounds.Contains(candidate))
-            {
-                candidate = new Vector2(
-                    Mathf.Clamp(candidate.x, center.x - extents.x, center.x + extents.x),
-                    Mathf.Clamp(candidate.y, center.y - extents.y, center.y + extents.y)
-                );
-            }
+        Vector2 min = bounds.min;
+        Vector2 max = bounds.max;
+
+        for (int i = 0; i < 30; i++)
+        {
+            Vector2 candidate = new Vector2(
+                Random.Range(min.x, max.x),
+                Random.Range(min.y, max.y)
+            );
 
             if (mgr == null)
             {
@@ -481,7 +559,7 @@ public class BatUtilityAI : IMonsterAI
             }
         }
 
-        return bat.Position + Random.insideUnitCircle * bat.idleWanderRadiusMin;
+        return bounds.center;
     }
 
     private Vector2 PickPathMoveTarget(Bat2D bat, Vector2 goal, BatBehavior behavior)

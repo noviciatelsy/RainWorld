@@ -92,7 +92,10 @@ public class BatMotor : IMonsterMotor
         attackAnchor = bat.Position;
         lungeTarget = ComputeLungeTarget(bat, intent);
 
-        bat.UpdateFacingToward(lungeTarget);
+        Vector2 facePoint = intent.focusTarget != null
+            ? (Vector2)intent.focusTarget.position
+            : lungeTarget;
+        bat.UpdateFacingToward(facePoint);
     }
 
     private Vector2 ComputeLungeTarget(Bat2D bat, BatIntent intent)
@@ -101,21 +104,23 @@ public class BatMotor : IMonsterMotor
 
         if (intent.focusTarget != null)
         {
-            direction = (Vector2)intent.focusTarget.position - attackAnchor;
+            Vector2 preyPos = intent.focusTarget.position;
+            direction = preyPos - attackAnchor;
 
             if (direction.sqrMagnitude > 0.0001f)
             {
                 direction.Normalize();
-                float preyDist = Vector2.Distance(attackAnchor, intent.focusTarget.position);
-                float lungeDist = Mathf.Min(bat.attackLungeDistance, preyDist - 0.15f);
-                lungeDist = Mathf.Max(0.2f, lungeDist);
+                float preyDist = Vector2.Distance(attackAnchor, preyPos);
+                float stopDist = bat.attackRange * 0.55f;
+                float lungeDist = Mathf.Max(0.2f, preyDist - stopDist);
+                lungeDist = Mathf.Min(lungeDist, preyDist - 0.08f);
                 return attackAnchor + direction * lungeDist;
             }
         }
 
         if (direction.sqrMagnitude < 0.0001f)
         {
-            direction = Vector2.right;
+            direction = Vector2.down;
         }
 
         return attackAnchor + direction.normalized * bat.attackLungeDistance;
@@ -132,7 +137,8 @@ public class BatMotor : IMonsterMotor
         );
 
         bat.SetLastMoveDirection(lungeTarget - bat.Position);
-        bat.UpdateFacingToward(lungeTarget);
+        Vector2 facePoint = attackFocus != null ? (Vector2)attackFocus.position : lungeTarget;
+        bat.UpdateFacingToward(facePoint);
 
         if (Vector2.Distance(bat.Position, lungeTarget) > threshold)
         {
@@ -238,6 +244,12 @@ public class BatMotor : IMonsterMotor
 
         if (path == null || path.Count == 0)
         {
+            path = BuildDirectFlightPath(bat.Position, target);
+            bat.DebugPickReason = "DirectFly";
+        }
+
+        if (path == null || path.Count == 0)
+        {
             path = null;
             pathIndex = 0;
             bat.Arrived = true;
@@ -247,6 +259,16 @@ public class BatMotor : IMonsterMotor
         pathIndex = 0;
         bat.CurrentTarget = target;
         bat.Arrived = false;
+    }
+
+    private static List<Vector2> BuildDirectFlightPath(Vector2 from, Vector2 to)
+    {
+        if ((to - from).sqrMagnitude < 0.0001f)
+        {
+            return null;
+        }
+
+        return new List<Vector2> { to };
     }
 
     private void MoveAlongPath(Bat2D bat)

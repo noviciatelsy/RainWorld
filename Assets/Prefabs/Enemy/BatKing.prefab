@@ -42,6 +42,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7625808759262539979}
   - component: {fileID: -4428974715500886016}
+  - component: {fileID: 7123456789012345678}
   m_Layer: 0
   m_Name: BatKing
   m_TagString: Untagged
@@ -86,6 +87,8 @@ MonoBehaviour:
   HasEdge: 0
   moveSpeed: 4
   arriveThreshold: 0.05
+  huntFanRadius: 2
+  huntFanAngle: 120
   detectRadius: 10
   perceptionInterval: 0.2
   pathPickInterval: 0.35
@@ -121,6 +124,30 @@ MonoBehaviour:
   enableDebugLog: 0
   drawDebugGizmos: 1
   attacksForSpecial: 3
+--- !u!114 &7123456789012345678
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5871502380270661758}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b3c9d1e2f4567890abcdef98765432, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  flyStateName: BatKingfly
+  attackStateName: BatKingAttack
+  bat: {fileID: -4428974715500886016}
+  animator: {fileID: 8234567890123456789}
+  visualTransform: {fileID: 4900025966569628228}
+  sampleRate: 24
+  baseScale: {x: 1, y: 1, z: 1}
+  cycleDuration: 0.5
+  squishAmount: 0.08
+  attackSquishAmount: 0.2
+  restoreSpeed: 12
+  minMoveDelta: 0.002
 --- !u!1 &8956899310618150152
 GameObject:
   m_ObjectHideFlags: 0
@@ -131,6 +158,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7281291174456740313}
   - component: {fileID: 5843011151427451584}
+  - component: {fileID: 8234567890123456789}
   m_Layer: 0
   m_Name: "\u56FE\u5C42 1"
   m_TagString: Untagged
@@ -205,3 +233,24 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!95 &8234567890123456789
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8956899310618150152}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: b8e1f3a5c7d9462a90bcdef123456789, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
