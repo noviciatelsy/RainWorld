@@ -32,6 +32,12 @@ public class MoleMotor : IMonsterMotor
             return;
         }
 
+        if (intent is MoleCollectTreasureIntent collectIntent)
+        {
+            ExecuteCollectTreasure(collectIntent.targetPickable);
+            return;
+        }
+
         if (intent is MoleStealIntent)
         {
             ExecuteSteal();
@@ -56,6 +62,41 @@ public class MoleMotor : IMonsterMotor
     {
         edgePath = null;
         pathIndex = 0;
+    }
+
+    private void ExecuteCollectTreasure(PickableObject targetPickable)
+    {
+        edgePath = null;
+        pathIndex = 0;
+
+        if (targetPickable == null)
+        {
+            mole.TreasureCollector?.ClearRegisteredTarget();
+            mole.Arrived = true;
+            return;
+        }
+
+        MoleTreasureCollector collector = mole.TreasureCollector;
+        if (collector == null)
+        {
+            return;
+        }
+
+        if (collector.IsWithinCollectRange(targetPickable))
+        {
+            collector.TryCollect(targetPickable);
+            mole.Arrived = true;
+            return;
+        }
+
+        Vector2 targetPos = targetPickable.transform.position;
+        mole.Transform.position = Vector2.MoveTowards(
+            mole.Position,
+            targetPos,
+            mole.moveSpeed * Time.fixedDeltaTime
+        );
+        mole.CurrentTarget = targetPos;
+        mole.Arrived = false;
     }
 
     private void ExecuteStrictIdle(List<Vector2> aiStrictPath, bool isTeleportCleanup)

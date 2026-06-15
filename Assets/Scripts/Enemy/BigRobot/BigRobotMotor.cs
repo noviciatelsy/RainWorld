@@ -41,6 +41,7 @@ public class BigRobotMotor : IMonsterMotor
 
         bool damageDealt = br.TryDamagePlayer(move.attackTarget);
         br.OnAttackPerformed(move.attackTarget, damageDealt);
+        br.BeginAttackSequence();
         bigRobotAI?.NotifyAttackFinished();
     }
 }

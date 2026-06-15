@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4196061378064432175}
   - component: {fileID: 4790567607833133304}
+  - component: {fileID: 9012345678901234501}
   m_Layer: 0
   m_Name: BigRobot
   m_TagString: Untagged
@@ -27,7 +28,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -38.85, y: -5.79, z: -9.01141}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: -1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3498486197563993216}
@@ -61,8 +62,31 @@ MonoBehaviour:
   attackRange: 2.5
   attackDamage: 20
   attackCooldown: 1.5
+  attackSequenceDuration: 1.5
+  bodyVisual: {fileID: 3498486197563993216}
   drawDebugGizmos: 1
   enableDebugLog: 1
+--- !u!114 &9012345678901234501
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 655137027452463140}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a8b9c0d1e2f3456789012345678abcd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  idleStateName: BigRobotIdle
+  attackStateName: BigRobotAttack1
+  bigRobot: {fileID: 4790567607833133304}
+  animator: {fileID: 9012345678901234502}
+  scaleTransform: {fileID: 3498486197563993216}
+  idleScale: {x: 0.75, y: 0.75, z: 0.75}
+  attackScale: {x: 1, y: 1, z: 1}
+  idlePosition: {x: 0, y: 0, z: 0}
+  attackPosition: {x: -1, y: 0.9, z: 0}
 --- !u!1 &7487049778382049308
 GameObject:
   m_ObjectHideFlags: 0
@@ -73,6 +97,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2342190558656169435}
   - component: {fileID: 685427675976855562}
+  - component: {fileID: 9012345678901234502}
   m_Layer: 0
   m_Name: "\u6B63\u5E38\u6A21\u5F0F"
   m_TagString: Untagged
@@ -89,8 +114,8 @@ Transform:
   m_GameObject: {fileID: 7487049778382049308}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 9.01141}
-  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
+  m_LocalPosition: {x: -0.09, y: 0.11, z: 9.01141}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 3498486197563993216}
@@ -133,10 +158,10 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1479021791
+  m_SortingLayer: -3
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: d1deb1e2d4ef44746bbbbe2d32d50e5d, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 6d9179481fb531c4eb4ff05059e485e2, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -147,6 +172,27 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!95 &9012345678901234502
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7487049778382049308}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: ac81c4516d8f22145a7006b30fb52865, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &8684571328108701159
 GameObject:
   m_ObjectHideFlags: 0
@@ -174,7 +220,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 2342190558656169435}
   m_Father: {fileID: 4196061378064432175}

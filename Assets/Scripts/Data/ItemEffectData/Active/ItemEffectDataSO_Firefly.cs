@@ -7,12 +7,24 @@ public class ItemEffectDataSO_Firefly : ItemEffectDataSO
 {
     public override bool MainUse(InventoryItem item, InventoryPlayer inventoryPlayer)
     {
-        PlayerFireflySpawner playerFireflySpawner=player.GetComponentInChildren<PlayerFireflySpawner>();
-        if(playerFireflySpawner != null )
+        PlayerFireflySpawner playerFireflySpawner = player.GetComponentInChildren<PlayerFireflySpawner>();
+        if (playerFireflySpawner != null)
         {
             playerFireflySpawner.SpawnFireFly();
             return true;
         }
+
+        return false;
+    }
+
+    public override bool SecondaryUse(InventoryItem item, InventoryPlayer inventoryPlayer)
+    {
+        PlayerFireflyThrower thrower = player.GetComponentInChildren<PlayerFireflyThrower>();
+        if (thrower != null)
+        {
+            return thrower.TryThrowFirefly();
+        }
+
         return false;
     }
 }

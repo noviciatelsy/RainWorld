@@ -16,6 +16,7 @@ public class MoleUtilityAI : IMonsterAI
     private bool wasStealing = false;
     private bool isMovingToCave = false;
     private float teleportCooldown = 0f;
+    private Player lastStealPlayer;
 
     public MoleUtilityAI(Mole2D mole)
     {
@@ -35,7 +36,21 @@ public class MoleUtilityAI : IMonsterAI
             };
         }
 
-        // 2. ?????
+        // 2. 宝物收集（广范围识别）
+        if (!isStealing && !isMovingToCave && mole.TreasureCollector != null)
+        {
+            PickableObject treasureTarget = mole.TreasureCollector.ResolveCollectTarget();
+            if (treasureTarget != null)
+            {
+                isMovingToCave = false;
+                return new MoleCollectTreasureIntent
+                {
+                    targetPickable = treasureTarget
+                };
+            }
+        }
+
+        // 3. 偷取玩家
         bool hasPlayer = Physics2D.OverlapCircle(mole.Position, mole.playerCheckRadius, mole.playerLayer) != null;
         if (hasPlayer && !isStealing)
         {
@@ -44,7 +59,7 @@ public class MoleUtilityAI : IMonsterAI
             isMovingToCave = false;
         }
 
-        // 3. Steal ??????
+        // 4. Steal 阶段
         if (isStealing)
         {
             mole.stealTimer -= Time.fixedDeltaTime;
@@ -68,10 +83,12 @@ public class MoleUtilityAI : IMonsterAI
         if (wasStealing)
         {
             SetStealClawActive(false);
+            mole.CompleteSteal(lastStealPlayer);
             wasStealing = false;
+            lastStealPlayer = null;
         }
 
-        // 4. ??????????????????????????Count??Motor???????0????????????????
+        // 5. 传送后 idle 清理
         if (isMovingToCave && mole.idleArrivalCount == 0)
         {
             isMovingToCave = false;
@@ -86,7 +103,7 @@ public class MoleUtilityAI : IMonsterAI
             };
         }
 
-        // 5. ????????????????????????????????3??????????
+        // 6. 游荡 3 次后进洞
         if (mole.idleArrivalCount >= 3)
         {
             if (MoleCaveManager.Instance != null && mole.currentHomeCave != null)
@@ -101,7 +118,7 @@ public class MoleUtilityAI : IMonsterAI
             return new MoleUseCaveIntent { targetCave = mole.currentHomeCave };
         }
 
-        // 6. ?????????????
+        // 7. 日常游荡
         if (mole.Arrived || lastIssuedPath == null || lastIssuedPath.Count == 0)
         {
             lastIssuedPath = GenerateStrictEdgePath();
@@ -217,6 +234,12 @@ public class MoleUtilityAI : IMonsterAI
 
         if (playerHit != null)
         {
+            Player player = playerHit.GetComponentInParent<Player>();
+            if (player != null)
+            {
+                lastStealPlayer = player;
+            }
+
             mole.moleAni.UpdateStealClaw(playerHit.transform.position);
         }
     }

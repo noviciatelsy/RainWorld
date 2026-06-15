@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public struct FlyMoveIntent : IIntent
 {
@@ -20,6 +20,11 @@ public class FlyUtilityAI : IMonsterAI
 
     public IIntent Evaluate(MonsterBase owner)
     {
+        if (owner is Fly2D fly && fly.CurrentState != FlyState.Normal)
+        {
+            return new FlyMoveIntent { target = fly.Position };
+        }
+
         timer -= Time.fixedDeltaTime;
 
         // 只在时间到或到达时生成新目标

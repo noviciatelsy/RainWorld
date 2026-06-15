@@ -16,16 +16,27 @@ public class BigRobot2D : MonsterBase
     [Tooltip("两次攻击之间的间隔")]
     public float attackCooldown = 1.5f;
 
+    [Tooltip("攻击动画保持时长（秒），需覆盖攻击 clip 长度")]
+    public float attackSequenceDuration = 1.5f;
+
+    [Header("Visual")]
+    [Tooltip("做 scale 挤压的视觉根（通常为 Textures）")]
+    public Transform bodyVisual;
+
     [Header("Debug")]
     public bool drawDebugGizmos = true;
     public bool enableDebugLog = true;
 
     public BigRobotBehavior CurrentBehavior { get; set; } = BigRobotBehavior.Idle;
 
+    public bool IsInAttackSequence { get; private set; }
+    public bool IsCoolingDown => CurrentBehavior == BigRobotBehavior.Cooldown;
+
     public bool DebugHasPlayer { get; private set; }
     public Vector2 DebugPlayerPosition { get; private set; }
 
     private readonly Collider2D[] overlapBuffer = new Collider2D[16];
+    private float attackSequenceTimer;
 
     protected override void Init()
     {
@@ -42,6 +53,26 @@ public class BigRobot2D : MonsterBase
     {
         EnsureDefaultAreas();
         ResolvePlayerLayerMask();
+    }
+
+    private void Update()
+    {
+        if (!IsInAttackSequence)
+        {
+            return;
+        }
+
+        attackSequenceTimer -= Time.deltaTime;
+        if (attackSequenceTimer <= 0f)
+        {
+            IsInAttackSequence = false;
+        }
+    }
+
+    public void BeginAttackSequence()
+    {
+        IsInAttackSequence = true;
+        attackSequenceTimer = Mathf.Max(0.05f, attackSequenceDuration);
     }
 
     public void EnsureDefaultAreas()

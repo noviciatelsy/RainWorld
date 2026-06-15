@@ -1580,6 +1580,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8866462023014839369}
   - component: {fileID: 4945522256011335671}
+  - component: {fileID: 9012345678901234610}
   m_Layer: 6
   m_Name: Firefly
   m_TagString: Untagged
@@ -1618,6 +1619,25 @@ MonoBehaviour:
   fireflySpawnPosition: {fileID: 4563378114740865514}
   fireflyPrefab: {fileID: 4268894465921324274, guid: 30b9a235d4e569f4aac1e36bcfc7bd71,
     type: 3}
+  fireflyItemData: {fileID: 11400000, guid: d28e91883df10b14c8ab0081b5c0211f, type: 2}
+  pickableObjectPrefab: {fileID: 8677623834353847797, guid: c813b335070fe534e927a641d31420e5,
+    type: 3}
+--- !u!114 &9012345678901234610
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6264105122103685278}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1c2d3e4f5a6478990abcdef12345602, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fireflySpawner: {fileID: 4945522256011335671}
+  throwSpawnPosition: {fileID: 4563378114740865514}
+  throwSpeed: 4
+  upwardRatio: 0.7
 --- !u!1 &6455917294199966981
 GameObject:
   m_ObjectHideFlags: 0

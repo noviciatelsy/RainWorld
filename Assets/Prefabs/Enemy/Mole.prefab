@@ -102,8 +102,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1479021791
+  m_SortingLayer: -3
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: db663d45c8b310548bb8d69899754428, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -129,6 +129,8 @@ GameObject:
   - component: {fileID: 1313023405692131478}
   - component: {fileID: 1155280435558625487}
   - component: {fileID: 3483092562761486246}
+  - component: {fileID: 9012345678901234701}
+  - component: {fileID: 9023456789012345602}
   m_Layer: 8
   m_Name: Mole
   m_TagString: Untagged
@@ -178,9 +180,52 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   moleAni: {fileID: 3483092562761486246}
+  stealController: {fileID: 9012345678901234701}
+  treasureCollector: {fileID: 9023456789012345602}
   idleArrivalCount: 0
   stealTimer: 0
   currentHomeCave: {fileID: 0}
+--- !u!114 &9012345678901234701
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6430993408388382896}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4d5e6f7a8b9401234567890abcdef02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mole: {fileID: 3669328157405642488}
+  itemReceivePoint: {fileID: 5261003564691755304}
+  stealFlyDelay: 0.2
+  itemFlySpeed: 10
+  itemDisplayScale: 0.15
+  spawnWorldOffset: {x: 0, y: 0.6}
+--- !u!114 &9023456789012345602
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6430993408388382896}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1b2c3d4e5f6789012345678abcdef01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  treasureDetectRadius: 12
+  targetTreasures:
+  - {fileID: 11400000, guid: 98a08a6ff47e0ca499393d79ca873908, type: 2}
+  - {fileID: 11400000, guid: 04ea348198140aa49b7316e34f801621, type: 2}
+  - {fileID: 11400000, guid: 37e51293344c4b341a2e6b37517d97b8, type: 2}
+  moleAmuletItemData: {fileID: 11400000, guid: 5b4f3620541f22e45ae19ae5fe7f392e, type: 2}
+  pickableObjectPrefab: {fileID: 8677623834353847797, guid: c813b335070fe534e927a641d31420e5,
+    type: 3}
+  collectArriveDistance: 0.35
+  amuletDropOffset: {x: 0, y: 0.4}
+  mole: {fileID: 3669328157405642488}
 --- !u!50 &1313023405692131478
 Rigidbody2D:
   serializedVersion: 4
@@ -315,6 +360,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4715899642970654790, guid: 27df738ea965b9f49ad3d3d323a6e5ad,
+        type: 3}
+      propertyPath: m_SortingLayer
+      value: -3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4715899642970654790, guid: 27df738ea965b9f49ad3d3d323a6e5ad,
+        type: 3}
+      propertyPath: m_SortingLayerID
+      value: 1479021791
       objectReference: {fileID: 0}
     - target: {fileID: 7150974309418763093, guid: 27df738ea965b9f49ad3d3d323a6e5ad,
         type: 3}

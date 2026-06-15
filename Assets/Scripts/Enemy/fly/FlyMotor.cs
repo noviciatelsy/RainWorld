@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class FlyMotor : IMonsterMotor
@@ -15,9 +15,15 @@ public class FlyMotor : IMonsterMotor
 
     public void Execute(MonsterBase owner, IIntent intent)
     {
-        if (intent is not FlyMoveIntent move)
+        if (owner is Fly2D fly && fly.CurrentState != FlyState.Normal)
+        {
             return;
-        Fly2D fly = owner as Fly2D;
+        }
+
+        if (intent is not FlyMoveIntent move)
+        {
+            return;
+        }
 
         // 只在没有路径 或 到达时 才重建
         if (path == null || owner.Arrived || owner.TargetChanged(move.target))

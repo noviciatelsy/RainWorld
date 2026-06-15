@@ -36,6 +36,11 @@ public abstract class MonsterBase : MonoBehaviour
 
     protected virtual void FixedUpdate()
     {
+        if (ai == null || motor == null)
+        {
+            return;
+        }
+
         IIntent intent = ai.Evaluate(this);
         motor.Execute(this, intent);
     }

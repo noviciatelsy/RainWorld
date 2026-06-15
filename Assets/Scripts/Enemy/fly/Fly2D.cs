@@ -1,18 +1,52 @@
-using System.Collections.Generic;
 using UnityEngine;
+
+public enum FlyState
+{
+    Normal,
+    Thrown,
+    Stunned
+}
 
 public class Fly2D : MonsterBase
 {
+    [Header("Movement")]
     public float moveSpeed = 3f;
 
-    //private FlyUtilityAI ai;
-    //private FlyMotor motor;
+    [Header("Stomp Drop")]
+    [SerializeField] private ItemDataSO dropItemData;
+    [SerializeField] private PickableObject pickableObjectPrefab;
 
+    [Header("Thrown / Ground")]
+    [SerializeField] private LayerMask groundLayerMask;
+    [SerializeField] private float groundCheckRadius = 0.12f;
+    [SerializeField] private float thrownSettleSpeed = 0.35f;
+
+    [Header("References")]
+    [SerializeField] private FlyWings flyWings;
+    [SerializeField] private Rigidbody2D rb;
+
+    public FlyState CurrentState { get; private set; } = FlyState.Normal;
+    public bool CanBeStomped => CurrentState == FlyState.Normal;
+
+    private bool behaviorInitialized;
 
     protected override void Init()
     {
         ai = new FlyUtilityAI(this);
         motor = new FlyMotor(this);
+    }
+
+    private void Awake()
+    {
+        if (rb == null)
+        {
+            rb = GetComponent<Rigidbody2D>();
+        }
+
+        if (flyWings == null)
+        {
+            flyWings = GetComponent<FlyWings>();
+        }
     }
 
     private void OnEnable()
@@ -25,19 +59,148 @@ public class Fly2D : MonsterBase
         FlyRegistry.Unregister(this);
     }
 
+    protected override void Start()
+    {
+        base.Start();
+
+        if (!behaviorInitialized)
+        {
+            InitializeAsFly();
+        }
+    }
+
+    public void ConfigureDropItem(ItemDataSO itemData, PickableObject pickablePrefab)
+    {
+        if (itemData != null)
+        {
+            dropItemData = itemData;
+        }
+
+        if (pickablePrefab != null)
+        {
+            pickableObjectPrefab = pickablePrefab;
+        }
+    }
+
+    public void InitializeAsFly()
+    {
+        behaviorInitialized = true;
+        CurrentState = FlyState.Normal;
+        Arrived = true;
+        SetPhysicsMode(true);
+        flyWings?.SetFlappingEnabled(true);
+    }
+
+    public void InitializeThrown(Vector2 initialVelocity)
+    {
+        InitializeAsFly();
+        CurrentState = FlyState.Thrown;
+        SetPhysicsMode(false);
+        rb.velocity = initialVelocity;
+    }
+
+    protected override void FixedUpdate()
+    {
+        if (CurrentState == FlyState.Stunned)
+        {
+            return;
+        }
+
+        if (CurrentState == FlyState.Thrown)
+        {
+            UpdateThrownState();
+            return;
+        }
+
+        base.FixedUpdate();
+    }
+
+    private void UpdateThrownState()
+    {
+        if (rb == null)
+        {
+            return;
+        }
+
+        if (rb.velocity.sqrMagnitude > thrownSettleSpeed * thrownSettleSpeed)
+        {
+            return;
+        }
+
+        if (!IsGrounded())
+        {
+            return;
+        }
+
+        InitializeAsFly();
+    }
+
+    public void EnterStunAndDropAsItem(bool facingRight)
+    {
+        if (!CanBeStomped)
+        {
+            return;
+        }
+
+        CurrentState = FlyState.Stunned;
+        flyWings?.SetFlappingEnabled(false);
+        SetPhysicsMode(false);
+
+        SpawnDroppedItem(facingRight);
+        Destroy(gameObject);
+    }
+
+    private void SpawnDroppedItem(bool facingRight)
+    {
+        if (pickableObjectPrefab == null || dropItemData == null)
+        {
+            return;
+        }
+
+        PickableObject pickable = Instantiate(
+            pickableObjectPrefab,
+            transform.position,
+            Quaternion.identity
+        );
+        pickable.SetupObject(dropItemData, facingRight);
+    }
+
+    private void SetPhysicsMode(bool kinematic)
+    {
+        if (rb == null)
+        {
+            return;
+        }
+
+        rb.bodyType = kinematic ? RigidbodyType2D.Kinematic : RigidbodyType2D.Dynamic;
+        rb.gravityScale = kinematic ? 0f : 1f;
+
+        if (kinematic)
+        {
+            rb.velocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+        }
+    }
+
+    private bool IsGrounded()
+    {
+        if (groundLayerMask.value == 0)
+        {
+            return Physics2D.Raycast(transform.position, Vector2.down, groundCheckRadius + 0.05f);
+        }
+
+        return Physics2D.OverlapCircle(transform.position, groundCheckRadius, groundLayerMask) != null;
+    }
 
     void OnDrawGizmos()
     {
-        // =========================
-        // 1. 目标点
-        // =========================
         Gizmos.color = Color.red;
         Gizmos.DrawSphere(DebugTarget, 0.2f);
 
-        // ===================}======
-        // 2. 路径线
-        // =========================
-        if (DebugPath == null || DebugPath.Count < 2) return;
+        if (DebugPath == null || DebugPath.Count < 2)
+        {
+            return;
+        }
 
         Gizmos.color = Color.green;
 
@@ -46,19 +209,13 @@ public class Fly2D : MonsterBase
             Gizmos.DrawLine(DebugPath[i], DebugPath[i + 1]);
         }
 
-        // =========================
-        // 3. 路径点
-        // =========================
         Gizmos.color = Color.yellow;
 
-        foreach (var p in DebugPath)
+        foreach (Vector2 point in DebugPath)
         {
-            Gizmos.DrawSphere(p, 0.08f);
+            Gizmos.DrawSphere(point, 0.08f);
         }
 
-        // =========================
-        // 4. 当前所在点
-        // =========================
         Gizmos.color = Color.blue;
         Gizmos.DrawSphere(transform.position, 0.12f);
     }

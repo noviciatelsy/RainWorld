@@ -38,6 +38,11 @@ public class PickableObject : MonoBehaviour
     [Header("Item Details")]
     [SerializeField] private ItemDataSO itemData;
 
+    public ItemDataSO ItemData => itemData;
+
+    public bool IsSettledOnGround =>
+        rb != null && rb.constraints == RigidbodyConstraints2D.FreezeAll;
+
     public event Action onItemStop;
     private bool onItemStopHasTriggered;
 
