@@ -19,10 +19,12 @@ public class WarningPanel_GiveUp : MonoBehaviour
     public void Close()
     {
         panelOpenCloseAnimation.PlayClose();
+        AudioManager.Instance.PlayUI("ButtonClickSFX");
     }
 
     public void ConfirmButton()
     {
+        AudioManager.Instance.PlayUI("ButtonClickSFX");
         Player player=PlayerManager.Instance.TryGetCurrentPlayer();
         if (player != null)
         {

@@ -8,6 +8,14 @@ public class PlayerMoveState : PlayerGroundedState
     {
     }
 
+    private AudioSource footStepsAudioSource;
+
+    public override void Enter()
+    {
+        base.Enter();
+        footStepsAudioSource = AudioManager.Instance.PlayLoopSFX("PlayerFootStepsSFX");
+    }
+
     public override void Update()
     {
         base.Update();
@@ -26,5 +34,14 @@ public class PlayerMoveState : PlayerGroundedState
 
         playerControl.SetVelocity(playerControl.moveInput.x * playerControl.moveSpeed, rb.velocity.y);
         // x方向按照输入移动，y方向保持原速度
+    }
+
+    public override void Exit()
+    {
+        base.Exit();
+        if (footStepsAudioSource != null)
+        {
+            footStepsAudioSource.Stop();
+        }
     }
 }

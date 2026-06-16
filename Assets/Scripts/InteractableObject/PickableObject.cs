@@ -203,7 +203,9 @@ public class PickableObject : MonoBehaviour
         {
             string pickupMessage = "ÒÑÊ°È¡:" + itemData.itemDisplayName;
             GlobalUI.Instance.hintMessageUI.ShowQuickMessage(pickupMessage);
+            AudioManager.Instance.PlaySFX("PlayerPickUpItemSFX");
             Destroy(gameObject);
+
         }
     }
 }

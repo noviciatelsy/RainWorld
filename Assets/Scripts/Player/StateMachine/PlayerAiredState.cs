@@ -33,7 +33,7 @@ public class PlayerAiredState : PlayerBaseState
             {
                 stateMachine.ChangeState(playerControl.jumpState);
                 // 消耗二段跳机会，并重新进入跳跃状态
-
+                AudioManager.Instance.PlaySFX("PlayerDoubleJumpSFX");
                 return;
             }
         }

@@ -65,6 +65,7 @@ public class MainMenuFlyingItemSpawner : MonoBehaviour
 
     private void SpawnOneItem(MainMenuItemThrowPoint throwPoint)
     {
+        AudioManager.Instance.PlaySFX("TittleBackpackItemPopSFX");
         ItemDataSO itemData = RollRandomItemData();
 
         if (itemData == null)

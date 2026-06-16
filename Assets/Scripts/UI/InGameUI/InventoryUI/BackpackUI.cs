@@ -47,7 +47,7 @@ public class BackpackUI : MonoBehaviour
         playerInventoryGrid.SetInventory(playerInventory);
         playerBackpack.SetInventory(playerInventory);
         quickItemSlots.SetInventory(playerInventory);
-        
+        AudioManager.Instance.PlayUI("BackpackOpenSFX");
     }
 
     public void Close()

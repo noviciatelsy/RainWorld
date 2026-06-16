@@ -633,6 +633,7 @@ public class InventoryPlayer : InventoryBase
 
     public GameObject DropItem(ItemDataSO itemToDrop)
     {
+        AudioManager.Instance.PlaySFX("PlayerDropItemSFX");
         bool facingRight = GetComponent<PlayerControl>().facingDir > 0 ? true : false;
         GameObject itemDropped = Instantiate(
         pickableObject.gameObject,

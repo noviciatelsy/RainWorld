@@ -436,7 +436,6 @@ public class MainMenuFlyingItemPhysicsManager : MonoBehaviour
         {
             bestNormal = -bestNormal;
         }
-
         return true;
     }
 

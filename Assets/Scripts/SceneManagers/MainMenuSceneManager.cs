@@ -9,5 +9,6 @@ public class MainMenuSceneManager : MonoBehaviour
         InputManager.Instance.mainInput.Disable();
         GameStateManager.Instance.SetCurrentGameState(GameState.MainMenu);
         SaveManager.Instance.SaveGame();
+        AudioManager.Instance.PlayBGM("MainMenuBGM");
     }
 }

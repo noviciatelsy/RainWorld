@@ -18,11 +18,13 @@ public class WarningPanel_ReturnToMainMenu : MonoBehaviour
 
     public void Close()
     {
+        AudioManager.Instance.PlayUI("ButtonClickSFX");
         panelOpenCloseAnimation.PlayClose();
     }
 
     public void ConfirmButton()
     {
+        AudioManager.Instance.PlayUI("ButtonClickSFX");
         SaveManager.Instance.OverwriteCurrentGameRunData(); // 还原局内存档
         GlobalUI.Instance.fadeScreenUI.PlaySceneSwitchFade(() =>
         {

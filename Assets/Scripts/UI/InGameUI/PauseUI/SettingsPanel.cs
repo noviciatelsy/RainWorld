@@ -46,6 +46,7 @@ public class SettingsPanel : MonoBehaviour
     public void Close()
     {
         SaveManager.Instance.SaveGlobalGameData();
+        AudioManager.Instance.PlayUI("ButtonClickSFX");
         panelOpenCloseAnimation.PlayClose();
     }
 }

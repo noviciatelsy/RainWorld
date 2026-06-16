@@ -12,5 +12,51 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd191adf1836274499d4f3a070a6624c, type: 3}
   m_Name: AudioDatabaseSO
   m_EditorClassIdentifier: 
-  SFX: []
-  BGM: []
+  SFX:
+  - audioName: PlayerFootStepsSFX
+    clips:
+    - {fileID: 8300000, guid: b7fbddbf04ac05b4a9a54dde3957d1cb, type: 3}
+    volume: 0.15
+  - audioName: PlayerJumpSFX
+    clips:
+    - {fileID: 8300000, guid: b90ecf5d01fb73640be1fb0ab9ac016c, type: 3}
+    volume: 0.15
+  - audioName: PlayerDoubleJumpSFX
+    clips:
+    - {fileID: 8300000, guid: 15ad5df75520647428ef31eb209460b1, type: 3}
+    volume: 0.15
+  - audioName: PlayerPickUpItemSFX
+    clips:
+    - {fileID: 8300000, guid: 2e79b1c6e657a2149a9f35bdccbf6c9d, type: 3}
+    volume: 1
+  - audioName: PlayerDropItemSFX
+    clips:
+    - {fileID: 8300000, guid: 5acc307ca37ff9643be6cef63c7cea07, type: 3}
+    volume: 0.25
+  - audioName: ButtonClickSFX
+    clips:
+    - {fileID: 8300000, guid: 2c5eaf81332f98c48adbce1e7ba3c649, type: 3}
+    volume: 0.5
+  - audioName: BackpackOpenSFX
+    clips:
+    - {fileID: 8300000, guid: e3b64d1c745ee8f49beb9cf830ee7feb, type: 3}
+    volume: 1
+  - audioName: TittleBackpackItemPopSFX
+    clips:
+    - {fileID: 8300000, guid: de588082dd7ddcb4f9af9b53862dbb42, type: 3}
+    - {fileID: 8300000, guid: b29d193ef4d658e42bcd63aa7cc7d600, type: 3}
+    - {fileID: 8300000, guid: 9f40abaa7fa9866429347e319bdcaf2f, type: 3}
+    - {fileID: 8300000, guid: d0938d81f435cc84eb2545f2d0b93f20, type: 3}
+    - {fileID: 8300000, guid: 6fc16c2122a5ac84084ac8074b3f287c, type: 3}
+    - {fileID: 8300000, guid: baeda3174344b2b468137f80d2842a42, type: 3}
+    - {fileID: 8300000, guid: 0da71b4905059384cb16c4c022bf553b, type: 3}
+    volume: 0.25
+  BGM:
+  - audioName: MainMenuBGM
+    clips:
+    - {fileID: 8300000, guid: 07e689f14b73b5f439589256c16bbc56, type: 3}
+    volume: 0.35
+  - audioName: BaseBGM
+    clips:
+    - {fileID: 8300000, guid: c4368aa3a3947dc42908c47ac41c3ace, type: 3}
+    volume: 0.35
