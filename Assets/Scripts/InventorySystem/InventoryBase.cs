@@ -100,7 +100,6 @@ public class InventoryBase : MonoBehaviour
 
         BackpackItemDataSO backpackItemData = itemData.backpackItemData;
 
-
         InventoryItem newItem = new InventoryItem(itemData);
 
         if (!TryFindBestPlacement(newItem, out Vector2Int bestTopLeft, out ItemRotateState bestRotateState))

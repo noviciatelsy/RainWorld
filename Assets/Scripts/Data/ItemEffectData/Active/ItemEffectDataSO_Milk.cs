@@ -25,8 +25,9 @@ public class ItemEffectDataSO_Milk : ItemEffectDataSO
             return false;
         }
 
-        inventoryPlayer.DropItem(item.ItemData).AddComponent<DroppedLiquid>();
-        inventoryPlayer.DropItem(item.ItemData).AddComponent<DroppedMilk>();
+        GameObject milk = inventoryPlayer.DropItem(item.ItemData);
+        milk.AddComponent<DroppedLiquid>();
+        milk.AddComponent<DroppedMilk>();
         return true;
     }
 }
