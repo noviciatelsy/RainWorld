@@ -60,6 +60,12 @@ public class Mole2D : MonsterBase, IAttractedByTreasure, IToyCarAttractable
 
         idleArrivalCount = 0;
         stealTimer = 0f;
+
+        Transform headAnchor = transform.Find("Texture");
+        EnemyStompReceiver.Ensure(
+            this,
+            headAnchor != null ? headAnchor : transform,
+            new Vector2(0.55f, 0.12f));
     }
 
     private void ResolveHomeCave()

@@ -63,7 +63,7 @@ public static class RobotGroundPath
         }
 
         Vector2Int startCell = mgr.WorldToCell(worldPos);
-        Vector2Int walkable = ResolveWalkableCellOnRow(mgr, startCell);
+        Vector2Int walkable = ResolveWalkableCell(mgr, startCell);
 
         if (IsFlatWalkable(mgr, walkable))
         {
@@ -87,12 +87,12 @@ public static class RobotGroundPath
             return path;
         }
 
-        Vector2Int startCell = ResolveWalkableCellOnRow(mgr, mgr.WorldToCell(fromWorld));
+        Vector2Int startCell = ResolveWalkableCell(mgr, mgr.WorldToCell(fromWorld));
         Vector2Int endCell = ResolveTargetOnRow(mgr, startCell, toWorld);
 
         if (startCell == endCell)
         {
-            return BuildDirectFlatTarget(fromWorld, toWorld);
+            return BuildDirectFlatTarget(fromWorld, toWorld, feetYOffset);
         }
 
         Dictionary<Vector2Int, Vector2Int> parentMap = new Dictionary<Vector2Int, Vector2Int>();
@@ -148,7 +148,7 @@ public static class RobotGroundPath
             return path;
         }
 
-        Vector2Int startCell = ResolveWalkableCellOnRow(mgr, mgr.WorldToCell(fromWorld));
+        Vector2Int startCell = ResolveWalkableCell(mgr, mgr.WorldToCell(fromWorld));
         int dir = toWorld.x >= fromWorld.x ? 1 : -1;
 
         for (int step = 1; step <= 12; step++)
@@ -188,13 +188,16 @@ public static class RobotGroundPath
             return path;
         }
 
-        return BuildDirectFlatTarget(fromWorld, toWorld);
+        return BuildDirectFlatTarget(fromWorld, toWorld, feetYOffset);
     }
 
-    private static List<Vector2> BuildDirectFlatTarget(Vector2 fromWorld, Vector2 toWorld)
+    private static List<Vector2> BuildDirectFlatTarget(
+        Vector2 fromWorld,
+        Vector2 toWorld,
+        float feetYOffset = DefaultFeetYOffset)
     {
         List<Vector2> path = new List<Vector2>();
-        Vector2 target = new Vector2(toWorld.x, fromWorld.y);
+        Vector2 target = SnapToFlatGround(new Vector2(toWorld.x, fromWorld.y), feetYOffset);
 
         if ((target - fromWorld).sqrMagnitude > 0.02f * 0.02f)
         {
@@ -215,10 +218,10 @@ public static class RobotGroundPath
 
         if (mgr == null)
         {
-            return BuildBackupPath(fromWorld, idleBounds);
+            return BuildBackupPath(fromWorld, idleBounds, feetYOffset);
         }
 
-        Vector2Int startCell = ResolveWalkableCellOnRow(mgr, mgr.WorldToCell(fromWorld));
+        Vector2Int startCell = ResolveWalkableCell(mgr, mgr.WorldToCell(fromWorld));
         Dictionary<Vector2Int, Vector2Int> parentMap = new Dictionary<Vector2Int, Vector2Int>();
         Queue<Vector2Int> queue = new Queue<Vector2Int>();
         List<Vector2Int> reachableCells = new List<Vector2Int>();
@@ -303,13 +306,18 @@ public static class RobotGroundPath
         return path;
     }
 
-    private static List<Vector2> BuildBackupPath(Vector2 fromWorld, Bounds idleBounds)
+    private static List<Vector2> BuildBackupPath(
+        Vector2 fromWorld,
+        Bounds idleBounds,
+        float feetYOffset = DefaultFeetYOffset)
     {
+        float groundY = SnapToFlatGround(fromWorld, feetYOffset).y;
+
         return new List<Vector2>
         {
             new Vector2(
                 fromWorld.x + Random.Range(-2f, 2f),
-                fromWorld.y
+                groundY
             )
         };
     }
@@ -353,7 +361,37 @@ public static class RobotGroundPath
             }
         }
 
-        return BuildBackupPath(fromWorld, idleBounds);
+        return BuildBackupPath(fromWorld, idleBounds, feetYOffset);
+    }
+
+    /// <summary>
+    /// 解析可行走空气格：pivot 落在实心格或略偏低时先上下搜索，再同行左右搜索。
+    /// </summary>
+    private static Vector2Int ResolveWalkableCell(TileMapGuideManager mgr, Vector2Int preferred)
+    {
+        if (IsFlatWalkable(mgr, preferred))
+        {
+            return preferred;
+        }
+
+        for (int delta = 1; delta <= 8; delta++)
+        {
+            Vector2Int up = new Vector2Int(preferred.x, preferred.y + delta);
+
+            if (IsFlatWalkable(mgr, up))
+            {
+                return up;
+            }
+
+            Vector2Int down = new Vector2Int(preferred.x, preferred.y - delta);
+
+            if (IsFlatWalkable(mgr, down))
+            {
+                return down;
+            }
+        }
+
+        return ResolveWalkableCellOnRow(mgr, preferred);
     }
 
     private static Vector2Int ResolveWalkableCellOnRow(TileMapGuideManager mgr, Vector2Int preferred)

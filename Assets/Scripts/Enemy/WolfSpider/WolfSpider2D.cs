@@ -79,6 +79,11 @@ public class WolfSpider2D : MonsterBase, IMeatBaitAttractable, IToyCarAttractabl
         ResolveFlyLayerMask();
         RebuildPerceptionMask();
         SnapToNearestSurface();
+
+        EnemyStompReceiver.Ensure(
+            this,
+            bodyVisual != null ? bodyVisual : transform,
+            new Vector2(0.75f, 0.12f));
     }
 
     public void RebuildPerceptionMask()

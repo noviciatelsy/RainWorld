@@ -90,6 +90,11 @@ public class RobotAni : MonoBehaviour
 
     private void Update()
     {
+        if (robot != null && robot.IsStompPaused)
+        {
+            return;
+        }
+
         bool moving = IsMoving();
         Vector3 delta = transform.position - lastWorldPosition;
 
@@ -160,13 +165,14 @@ public class RobotAni : MonoBehaviour
             return;
         }
 
+        bool chargeSquish = robot != null && robot.CurrentBehavior == RobotBehavior.Charge;
+
         if (moving)
         {
             float period = Mathf.Max(0.01f, cycleDuration);
             phaseElapsed += Time.deltaTime;
             float wave = Mathf.Sin(phaseElapsed * Mathf.PI * 2f / period);
             float squish = squishAmount * wave;
-            bool chargeSquish = robot != null && robot.CurrentBehavior == RobotBehavior.Charge;
 
             if (chargeSquish)
             {
@@ -229,7 +235,7 @@ public class RobotAni : MonoBehaviour
                 return false;
             }
 
-            if (robot.CurrentBehavior == RobotBehavior.Charge && !robot.Arrived)
+            if (robot.CurrentBehavior == RobotBehavior.Charge)
             {
                 return true;
             }

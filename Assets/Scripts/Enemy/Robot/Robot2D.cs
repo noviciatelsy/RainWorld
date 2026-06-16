@@ -57,15 +57,14 @@ public class Robot2D : MonsterBase
 
         EnsureDefaultAreas();
         ResolvePlayerLayerMask();
-
-        TileMapGuideManager mgr = TileMapGuideManager.Instance;
-
-        if (mgr != null)
-        {
-            transform.position = RobotGroundPath.SnapToFlatGround(Position, feetYOffset);
-        }
+        SnapFeetToGround();
 
         Arrived = true;
+
+        EnemyStompReceiver.Ensure(
+            this,
+            bodyVisual != null ? bodyVisual : transform,
+            new Vector2(0.7f, 0.12f));
     }
 
     private void OnValidate()
@@ -87,6 +86,11 @@ public class Robot2D : MonsterBase
         {
             activeBounds = new Bounds(center, new Vector3(8f, 4f, 0.1f));
         }
+    }
+
+    public void SnapFeetToGround()
+    {
+        transform.position = RobotGroundPath.SnapToFlatGround(Position, feetYOffset);
     }
 
     public void ResolvePlayerLayerMask()
@@ -308,7 +312,8 @@ public class Robot2D : MonsterBase
 
         Transform visual = bodyVisual != null ? bodyVisual : transform;
         Vector3 scale = visual.localScale;
-        scale.x = baseVisualScaleX * (deltaX >= 0f ? 1f : -1f);
+        float absX = Mathf.Max(Mathf.Abs(scale.x), baseVisualScaleX * 0.5f);
+        scale.x = absX * (deltaX >= 0f ? 1f : -1f);
         visual.localScale = scale;
     }
 

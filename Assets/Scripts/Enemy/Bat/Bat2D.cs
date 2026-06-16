@@ -114,6 +114,10 @@ public class Bat2D : MonsterBase, IMosquitoCoilRepellable, IMeatBaitAttractable,
         ResolveFlyLayerMask();
         ResolvePlayerLayerMask();
         RebuildPerceptionMask();
+        EnemyStompReceiver.Ensure(
+            this,
+            bodyVisual != null ? bodyVisual : transform,
+            new Vector2(0.9f, 0.12f));
         OnBatInitialized();
     }
 

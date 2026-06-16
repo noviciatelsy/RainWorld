@@ -88,6 +88,11 @@ public class SurfaceWalker2D : MonsterBase, IMeatBaitAttractable, IToyCarAttract
         {
             legSystem.InitializeFromWalker();
         }
+
+        EnemyStompReceiver.Ensure(
+            this,
+            visualTransform != null ? visualTransform : transform,
+            new Vector2(0.8f, 0.12f));
     }
 
     /// <summary>边线上的逻辑位置（不含根节点法线 offset）。</summary>
@@ -207,6 +212,11 @@ public class SurfaceWalker2D : MonsterBase, IMeatBaitAttractable, IToyCarAttract
 
     private void LateUpdate()
     {
+        if (IsStompPaused)
+        {
+            return;
+        }
+
         ApplyVisual();
 
         if (legSystem != null && HasEdge)
