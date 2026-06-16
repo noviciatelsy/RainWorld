@@ -143,17 +143,18 @@ public class SnailUtilityAI : IMonsterAI
     {
         if (mode == SnailMode.GoToItem)
         {
-            if (targetItem == null)
+            if (IsTargetItemLost())
             {
                 CancelEatAndReturn(sw);
                 return;
             }
 
-            if (sw.Arrived)
+            if (sw.Arrived || IsWithinEatRange(sw, targetItem))
             {
                 mode = SnailMode.WaitEat;
                 waitTimer = snail.eatWaitDuration;
                 activePath = null;
+                sw.Arrived = true;
             }
 
             return;
@@ -161,7 +162,7 @@ public class SnailUtilityAI : IMonsterAI
 
         if (mode == SnailMode.WaitEat)
         {
-            if (targetItem == null)
+            if (IsTargetItemLost())
             {
                 CancelEatAndReturn(sw);
                 return;
@@ -174,10 +175,37 @@ public class SnailUtilityAI : IMonsterAI
                 return;
             }
 
-            Object.Destroy(targetItem.gameObject);
-            targetItem = null;
+            ConsumeTargetItem();
             BeginReturnToIdle(sw);
         }
+    }
+
+    private static bool IsWithinEatRange(Snail2D sw, PickableObject item)
+    {
+        if (sw == null || item == null)
+        {
+            return false;
+        }
+
+        float range = Mathf.Max(sw.arriveThreshold * 2f, 0.25f);
+        return Vector2.Distance(sw.Position, item.transform.position) <= range;
+    }
+
+    private void ConsumeTargetItem()
+    {
+        if (targetItem == null)
+        {
+            return;
+        }
+
+        PickableObject item = targetItem;
+        targetItem = null;
+        SnailPickableHelper.Consume(item);
+    }
+
+    private bool IsTargetItemLost()
+    {
+        return targetItem == null || !targetItem.gameObject.activeInHierarchy;
     }
 
     private void CancelEatAndReturn(Snail2D sw)
@@ -218,6 +246,11 @@ public class SnailUtilityAI : IMonsterAI
             PickableObject pickable = all[i];
 
             if (pickable == null || !pickable.gameObject.activeInHierarchy)
+            {
+                continue;
+            }
+
+            if (!sw.IsAttractedPickable(pickable))
             {
                 continue;
             }
