@@ -15,16 +15,19 @@ public class MainMenuUI : MonoBehaviour
     public void StartGameButton()
     {
         gameDataSelectionUI.Open();
+        AudioManager.Instance.PlayUI("ButtonClickSFX");
     }
 
     public void SettingsButton()
     {
         settingsPanel.Open();
+        AudioManager.Instance.PlayUI("ButtonClickSFX");
     }
 
 
     public void QuitGameButton()
     {
+        AudioManager.Instance.PlayUI("ButtonClickSFX");
         Application.Quit();
     }
 }

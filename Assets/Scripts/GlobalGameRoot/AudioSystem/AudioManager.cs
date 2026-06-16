@@ -37,7 +37,7 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private bool bgmFadeUseUnscaledTime = true;
 
     [Header("一次性 SFX 音效池设置（PlayOneShot 用）")]
-    [SerializeField] private int sfxPoolSize = 16; // 可同时使用的音效源数量上限
+    [SerializeField] private int sfxPoolSize = 64; // 可同时使用的音效源数量上限
     private AudioSource[] sfxPool; // SFX AudioSource 池
     private int sfxPoolIndex;      // 当前轮询到的池子下标
 

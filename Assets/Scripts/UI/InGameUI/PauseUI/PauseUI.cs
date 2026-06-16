@@ -28,16 +28,19 @@ public class PauseUI : MonoBehaviour
     public void ResumeGameButton()
     {
         inGameUI.TogglePauseUI();
+        AudioManager.Instance.PlayUI("ButtonClickSFX");
     }
 
     public void SettingsButton()
     {
         settingsPanel.Open();
+        AudioManager.Instance.PlayUI("ButtonClickSFX");
     }
 
     public void GiveUpButton()
     {
-        if(GameStateManager.Instance.currentGameState==GameState.Base)
+        AudioManager.Instance.PlayUI("ButtonClickSFX");
+        if (GameStateManager.Instance.currentGameState==GameState.Base)
         {
             return;
         }
@@ -50,7 +53,8 @@ public class PauseUI : MonoBehaviour
 
     public void ReturnToMainMenuButton()
     {
-        if(GameStateManager.Instance.currentGameState==GameState.Base)
+        AudioManager.Instance.PlayUI("ButtonClickSFX");
+        if (GameStateManager.Instance.currentGameState==GameState.Base)
         {
             GlobalUI.Instance.fadeScreenUI.PlaySceneSwitchFade(() =>
             {

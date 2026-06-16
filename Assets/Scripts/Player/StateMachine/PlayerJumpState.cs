@@ -27,6 +27,8 @@ public class PlayerJumpState : PlayerAiredState
         // �� y ������ jumpForce����վ�ڵ����ϻ���ӵ�������ٶ�
 
         playerControl.jumpBufferTimer = -999f;
+
+        AudioManager.Instance.PlaySFX("PlayerJumpSFX");
     }
 
     public override void Update()

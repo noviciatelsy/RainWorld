@@ -24,6 +24,7 @@ public class GameDataSelectionUI : MonoBehaviour
 
     public void Close()
     {
+        AudioManager.Instance.PlayUI("ButtonClickSFX");
         if (panelOpenCloseAnimation != null)
         {
             panelOpenCloseAnimation.PlayClose();
@@ -73,7 +74,7 @@ public class GameDataSelectionUI : MonoBehaviour
             Refresh();
             return;
         }
-
+        AudioManager.Instance.PlayUI("ButtonClickSFX");
         EnterGameScene();
     }
 
@@ -90,6 +91,7 @@ public class GameDataSelectionUI : MonoBehaviour
         {
             Refresh();
         }
+        AudioManager.Instance.PlayUI("ButtonClickSFX");
     }
 
     public void NewGame(int mySlotIndex)
@@ -106,8 +108,9 @@ public class GameDataSelectionUI : MonoBehaviour
             Refresh();
             return;
         }
-
+        AudioManager.Instance.PlayUI("ButtonClickSFX");
         EnterGameScene();
+
     }
 
     private void EnterGameScene()
