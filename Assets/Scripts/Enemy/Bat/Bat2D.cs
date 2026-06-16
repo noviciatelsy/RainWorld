@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Bat2D : MonsterBase, IMosquitoCoilRepellable
+public class Bat2D : MonsterBase, IMosquitoCoilRepellable, IMeatBaitAttractable, IToyCarAttractable
 {
     [Header("Flight")]
     public float moveSpeed = 4f;
@@ -399,7 +399,7 @@ public class Bat2D : MonsterBase, IMosquitoCoilRepellable
 
         if (fly != null)
         {
-            Destroy(fly.gameObject);
+            fly.TakeEnemyHit();
             return true;
         }
 
@@ -620,5 +620,15 @@ public class Bat2D : MonsterBase, IMosquitoCoilRepellable
 
         Gizmos.DrawLine(preyPos, preyPos + new Vector2(Mathf.Cos(upAngle - halfFanRad), Mathf.Sin(upAngle - halfFanRad)) * huntFanRadius);
         Gizmos.DrawLine(preyPos, preyPos + new Vector2(Mathf.Cos(upAngle + halfFanRad), Mathf.Sin(upAngle + halfFanRad)) * huntFanRadius);
+    }
+
+    public void AttractToMeatBait(Vector2 myMeatBaitPosition)
+    {
+        batAI?.ForcePerceptionRefresh();
+    }
+
+    public void AttractToToyCar(Vector2 myToyCarPosition)
+    {
+        batAI?.ForcePerceptionRefresh();
     }
 }

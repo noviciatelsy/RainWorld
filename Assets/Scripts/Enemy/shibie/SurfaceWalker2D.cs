@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Serialization;
 
-public class SurfaceWalker2D : MonsterBase
+public class SurfaceWalker2D : MonsterBase, IMeatBaitAttractable, IToyCarAttractable
 {
     public float moveSpeed = 3f;
     public float fallSpeed = 6f;
@@ -22,15 +22,22 @@ public class SurfaceWalker2D : MonsterBase
     [Tooltip("Prefab 默认 scale.x=-1、朝左；若整体朝向反了可填 180")]
     public float visualRotationOffset = 0f;
 
+    [Header("Attraction")]
+    public float detectRadius = 10f;
+    public float perceptionInterval = 0.3f;
+
     private Vector3 baseVisualScale = Vector3.one;
     private int lastVisualEdgeIndex = -1;
     private bool lastVisualClockwise;
     private float cachedVisualZ;
     private float cachedVisualScaleX;
 
+    private SurfaceWalkerUtilityAI walkerAI;
+
     protected override void Init()
     {
-        ai = new SurfaceWalkerUtilityAI(this);
+        walkerAI = new SurfaceWalkerUtilityAI(this);
+        ai = walkerAI;
         motor = new SurfaceWalkerMotor();
 
         if (legSystem == null)
@@ -223,4 +230,14 @@ public class SurfaceWalker2D : MonsterBase
         }
     }
 #endif
+
+    public void AttractToMeatBait(Vector2 myMeatBaitPosition)
+    {
+        walkerAI?.ForcePerceptionRefresh();
+    }
+
+    public void AttractToToyCar(Vector2 myToyCarPosition)
+    {
+        walkerAI?.ForcePerceptionRefresh();
+    }
 }

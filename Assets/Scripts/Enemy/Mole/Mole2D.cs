@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Mole2D : MonsterBase, IAttractedByTreasure
+public class Mole2D : MonsterBase, IAttractedByTreasure, IToyCarAttractable
 {
     [Header("鼹鼠属性配置")]
     public float moveSpeed = 2.5f;
@@ -20,14 +20,20 @@ public class Mole2D : MonsterBase, IAttractedByTreasure
 
     public MoleTreasureCollector TreasureCollector => treasureCollector;
 
+    [Header("Attraction")]
+    public float detectRadius = 8f;
+
     [Header("当前状态数据（由 AI 与 Motor 维护）")]
     public int idleArrivalCount = 0;
     public float stealTimer = 0f;
     public MoleCave currentHomeCave;
 
+    private MoleUtilityAI moleAI;
+
     protected override void Init()
     {
-        ai = new MoleUtilityAI(this);
+        moleAI = new MoleUtilityAI(this);
+        ai = moleAI;
         motor = new MoleMotor(this);
 
         if (moleAni == null)
@@ -132,5 +138,10 @@ public class Mole2D : MonsterBase, IAttractedByTreasure
         }
 
         treasureCollector.RegisterTarget(pickableObject);
+    }
+
+    public void AttractToToyCar(Vector2 myToyCarPosition)
+    {
+        moleAI?.ForceAttractionRefresh();
     }
 }

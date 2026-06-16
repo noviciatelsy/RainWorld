@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Snail2D : MonsterBase
+public class Snail2D : MonsterBase, IToyCarAttractable
 {
     [Header("Movement")]
     public float moveSpeed = 2.5f;
@@ -32,6 +32,9 @@ public class Snail2D : MonsterBase
     public float eatWaitDuration = 5f;
     public float arriveThreshold = 0.08f;
 
+    [Header("Attraction")]
+    public float detectRadius = 8f;
+
     [Header("Debug")]
     public bool drawAreaGizmos = true;
 
@@ -48,6 +51,7 @@ public class Snail2D : MonsterBase
     public bool IsDownwardMovementPaused { get; private set; }
 
     private SnailRidePlatform ridePlatform;
+    private SnailUtilityAI snailAI;
 
     public void SetDownwardMovementPaused(bool paused)
     {
@@ -84,7 +88,8 @@ public class Snail2D : MonsterBase
 
     protected override void Init()
     {
-        ai = new SnailUtilityAI(this);
+        snailAI = new SnailUtilityAI(this);
+        ai = snailAI;
         motor = new SnailMotor(this);
 
         if (snailAni == null)
@@ -330,5 +335,10 @@ public class Snail2D : MonsterBase
 
         Gizmos.color = new Color(1f, 0.85f, 0.2f, alpha);
         Gizmos.DrawSphere(GetSpawnPosition(), 0.15f);
+    }
+
+    public void AttractToToyCar(Vector2 myToyCarPosition)
+    {
+        snailAI?.ForceAttractionRefresh();
     }
 }

@@ -293,7 +293,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   visualRoot: {fileID: 4758271259952745959}
   frontCheck: {fileID: 4231829807589965968}
-  moveSpeed: 4.5
+  moveSpeed: 1.5
   spriteFacesRightByDefault: 1
   reverseCooldown: 0.12
   freezeRotationOnAwake: 1
@@ -302,12 +302,6 @@ MonoBehaviour:
     m_Bits: 640
   frontCheckDistance: 0.04
   useRaycastFrontCheck: 1
-  attractableEnemyLayerMask:
-    serializedVersion: 2
-    m_Bits: 256
-  attractionRadius: 3
-  attractionDetectInterval: 0.5
-  detectImmediatelyOnSpawn: 1
   lifeDuration: 10
 --- !u!1 &5253495798074353782
 GameObject:

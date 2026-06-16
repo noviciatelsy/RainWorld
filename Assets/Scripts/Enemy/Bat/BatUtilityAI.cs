@@ -25,6 +25,11 @@ public class BatUtilityAI : IMonsterAI
     private Vector2 currentHuntPoint;
     private bool hasHuntPoint;
 
+    private EnemyAttractionSource currentPreySource = EnemyAttractionSource.None;
+
+    private Vector2 toyCarChasePoint;
+    private bool hasToyCarChasePoint;
+
     private const float MoveTargetLockThresholdSqr = 0.12f * 0.12f;
     private const float PreyGoalChangeThresholdSqr = 1.5f * 1.5f;
     private const int MaxPathNodeChecks = 8;
@@ -131,6 +136,14 @@ public class BatUtilityAI : IMonsterAI
         idleTimer = 0f;
     }
 
+    public void ForcePerceptionRefresh()
+    {
+        perceptionTimer = 0f;
+        hasHuntPoint = false;
+        pathPickTimer = 0f;
+        idleTimer = 0f;
+    }
+
     private bool TryBuildMosquitoCoilFleeIntent(Bat2D bat, out BatIntent fleeIntent)
     {
         fleeIntent = default;
@@ -180,16 +193,12 @@ public class BatUtilityAI : IMonsterAI
                 {
                     hasLastKnownPreyPosition = true;
                     aggroMemoryTimer = bat.aggroMemoryDuration;
-
-                    if (perceptionTimer > 0f)
-                    {
-                        return;
-                    }
                 }
             }
             else
             {
                 currentPrey = null;
+                currentPreySource = EnemyAttractionSource.None;
             }
         }
 
@@ -203,6 +212,7 @@ public class BatUtilityAI : IMonsterAI
             if (aggroMemoryTimer <= 0f)
             {
                 currentPrey = null;
+                currentPreySource = EnemyAttractionSource.None;
             }
 
             return;
@@ -210,12 +220,26 @@ public class BatUtilityAI : IMonsterAI
 
         perceptionTimer = bat.perceptionInterval;
 
+        EnemyAttractionCapabilities capabilities =
+            EnemyAttractionCapabilities.MeatBait
+            | EnemyAttractionCapabilities.ToyCar
+            | EnemyAttractionCapabilities.Fly
+            | EnemyAttractionCapabilities.Player;
+
+        if (EnemyAttractionUtility.TryResolveTarget(
+                bat.Position,
+                bat.detectRadius,
+                capabilities,
+                null,
+                out EnemyAttractionTarget attraction)
+            && attraction.Transform != null)
+        {
+            ApplyDetectedPrey(bat, attraction.Transform, attraction.Source);
+            return;
+        }
+
         int hitCount = bat.OverlapPreyNonAlloc(out Collider2D[] hits);
-        Transform bestFly = null;
-        Transform bestPlayer = null;
         Transform bestOther = null;
-        float bestFlyDistSqr = float.MaxValue;
-        float bestPlayerDistSqr = float.MaxValue;
         float bestOtherDistSqr = float.MaxValue;
 
         for (int i = 0; i < hitCount; i++)
@@ -234,28 +258,6 @@ public class BatUtilityAI : IMonsterAI
                 continue;
             }
 
-            if (bat.IsFlyCollider(hit))
-            {
-                if (distSqr < bestFlyDistSqr)
-                {
-                    bestFlyDistSqr = distSqr;
-                    bestFly = hit.transform;
-                }
-
-                continue;
-            }
-
-            if (bat.IsPlayerCollider(hit) || hit.GetComponentInParent<Player>() != null)
-            {
-                if (distSqr < bestPlayerDistSqr)
-                {
-                    bestPlayerDistSqr = distSqr;
-                    bestPlayer = hit.transform;
-                }
-
-                continue;
-            }
-
             if (bat.IsOtherPreyCollider(hit))
             {
                 if (distSqr < bestOtherDistSqr)
@@ -266,33 +268,14 @@ public class BatUtilityAI : IMonsterAI
             }
         }
 
-        Fly2D closestFly = FlyRegistry.FindClosest(bat.Position, bat.detectRadius, out float flyDistSqr);
-
-        if (closestFly != null && (bestFly == null || flyDistSqr < bestFlyDistSqr))
+        if (bestOther != null)
         {
-            bestFly = closestFly.transform;
+            ApplyDetectedPrey(bat, bestOther, EnemyAttractionSource.None);
+            return;
         }
 
-        TryDetectPlayerFallback(bat, detectRadiusSqr, ref bestPlayer, ref bestPlayerDistSqr);
-
-        Transform detected = bestFly != null ? bestFly : (bestPlayer != null ? bestPlayer : bestOther);
-
-        if (detected != null)
+        if (ShouldKeepToyCarChaseWithoutPerception(bat))
         {
-            bool preyChanged = currentPrey != detected;
-
-            if (preyChanged)
-            {
-                string preyType = bestFly != null ? "Fly" : (bestPlayer != null ? "Player" : "Other");
-                bat.LogDebug($"发现目标: {detected.name} ({preyType})");
-                pathPickTimer = 0f;
-                idleTimer = 0f;
-                hasHuntPoint = false;
-            }
-
-            currentPrey = detected;
-            lastKnownPreyPosition = detected.position;
-            hasLastKnownPreyPosition = true;
             aggroMemoryTimer = bat.aggroMemoryDuration;
             return;
         }
@@ -304,37 +287,60 @@ public class BatUtilityAI : IMonsterAI
         }
 
         currentPrey = null;
+        currentPreySource = EnemyAttractionSource.None;
         hasHuntPoint = false;
     }
 
-    private static void TryDetectPlayerFallback(
-        Bat2D bat,
-        float detectRadiusSqr,
-        ref Transform bestPlayer,
-        ref float bestPlayerDistSqr)
+    private void ApplyDetectedPrey(Bat2D bat, Transform detected, EnemyAttractionSource source)
     {
-        if (PlayerManager.Instance == null)
+        bool preyChanged = currentPrey != detected || currentPreySource != source;
+
+        if (preyChanged)
         {
-            return;
+            string preyType = GetPreyTypeLabel(source, detected);
+            bat.LogDebug($"发现目标: {detected.name} ({preyType})");
+            pathPickTimer = 0f;
+            idleTimer = 0f;
+            hasHuntPoint = false;
+
+            if (source != EnemyAttractionSource.ToyCar)
+            {
+                hasToyCarChasePoint = false;
+            }
         }
 
-        Player player = PlayerManager.Instance.TryGetCurrentPlayer();
+        currentPrey = detected;
+        currentPreySource = source;
+        lastKnownPreyPosition = detected.position;
+        hasLastKnownPreyPosition = true;
+        aggroMemoryTimer = bat.aggroMemoryDuration;
+    }
 
-        if (player == null)
+    private static string GetPreyTypeLabel(EnemyAttractionSource source, Transform detected)
+    {
+        switch (source)
         {
-            return;
+            case EnemyAttractionSource.MeatBait:
+                return "MeatBait";
+            case EnemyAttractionSource.ToyCar:
+                return "ToyCar";
+            case EnemyAttractionSource.Fly:
+                return "Fly";
+            case EnemyAttractionSource.Player:
+                return "Player";
+            default:
+                if (detected != null && detected.GetComponentInParent<Fly2D>() != null)
+                {
+                    return "Fly";
+                }
+
+                if (detected != null && detected.GetComponentInParent<Player>() != null)
+                {
+                    return "Player";
+                }
+
+                return "Other";
         }
-
-        Vector2 playerPos = player.transform.position;
-        float distSqr = ((Vector2)bat.Position - playerPos).sqrMagnitude;
-
-        if (distSqr > detectRadiusSqr || distSqr >= bestPlayerDistSqr)
-        {
-            return;
-        }
-
-        bestPlayerDistSqr = distSqr;
-        bestPlayer = player.transform;
     }
 
     private void UpdateDebugState(Bat2D bat)
@@ -430,6 +436,11 @@ public class BatUtilityAI : IMonsterAI
 
     private bool CanAttack(Bat2D bat, Vector2 preyPosition)
     {
+        if (IsHuntOnlyPrey())
+        {
+            return false;
+        }
+
         if (MosquitoCoilAvoidance.IsInsideAnyActiveCoil(bat.Position)
             || MosquitoCoilAvoidance.IsInsideAnyActiveCoil(preyPosition))
         {
@@ -460,7 +471,19 @@ public class BatUtilityAI : IMonsterAI
         Vector2 preyPosition = GetRawPreyPosition(bat);
         Vector2 moveTarget;
 
-        if (ShouldUseSectorHunt())
+        if (currentPreySource == EnemyAttractionSource.ToyCar)
+        {
+            if (ShouldPickNewToyCarChasePoint(bat, preyPosition))
+            {
+                toyCarChasePoint = preyPosition;
+                hasToyCarChasePoint = true;
+                lastPathGoal = preyPosition;
+            }
+
+            moveTarget = hasToyCarChasePoint ? toyCarChasePoint : preyPosition;
+            bat.DebugPickReason = "HuntToyCarCommitted";
+        }
+        else if (ShouldUseSectorHunt())
         {
             if (ShouldPickNewHuntPoint(bat, preyPosition))
             {
@@ -488,6 +511,50 @@ public class BatUtilityAI : IMonsterAI
 
         bat.DebugTarget = moveTarget;
         return CreateHuntIntent(bat, moveTarget);
+    }
+
+    private bool ShouldPickNewToyCarChasePoint(Bat2D bat, Vector2 preyPosition)
+    {
+        if (!hasToyCarChasePoint)
+        {
+            return true;
+        }
+
+        if (bat.Arrived)
+        {
+            return true;
+        }
+
+        float detectRadiusSqr = bat.detectRadius * bat.detectRadius;
+
+        if (((Vector2)preyPosition - bat.Position).sqrMagnitude <= detectRadiusSqr
+            && HasPreyGoalChanged(preyPosition))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool ShouldKeepToyCarChaseWithoutPerception(Bat2D bat)
+    {
+        if (currentPreySource != EnemyAttractionSource.ToyCar)
+        {
+            return false;
+        }
+
+        if (!ToyCarRegistry.HasActiveCar())
+        {
+            hasToyCarChasePoint = false;
+            return false;
+        }
+
+        if (currentPrey != null && currentPrey.gameObject.activeInHierarchy)
+        {
+            return true;
+        }
+
+        return hasToyCarChasePoint && !bat.Arrived;
     }
 
     private bool ShouldPickNewHuntPoint(Bat2D bat, Vector2 preyPosition)
@@ -585,6 +652,11 @@ public class BatUtilityAI : IMonsterAI
 
     private bool ShouldUseSectorHunt()
     {
+        if (IsHuntOnlyPrey())
+        {
+            return false;
+        }
+
         Transform prey = currentPrey != null ? currentPrey : lastDebugPrey;
 
         if (prey == null)
@@ -604,6 +676,12 @@ public class BatUtilityAI : IMonsterAI
 
         Collider2D col = prey.GetComponent<Collider2D>();
         return col != null && owner.IsFlyCollider(col);
+    }
+
+    private bool IsHuntOnlyPrey()
+    {
+        return currentPreySource == EnemyAttractionSource.MeatBait
+            || currentPreySource == EnemyAttractionSource.ToyCar;
     }
 
     /// <summary>

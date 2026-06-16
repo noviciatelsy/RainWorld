@@ -8,7 +8,8 @@ public class SnailUtilityAI : IMonsterAI
         IdleWander,
         GoToItem,
         WaitEat,
-        ReturnToIdle
+        ReturnToIdle,
+        ChaseToyCar
     }
 
     private readonly Snail2D snail;
@@ -17,10 +18,20 @@ public class SnailUtilityAI : IMonsterAI
     private PickableObject targetItem;
     private float waitTimer;
     private List<Vector2> activePath;
+    private float toyCarPathRefreshTimer;
+    private Vector2 committedToyCarPosition;
+    private bool hasCommittedToyCarPosition;
+
+    private const float ToyCarPathRefreshInterval = 0.45f;
 
     public SnailUtilityAI(Snail2D snail)
     {
         this.snail = snail;
+    }
+
+    public void ForceAttractionRefresh()
+    {
+        toyCarPathRefreshTimer = 0f;
     }
 
     public IIntent Evaluate(MonsterBase owner)
@@ -50,6 +61,21 @@ public class SnailUtilityAI : IMonsterAI
             case SnailMode.WaitEat:
                 return IdleIntent(sw, true);
 
+            case SnailMode.ChaseToyCar:
+                if (activePath != null && activePath.Count > 0 && !sw.Arrived)
+                {
+                    return PathIntent(activePath);
+                }
+
+                if (TryRefreshToyCarChasePath(sw))
+                {
+                    return PathIntent(activePath);
+                }
+
+                mode = SnailMode.IdleWander;
+                activePath = null;
+                return IdleIntent(sw, false);
+
             default:
                 if (activePath != null && activePath.Count > 0 && !sw.Arrived)
                 {
@@ -60,6 +86,11 @@ public class SnailUtilityAI : IMonsterAI
                 {
                     BeginReturnToIdle(sw);
                     return EvaluateReturnToIdle(sw);
+                }
+
+                if (TryStartChaseToyCar(sw))
+                {
+                    return PathIntent(activePath);
                 }
 
                 if (TryStartEatItem(sw))
@@ -111,6 +142,68 @@ public class SnailUtilityAI : IMonsterAI
         return IdleIntent(sw, true);
     }
 
+    private bool TryStartChaseToyCar(Snail2D sw)
+    {
+        if (sw.NeedsReturnToIdle())
+        {
+            return false;
+        }
+
+        if (!TryRefreshToyCarChasePath(sw))
+        {
+            return false;
+        }
+
+        mode = SnailMode.ChaseToyCar;
+        sw.Arrived = false;
+        return true;
+    }
+
+    private bool TryRefreshToyCarChasePath(Snail2D sw)
+    {
+        bool carInRange = ToyCarRegistry.TryFindClosest(
+            sw.Position,
+            sw.detectRadius,
+            out ToyCarController car,
+            out _);
+
+        if (carInRange)
+        {
+            committedToyCarPosition = car.AttractionCenter;
+            hasCommittedToyCarPosition = true;
+        }
+
+        if (!hasCommittedToyCarPosition || !ToyCarRegistry.HasActiveCar())
+        {
+            return false;
+        }
+
+        toyCarPathRefreshTimer -= Time.fixedDeltaTime;
+
+        if (mode == SnailMode.ChaseToyCar
+            && !sw.Arrived
+            && toyCarPathRefreshTimer > 0f
+            && activePath != null
+            && activePath.Count > 0)
+        {
+            return true;
+        }
+
+        List<Vector2> path = SnailEdgePath.FindVertexPath(sw.Position, committedToyCarPosition);
+
+        if (path.Count <= 0)
+        {
+            return mode == SnailMode.ChaseToyCar
+                && !sw.Arrived
+                && activePath != null
+                && activePath.Count > 0;
+        }
+
+        activePath = path;
+        toyCarPathRefreshTimer = ToyCarPathRefreshInterval;
+        return true;
+    }
+
     private bool TryStartEatItem(Snail2D sw)
     {
         if (sw.NeedsReturnToIdle())
@@ -141,6 +234,18 @@ public class SnailUtilityAI : IMonsterAI
 
     private void TickMode(Snail2D sw)
     {
+        if (mode == SnailMode.ChaseToyCar)
+        {
+            if (!ToyCarRegistry.HasActiveCar())
+            {
+                mode = SnailMode.IdleWander;
+                activePath = null;
+                hasCommittedToyCarPosition = false;
+            }
+
+            return;
+        }
+
         if (mode == SnailMode.GoToItem)
         {
             if (IsTargetItemLost())

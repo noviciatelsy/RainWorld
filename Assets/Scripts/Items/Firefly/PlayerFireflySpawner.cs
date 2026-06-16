@@ -31,7 +31,8 @@ public class PlayerFireflySpawner : MonoBehaviour
             return null;
         }
 
-        Fly2D fly = Instantiate(fireflyPrefab, worldPosition, Quaternion.identity);
+        Vector2 spawnPosition = FlySpawnUtility.ResolveSpawnPosition(worldPosition);
+        Fly2D fly = Instantiate(fireflyPrefab, spawnPosition, Quaternion.identity);
         fly.ConfigureDropItem(fireflyItemData, pickableObjectPrefab);
 
         if (initialVelocity.HasValue)

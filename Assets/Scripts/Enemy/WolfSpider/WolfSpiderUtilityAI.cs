@@ -22,6 +22,11 @@ public class WolfSpiderUtilityAI : IMonsterAI
     private Transform lastDebugPrey;
     private WolfSpiderBehavior lastDebugBehavior = WolfSpiderBehavior.Idle;
 
+    private EnemyAttractionSource currentPreySource = EnemyAttractionSource.None;
+
+    private Vector2 toyCarChasePoint;
+    private bool hasToyCarChasePoint;
+
     private const float JumpTargetLockThreshold = 0.12f;
     private const float JumpTargetLockThresholdSqr = JumpTargetLockThreshold * JumpTargetLockThreshold;
     private const float PreyGoalChangeThresholdSqr = 1.5f * 1.5f;
@@ -112,6 +117,13 @@ public class WolfSpiderUtilityAI : IMonsterAI
         pathPickTimer = 0f;
     }
 
+    public void ForcePerceptionRefresh()
+    {
+        perceptionTimer = 0f;
+        pathPickTimer = 0f;
+        idleTimer = 0f;
+    }
+
     private void HandleJumpTargetRejected(WolfSpider2D spider)
     {
         lastIssuedIntent = CreateIdleIntent(spider, spider.Position);
@@ -147,16 +159,12 @@ public class WolfSpiderUtilityAI : IMonsterAI
                 {
                     hasLastKnownPreyPosition = true;
                     aggroMemoryTimer = spider.aggroMemoryDuration;
-
-                    if (perceptionTimer > 0f)
-                    {
-                        return;
-                    }
                 }
             }
             else
             {
                 currentPrey = null;
+                currentPreySource = EnemyAttractionSource.None;
             }
         }
 
@@ -170,6 +178,7 @@ public class WolfSpiderUtilityAI : IMonsterAI
             if (aggroMemoryTimer <= 0f)
             {
                 currentPrey = null;
+                currentPreySource = EnemyAttractionSource.None;
             }
 
             return;
@@ -177,73 +186,26 @@ public class WolfSpiderUtilityAI : IMonsterAI
 
         perceptionTimer = spider.perceptionInterval;
 
-        int hitCount = spider.OverlapPreyNonAlloc(out Collider2D[] hits);
-        Transform bestFly = null;
-        Transform bestPlayer = null;
-        float bestFlyDistSqr = float.MaxValue;
-        float bestPlayerDistSqr = float.MaxValue;
+        EnemyAttractionCapabilities capabilities =
+            EnemyAttractionCapabilities.MeatBait
+            | EnemyAttractionCapabilities.ToyCar
+            | EnemyAttractionCapabilities.Fly
+            | EnemyAttractionCapabilities.Player;
 
-        spider.DebugColliderHitCount = hitCount;
-
-        for (int i = 0; i < hitCount; i++)
+        if (EnemyAttractionUtility.TryResolveTarget(
+                spider.Position,
+                spider.detectRadius,
+                capabilities,
+                null,
+                out EnemyAttractionTarget attraction)
+            && attraction.Transform != null)
         {
-            Collider2D hit = hits[i];
-
-            if (hit == null)
-            {
-                continue;
-            }
-
-            float distSqr = ((Vector2)hit.transform.position - spider.Position).sqrMagnitude;
-
-            if (distSqr > detectRadiusSqr)
-            {
-                continue;
-            }
-
-            if (spider.IsFlyCollider(hit))
-            {
-                if (distSqr < bestFlyDistSqr)
-                {
-                    bestFlyDistSqr = distSqr;
-                    bestFly = hit.transform;
-                }
-
-                continue;
-            }
-
-            if (spider.IsPlayerCollider(hit))
-            {
-                if (distSqr < bestPlayerDistSqr)
-                {
-                    bestPlayerDistSqr = distSqr;
-                    bestPlayer = hit.transform;
-                }
-            }
+            ApplyDetectedPrey(spider, attraction.Transform, attraction.Source);
+            return;
         }
 
-        Fly2D closestFly = FlyRegistry.FindClosest(spider.Position, spider.detectRadius, out float flyDistSqr);
-        spider.DebugFlyScanCount = FlyRegistry.ActiveCount;
-
-        if (closestFly != null && (bestFly == null || flyDistSqr < bestFlyDistSqr))
+        if (ShouldKeepToyCarChaseWithoutPerception(spider))
         {
-            bestFly = closestFly.transform;
-        }
-
-        Transform detected = bestFly != null ? bestFly : bestPlayer;
-
-        if (detected != null)
-        {
-            if (currentPrey != detected)
-            {
-                spider.LogDebug(
-                    $"发现目标: {detected.name} ({(bestFly != null ? "Fly" : "Player")})"
-                );
-            }
-
-            currentPrey = detected;
-            lastKnownPreyPosition = detected.position;
-            hasLastKnownPreyPosition = true;
             aggroMemoryTimer = spider.aggroMemoryDuration;
             return;
         }
@@ -260,6 +222,51 @@ public class WolfSpiderUtilityAI : IMonsterAI
         }
 
         currentPrey = null;
+        currentPreySource = EnemyAttractionSource.None;
+    }
+
+    private void ApplyDetectedPrey(WolfSpider2D spider, Transform detected, EnemyAttractionSource source)
+    {
+        bool preyChanged = currentPrey != detected || currentPreySource != source;
+
+        if (preyChanged)
+        {
+            spider.LogDebug(
+                $"发现目标: {detected.name} ({GetPreyTypeLabel(source, detected)})"
+            );
+            pathPickTimer = 0f;
+            idleTimer = 0f;
+
+            if (source != EnemyAttractionSource.ToyCar)
+            {
+                hasToyCarChasePoint = false;
+            }
+        }
+
+        currentPrey = detected;
+        currentPreySource = source;
+        lastKnownPreyPosition = detected.position;
+        hasLastKnownPreyPosition = true;
+        aggroMemoryTimer = spider.aggroMemoryDuration;
+    }
+
+    private static string GetPreyTypeLabel(EnemyAttractionSource source, Transform detected)
+    {
+        switch (source)
+        {
+            case EnemyAttractionSource.MeatBait:
+                return "MeatBait";
+            case EnemyAttractionSource.ToyCar:
+                return "ToyCar";
+            case EnemyAttractionSource.Fly:
+                return "Fly";
+            case EnemyAttractionSource.Player:
+                return "Player";
+            default:
+                return detected != null && detected.GetComponentInParent<Fly2D>() != null
+                    ? "Fly"
+                    : "Player";
+        }
     }
 
     private void UpdateDebugState(WolfSpider2D spider)
@@ -344,6 +351,11 @@ public class WolfSpiderUtilityAI : IMonsterAI
 
     private bool CanAttack(WolfSpider2D spider, Vector2 preyPosition)
     {
+        if (IsHuntOnlyPrey())
+        {
+            return false;
+        }
+
         float attackRangeSqr = spider.attackRange * spider.attackRange;
 
         if ((preyPosition - spider.Position).sqrMagnitude > attackRangeSqr)
@@ -389,7 +401,24 @@ public class WolfSpiderUtilityAI : IMonsterAI
         pathPickTimer = spider.pathPickInterval;
         lastPathGoal = preyPosition;
 
-        Vector2 jumpTarget = PickJumpTarget(spider, preyPosition, WolfSpiderBehavior.Hunt);
+        Vector2 jumpTarget;
+
+        if (currentPreySource == EnemyAttractionSource.ToyCar)
+        {
+            if (ShouldPickNewToyCarChasePoint(spider, preyPosition))
+            {
+                toyCarChasePoint = preyPosition;
+                hasToyCarChasePoint = true;
+            }
+
+            jumpTarget = hasToyCarChasePoint ? toyCarChasePoint : preyPosition;
+            spider.DebugPickReason = "HuntToyCarCommitted";
+            spider.DebugTarget = jumpTarget;
+            CacheArcDebug(spider, jumpTarget);
+            return CreateHuntIntent(spider, jumpTarget);
+        }
+
+        jumpTarget = PickJumpTarget(spider, preyPosition, WolfSpiderBehavior.Hunt);
         return CreateHuntIntent(spider, jumpTarget);
     }
 
@@ -676,5 +705,55 @@ public class WolfSpiderUtilityAI : IMonsterAI
             spider.arcHeight,
             spider.CurrentSurfaceNormal
         );
+    }
+
+    private bool IsHuntOnlyPrey()
+    {
+        return currentPreySource == EnemyAttractionSource.MeatBait
+            || currentPreySource == EnemyAttractionSource.ToyCar;
+    }
+
+    private bool ShouldPickNewToyCarChasePoint(WolfSpider2D spider, Vector2 preyPosition)
+    {
+        if (!hasToyCarChasePoint)
+        {
+            return true;
+        }
+
+        if (spider.Arrived)
+        {
+            return true;
+        }
+
+        float detectRadiusSqr = spider.detectRadius * spider.detectRadius;
+
+        if (((Vector2)preyPosition - spider.Position).sqrMagnitude <= detectRadiusSqr
+            && HasPreyGoalChanged(preyPosition))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool ShouldKeepToyCarChaseWithoutPerception(WolfSpider2D spider)
+    {
+        if (currentPreySource != EnemyAttractionSource.ToyCar)
+        {
+            return false;
+        }
+
+        if (!ToyCarRegistry.HasActiveCar())
+        {
+            hasToyCarChasePoint = false;
+            return false;
+        }
+
+        if (currentPrey != null && currentPrey.gameObject.activeInHierarchy)
+        {
+            return true;
+        }
+
+        return hasToyCarChasePoint && !spider.Arrived;
     }
 }
