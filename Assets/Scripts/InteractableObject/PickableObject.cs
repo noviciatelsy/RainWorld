@@ -7,30 +7,30 @@ public class PickableObject : MonoBehaviour
 {
     private SpriteRenderer sr;
 
-    [Header("ÎïÆ·´óÐ¡ÏÔÊ¾±¶ÂÊ")]
+    [Header("ï¿½ï¿½Æ·ï¿½ï¿½Ð¡ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½")]
     [SerializeField] private float baseScaleMultiplier = 3;
     [SerializeField] private Vector2 originalGroundBounceColliderSize = new Vector2(0.2f, 0.2f);
     [SerializeField] private Vector2 originalPlayerPickableTriggerCollider = new Vector2(0.25f, 0.25f);
 
     [Header("Refs")]
     [SerializeField] private Rigidbody2D rb;
-    [SerializeField] private BoxCollider2D groundBounceCollider; // ÓëµØÐÎÅö×²µÄÅö×²Ìå
-    [SerializeField] private BoxCollider2D playerPickableTriggerCollider; // ±»Íæ¼ÒÊ°È¡µÄ´¥·¢Æ÷Åö×²Ìå
+    [SerializeField] private BoxCollider2D groundBounceCollider; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×²ï¿½ï¿½ï¿½ï¿½×²ï¿½ï¿½
+    [SerializeField] private BoxCollider2D playerPickableTriggerCollider; // ï¿½ï¿½ï¿½ï¿½ï¿½Ê°È¡ï¿½Ä´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×²ï¿½ï¿½
 
     [Header("Item Drop")]
-    [SerializeField] private Vector2 dropForce = new Vector2(3, 10); // ³õËÙ¶È·¶Î§£¨x È¡Õý¸º£¬y ÏòÉÏ£©
-    [SerializeField] private float rotationSpeed = 360f;            // ³õÊ¼Ðý×ªËÙ¶È£¨¶È/Ãë£©
-    [SerializeField] private float rotationDamping = 3f;            // Ðý×ª×èÄá£¨Ô½´óÔ½¿ìÍ££©
-    [SerializeField] private Vector2 initialRotationAngleRange = new Vector2(0f, 45f); // ³õÊ¼Ëæ»úÐý×ª½Ç¶È·¶Î§
+    [SerializeField] private Vector2 dropForce = new Vector2(3, 10); // ï¿½ï¿½ï¿½Ù¶È·ï¿½Î§ï¿½ï¿½x È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½y ï¿½ï¿½ï¿½Ï£ï¿½
+    [SerializeField] private float rotationSpeed = 360f;            // ï¿½ï¿½Ê¼ï¿½ï¿½×ªï¿½Ù¶È£ï¿½ï¿½ï¿½/ï¿½ë£©
+    [SerializeField] private float rotationDamping = 3f;            // ï¿½ï¿½×ªï¿½ï¿½ï¿½á£¨Ô½ï¿½ï¿½Ô½ï¿½ï¿½Í£ï¿½ï¿½
+    [SerializeField] private Vector2 initialRotationAngleRange = new Vector2(0f, 45f); // ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½Ç¶È·ï¿½Î§
 
-    [Header("Settle (ÂäÎÈÅÐ¶¨)")]
-    [SerializeField] private LayerMask groundMask;   // Ground ²ã
-    [SerializeField] private float minSettleSpeed = 0.1f;    // ËÙ¶ÈµÍÓÚ´ËãÐÖµ²ÅËãÂý
-    [SerializeField] private float freezeDelay = 0.1f; // ÎïÆ·µÍÓÚ×îµÍËÙ¶Èºó¶à¾Ã¶³½áÎïÆ·
-    [SerializeField] private float settleExtraDelay = 0.05f; // ÅÐÎÈºóÔÙÑÓ³ÙÒ»µãµãÔÙÇÐ´¥·¢
+    [Header("Settle (ï¿½ï¿½ï¿½ï¿½ï¿½Ð¶ï¿½)")]
+    [SerializeField] private LayerMask groundMask;   // Ground ï¿½ï¿½
+    [SerializeField] private float minSettleSpeed = 0.1f;    // ï¿½Ù¶Èµï¿½ï¿½Ú´ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    [SerializeField] private float freezeDelay = 0.1f; // ï¿½ï¿½Æ·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶Èºï¿½ï¿½Ã¶ï¿½ï¿½ï¿½ï¿½ï¿½Æ·
+    [SerializeField] private float settleExtraDelay = 0.05f; // ï¿½ï¿½ï¿½Èºï¿½ï¿½ï¿½ï¿½Ó³ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½ï¿½
     [SerializeField] private float settleCheckCooldown = 0.1f;
 
-    // ÄÚ²¿×´Ì¬
+    // ï¿½Ú²ï¿½×´Ì¬
     private float currentRotationSpeed;
     private bool canRotate = true;
     private float settleCheckTimer;
@@ -55,7 +55,7 @@ public class PickableObject : MonoBehaviour
 
     private void FixedUpdate()
     {
-        // ½ö¸ºÔðÐý×ªÓë¼õËÙ£¨µ¯ÌøÈ«¿¿ÎïÀí²ÄÖÊ£©
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½Ù£ï¿½ï¿½ï¿½ï¿½ï¿½È«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê£ï¿½
         if (canRotate)
         {
             transform.Rotate(Vector3.forward, currentRotationSpeed * Time.fixedDeltaTime);
@@ -83,11 +83,11 @@ public class PickableObject : MonoBehaviour
         rb.velocity = new Vector2(dropForceX, dropForce.y);
 
         ApplyRandomInitialRotation();
-        // Ðý×ª·½Ïò¸úË®Æ½³õËÙÍ¬ºÅ
+        // ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½ï¿½Ë®Æ½ï¿½ï¿½ï¿½ï¿½Í¬ï¿½ï¿½
         currentRotationSpeed = rotationSpeed * Mathf.Sign(Mathf.Approximately(dropForceX, 0f) ? 1f : dropForceX);
         canRotate = true;
 
-        playerPickableTriggerCollider.enabled = false; // ½ûÓÃÍæ¼ÒÊ°È¡Åö×²´¥·¢Æ÷
+        playerPickableTriggerCollider.enabled = false; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê°È¡ï¿½ï¿½×²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
     }
 
@@ -123,7 +123,7 @@ public class PickableObject : MonoBehaviour
             return;
         }
 
-        Debug.LogWarning($"{name}: {targetCollider.name} ²»ÊÇ BoxCollider2D »ò CapsuleCollider2D£¬ÎÞ·¨Í¨¹ý size ÉèÖÃ x/y¡£", this);
+        Debug.LogWarning($"{name}: {targetCollider.name} ï¿½ï¿½ï¿½ï¿½ BoxCollider2D ï¿½ï¿½ CapsuleCollider2Dï¿½ï¿½ï¿½Þ·ï¿½Í¨ï¿½ï¿½ size ï¿½ï¿½ï¿½ï¿½ x/yï¿½ï¿½", this);
     }
 
     private Vector2 CalculateSameAreaSize(Vector2 originalSize, Vector2 imageSize)
@@ -158,20 +158,20 @@ public class PickableObject : MonoBehaviour
         if (settleCheckTimer <= 0f)
         {
             settleCheckTimer = settleCheckCooldown;
-            float speed = rb.velocity.magnitude; // Ã¿´ÎÓëµØÐÎÅö×²Ê±£¬¼ÆËã´ËÊ±µÄËÙ¶È
-            if (speed < minSettleSpeed) // µ±´ïµ½×îµÍËÙ¶ÈãÐÖµÊ±
+            float speed = rb.velocity.magnitude; // Ã¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×²Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½Ù¶ï¿½
+            if (speed < minSettleSpeed) // ï¿½ï¿½ï¿½ïµ½ï¿½ï¿½ï¿½ï¿½Ù¶ï¿½ï¿½ï¿½ÖµÊ±
             {
-                StartCoroutine(FreezeCo()); // Ò»¶ÎÊ±¼äºó¶³½áÎïÆ·£¬ÔÙÒ»¶ÎÊ±¼äºó¿ªÆôÊ°È¡¹¦ÄÜ
+                StartCoroutine(FreezeCo()); // Ò»ï¿½ï¿½Ê±ï¿½ï¿½ó¶³½ï¿½ï¿½ï¿½Æ·ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½Ê°È¡ï¿½ï¿½ï¿½ï¿½
             }
         }
     }
 
     private IEnumerator SettleCo()
     {
-        // µÈ´ýÒ»Ð¡¶ÎÊ±¼ä
+        // ï¿½È´ï¿½Ò»Ð¡ï¿½ï¿½Ê±ï¿½ï¿½
         yield return new WaitForSeconds(settleExtraDelay);
 
-        playerPickableTriggerCollider.enabled = true; // ¿ªÆôÍæ¼ÒÊ°È¡
+        playerPickableTriggerCollider.enabled = true; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê°È¡
         if(!onItemStopHasTriggered)
         {
             onItemStop?.Invoke();
@@ -181,14 +181,14 @@ public class PickableObject : MonoBehaviour
 
     private IEnumerator FreezeCo()
     {
-        yield return new WaitForSeconds(freezeDelay); // µÈ´ýÒ»Ð¡¶ÎÊ±¼ä
+        yield return new WaitForSeconds(freezeDelay); // ï¿½È´ï¿½Ò»Ð¡ï¿½ï¿½Ê±ï¿½ï¿½
 
-        // ¶³½áÎïÆ·
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ·
         rb.velocity = Vector2.zero;
         rb.angularVelocity = 0f;
         rb.constraints = RigidbodyConstraints2D.FreezeAll;
         canRotate = false;
-        StartCoroutine(SettleCo()); // Ò»Ð¡¶ÎÊ±¼äºó¿ªÆôÍæ¼ÒÊ°È¡
+        StartCoroutine(SettleCo()); // Ò»Ð¡ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê°È¡
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -199,9 +199,9 @@ public class PickableObject : MonoBehaviour
             return;
         }
     
-        if(playerInventory.AddItem(itemData)) // Èç¹û³É¹¦Ê°È¡
+        if(playerInventory.AddItem(itemData)) // ï¿½ï¿½ï¿½ï¿½É¹ï¿½Ê°È¡
         {
-            string pickupMessage = "ÒÑÊ°È¡:" + itemData.itemDisplayName;
+            string pickupMessage = "ï¿½ï¿½Ê°È¡:" + itemData.itemDisplayName;
             GlobalUI.Instance.hintMessageUI.ShowQuickMessage(pickupMessage);
             AudioManager.Instance.PlaySFX("PlayerPickUpItemSFX");
             Destroy(gameObject);
