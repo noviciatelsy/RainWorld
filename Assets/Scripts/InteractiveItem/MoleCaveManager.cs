@@ -136,6 +136,61 @@ public class MoleCaveManager : MonoBehaviour
         return srcCave.connectedCaves;
     }
 
+    /// <summary>
+    /// 从源洞窟的相邻连通列表中随机选一个（不含自身）。
+    /// 若未手动配置 connectedCaves，则回退为场景中任意其他鼹鼠洞。
+    /// </summary>
+    public MoleCave GetRandomAdjacentCave(MoleCave sourceCave)
+    {
+        if (sourceCave == null)
+        {
+            return null;
+        }
+
+        List<MoleCave> validCaves = CollectValidDestinations(sourceCave, sourceCave.connectedCaves);
+        if (validCaves.Count > 0)
+        {
+            return validCaves[Random.Range(0, validCaves.Count)];
+        }
+
+        List<MoleCave> fallbackCaves = new List<MoleCave>();
+        for (int i = 0; i < allCaves.Count; i++)
+        {
+            MoleCave cave = allCaves[i];
+            if (cave != null && cave != sourceCave)
+            {
+                fallbackCaves.Add(cave);
+            }
+        }
+
+        if (fallbackCaves.Count == 0)
+        {
+            return null;
+        }
+
+        return fallbackCaves[Random.Range(0, fallbackCaves.Count)];
+    }
+
+    private static List<MoleCave> CollectValidDestinations(MoleCave sourceCave, List<MoleCave> candidates)
+    {
+        List<MoleCave> validCaves = new List<MoleCave>();
+        if (candidates == null || candidates.Count == 0)
+        {
+            return validCaves;
+        }
+
+        for (int i = 0; i < candidates.Count; i++)
+        {
+            MoleCave cave = candidates[i];
+            if (cave != null && cave != sourceCave)
+            {
+                validCaves.Add(cave);
+            }
+        }
+
+        return validCaves;
+    }
+
     public void ConnectTwoCaves(MoleCave a, MoleCave b)
     {
         if (a != null && b != null)

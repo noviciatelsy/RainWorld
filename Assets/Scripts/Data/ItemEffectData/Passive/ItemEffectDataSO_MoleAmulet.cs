@@ -17,7 +17,7 @@ public class ItemEffectDataSO_MoleAmulet : ItemEffectDataSO
 
     public override void Unsubscribe()
     {
-        base.Subscribe(player);
+        base.Unsubscribe();
         MoleAmuletPassiveEffect moleAmuletPassiveEffect = player.GetComponentInChildren<MoleAmuletPassiveEffect>();
         if (moleAmuletPassiveEffect != null)
         {
