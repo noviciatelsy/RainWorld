@@ -10,6 +10,9 @@ public class Snail2D : MonsterBase
     public Transform bodyVisual;
     public float visualNormalOffset = 0.1f;
 
+    [Header("Animation")]
+    public SnailAni snailAni;
+
     [Header("Areas (世界坐标 Center/Size)")]
     [Tooltip("平时随机游走范围，应小于识别区")]
     public Bounds idleArea;
@@ -24,6 +27,8 @@ public class Snail2D : MonsterBase
     public float idleAreaTolerance = 0.2f;
 
     [Header("Eat Item")]
+    [Tooltip("蜗牛会被吸引并吃掉的道具（默认牛奶）")]
+    public ItemDataSO attractedItemData;
     public float eatWaitDuration = 5f;
     public float arriveThreshold = 0.08f;
 
@@ -40,10 +45,59 @@ public class Snail2D : MonsterBase
     /// </summary>
     public int TravelSignAlongEdge { get; set; }
 
+    public bool IsDownwardMovementPaused { get; private set; }
+
+    private SnailRidePlatform ridePlatform;
+
+    public void SetDownwardMovementPaused(bool paused)
+    {
+        IsDownwardMovementPaused = paused;
+    }
+
+    public Vector2 PredictPositionAfterStep(IIntent intent)
+    {
+        if (motor is SnailMotor snailMotor)
+        {
+            return snailMotor.PredictPositionAfterStep(intent);
+        }
+
+        return Position;
+    }
+
+    private void Awake()
+    {
+        ridePlatform = GetComponentInChildren<SnailRidePlatform>(true);
+    }
+
+    protected override void FixedUpdate()
+    {
+        if (ai == null || motor == null)
+        {
+            return;
+        }
+
+        IIntent intent = ai.Evaluate(this);
+        ridePlatform?.PrepareBeforeMotor(intent);
+        motor.Execute(this, intent);
+        ridePlatform?.SyncAfterMotor();
+    }
+
     protected override void Init()
     {
         ai = new SnailUtilityAI(this);
         motor = new SnailMotor(this);
+
+        if (snailAni == null)
+        {
+            snailAni = GetComponent<SnailAni>();
+        }
+
+        if (snailAni == null)
+        {
+            snailAni = GetComponentInChildren<SnailAni>(true);
+        }
+
+        ridePlatform = GetComponentInChildren<SnailRidePlatform>(true);
 
         EnsureDefaultAreas();
 
@@ -78,6 +132,7 @@ public class Snail2D : MonsterBase
 
         SurfaceEdgePath.SyncEdgeStateFromPosition(this);
         UpdateVisualOffset();
+        snailAni?.RefreshMoveBaseScale();
     }
 
     private void OnValidate()
@@ -227,6 +282,21 @@ public class Snail2D : MonsterBase
     public bool IsInsideDetectArea(Vector2 point)
     {
         return SurfaceEdgePath.IsInsideArea(itemDetectArea, point);
+    }
+
+    public bool IsAttractedPickable(PickableObject pickable)
+    {
+        if (pickable == null || pickable.ItemData == null || attractedItemData == null)
+        {
+            return false;
+        }
+
+        if (!pickable.IsSettledOnGround)
+        {
+            return false;
+        }
+
+        return pickable.ItemData == attractedItemData;
     }
 
     public virtual void OnBehaviorInterrupted()

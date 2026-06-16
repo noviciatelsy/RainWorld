@@ -20,6 +20,16 @@ public class SnailMotor : IMonsterMotor
             return;
         }
 
+        if (sw.IsDownwardMovementPaused)
+        {
+            if (move.holdPosition)
+            {
+                sw.Arrived = true;
+            }
+
+            return;
+        }
+
         sw.CurrentBehavior = move.behavior;
         TileMapGuideManager mgr = TileMapGuideManager.Instance;
 
@@ -58,6 +68,89 @@ public class SnailMotor : IMonsterMotor
         }
 
         sw.Arrived = true;
+    }
+
+    public Vector2 PredictPositionAfterStep(IIntent intent)
+    {
+        if (intent is not SnailMoveIntent move || snail.IsDownwardMovementPaused)
+        {
+            return snail.Position;
+        }
+
+        if (move.holdPosition)
+        {
+            return snail.Position;
+        }
+
+        TileMapGuideManager mgr = TileMapGuideManager.Instance;
+        if (mgr == null)
+        {
+            return snail.Position;
+        }
+
+        if (move.pathVertices != null && move.pathVertices.Count > 0)
+        {
+            return PredictPathPosition(snail, move.pathVertices);
+        }
+
+        if (move.behavior == SnailBehavior.IdleWander)
+        {
+            if (!snail.HasEdge)
+            {
+                return snail.Position + Vector2.down * snail.fallSpeed * Time.fixedDeltaTime;
+            }
+
+            return PredictIdleOnEdge(snail, mgr);
+        }
+
+        if (!snail.HasEdge)
+        {
+            return snail.Position + Vector2.down * snail.fallSpeed * Time.fixedDeltaTime;
+        }
+
+        return snail.Position;
+    }
+
+    private static Vector2 PredictIdleOnEdge(Snail2D sw, TileMapGuideManager mgr)
+    {
+        Edge edge = sw.CurrentEdge;
+        Vector2 onEdge = SurfaceEdgeTraversal.ClosestPointOnSegment(sw.Position, edge.a, edge.b);
+        Vector2 forwardCorner = SurfaceEdgePath.GetForwardCorner(mgr, sw.EdgeIndex, onEdge, sw.idleClockwise);
+        float step = sw.moveSpeed * Time.fixedDeltaTime;
+        Vector2 newPos = Vector2.MoveTowards(onEdge, forwardCorner, step);
+        newPos = SurfaceEdgeTraversal.ClosestPointOnSegment(newPos, edge.a, edge.b);
+
+        if (SurfaceEdgePath.HasArea(sw.idleArea))
+        {
+            if (!sw.IsInsideIdleArea(onEdge))
+            {
+                return onEdge;
+            }
+
+            if (!sw.IsInsideIdleArea(newPos))
+            {
+                newPos = onEdge;
+            }
+        }
+
+        if (Vector2.Distance(newPos, forwardCorner) <= sw.arriveThreshold)
+        {
+            return forwardCorner;
+        }
+
+        return newPos;
+    }
+
+    private Vector2 PredictPathPosition(Snail2D sw, List<Vector2> path)
+    {
+        int index = activePath == path ? pathIndex : 0;
+        if (index >= path.Count)
+        {
+            return sw.Position;
+        }
+
+        Vector2 nodeTarget = path[index];
+        return Vector2.MoveTowards(sw.Position, nodeTarget, sw.moveSpeed * Time.fixedDeltaTime);
     }
 
     /// <summary>
