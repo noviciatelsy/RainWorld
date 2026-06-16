@@ -4,11 +4,12 @@ public struct FlyMoveIntent : IIntent
 {
     public Vector2 target;
 }
+
 public class FlyUtilityAI : IMonsterAI
 {
-    private Fly2D owner;
+    private readonly Fly2D owner;
 
-    private float timer = 0f;
+    private float timer;
     private float interval = 2f;
 
     private Vector2 lastIssuedTarget;
@@ -18,52 +19,116 @@ public class FlyUtilityAI : IMonsterAI
         this.owner = owner;
     }
 
-    public IIntent Evaluate(MonsterBase owner)
+    public IIntent Evaluate(MonsterBase ownerBase)
     {
-        if (owner is Fly2D fly && fly.CurrentState != FlyState.Normal)
+        if (ownerBase is Fly2D fly && fly.CurrentState != FlyState.Normal)
         {
             return new FlyMoveIntent { target = fly.Position };
         }
 
-        timer -= Time.fixedDeltaTime;
-
-        // 只在时间到或到达时生成新目标
-        if (timer <= 0f || owner.Arrived)
+        if (MosquitoCoilAvoidance.IsInsideAnyActiveCoil(owner.Position))
         {
-            timer = interval;
-
-            Vector2 newTarget = PickRandomTarget();
-
-            lastIssuedTarget = newTarget;
-
+            EnsureFleeTargetOutsideCoil();
             return new FlyMoveIntent
             {
-                target = newTarget
+                target = lastIssuedTarget
             };
         }
 
-        //  不再返回 CurrentTarget（这是bug根源）
+        timer -= Time.fixedDeltaTime;
+
+        if (owner.Arrived)
+        {
+            timer = interval;
+            lastIssuedTarget = PickRandomTarget();
+
+            return new FlyMoveIntent
+            {
+                target = lastIssuedTarget
+            };
+        }
+
+        if (!MosquitoCoilAvoidance.IsInsideAnyActiveCoil(lastIssuedTarget))
+        {
+            return new FlyMoveIntent
+            {
+                target = lastIssuedTarget
+            };
+        }
+
+        if (timer <= 0f)
+        {
+            timer = interval;
+            lastIssuedTarget = PickRandomTarget();
+        }
+
         return new FlyMoveIntent
         {
             target = lastIssuedTarget
         };
     }
 
-    Vector2 PickRandomTarget()
+    public void NotifyRepelledByMosquitoCoil(Vector2 coilPosition)
     {
-        var mgr = TileMapGuideManager.Instance;
+        if (!MosquitoCoilAvoidance.IsInsideAnyActiveCoil(owner.Position))
+        {
+            return;
+        }
+
+        if (!MosquitoCoilAvoidance.IsInsideAnyActiveCoil(lastIssuedTarget))
+        {
+            return;
+        }
+
+        lastIssuedTarget = MosquitoCoilAvoidance.GetFleePointFromCoil(
+            owner.Position,
+            coilPosition,
+            MosquitoCoilRegistry.GetRadiusAtCenter(coilPosition));
+    }
+
+    private void EnsureFleeTargetOutsideCoil()
+    {
+        if (!MosquitoCoilAvoidance.IsInsideAnyActiveCoil(lastIssuedTarget))
+        {
+            return;
+        }
+
+        lastIssuedTarget = MosquitoCoilAvoidance.GetFleePointAwayFromAllCoils(owner.Position);
+    }
+
+    private Vector2 PickRandomTarget()
+    {
+        TileMapGuideManager mgr = TileMapGuideManager.Instance;
 
         for (int i = 0; i < 30; i++)
         {
             Vector2 offset = Random.insideUnitCircle * Random.Range(1f, 10f);
             Vector2 candidate = owner.Position + offset;
 
+            if (MosquitoCoilAvoidance.IsInsideAnyActiveCoil(candidate))
+            {
+                continue;
+            }
+
+            if (mgr == null)
+            {
+                return candidate;
+            }
+
             var path = mgr.FindPath(owner.Position, candidate);
 
             if (path != null && path.Count > 1)
+            {
                 return candidate;
+            }
         }
 
-        return owner.Position + Random.insideUnitCircle * 2f;
+        Vector2 fallback = owner.Position + Random.insideUnitCircle * 2f;
+        if (!MosquitoCoilAvoidance.IsInsideAnyActiveCoil(fallback))
+        {
+            return fallback;
+        }
+
+        return MosquitoCoilAvoidance.GetFleePointAwayFromAllCoils(owner.Position);
     }
 }

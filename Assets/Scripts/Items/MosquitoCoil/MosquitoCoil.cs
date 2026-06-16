@@ -9,54 +9,45 @@ public class MosquitoCoil : MonoBehaviour
 
     [Header("Detection Settings")]
     [SerializeField] private LayerMask repellableMonsterLayerMask;
-    // ¿É±»ÎÃÏãÇı¸ÏµÄ¹ÖÎïËùÔÚ Layer
 
     [SerializeField] private float repelRadius = 3f;
-    // ÎÃÏã¼ì²â°ë¾¶
-
-    [SerializeField] private float detectInterval =1f;
-    // Ã¿¸ô¶à¾Ã¼ì²âÒ»´Î
-
+    [SerializeField] private float detectInterval = 1f;
     [SerializeField] private float activeDuration = 60f;
-    // ÎÃÏã³ÖĞøÊ±¼ä
-
     [SerializeField] private bool detectImmediatelyOnUse = true;
-    // Ê¹ÓÃºóÊÇ·ñÁ¢¿Ì¼ì²âÒ»´Î
-
 
     [Header("Reuse Settings")]
     [SerializeField] private bool restartDurationWhenUsedAgain = true;
-    // ÎÃÏãÕıÔÚÉúĞ§Ê±ÔÙ´ÎÊ¹ÓÃ£¬ÊÇ·ñÖØĞÂ¼ÆÊ±
-   
 
-    public bool IsActive
-    {
-        get
-        {
-            return activeRoutine != null;
-        }
-    }
+    [Header("Visual")]
+    [SerializeField] private WaveLightEffect waveLightEffectPrefab;
+    [SerializeField] private int effectCenterAlpha = 40;
+    [SerializeField] private int effectWaveStartAlpha = 40;
+    [SerializeField] private Color effectColor = Color.white;
+    [SerializeField] private float effectWavePeriod = 1f;
+    [SerializeField] private float effectWaveExpandDuration = 1.5f;
 
+    public bool IsActive => activeRoutine != null;
+
+    public Vector2 CenterPosition => GetDetectionCenterPosition();
+
+    public float Radius => repelRadius;
 
     private Coroutine activeRoutine;
-    // µ±Ç°ÉúĞ§Ğ­³Ì
+    private WaveLightEffect activeWaveLightEffect;
 
     private void Awake()
     {
         detectionCenter = transform;
     }
+
     private void OnDisable()
     {
         StopMosquitoCoil();
     }
 
-
     /// <summary>
-    /// Ê¹ÓÃÎÃÏã¡£
+    /// ä½¿ç”¨èšŠé¦™ã€‚
     /// </summary>
-    /// <returns>
-    /// ÊÇ·ñ³É¹¦Ê¹ÓÃ¡£
-    /// </returns>
     public bool UseMosquitoCoil()
     {
         if (activeRoutine != null)
@@ -68,20 +59,16 @@ public class MosquitoCoil : MonoBehaviour
 
             StopCoroutine(activeRoutine);
             activeRoutine = null;
+            MosquitoCoilRegistry.Unregister(this);
+            ClearWaveLightEffect();
         }
 
-        activeRoutine = StartCoroutine
-        (
-            MosquitoCoilRoutine()
-        );
-
+        activeRoutine = StartCoroutine(MosquitoCoilRoutine());
         return true;
     }
 
-
     /// <summary>
-    /// ÊÖ¶¯Í£Ö¹ÎÃÏãĞ§¹û¡£
-    /// ÊÊºÏÍæ¼ÒËÀÍö¡¢ÇĞ³¡¾°¡¢µÀ¾ß±»Ç¿ÖÆÈ¡ÏûÊ±µ÷ÓÃ¡£
+    /// åœæ­¢èšŠé¦™æ•ˆæœå¹¶æ¸…ç†è§†è§‰ã€‚
     /// </summary>
     public void StopMosquitoCoil()
     {
@@ -92,14 +79,81 @@ public class MosquitoCoil : MonoBehaviour
 
         StopCoroutine(activeRoutine);
         activeRoutine = null;
+        MosquitoCoilRegistry.Unregister(this);
+        ClearWaveLightEffect();
     }
 
+    private void SpawnWaveLightEffect()
+    {
+        if (waveLightEffectPrefab == null)
+        {
+            Debug.LogWarning($"{nameof(MosquitoCoil)}: waveLightEffectPrefab æœªé…ç½®ã€‚", this);
+            return;
+        }
+
+        Transform playerTransform = ResolvePlayerTransform();
+        if (playerTransform == null)
+        {
+            Debug.LogWarning($"{nameof(MosquitoCoil)}: æœªæ‰¾åˆ° Tag ä¸º Player çš„å¯¹è±¡ã€‚", this);
+            return;
+        }
+
+        ClearWaveLightEffect();
+
+        activeWaveLightEffect = Instantiate(waveLightEffectPrefab, playerTransform);
+        activeWaveLightEffect.transform.localPosition = Vector3.zero;
+        activeWaveLightEffect.transform.localRotation = Quaternion.identity;
+        activeWaveLightEffect.PlayAttached(
+            repelRadius,
+            activeDuration,
+            effectCenterAlpha,
+            effectWaveStartAlpha,
+            effectColor,
+            effectWavePeriod,
+            effectWaveExpandDuration);
+    }
+
+    private Transform ResolvePlayerTransform()
+    {
+        Transform current = transform;
+        while (current != null)
+        {
+            if (current.CompareTag("Player"))
+            {
+                return current;
+            }
+
+            current = current.parent;
+        }
+
+        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+        return playerObject != null ? playerObject.transform : null;
+    }
+
+    private void ClearWaveLightEffect()
+    {
+        if (activeWaveLightEffect == null)
+        {
+            return;
+        }
+
+        activeWaveLightEffect.StopEffect();
+        Destroy(activeWaveLightEffect.gameObject);
+        activeWaveLightEffect = null;
+    }
+
+    public bool IsPointInsideRadius(Vector2 worldPoint)
+    {
+        float radius = Mathf.Max(0f, repelRadius);
+        return (worldPoint - CenterPosition).sqrMagnitude < radius * radius;
+    }
 
     private IEnumerator MosquitoCoilRoutine()
     {
-        float safeDetectInterval =
-            Mathf.Max(0.02f, detectInterval);
+        MosquitoCoilRegistry.Register(this);
+        SpawnWaveLightEffect();
 
+        float safeDetectInterval = Mathf.Max(0.02f, detectInterval);
         float elapsedTime = 0f;
 
         if (detectImmediatelyOnUse)
@@ -109,10 +163,7 @@ public class MosquitoCoil : MonoBehaviour
 
         while (elapsedTime < activeDuration)
         {
-            yield return new WaitForSeconds
-            (
-                safeDetectInterval
-            );
+            yield return new WaitForSeconds(safeDetectInterval);
 
             elapsedTime += safeDetectInterval;
 
@@ -124,39 +175,26 @@ public class MosquitoCoil : MonoBehaviour
             DetectAndRepelMonsters();
         }
 
+        MosquitoCoilRegistry.Unregister(this);
+        ClearWaveLightEffect();
         activeRoutine = null;
     }
 
-
-    /// <summary>
-    /// ¼ì²â·¶Î§ÄÚ¿É±»ÎÃÏãÇı¸ÏµÄ¹ÖÎï£¬²¢µ÷ÓÃ½Ó¿Ú·½·¨¡£
-    /// </summary>
     private void DetectAndRepelMonsters()
     {
-        Vector2 centerPosition =
-            GetDetectionCenterPosition();
+        Vector2 centerPosition = GetDetectionCenterPosition();
 
-        Collider2D[] detectedColliders =
-            Physics2D.OverlapCircleAll
-            (
-                centerPosition,
-                repelRadius,
-                repellableMonsterLayerMask
-            );
+        Collider2D[] detectedColliders = Physics2D.OverlapCircleAll(
+            centerPosition,
+            repelRadius,
+            repellableMonsterLayerMask);
 
-        HashSet<MonoBehaviour> triggeredTargets =
-            new HashSet<MonoBehaviour>();
+        HashSet<MonoBehaviour> triggeredTargets = new HashSet<MonoBehaviour>();
 
         for (int i = 0; i < detectedColliders.Length; i++)
         {
-            Collider2D detectedCollider =
-                detectedColliders[i];
-
             MonoBehaviour interfaceBehaviour =
-                FindInterfaceBehaviourInParents<IMosquitoCoilRepellable>
-                (
-                    detectedCollider
-                );
+                FindInterfaceBehaviourInParents<IMosquitoCoilRepellable>(detectedColliders[i]);
 
             if (interfaceBehaviour == null)
             {
@@ -165,87 +203,40 @@ public class MosquitoCoil : MonoBehaviour
 
             if (!triggeredTargets.Add(interfaceBehaviour))
             {
-                // Í¬Ò»¸ö¹ÖÎï¿ÉÄÜÓĞ¶à¸ö Collider2D¡£
-                // Í¬Ò»ÂÖ¼ì²âÖĞÖ»µ÷ÓÃÒ»´Î¡£
                 continue;
             }
 
-            IMosquitoCoilRepellable repellableMonster =
-                interfaceBehaviour as IMosquitoCoilRepellable;
-
-            repellableMonster?.RepelByMosquitoCoil
-            (
-                centerPosition
-            );
+            if (interfaceBehaviour is IMosquitoCoilRepellable repellableMonster)
+            {
+                repellableMonster.RepelByMosquitoCoil(centerPosition);
+            }
         }
     }
 
-
-    /// <summary>
-    /// ´Ó Collider2D ×ÔÉí¼°Æä¸¸ÎïÌåÉÏÑ°ÕÒÊµÏÖÖ¸¶¨½Ó¿ÚµÄ½Å±¾¡£
-    /// 
-    /// ÕâÑù¿ÉÒÔÖ§³Ö£º
-    /// MonsterRoot
-    /// ©¸©¤©¤ HitBox
-    ///     ©¸©¤©¤ Collider2D
-    ///
-    /// Collider2D ¹ÒÔÚ×ÓÎïÌåÉÏ£¬
-    /// ¹ÖÎï¿ØÖÆ½Å±¾¹ÒÔÚ¸ùÎïÌåÉÏ¡£
-    /// </summary>
-    private MonoBehaviour FindInterfaceBehaviourInParents<T>
-    (
-        Collider2D myCollider
-    )
-        where T : class
+    private MonoBehaviour FindInterfaceBehaviourInParents<T>(Collider2D myCollider) where T : class
     {
-        MonoBehaviour[] parentBehaviours =
-            myCollider.GetComponentsInParent<MonoBehaviour>();
+        MonoBehaviour[] parentBehaviours = myCollider.GetComponentsInParent<MonoBehaviour>();
 
         for (int i = 0; i < parentBehaviours.Length; i++)
         {
-            MonoBehaviour currentBehaviour =
-                parentBehaviours[i];
-
-            if (currentBehaviour is T)
+            if (parentBehaviours[i] is T)
             {
-                return currentBehaviour;
+                return parentBehaviours[i];
             }
         }
 
         return null;
     }
 
-
     private Vector2 GetDetectionCenterPosition()
     {
-        if (detectionCenter != null)
-        {
-            return detectionCenter.position;
-        }
-
-        return transform.position;
+        return detectionCenter != null ? detectionCenter.position : transform.position;
     }
-
 
     private void OnDrawGizmosSelected()
     {
-        Vector3 centerPosition;
-
-        if (detectionCenter != null)
-        {
-            centerPosition = detectionCenter.position;
-        }
-        else
-        {
-            centerPosition = transform.position;
-        }
-
+        Vector3 centerPosition = detectionCenter != null ? detectionCenter.position : transform.position;
         Gizmos.color = Color.green;
-
-        Gizmos.DrawWireSphere
-        (
-            centerPosition,
-            repelRadius
-        );
+        Gizmos.DrawWireSphere(centerPosition, repelRadius);
     }
 }

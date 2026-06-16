@@ -7,7 +7,7 @@ public enum FlyState
     Stunned
 }
 
-public class Fly2D : MonsterBase
+public class Fly2D : MonsterBase, IMosquitoCoilRepellable
 {
     [Header("Movement")]
     public float moveSpeed = 3f;
@@ -190,6 +190,14 @@ public class Fly2D : MonsterBase
         }
 
         return Physics2D.OverlapCircle(transform.position, groundCheckRadius, groundLayerMask) != null;
+    }
+
+    public void RepelByMosquitoCoil(Vector2 coilPosition)
+    {
+        if (ai is FlyUtilityAI flyAI)
+        {
+            flyAI.NotifyRepelledByMosquitoCoil(coilPosition);
+        }
     }
 
     void OnDrawGizmos()

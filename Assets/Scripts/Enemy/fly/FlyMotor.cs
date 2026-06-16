@@ -25,21 +25,23 @@ public class FlyMotor : IMonsterMotor
             return;
         }
 
-        // 只在没有路径 或 到达时 才重建
-        if (path == null || owner.Arrived || owner.TargetChanged(move.target))
+        Vector2 moveTarget = move.target;
+
+        // 只在没有路径、到达或 AI 明确换目标时重建
+        if (path == null || owner.Arrived || owner.TargetChanged(moveTarget))
         {
-            path = TileMapGuideManager.Instance.FindPath(owner.Position, move.target);
+            path = TileMapGuideManager.Instance.FindPath(owner.Position, moveTarget);
 
             if (path == null || path.Count == 0)
                 return;
 
             index = 0;
 
-            owner.CurrentTarget = move.target;
+            owner.CurrentTarget = moveTarget;
             owner.Arrived = false;
 
             owner.DebugPath = path;
-            owner.DebugTarget = move.target;
+            owner.DebugTarget = moveTarget;
         }
 
         Move();

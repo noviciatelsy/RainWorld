@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Bat2D : MonsterBase
+public class Bat2D : MonsterBase, IMosquitoCoilRepellable
 {
     [Header("Flight")]
     public float moveSpeed = 4f;
@@ -183,12 +183,27 @@ public class Bat2D : MonsterBase
 
     public Vector2 PickRandomHuntSectorPoint(Vector2 preyWorldPos)
     {
-        float halfFanRad = huntFanAngle * 0.5f * Mathf.Deg2Rad;
-        const float upAngle = Mathf.PI * 0.5f;
-        float angle = upAngle + Random.Range(-halfFanRad, halfFanRad);
-        float radius = huntFanRadius * Random.Range(0.85f, 1f);
+        for (int i = 0; i < 20; i++)
+        {
+            float halfFanRad = huntFanAngle * 0.5f * Mathf.Deg2Rad;
+            const float upAngle = Mathf.PI * 0.5f;
+            float angle = upAngle + Random.Range(-halfFanRad, halfFanRad);
+            float radius = huntFanRadius * Random.Range(0.85f, 1f);
+            Vector2 candidate = preyWorldPos + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius;
 
-        return preyWorldPos + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius;
+            if (!MosquitoCoilAvoidance.IsInsideAnyActiveCoil(candidate))
+            {
+                return candidate;
+            }
+        }
+
+        Vector2 fallback = preyWorldPos + Vector2.up * huntFanRadius;
+        if (!MosquitoCoilAvoidance.IsInsideAnyActiveCoil(fallback))
+        {
+            return fallback;
+        }
+
+        return MosquitoCoilAvoidance.GetFleePointAwayFromAllCoils(Position);
     }
 
     public bool IsWithinHuntSector(Vector2 preyWorldPos, Vector2 worldPoint)
@@ -502,6 +517,11 @@ public class Bat2D : MonsterBase
         }
 
         Debug.Log($"[Bat {name}] {message}", this);
+    }
+
+    public void RepelByMosquitoCoil(Vector2 coilPosition)
+    {
+        batAI?.NotifyRepelledByMosquitoCoil(coilPosition);
     }
 
     private void OnDrawGizmos()

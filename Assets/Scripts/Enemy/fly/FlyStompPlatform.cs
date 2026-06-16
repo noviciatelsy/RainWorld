@@ -9,6 +9,7 @@ public class FlyStompPlatform : MonoBehaviour
     [SerializeField] private Fly2D fly;
     [SerializeField] private Collider2D stompCollider;
     [SerializeField] private float minStompDownSpeed = 0.5f;
+    [SerializeField] private float stompBounceImpulse = 0f;
 
     private void Awake()
     {
@@ -53,6 +54,11 @@ public class FlyStompPlatform : MonoBehaviour
         }
 
         PlayerControl playerControl = player.GetComponent<PlayerControl>();
+        if (playerControl != null)
+        {
+            playerControl.ApplyStompBounce(stompBounceImpulse);
+        }
+
         bool facingRight = playerControl == null || playerControl.facingDir >= 0;
         fly.EnterStunAndDropAsItem(facingRight);
     }

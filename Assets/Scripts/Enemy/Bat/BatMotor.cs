@@ -41,6 +41,12 @@ public class BatMotor : IMonsterMotor
         UpdateCooldown(bat);
         bat.CurrentBehavior = batIntent.behaviorState;
 
+        if (ShouldAbortAttackForMosquitoCoil(bat))
+        {
+            AbortAttackForMosquitoCoil(bat, CreateCoilFleeIntent(bat));
+            return;
+        }
+
         if (batIntent.behaviorState == BatBehavior.Attack || attackPhase != BatAttackPhase.None)
         {
             ExecuteAttack(bat, batIntent);
@@ -128,6 +134,12 @@ public class BatMotor : IMonsterMotor
 
     private void TickLunge(Bat2D bat)
     {
+        if (ShouldAbortAttackForMosquitoCoil(bat))
+        {
+            AbortAttackForMosquitoCoil(bat, CreateCoilFleeIntent(bat));
+            return;
+        }
+
         float threshold = bat.attackPhaseArriveThreshold;
 
         bat.Transform.position = Vector2.MoveTowards(
@@ -225,6 +237,11 @@ public class BatMotor : IMonsterMotor
 
     private void RebuildPath(Bat2D bat, Vector2 target)
     {
+        if (MosquitoCoilAvoidance.IsInsideAnyActiveCoil(target))
+        {
+            target = MosquitoCoilAvoidance.GetFleePointAwayFromAllCoils(bat.Position);
+        }
+
         TileMapGuideManager mgr = TileMapGuideManager.Instance;
 
         if (mgr == null)
@@ -320,5 +337,33 @@ public class BatMotor : IMonsterMotor
         {
             bat.IsCoolingDown = false;
         }
+    }
+
+    private static bool ShouldAbortAttackForMosquitoCoil(Bat2D bat)
+    {
+        return MosquitoCoilAvoidance.HasActiveCoils()
+            && MosquitoCoilAvoidance.IsInsideAnyActiveCoil(bat.Position);
+    }
+
+    private void AbortAttackForMosquitoCoil(Bat2D bat, BatIntent fleeIntent)
+    {
+        attackPhase = BatAttackPhase.None;
+        strikePerformed = false;
+        attackFocus = null;
+        bat.IsAttacking = false;
+        bat.IsInAttackSequence = false;
+        bat.IsCoolingDown = false;
+        bat.Arrived = false;
+        ExecuteFlight(bat, fleeIntent);
+    }
+
+    private static BatIntent CreateCoilFleeIntent(Bat2D bat)
+    {
+        return new BatIntent
+        {
+            behaviorState = BatBehavior.Idle,
+            moveTarget = MosquitoCoilAvoidance.GetFleePointAwayFromAllCoils(bat.Position),
+            focusTarget = null
+        };
     }
 }

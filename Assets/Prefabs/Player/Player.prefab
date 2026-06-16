@@ -310,6 +310,7 @@ MonoBehaviour:
   climbHorizontalSpeed: 2.5
   climbVerticalSpeed: 2.5
   climbInputDeadZone: 0.1
+  platformJumpGroundIgnoreTime: 0.2
   jumpBufferTimer: -999
 --- !u!114 &2536843987404145219
 MonoBehaviour:
@@ -2193,11 +2194,18 @@ MonoBehaviour:
   repellableMonsterLayerMask:
     serializedVersion: 2
     m_Bits: 256
-  repelRadius: 3
+  repelRadius: 5
   detectInterval: 1
   activeDuration: 60
   detectImmediatelyOnUse: 1
   restartDurationWhenUsedAgain: 1
+  waveLightEffectPrefab: {fileID: 1001001001001001003, guid: 2d7f8a1b3c4e5f60718293a4b5c6d7e8,
+    type: 3}
+  effectCenterAlpha: 40
+  effectWaveStartAlpha: 40
+  effectColor: {r: 1, g: 0.8445019, b: 0.64465404, a: 1}
+  effectWavePeriod: 1
+  effectWaveExpandDuration: 1.5
 --- !u!1 &8496342664382143431
 GameObject:
   m_ObjectHideFlags: 0

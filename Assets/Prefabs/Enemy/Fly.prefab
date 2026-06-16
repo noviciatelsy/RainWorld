@@ -490,6 +490,7 @@ Transform:
   m_Children:
   - {fileID: 2316897656149901167}
   - {fileID: 9012345678901234603}
+  - {fileID: 2764150502937948066}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4268894465921324274
@@ -511,7 +512,7 @@ MonoBehaviour:
   EdgeIndex: 0
   Target: {x: 0, y: 0}
   HasEdge: 0
-  moveSpeed: 0.5
+  moveSpeed: 1
   dropItemData: {fileID: 11400000, guid: d28e91883df10b14c8ab0081b5c0211f, type: 2}
   pickableObjectPrefab: {fileID: 8677623834353847797, guid: c813b335070fe534e927a641d31420e5,
     type: 3}
@@ -669,3 +670,112 @@ MonoBehaviour:
   fly: {fileID: 4268894465921324274}
   stompCollider: {fileID: 9012345678901234605}
   minStompDownSpeed: 0.5
+--- !u!1001 &3150401150393307016
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 7286320745350017621}
+    m_Modifications:
+    - target: {fileID: 1001001001001001001, guid: 2d7f8a1b3c4e5f60718293a4b5c6d7e8,
+        type: 3}
+      propertyPath: m_Name
+      value: WaveLightEffect
+      objectReference: {fileID: 0}
+    - target: {fileID: 1001001001001001002, guid: 2d7f8a1b3c4e5f60718293a4b5c6d7e8,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1001001001001001002, guid: 2d7f8a1b3c4e5f60718293a4b5c6d7e8,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1001001001001001002, guid: 2d7f8a1b3c4e5f60718293a4b5c6d7e8,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1001001001001001002, guid: 2d7f8a1b3c4e5f60718293a4b5c6d7e8,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1001001001001001002, guid: 2d7f8a1b3c4e5f60718293a4b5c6d7e8,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1001001001001001002, guid: 2d7f8a1b3c4e5f60718293a4b5c6d7e8,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1001001001001001002, guid: 2d7f8a1b3c4e5f60718293a4b5c6d7e8,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1001001001001001002, guid: 2d7f8a1b3c4e5f60718293a4b5c6d7e8,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1001001001001001002, guid: 2d7f8a1b3c4e5f60718293a4b5c6d7e8,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1001001001001001002, guid: 2d7f8a1b3c4e5f60718293a4b5c6d7e8,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1001001001001001003, guid: 2d7f8a1b3c4e5f60718293a4b5c6d7e8,
+        type: 3}
+      propertyPath: wavePeriod
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1001001001001001003, guid: 2d7f8a1b3c4e5f60718293a4b5c6d7e8,
+        type: 3}
+      propertyPath: baseColor.b
+      value: 0.51257855
+      objectReference: {fileID: 0}
+    - target: {fileID: 1001001001001001003, guid: 2d7f8a1b3c4e5f60718293a4b5c6d7e8,
+        type: 3}
+      propertyPath: baseColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1001001001001001003, guid: 2d7f8a1b3c4e5f60718293a4b5c6d7e8,
+        type: 3}
+      propertyPath: baseColor.r
+      value: 0.8292623
+      objectReference: {fileID: 0}
+    - target: {fileID: 1001001001001001003, guid: 2d7f8a1b3c4e5f60718293a4b5c6d7e8,
+        type: 3}
+      propertyPath: centerAlpha
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 1001001001001001003, guid: 2d7f8a1b3c4e5f60718293a4b5c6d7e8,
+        type: 3}
+      propertyPath: playOnStart
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1001001001001001003, guid: 2d7f8a1b3c4e5f60718293a4b5c6d7e8,
+        type: 3}
+      propertyPath: waveStartAlpha
+      value: 30
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 2d7f8a1b3c4e5f60718293a4b5c6d7e8, type: 3}
+--- !u!4 &2764150502937948066 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1001001001001001002, guid: 2d7f8a1b3c4e5f60718293a4b5c6d7e8,
+    type: 3}
+  m_PrefabInstance: {fileID: 3150401150393307016}
+  m_PrefabAsset: {fileID: 0}

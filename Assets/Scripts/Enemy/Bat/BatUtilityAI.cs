@@ -52,6 +52,12 @@ public class BatUtilityAI : IMonsterAI
             UpdateDebugState(bat);
         }
 
+        if (TryBuildMosquitoCoilFleeIntent(bat, out BatIntent coilFleeIntent))
+        {
+            lastIssuedIntent = coilFleeIntent;
+            return lastIssuedIntent;
+        }
+
         if (postAttackRecoveryTimer > 0f)
         {
             postAttackRecoveryTimer -= Time.fixedDeltaTime;
@@ -59,6 +65,16 @@ public class BatUtilityAI : IMonsterAI
 
         if (bat.IsInAttackSequence)
         {
+            if (MosquitoCoilAvoidance.IsInsideAnyActiveCoil(bat.Position))
+            {
+                lastIssuedIntent = CreateFleeIntent(
+                    bat,
+                    MosquitoCoilAvoidance.GetFleePointAwayFromAllCoils(bat.Position));
+                hasIssuedIntent = true;
+                bat.CurrentBehavior = BatBehavior.Idle;
+                return lastIssuedIntent;
+            }
+
             if (!hasIssuedIntent || lastIssuedIntent.behaviorState != BatBehavior.Attack)
             {
                 lastIssuedIntent = BuildAttackIntent(bat);
@@ -105,6 +121,48 @@ public class BatUtilityAI : IMonsterAI
         postAttackRecoveryTimer = owner.attackStiffDuration;
         idleTimer = owner.idleMoveInterval;
         pathPickTimer = 0f;
+        hasHuntPoint = false;
+    }
+
+    public void NotifyRepelledByMosquitoCoil(Vector2 coilPosition)
+    {
+        hasHuntPoint = false;
+        pathPickTimer = 0f;
+        idleTimer = 0f;
+    }
+
+    private bool TryBuildMosquitoCoilFleeIntent(Bat2D bat, out BatIntent fleeIntent)
+    {
+        fleeIntent = default;
+
+        if (!MosquitoCoilAvoidance.HasActiveCoils())
+        {
+            return false;
+        }
+
+        if (!MosquitoCoilAvoidance.IsInsideAnyActiveCoil(bat.Position))
+        {
+            return false;
+        }
+
+        Vector2 fleeTarget = MosquitoCoilAvoidance.GetFleePointAwayFromAllCoils(bat.Position);
+        fleeIntent = CreateFleeIntent(bat, fleeTarget);
+        bat.CurrentBehavior = BatBehavior.Idle;
+        hasIssuedIntent = true;
+        return true;
+    }
+
+    private BatIntent CreateFleeIntent(Bat2D bat, Vector2 fleeTarget)
+    {
+        bat.DebugPickReason = "MosquitoCoilFlee";
+        bat.DebugTarget = fleeTarget;
+
+        return new BatIntent
+        {
+            behaviorState = BatBehavior.Idle,
+            moveTarget = fleeTarget,
+            focusTarget = null
+        };
     }
 
     private void UpdatePerception(Bat2D bat)
@@ -331,6 +389,11 @@ public class BatUtilityAI : IMonsterAI
 
     private BatBehavior DecideBehavior(Bat2D bat)
     {
+        if (MosquitoCoilAvoidance.IsInsideAnyActiveCoil(bat.Position))
+        {
+            return BatBehavior.Idle;
+        }
+
         if (postAttackRecoveryTimer > 0f)
         {
             return BatBehavior.Idle;
@@ -338,7 +401,13 @@ public class BatUtilityAI : IMonsterAI
 
         if (currentPrey != null)
         {
-            if (CanAttack(bat, currentPrey.position))
+            Vector2 preyPos = GetRawPreyPosition(bat);
+            if (MosquitoCoilAvoidance.IsInsideAnyActiveCoil(preyPos))
+            {
+                return BatBehavior.Idle;
+            }
+
+            if (CanAttack(bat, preyPos))
             {
                 return BatBehavior.Attack;
             }
@@ -361,6 +430,12 @@ public class BatUtilityAI : IMonsterAI
 
     private bool CanAttack(Bat2D bat, Vector2 preyPosition)
     {
+        if (MosquitoCoilAvoidance.IsInsideAnyActiveCoil(bat.Position)
+            || MosquitoCoilAvoidance.IsInsideAnyActiveCoil(preyPosition))
+        {
+            return false;
+        }
+
         if (ShouldUseSectorHunt())
         {
             return bat.CanAttackPosition(preyPosition);
@@ -399,8 +474,16 @@ public class BatUtilityAI : IMonsterAI
         }
         else
         {
-            moveTarget = preyPosition;
-            bat.DebugPickReason = "HuntPrey";
+            if (MosquitoCoilAvoidance.IsInsideAnyActiveCoil(preyPosition))
+            {
+                moveTarget = MosquitoCoilAvoidance.GetFleePointAwayFromAllCoils(bat.Position);
+                bat.DebugPickReason = "MosquitoCoilFleeFromPrey";
+            }
+            else
+            {
+                moveTarget = preyPosition;
+                bat.DebugPickReason = "HuntPrey";
+            }
         }
 
         bat.DebugTarget = moveTarget;
@@ -546,6 +629,11 @@ public class BatUtilityAI : IMonsterAI
                 Random.Range(min.y, max.y)
             );
 
+            if (MosquitoCoilAvoidance.IsInsideAnyActiveCoil(candidate))
+            {
+                continue;
+            }
+
             if (mgr == null)
             {
                 return candidate;
@@ -557,6 +645,12 @@ public class BatUtilityAI : IMonsterAI
             {
                 return candidate;
             }
+        }
+
+        Vector2 fleeFallback = MosquitoCoilAvoidance.GetFleePointAwayFromAllCoils(bat.Position);
+        if (!MosquitoCoilAvoidance.IsInsideAnyActiveCoil(fleeFallback))
+        {
+            return fleeFallback;
         }
 
         return bounds.center;
@@ -606,6 +700,11 @@ public class BatUtilityAI : IMonsterAI
             }
 
             if (behavior == BatBehavior.Idle && !bat.activityBounds.Contains(node))
+            {
+                continue;
+            }
+
+            if (MosquitoCoilAvoidance.IsInsideAnyActiveCoil(node))
             {
                 continue;
             }
