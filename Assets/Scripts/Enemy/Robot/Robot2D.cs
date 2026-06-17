@@ -27,6 +27,10 @@ public class Robot2D : MonsterBase, IContactWithLiquid, IAttractedByMilk
     public float recoverDuration = 1f;
     [Tooltip("单次冲刺最长持续时间，防止一直追")]
     public float chargeMaxDuration = 3f;
+    [Tooltip("冲刺撞停时，朝冲刺方向探测可破坏墙的距离")]
+    public float chargeDestructibleWallProbeDistance = 0.85f;
+    [Tooltip("探测盒半高（世界单位）")]
+    public float chargeDestructibleWallProbeHalfHeight = 0.55f;
 
     [Header("Visual")]
     public Transform bodyVisual;

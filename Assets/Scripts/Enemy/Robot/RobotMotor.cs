@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Idle 沿平地来回巡逻；Charge 固定水平 6 单位冲刺，遇边缘/墙面即停。
+/// Idle 沿平地来回巡逻；Charge 固定水平冲刺，遇边缘/墙面即停，撞可破坏墙时触发碎裂。
 /// </summary>
 public class RobotMotor : IMonsterMotor
 {
@@ -192,6 +192,11 @@ public class RobotMotor : IMonsterMotor
 
     private void FinishCharge(Robot2D rb)
     {
+        if (chargeActive && !chargeDamageDealt)
+        {
+            TryBreakDestructibleWallOnChargeImpact(rb);
+        }
+
         rb.Arrived = true;
         chargeActive = false;
         activePath = null;
@@ -298,6 +303,104 @@ public class RobotMotor : IMonsterMotor
         {
             chargeDamageDealt = true;
         }
+    }
+
+    private void TryBreakDestructibleWallOnChargeImpact(Robot2D rb)
+    {
+        if (chargeDir == 0)
+        {
+            return;
+        }
+
+        if (Mathf.Abs(rb.Position.x - chargeStartPosition.x) < MinChargeTravelBeforeHit)
+        {
+            return;
+        }
+
+        IDestructibleWallNotify wall = FindDestructibleWallAhead(rb);
+        if (wall != null)
+        {
+            wall.NotifyWallDestroy();
+        }
+    }
+
+    private IDestructibleWallNotify FindDestructibleWallAhead(Robot2D rb)
+    {
+        float probeDistance = Mathf.Max(0.1f, rb.chargeDestructibleWallProbeDistance);
+        float halfHeight = Mathf.Max(0.1f, rb.chargeDestructibleWallProbeHalfHeight);
+
+        Vector2 feetPos = new Vector2(rb.Position.x, lockedFeetY);
+        Vector2 center = feetPos + new Vector2(chargeDir * probeDistance * 0.5f, halfHeight * 0.5f);
+        Vector2 size = new Vector2(probeDistance, halfHeight * 2f);
+
+        IDestructibleWallNotify wall = FindWallNotifyFromOverlaps(
+            Physics2D.OverlapBoxAll(center, size, 0f),
+            rb.transform);
+
+        if (wall != null)
+        {
+            return wall;
+        }
+
+        return FindWallNotifyAtBlockedFrontCell(rb);
+    }
+
+    private IDestructibleWallNotify FindWallNotifyAtBlockedFrontCell(Robot2D rb)
+    {
+        TileMapGuideManager mgr = TileMapGuideManager.Instance;
+
+        if (mgr == null || chargeDir == 0)
+        {
+            return null;
+        }
+
+        float feetY = lockedFeetY;
+        int cellX = mgr.WorldToCell(new Vector2(rb.Position.x, feetY)).x;
+        Vector2Int frontCell = new Vector2Int(cellX + chargeDir, lockedRowY);
+
+        if (RobotGroundPath.IsFlatWalkable(mgr, frontCell))
+        {
+            return null;
+        }
+
+        Vector2 frontWorld = RobotGroundPath.CellToFeetWorld(mgr, frontCell, rb.feetYOffset);
+        return FindWallNotifyFromOverlaps(Physics2D.OverlapCircleAll(frontWorld, 0.65f), rb.transform);
+    }
+
+    private static IDestructibleWallNotify FindWallNotifyFromOverlaps(
+        Collider2D[] hits,
+        Transform robotTransform)
+    {
+        if (hits == null)
+        {
+            return null;
+        }
+
+        for (int i = 0; i < hits.Length; i++)
+        {
+            Collider2D hit = hits[i];
+
+            if (hit == null)
+            {
+                continue;
+            }
+
+            Transform hitTransform = hit.transform;
+
+            if (hitTransform == robotTransform || hitTransform.IsChildOf(robotTransform))
+            {
+                continue;
+            }
+
+            IDestructibleWallNotify wall = hit.GetComponentInParent<IDestructibleWallNotify>();
+
+            if (wall != null)
+            {
+                return wall;
+            }
+        }
+
+        return null;
     }
 
     private void ResetMovementState(Robot2D rb)
