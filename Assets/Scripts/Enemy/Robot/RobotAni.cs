@@ -146,6 +146,12 @@ public class RobotAni : MonoBehaviour
             return;
         }
 
+        if (robot != null && robot.IsDrinkFrozen)
+        {
+            UpdateFrozenVisualRestore();
+            return;
+        }
+
         bool moving = IsMoving();
         Vector3 delta = transform.position - lastWorldPosition;
 
@@ -154,6 +160,21 @@ public class RobotAni : MonoBehaviour
         UpdateSquish(moving);
 
         lastWorldPosition = transform.position;
+    }
+
+    private void UpdateFrozenVisualRestore()
+    {
+        wasChargeSquish = false;
+        wasMoving = false;
+
+        chargeSquashFactor = Mathf.MoveTowards(chargeSquashFactor, 0f, restoreSpeed * Time.deltaTime);
+        currentSquashScale = Vector3.Lerp(
+            currentSquashScale,
+            squashBaseScale,
+            Mathf.Clamp01(restoreSpeed * Time.deltaTime)
+        );
+
+        ApplyVisuals();
     }
 
     private void UpdateFacing(float deltaX, bool moving)
@@ -323,7 +344,7 @@ public class RobotAni : MonoBehaviour
     {
         if (robot != null)
         {
-            if (robot.CurrentBehavior == RobotBehavior.Recover)
+            if (robot.IsDrinkFrozen || robot.CurrentBehavior == RobotBehavior.Recover)
             {
                 return false;
             }

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Robot2D : MonsterBase
+public class Robot2D : MonsterBase, IContactWithLiquid, IAttractedByMilk
 {
     [Header("Movement")]
     public float moveSpeed = 2.5f;
@@ -31,10 +31,17 @@ public class Robot2D : MonsterBase
     [Header("Visual")]
     public Transform bodyVisual;
 
+    [Header("Drink Attract")]
+    [SerializeField] private RobotDrinkCollector drinkCollector;
+
+    public RobotDrinkCollector DrinkCollector => drinkCollector;
+
     [Header("Debug")]
     public bool drawDebugGizmos = true;
 
     public RobotBehavior CurrentBehavior { get; set; } = RobotBehavior.Idle;
+
+    public bool IsDrinkFrozen { get; private set; }
 
     public bool DebugHasPlayer { get; private set; }
     public Vector2 DebugPlayerPosition { get; private set; }
@@ -59,6 +66,8 @@ public class Robot2D : MonsterBase
 
         EnsureDefaultAreas();
         ResolvePlayerLayerMask();
+        EnsureEnemyLayer();
+        EnsureDrinkCollector();
         SnapFeetToGround();
 
         Arrived = true;
@@ -67,6 +76,32 @@ public class Robot2D : MonsterBase
             this,
             bodyVisual != null ? bodyVisual : transform,
             new Vector2(0.7f, 0.12f));
+    }
+
+    protected override void FixedUpdate()
+    {
+        if (IsDrinkFrozen || IsStompPaused || ai == null || motor == null)
+        {
+            return;
+        }
+
+        IIntent intent = ai.Evaluate(this);
+        motor.Execute(this, intent);
+    }
+
+    public void EnterDrinkFrozenState()
+    {
+        if (IsDrinkFrozen)
+        {
+            return;
+        }
+
+        IsDrinkFrozen = true;
+        Arrived = true;
+        CurrentBehavior = RobotBehavior.Recover;
+        DebugPath = null;
+        DebugTarget = Position;
+        CurrentTarget = Position;
     }
 
     private void OnValidate()
@@ -91,6 +126,51 @@ public class Robot2D : MonsterBase
     public void SnapFeetToGround()
     {
         transform.position = RobotGroundPath.SnapToFlatGround(Position, feetYOffset);
+    }
+
+    public void ContactWithLiquid()
+    {
+        if (IsDrinkFrozen)
+        {
+            return;
+        }
+
+        drinkCollector?.OnLiquidContact();
+    }
+
+    public void AttractedByMilk(Vector2 milkPosition)
+    {
+        if (IsDrinkFrozen)
+        {
+            return;
+        }
+
+        drinkCollector?.NotifyMilkDropped(milkPosition);
+    }
+
+    private void EnsureEnemyLayer()
+    {
+        int enemyLayer = LayerMask.NameToLayer("Enemy");
+
+        if (enemyLayer < 0 || gameObject.layer == enemyLayer)
+        {
+            return;
+        }
+
+        gameObject.layer = enemyLayer;
+    }
+
+    private void EnsureDrinkCollector()
+    {
+        if (drinkCollector == null)
+        {
+            drinkCollector = GetComponent<RobotDrinkCollector>();
+        }
+
+        if (drinkCollector == null)
+        {
+            drinkCollector = gameObject.AddComponent<RobotDrinkCollector>();
+        }
     }
 
     public void ResolvePlayerLayerMask()
@@ -380,6 +460,11 @@ public class Robot2D : MonsterBase
             Gizmos.color = Color.magenta;
             Gizmos.DrawLine(transform.position, DebugPlayerPosition);
             Gizmos.DrawWireSphere(DebugPlayerPosition, 0.25f);
+        }
+
+        if (drinkCollector != null)
+        {
+            drinkCollector.DrawDetectBoundsGizmo(alpha);
         }
     }
 }
