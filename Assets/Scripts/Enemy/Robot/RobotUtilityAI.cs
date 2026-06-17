@@ -17,6 +17,7 @@ public class RobotUtilityAI : IMonsterAI
     private Transform chargeTarget;
     private float recoverTimer;
     private float chargeTimer;
+    private int patrolDir;
 
     public RobotUtilityAI(Robot2D robot)
     {
@@ -40,7 +41,7 @@ public class RobotUtilityAI : IMonsterAI
             case RobotMode.Charge:
                 if (!rb.Arrived)
                 {
-                    return ChargeIntent(activePath, chargeTarget);
+                    return ChargeIntent(chargeTarget);
                 }
 
                 BeginRecover(rb);
@@ -49,7 +50,7 @@ public class RobotUtilityAI : IMonsterAI
             default:
                 if (TryBeginCharge(rb))
                 {
-                    return ChargeIntent(activePath, chargeTarget);
+                    return ChargeIntent(chargeTarget);
                 }
 
                 if (activePath != null && activePath.Count > 0 && !rb.Arrived)
@@ -59,13 +60,49 @@ public class RobotUtilityAI : IMonsterAI
 
                 if (rb.Arrived || activePath == null || activePath.Count == 0)
                 {
-                    activePath = RobotGroundPath.FindRandomIdlePath(rb.Position, robot.idleBounds, feetYOffset: robot.feetYOffset);
+                    activePath = BuildNextPatrolPath(rb);
+
+                    if (activePath == null || activePath.Count == 0)
+                    {
+                        patrolDir *= -1;
+                        activePath = BuildNextPatrolPath(rb);
+                    }
+
                     rb.Arrived = activePath == null || activePath.Count == 0;
                     rb.DebugPath = activePath;
+                    rb.CurrentBehavior = RobotBehavior.Idle;
                 }
 
                 return IdleIntent(activePath);
         }
+    }
+
+    private List<Vector2> BuildNextPatrolPath(Robot2D rb)
+    {
+        if (!RobotGroundPath.IsInsideBoundsXY(robot.idleBounds, rb.Position))
+        {
+            List<Vector2> returnPath = RobotGroundPath.BuildReturnToIdleBoundsPath(
+                rb.Position,
+                robot.idleBounds,
+                robot.feetYOffset);
+
+            if (returnPath.Count > 0)
+            {
+                return returnPath;
+            }
+        }
+
+        if (patrolDir == 0)
+        {
+            patrolDir = RobotGroundPath.PickPatrolDirection(rb.Position, robot.idleBounds, robot.feetYOffset);
+        }
+
+        return RobotGroundPath.BuildPatrolPath(
+            rb.Position,
+            patrolDir,
+            robot.idleBounds,
+            robot.feetYOffset
+        );
     }
 
     private void TickMode(Robot2D rb)
@@ -97,6 +134,18 @@ public class RobotUtilityAI : IMonsterAI
             {
                 BeginRecover(rb);
             }
+
+            return;
+        }
+
+        if (mode == RobotMode.Idle && rb.Arrived && activePath != null && activePath.Count > 0)
+        {
+            if (RobotGroundPath.IsInsideBoundsXY(robot.idleBounds, rb.Position))
+            {
+                patrolDir *= -1;
+            }
+
+            activePath = null;
         }
     }
 
@@ -110,11 +159,11 @@ public class RobotUtilityAI : IMonsterAI
         }
 
         chargeTarget = player;
-        activePath = RobotGroundPath.BuildChargePath(rb.Position, player.position, robot.feetYOffset);
+        activePath = null;
         mode = RobotMode.Charge;
         chargeTimer = robot.chargeMaxDuration;
         rb.Arrived = false;
-        rb.DebugPath = activePath;
+        rb.DebugPath = null;
         rb.CurrentBehavior = RobotBehavior.Charge;
         return true;
     }
@@ -139,12 +188,12 @@ public class RobotUtilityAI : IMonsterAI
         };
     }
 
-    private RobotMoveIntent ChargeIntent(List<Vector2> path, Transform target)
+    private RobotMoveIntent ChargeIntent(Transform target)
     {
         return new RobotMoveIntent
         {
             behavior = RobotBehavior.Charge,
-            pathVertices = path,
+            pathVertices = null,
             moveSpeed = robot.chargeSpeed,
             chargeTarget = target
         };

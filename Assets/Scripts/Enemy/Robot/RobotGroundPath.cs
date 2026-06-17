@@ -51,6 +51,322 @@ public static class RobotGroundPath
     }
 
     /// <summary>
+    /// 解析当前位置所在的可行走平地格，并锁定行 Y（cell.y）。
+    /// </summary>
+    public static bool TryGetFlatRowCell(
+        Vector2 worldPos,
+        float feetYOffset,
+        out int rowY,
+        out Vector2Int cell)
+    {
+        rowY = 0;
+        cell = default;
+
+        TileMapGuideManager mgr = TileMapGuideManager.Instance;
+
+        if (mgr == null)
+        {
+            return false;
+        }
+
+        cell = ResolveWalkableCell(mgr, mgr.WorldToCell(worldPos));
+
+        if (!IsFlatWalkable(mgr, cell))
+        {
+            return false;
+        }
+
+        rowY = cell.y;
+        return true;
+    }
+
+    public static float GetRowFeetY(int rowY, float feetYOffset = DefaultFeetYOffset)
+    {
+        TileMapGuideManager mgr = TileMapGuideManager.Instance;
+
+        if (mgr == null)
+        {
+            return 0f;
+        }
+
+        return CellToFeetWorld(mgr, new Vector2Int(0, rowY), feetYOffset).y;
+    }
+
+    /// <summary>
+    /// 在已锁定的行上，判断 worldX 处是否仍可站立（不接受跨行/高度差）。
+    /// </summary>
+    public static bool CanStandOnRowAtX(int rowY, float worldX, float feetYOffset = DefaultFeetYOffset)
+    {
+        TileMapGuideManager mgr = TileMapGuideManager.Instance;
+
+        if (mgr == null)
+        {
+            return false;
+        }
+
+        float feetY = GetRowFeetY(rowY, feetYOffset);
+        int cellX = mgr.WorldToCell(new Vector2(worldX, feetY)).x;
+        Vector2Int cell = new Vector2Int(cellX, rowY);
+
+        return IsFlatWalkable(mgr, cell);
+    }
+
+    /// <summary>
+    /// 沿锁定行逐格探测可行走距离，遇平台边缘或竖直墙面即停止。
+    /// </summary>
+    public static float ProbeFlatDistance(
+        Vector2 fromWorld,
+        int rowY,
+        int dirSign,
+        float maxDistance,
+        float feetYOffset = DefaultFeetYOffset)
+    {
+        if (dirSign == 0 || maxDistance <= 0f)
+        {
+            return 0f;
+        }
+
+        TileMapGuideManager mgr = TileMapGuideManager.Instance;
+
+        if (mgr == null || !TryGetFlatRowCell(fromWorld, feetYOffset, out _, out Vector2Int startCell))
+        {
+            return 0f;
+        }
+
+        float lastValid = 0f;
+
+        for (int step = 1; step <= 64; step++)
+        {
+            Vector2Int cell = new Vector2Int(startCell.x + dirSign * step, rowY);
+
+            if (!IsFlatWalkable(mgr, cell))
+            {
+                break;
+            }
+
+            Vector2 feet = CellToFeetWorld(mgr, cell, feetYOffset);
+            float dist = Mathf.Abs(feet.x - fromWorld.x);
+
+            if (dist > maxDistance)
+            {
+                return maxDistance;
+            }
+
+            lastValid = dist;
+        }
+
+        return lastValid;
+    }
+
+    public static int PickPatrolDirection(
+        Vector2 fromWorld,
+        Bounds idleBounds,
+        float feetYOffset = DefaultFeetYOffset)
+    {
+        if (!TryGetFlatRowCell(fromWorld, feetYOffset, out int rowY, out _))
+        {
+            return Random.value > 0.5f ? 1 : -1;
+        }
+
+        float leftDist = ProbeFlatDistance(fromWorld, rowY, -1, 24f, feetYOffset);
+        float rightDist = ProbeFlatDistance(fromWorld, rowY, 1, 24f, feetYOffset);
+
+        if (Mathf.Approximately(leftDist, rightDist))
+        {
+            return Random.value > 0.5f ? 1 : -1;
+        }
+
+        return rightDist > leftDist ? 1 : -1;
+    }
+
+    /// <summary>
+    /// 沿锁定行朝 dirSign 构建巡逻目标：单个路点，位于平台边缘/墙面/Idle 边界前最后一格。
+    /// </summary>
+    public static List<Vector2> BuildPatrolPath(
+        Vector2 fromWorld,
+        int dirSign,
+        Bounds idleBounds,
+        float feetYOffset = DefaultFeetYOffset,
+        int maxCells = 48)
+    {
+        List<Vector2> path = BuildPatrolPathInternal(
+            fromWorld,
+            dirSign,
+            idleBounds,
+            feetYOffset,
+            maxCells,
+            clipToBounds: true);
+
+        if (path.Count > 0)
+        {
+            return path;
+        }
+
+        return BuildPatrolPathInternal(
+            fromWorld,
+            dirSign,
+            idleBounds,
+            feetYOffset,
+            maxCells,
+            clipToBounds: false);
+    }
+
+    /// <summary>
+    /// 当前位置在 idleBounds 外时，沿同行平地回到 bounds 内最近可站立点。
+    /// </summary>
+    public static List<Vector2> BuildReturnToIdleBoundsPath(
+        Vector2 fromWorld,
+        Bounds idleBounds,
+        float feetYOffset = DefaultFeetYOffset)
+    {
+        List<Vector2> path = new List<Vector2>();
+
+        if (IsInsideBoundsXY(idleBounds, fromWorld))
+        {
+            return path;
+        }
+
+        TileMapGuideManager mgr = TileMapGuideManager.Instance;
+
+        if (mgr == null || !TryGetFlatRowCell(fromWorld, feetYOffset, out int rowY, out _))
+        {
+            return path;
+        }
+
+        float feetY = GetRowFeetY(rowY, feetYOffset);
+        int minCellX = mgr.WorldToCell(new Vector2(idleBounds.min.x, feetY)).x;
+        int maxCellX = mgr.WorldToCell(new Vector2(idleBounds.max.x, feetY)).x;
+
+        if (minCellX > maxCellX)
+        {
+            (minCellX, maxCellX) = (maxCellX, minCellX);
+        }
+
+        Vector2 bestFeet = fromWorld;
+        float bestDistSqr = float.MaxValue;
+        bool found = false;
+
+        for (int cellX = minCellX; cellX <= maxCellX; cellX++)
+        {
+            Vector2Int cell = new Vector2Int(cellX, rowY);
+
+            if (!IsFlatWalkable(mgr, cell))
+            {
+                continue;
+            }
+
+            Vector2 feet = CellToFeetWorld(mgr, cell, feetYOffset);
+
+            if (!IsInsideBoundsXY(idleBounds, feet))
+            {
+                continue;
+            }
+
+            float distSqr = (feet - fromWorld).sqrMagnitude;
+
+            if (distSqr >= bestDistSqr)
+            {
+                continue;
+            }
+
+            bestDistSqr = distSqr;
+            bestFeet = feet;
+            found = true;
+        }
+
+        if (!found || bestDistSqr <= 0.02f * 0.02f)
+        {
+            return path;
+        }
+
+        path.Add(bestFeet);
+        return path;
+    }
+
+    private static List<Vector2> BuildPatrolPathInternal(
+        Vector2 fromWorld,
+        int dirSign,
+        Bounds idleBounds,
+        float feetYOffset,
+        int maxCells,
+        bool clipToBounds)
+    {
+        List<Vector2> path = new List<Vector2>();
+        TileMapGuideManager mgr = TileMapGuideManager.Instance;
+
+        if (mgr == null || dirSign == 0)
+        {
+            return path;
+        }
+
+        if (!TryGetFlatRowCell(fromWorld, feetYOffset, out int rowY, out Vector2Int startCell))
+        {
+            return path;
+        }
+
+        Vector2Int lastCell = startCell;
+
+        for (int step = 1; step <= maxCells; step++)
+        {
+            Vector2Int cell = new Vector2Int(startCell.x + dirSign * step, rowY);
+
+            if (!clipToBounds)
+            {
+                if (!IsFlatWalkable(mgr, cell))
+                {
+                    break;
+                }
+
+                lastCell = cell;
+                continue;
+            }
+
+            if (!IsFlatWalkable(mgr, cell))
+            {
+                break;
+            }
+
+            Vector2 feet = CellToFeetWorld(mgr, cell, feetYOffset);
+
+            if (!IsInsideBoundsXY(idleBounds, feet))
+            {
+                break;
+            }
+
+            lastCell = cell;
+        }
+
+        if (lastCell != startCell)
+        {
+            path.Add(CellToFeetWorld(mgr, lastCell, feetYOffset));
+        }
+
+        return path;
+    }
+
+    public static Vector2 GetFeetOnRowAtDistance(
+        Vector2 fromWorld,
+        int rowY,
+        int dirSign,
+        float distance,
+        float feetYOffset = DefaultFeetYOffset)
+    {
+        float feetY = GetRowFeetY(rowY, feetYOffset);
+        return new Vector2(fromWorld.x + dirSign * distance, feetY);
+    }
+
+    /// <summary>
+    /// 仅对齐 Y 到锁定行脚底高度，保留 X（避免每帧把 X 吸回格心导致无法移动）。
+    /// </summary>
+    public static Vector2 SnapToFlatGroundOnRow(
+        Vector2 worldPos,
+        int rowY,
+        float feetYOffset = DefaultFeetYOffset)
+    {
+        return new Vector2(worldPos.x, GetRowFeetY(rowY, feetYOffset));
+    }
+
+    /// <summary>
     /// 将世界坐标对齐到当前行上最近的可行走格子的脚底点。
     /// </summary>
     public static Vector2 SnapToFlatGround(Vector2 worldPos, float feetYOffset = DefaultFeetYOffset)

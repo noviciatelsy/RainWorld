@@ -5,12 +5,14 @@ public class Robot2D : MonsterBase
     [Header("Movement")]
     public float moveSpeed = 2.5f;
     public float chargeSpeed = 7f;
+    [Tooltip("冲刺固定水平距离")]
+    public float chargeDistance = 6f;
     public float arriveThreshold = 0.08f;
     [Tooltip("脚底相对格子中心的 Y 偏移（鼹鼠路点约 -0.45；机器人 pivot 不同默认 -0.15，约高 0.3")]
     public float feetYOffset = -0.15f;
 
     [Header("Areas")]
-    [Tooltip("Idle 游荡可移动范围（世界坐标 Center/Size，固定区域）")]
+    [Tooltip("Idle 巡逻范围（世界坐标 Center/Size，固定区域，需在 Inspector 手动配置）")]
     public Bounds idleBounds;
     [Tooltip("以机器人为中心的感知/激活范围（仅 Size 有效，Center 运行时随机器人更新）")]
     public Bounds activeBounds;
@@ -22,7 +24,7 @@ public class Robot2D : MonsterBase
     public float attackRange = 0.9f;
     public int attackDamage = 12;
     [Tooltip("冲刺结束后原地停止时间")]
-    public float recoverDuration = 2f;
+    public float recoverDuration = 1f;
     [Tooltip("单次冲刺最长持续时间，防止一直追")]
     public float chargeMaxDuration = 3f;
 
@@ -75,16 +77,14 @@ public class Robot2D : MonsterBase
 
     public void EnsureDefaultAreas()
     {
-        Vector3 center = transform.position;
-
         if (idleBounds.size.sqrMagnitude < 0.01f)
         {
-            idleBounds = new Bounds(center, new Vector3(12f, 4f, 0.1f));
+            idleBounds = new Bounds(transform.position, new Vector3(12f, 4f, 0.1f));
         }
 
         if (activeBounds.size.sqrMagnitude < 0.01f)
         {
-            activeBounds = new Bounds(center, new Vector3(8f, 4f, 0.1f));
+            activeBounds = new Bounds(transform.position, new Vector3(8f, 4f, 0.1f));
         }
     }
 
@@ -297,6 +297,12 @@ public class Robot2D : MonsterBase
             return false;
         }
 
+        if (GameStateManager.Instance != null
+            && GameStateManager.Instance.currentGameState != GameState.Game)
+        {
+            return false;
+        }
+
         vitals.ReduceHealth(attackDamage);
         return true;
     }
@@ -336,18 +342,38 @@ public class Robot2D : MonsterBase
     {
         EnsureDefaultAreas();
 
-        Gizmos.color = new Color(0.2f, 1f, 0.35f, alpha * 0.55f);
+        Gizmos.color = new Color(0.2f, 1f, 0.35f, alpha);
         Gizmos.DrawWireCube(idleBounds.center, idleBounds.size);
 
         Bounds activeWorld = Application.isPlaying
             ? GetActiveBoundsWorld()
             : new Bounds(transform.position, activeBounds.size);
 
-        Gizmos.color = new Color(1f, 0.55f, 0.15f, alpha * 0.65f);
+        Gizmos.color = new Color(1f, 0.55f, 0.15f, alpha * 0.85f);
         Gizmos.DrawWireCube(activeWorld.center, activeWorld.size);
 
         Gizmos.color = new Color(1f, 0.2f, 0.2f, alpha * 0.6f);
         Gizmos.DrawWireSphere(transform.position, attackRange);
+
+        if (DebugPath != null && DebugPath.Count > 0)
+        {
+            Gizmos.color = Color.cyan;
+            Vector2 from = transform.position;
+
+            for (int i = 0; i < DebugPath.Count; i++)
+            {
+                Gizmos.DrawLine(from, DebugPath[i]);
+                Gizmos.DrawWireSphere(DebugPath[i], 0.12f);
+                from = DebugPath[i];
+            }
+        }
+
+        if (DebugTarget.sqrMagnitude > 0.0001f)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawLine(transform.position, DebugTarget);
+            Gizmos.DrawWireSphere(DebugTarget, 0.1f);
+        }
 
         if (DebugHasPlayer)
         {

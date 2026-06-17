@@ -1,11 +1,11 @@
-using System;
+ï»¿using System;
 using System.Collections;
 using UnityEngine;
 
 
 public class PlayerVitals : MonoBehaviour
 {
-    [Header("ÉúÃüÉèÖÃ")]
+    [Header("ç”Ÿå‘½è®¾ç½®")]
 
     private float baseMaxHealth = 100;
 
@@ -15,11 +15,11 @@ public class PlayerVitals : MonoBehaviour
     [SerializeField, Min(0)]
     private float customStartHealth = 100;
 
-    [Header("·ÀÓùÉèÖÃ")]
+    [Header("é˜²å¾¡è®¾ç½®")]
     [SerializeField, Min(0)]
     private float startDefense = 0;
 
-    [Header("¼¢¶öÉèÖÃ")]
+    [Header("é¥¥é¥¿è®¾ç½®")]
     [SerializeField, Min(0)]
     private float startHunger = 0;
 
@@ -32,7 +32,7 @@ public class PlayerVitals : MonoBehaviour
     [SerializeField, Min(0)]
     private float hungerIncreaseAmount = 1;
 
-    [Header("ËÀÍöÉèÖÃ")]
+    [Header("æ­»äº¡è®¾ç½®")]
     [SerializeField] private SpriteRenderer playerBackpackSprite;
 
 
@@ -160,8 +160,8 @@ public class PlayerVitals : MonoBehaviour
     }
 
     /// <summary>
-    /// Ôö¼Ó·ÀÓùÁ¦¡£
-    /// ·ÀÓùÁ¦»á¼õÉÙ TakeDamage ÖĞÊµ¼ÊÊÜµ½µÄÉËº¦¡£
+    /// å¢åŠ é˜²å¾¡åŠ›ã€‚
+    /// é˜²å¾¡åŠ›ä¼šå‡å°‘ TakeDamage ä¸­å®é™…å—åˆ°çš„ä¼¤å®³ã€‚
     /// </summary>
     public void AddDefense(float amount)
     {
@@ -174,8 +174,8 @@ public class PlayerVitals : MonoBehaviour
     }
 
     /// <summary>
-    /// ¼õÉÙ·ÀÓùÁ¦¡£
-    /// ·ÀÓùÁ¦²»»áµÍÓÚ 0¡£
+    /// å‡å°‘é˜²å¾¡åŠ›ã€‚
+    /// é˜²å¾¡åŠ›ä¸ä¼šä½äº 0ã€‚
     /// </summary>
     public void ReduceDefense(float amount)
     {
@@ -188,8 +188,8 @@ public class PlayerVitals : MonoBehaviour
     }
 
     /// <summary>
-    /// ÁÙÊ±Ôö¼Ó·ÀÓùÁ¦¡£
-    /// Ö¸¶¨Ê±¼ä½áÊøºó£¬»áÒÆ³ı±¾´ÎÔö¼ÓµÄ·ÀÓùÁ¦¡£
+    /// ä¸´æ—¶å¢åŠ é˜²å¾¡åŠ›ã€‚
+    /// æŒ‡å®šæ—¶é—´ç»“æŸåï¼Œä¼šç§»é™¤æœ¬æ¬¡å¢åŠ çš„é˜²å¾¡åŠ›ã€‚
     /// </summary>
     public void AddDefenseTemporarily(float amount, float time)
     {
@@ -211,8 +211,8 @@ public class PlayerVitals : MonoBehaviour
     }
 
     /// <summary>
-    /// ÁÙÊ±¼õÉÙ·ÀÓùÁ¦¡£
-    /// Ö¸¶¨Ê±¼ä½áÊøºó£¬»á»Ö¸´±¾´ÎÊµ¼Ê¼õÉÙµÄ·ÀÓùÁ¦¡£
+    /// ä¸´æ—¶å‡å°‘é˜²å¾¡åŠ›ã€‚
+    /// æŒ‡å®šæ—¶é—´ç»“æŸåï¼Œä¼šæ¢å¤æœ¬æ¬¡å®é™…å‡å°‘çš„é˜²å¾¡åŠ›ã€‚
     /// </summary>
     public void ReduceDefenseTemporarily(float amount, float time)
     {
@@ -238,8 +238,8 @@ public class PlayerVitals : MonoBehaviour
     }
 
     /// <summary>
-    /// Ö±½ÓÉèÖÃ·ÀÓùÁ¦¡£
-    /// ·ÀÓùÁ¦²»»áµÍÓÚ 0¡£
+    /// ç›´æ¥è®¾ç½®é˜²å¾¡åŠ›ã€‚
+    /// é˜²å¾¡åŠ›ä¸ä¼šä½äº 0ã€‚
     /// </summary>
     public void SetDefense(float value)
     {
@@ -250,7 +250,7 @@ public class PlayerVitals : MonoBehaviour
     }
 
     /// <summary>
-    /// ¿ªÊ¼×Ô¶¯Ôö¼Ó¼¢¶ö¶È¡£
+    /// å¼€å§‹è‡ªåŠ¨å¢åŠ é¥¥é¥¿åº¦ã€‚
     /// </summary>
     public void StartAutoIncreaseHunger()
     {
@@ -270,8 +270,8 @@ public class PlayerVitals : MonoBehaviour
     }
 
     /// <summary>
-    /// ÔİÍ£×Ô¶¯Ôö¼Ó¼¢¶ö¶È¡£
-    /// ÔÚÖ¸¶¨ÃëÊı½áÊøºó£¬Èç¹ûÌõ¼şÔÊĞí£¬»á¼ÌĞø×Ô¶¯Ôö¼Ó¼¢¶ö¶È¡£
+    /// æš‚åœè‡ªåŠ¨å¢åŠ é¥¥é¥¿åº¦ã€‚
+    /// åœ¨æŒ‡å®šç§’æ•°ç»“æŸåï¼Œå¦‚æœæ¡ä»¶å…è®¸ï¼Œä¼šç»§ç»­è‡ªåŠ¨å¢åŠ é¥¥é¥¿åº¦ã€‚
     /// </summary>
     public void PauseAutoIncreaseHunger(float pauseTime)
     {
@@ -320,7 +320,7 @@ public class PlayerVitals : MonoBehaviour
     }
 
     /// <summary>
-    /// Í£Ö¹×Ô¶¯Ôö¼Ó¼¢¶ö¶È¡£
+    /// åœæ­¢è‡ªåŠ¨å¢åŠ é¥¥é¥¿åº¦ã€‚
     /// </summary>
     public void StopAutoIncreaseHunger()
     {
@@ -342,8 +342,8 @@ public class PlayerVitals : MonoBehaviour
     }
 
     /// <summary>
-    /// Ôö¼Ó¼¢¶ö¶È¡£
-    /// ¼¢¶ö¶ÈÔ½¸ß£¬ÑªÉÏÏŞÔ½µÍ¡£
+    /// å¢åŠ é¥¥é¥¿åº¦ã€‚
+    /// é¥¥é¥¿åº¦è¶Šé«˜ï¼Œè¡€ä¸Šé™è¶Šä½ã€‚
     /// </summary>
     public void AddHunger(float amount)
     {
@@ -356,8 +356,8 @@ public class PlayerVitals : MonoBehaviour
     }
 
     /// <summary>
-    /// ¼õÉÙ¼¢¶ö¶È¡£
-    /// ¼¢¶ö¶È½µµÍ»áÌá¸ßÑªÉÏÏŞ£¬µ«²»»á×Ô¶¯»Ö¸´µ±Ç°ÑªÁ¿¡£
+    /// å‡å°‘é¥¥é¥¿åº¦ã€‚
+    /// é¥¥é¥¿åº¦é™ä½ä¼šæé«˜è¡€ä¸Šé™ï¼Œä½†ä¸ä¼šè‡ªåŠ¨æ¢å¤å½“å‰è¡€é‡ã€‚
     /// </summary>
     public void ReduceHunger(float amount)
     {
@@ -370,7 +370,7 @@ public class PlayerVitals : MonoBehaviour
     }
 
     /// <summary>
-    /// ¼õÉÙµ±Ç°ÑªÁ¿¡£
+    /// å‡å°‘å½“å‰è¡€é‡ã€‚
     /// </summary>
     public void ReduceHealth(float amount)
     {
@@ -383,8 +383,8 @@ public class PlayerVitals : MonoBehaviour
     }
 
     /// <summary>
-    /// Ôö¼Óµ±Ç°ÑªÁ¿¡£
-    /// »ØÑª²»»á³¬¹ıµ±Ç°ÑªÉÏÏŞ¡£
+    /// å¢åŠ å½“å‰è¡€é‡ã€‚
+    /// å›è¡€ä¸ä¼šè¶…è¿‡å½“å‰è¡€ä¸Šé™ã€‚
     /// </summary>
     public void AddHealth(float amount)
     {
@@ -399,8 +399,8 @@ public class PlayerVitals : MonoBehaviour
     }
 
     /// <summary>
-    /// Ö±½ÓÉèÖÃµ±Ç°ÑªÁ¿¡£
-    /// ÊÊºÏ´æµµ¶ÁÈ¡¡¢µ÷ÊÔ¡¢ÌØÊâµÀ¾ßµÈÇé¿ö¡£
+    /// ç›´æ¥è®¾ç½®å½“å‰è¡€é‡ã€‚
+    /// é€‚åˆå­˜æ¡£è¯»å–ã€è°ƒè¯•ã€ç‰¹æ®Šé“å…·ç­‰æƒ…å†µã€‚
     /// </summary>
     public void SetCurrentHealth(float value)
     {
@@ -417,9 +417,9 @@ public class PlayerVitals : MonoBehaviour
     }
 
     /// <summary>
-    /// ÔÚÖ¸¶¨Ê±¼äÄÚ³ÖĞø¼õÉÙµ±Ç°ÑªÁ¿¡£
-    /// healthAmount ±íÊ¾Õâ¶ÎÊ±¼äÄÚ×Ü¹²¼õÉÙµÄÑªÁ¿¡£
-    /// ÀıÈç£ºtime Îª 5£¬healthAmount Îª 20£¬±íÊ¾ 5 ÃëÄÚºÏ¼Æ¼õÉÙ 20 µãÉúÃüÖµ¡£
+    /// åœ¨æŒ‡å®šæ—¶é—´å†…æŒç»­å‡å°‘å½“å‰è¡€é‡ã€‚
+    /// healthAmount è¡¨ç¤ºè¿™æ®µæ—¶é—´å†…æ€»å…±å‡å°‘çš„è¡€é‡ã€‚
+    /// ä¾‹å¦‚ï¼štime ä¸º 5ï¼ŒhealthAmount ä¸º 20ï¼Œè¡¨ç¤º 5 ç§’å†…åˆè®¡å‡å°‘ 20 ç‚¹ç”Ÿå‘½å€¼ã€‚
     /// </summary>
     public void ReduceHealthOverTime(float time, int healthAmount)
     {
@@ -461,10 +461,10 @@ public class PlayerVitals : MonoBehaviour
     }
 
     /// <summary>
-    /// ÔÚÖ¸¶¨Ê±¼äÄÚ³ÖĞøÔö¼Óµ±Ç°ÑªÁ¿¡£
-    /// healthAmount ±íÊ¾Õâ¶ÎÊ±¼äÄÚ×Ü¹²Ôö¼ÓµÄÑªÁ¿¡£
-    /// »ØÑª²»»á³¬¹ıµ±Ç°ÑªÉÏÏŞ¡£
-    /// ÀıÈç£ºtime Îª 5£¬healthAmount Îª 20£¬±íÊ¾ 5 ÃëÄÚºÏ¼Æ»Ö¸´ 20 µãÉúÃüÖµ¡£
+    /// åœ¨æŒ‡å®šæ—¶é—´å†…æŒç»­å¢åŠ å½“å‰è¡€é‡ã€‚
+    /// healthAmount è¡¨ç¤ºè¿™æ®µæ—¶é—´å†…æ€»å…±å¢åŠ çš„è¡€é‡ã€‚
+    /// å›è¡€ä¸ä¼šè¶…è¿‡å½“å‰è¡€ä¸Šé™ã€‚
+    /// ä¾‹å¦‚ï¼štime ä¸º 5ï¼ŒhealthAmount ä¸º 20ï¼Œè¡¨ç¤º 5 ç§’å†…åˆè®¡æ¢å¤ 20 ç‚¹ç”Ÿå‘½å€¼ã€‚
     /// </summary>
     public void AddHealthOverTime(float time, float healthAmount)
     {
@@ -520,7 +520,7 @@ public class PlayerVitals : MonoBehaviour
     }
 
     /// <summary>
-    /// Ö±½ÓÉèÖÃ¼¢¶ö¶È¡£
+    /// ç›´æ¥è®¾ç½®é¥¥é¥¿åº¦ã€‚
     /// </summary>
     public void SetHunger(float value)
     {
@@ -597,7 +597,7 @@ public class PlayerVitals : MonoBehaviour
 
         StopAutoIncreaseHunger();
         SaveManager.Instance.GetRunTimeGameData().playerDiePosition = transform.position;
-        playerInventory.SaveCurrentItemsToRetrieveInventoryAndClearSelf(); // ¼ÇÂ¼ÒÅÊ§ÎïÆ·
+        playerInventory.SaveCurrentItemsToRetrieveInventoryAndClearSelf(); // è®°å½•é—å¤±ç‰©å“
         SaveManager.Instance.SaveGame();
         PlayerDied?.Invoke();
         DeathEffect();

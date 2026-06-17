@@ -1,8 +1,8 @@
 using UnityEngine;
 
 /// <summary>
-/// 机器人动画：移动时双轮旋转 + 整体 scale 正弦挤压。
-/// 游荡：(1,1,1)→(0.9,1.1,1)；冲刺：(1,1,1)→(1.1,0.9,1)。转速与当前移动速度挂钩。
+/// 机器人动画：移动时双轮旋转 + 整体 scale 挤压；移动方向翻转贴图。
+/// 游荡：(1,1,1)→(0.9,1.1,1)；冲刺：(1,1,1)→(1.2,0.8,1)→(1,1,1)。转速与当前移动速度挂钩。
 /// </summary>
 public class RobotAni : MonoBehaviour
 {
@@ -15,6 +15,12 @@ public class RobotAni : MonoBehaviour
 
     [Tooltip("要变形的贴图 / 视觉 Transform")]
     public Transform visualTransform;
+
+    [Tooltip("左右翻转根节点（默认 visualTransform，仅改 X 符号）")]
+    public Transform flipTransform;
+
+    [Tooltip("躯干挤压节点（默认自动查找「躯干」子物体，形变更明显）")]
+    public Transform squashTransform;
 
     [Tooltip("可选：同物体上的机器人，用于移动状态与速度")]
     public Robot2D robot;
@@ -34,6 +40,16 @@ public class RobotAni : MonoBehaviour
     [Range(0f, 0.35f)]
     public float squishAmount = 0.1f;
 
+    [Header("Charge Squash")]
+    [Tooltip("冲刺横向拉伸比例（相对躯干 baseScale.x）")]
+    public float chargeSquashScaleX = 1.45f;
+
+    [Tooltip("冲刺纵向压缩比例（相对躯干 baseScale.y）")]
+    public float chargeSquashScaleY = 0.55f;
+
+    [Tooltip("冲刺开始时压到峰值的过渡时间（秒）")]
+    public float chargeSquashAttackDuration = 0.1f;
+
     [Tooltip("停止移动后回到基准 scale 的插值速度")]
     public float restoreSpeed = 12f;
 
@@ -41,9 +57,14 @@ public class RobotAni : MonoBehaviour
     public float minMoveDelta = 0.002f;
 
     private float phaseElapsed;
-    private Vector3 currentScale;
+    private Vector3 currentSquashScale;
+    private Vector3 squashBaseScale = Vector3.one;
+    private Vector3 flipBaseScale = Vector3.one;
     private Vector3 lastWorldPosition;
     private bool wasMoving;
+    private bool wasChargeSquish;
+    private float chargeSquashFactor;
+    private int facingSign = 1;
 
     private void Awake()
     {
@@ -62,29 +83,59 @@ public class RobotAni : MonoBehaviour
             visualTransform = transform;
         }
 
-        if (baseScale == Vector3.one && visualTransform != null)
+        if (flipTransform == null)
         {
-            baseScale = visualTransform.localScale;
+            flipTransform = visualTransform;
         }
 
-        currentScale = baseScale;
+        if (squashTransform == null)
+        {
+            Transform torso = flipTransform.Find("躯干");
+            squashTransform = torso != null ? torso : flipTransform;
+        }
+
+        if (baseScale == Vector3.one && squashTransform != null)
+        {
+            baseScale = squashTransform.localScale;
+        }
+
+        squashBaseScale = squashTransform != null ? squashTransform.localScale : baseScale;
+        squashBaseScale.x = Mathf.Abs(squashBaseScale.x);
+        squashBaseScale.y = Mathf.Abs(squashBaseScale.y);
+        squashBaseScale.z = Mathf.Abs(squashBaseScale.z);
+
+        flipBaseScale = flipTransform != null ? flipTransform.localScale : Vector3.one;
+        flipBaseScale.x = Mathf.Abs(flipBaseScale.x);
+        if (flipBaseScale.x < 0.001f)
+        {
+            flipBaseScale.x = 1f;
+        }
+
+        if (flipTransform != null && flipTransform.localScale.x < 0f)
+        {
+            facingSign = -1;
+        }
+
+        currentSquashScale = squashBaseScale;
         lastWorldPosition = transform.position;
-        ApplyScale(currentScale);
+        ApplyVisuals();
     }
 
     private void OnEnable()
     {
         phaseElapsed = 0f;
-        currentScale = baseScale;
+        chargeSquashFactor = 0f;
+        currentSquashScale = squashBaseScale;
         lastWorldPosition = transform.position;
-        ApplyScale(currentScale);
+        ApplyVisuals();
     }
 
     private void OnDisable()
     {
-        if (visualTransform != null)
+        ApplyFacingOnly();
+        if (squashTransform != null)
         {
-            visualTransform.localScale = baseScale;
+            squashTransform.localScale = squashBaseScale;
         }
     }
 
@@ -98,10 +149,27 @@ public class RobotAni : MonoBehaviour
         bool moving = IsMoving();
         Vector3 delta = transform.position - lastWorldPosition;
 
+        UpdateFacing(delta.x, moving);
         UpdateWheelRotation(delta.x, moving);
         UpdateSquish(moving);
 
         lastWorldPosition = transform.position;
+    }
+
+    private void UpdateFacing(float deltaX, bool moving)
+    {
+        if (!moving)
+        {
+            return;
+        }
+
+        float moveDir = ResolveMoveDirection(deltaX);
+        if (moveDir == 0f)
+        {
+            return;
+        }
+
+        facingSign = moveDir > 0f ? -1 : 1;
     }
 
     private void UpdateWheelRotation(float deltaX, bool moving)
@@ -160,36 +228,49 @@ public class RobotAni : MonoBehaviour
 
     private void UpdateSquish(bool moving)
     {
-        if (visualTransform == null)
+        if (squashTransform == null)
         {
+            ApplyFacingOnly();
             return;
         }
 
         bool chargeSquish = robot != null && robot.CurrentBehavior == RobotBehavior.Charge;
 
-        if (moving)
+        if (chargeSquish && !wasChargeSquish)
         {
+            phaseElapsed = 0f;
+            chargeSquashFactor = 0f;
+        }
+
+        wasChargeSquish = chargeSquish;
+
+        if (chargeSquish)
+        {
+            float attack = Mathf.Max(0.01f, chargeSquashAttackDuration);
+            chargeSquashFactor = Mathf.MoveTowards(chargeSquashFactor, 1f, Time.deltaTime / attack);
+
+            currentSquashScale = new Vector3(
+                squashBaseScale.x * Mathf.Lerp(1f, chargeSquashScaleX, chargeSquashFactor),
+                squashBaseScale.y * Mathf.Lerp(1f, chargeSquashScaleY, chargeSquashFactor),
+                squashBaseScale.z
+            );
+
+            wasMoving = true;
+        }
+        else if (moving)
+        {
+            chargeSquashFactor = Mathf.MoveTowards(chargeSquashFactor, 0f, restoreSpeed * Time.deltaTime);
+
             float period = Mathf.Max(0.01f, cycleDuration);
             phaseElapsed += Time.deltaTime;
             float wave = Mathf.Sin(phaseElapsed * Mathf.PI * 2f / period);
             float squish = squishAmount * wave;
 
-            if (chargeSquish)
-            {
-                currentScale = new Vector3(
-                    baseScale.x * (1f + squish),
-                    baseScale.y * (1f - squish),
-                    baseScale.z
-                );
-            }
-            else
-            {
-                currentScale = new Vector3(
-                    baseScale.x * (1f - squish),
-                    baseScale.y * (1f + squish),
-                    baseScale.z
-                );
-            }
+            currentSquashScale = new Vector3(
+                squashBaseScale.x * (1f - squish),
+                squashBaseScale.y * (1f + squish),
+                squashBaseScale.z
+            );
 
             wasMoving = true;
         }
@@ -201,14 +282,26 @@ public class RobotAni : MonoBehaviour
                 wasMoving = false;
             }
 
-            currentScale = Vector3.Lerp(
-                currentScale,
-                baseScale,
+            chargeSquashFactor = Mathf.MoveTowards(chargeSquashFactor, 0f, restoreSpeed * Time.deltaTime);
+
+            Vector3 targetScale = squashBaseScale;
+            if (chargeSquashFactor > 0.001f)
+            {
+                targetScale = new Vector3(
+                    squashBaseScale.x * Mathf.Lerp(1f, chargeSquashScaleX, chargeSquashFactor),
+                    squashBaseScale.y * Mathf.Lerp(1f, chargeSquashScaleY, chargeSquashFactor),
+                    squashBaseScale.z
+                );
+            }
+
+            currentSquashScale = Vector3.Lerp(
+                currentSquashScale,
+                targetScale,
                 Mathf.Clamp01(restoreSpeed * Time.deltaTime)
             );
         }
 
-        ApplyScale(currentScale);
+        ApplyVisuals();
     }
 
     private float GetCurrentMoveSpeed()
@@ -252,9 +345,27 @@ public class RobotAni : MonoBehaviour
         return delta.sqrMagnitude >= minMoveDelta * minMoveDelta;
     }
 
-    private void ApplyScale(Vector3 scale)
+    private void ApplyVisuals()
     {
-        visualTransform.localScale = scale;
+        ApplyFacingOnly();
+
+        if (squashTransform != null)
+        {
+            squashTransform.localScale = currentSquashScale;
+        }
+    }
+
+    private void ApplyFacingOnly()
+    {
+        if (flipTransform == null)
+        {
+            return;
+        }
+
+        flipTransform.localScale = new Vector3(
+            flipBaseScale.x * facingSign,
+            flipBaseScale.y,
+            flipBaseScale.z);
     }
 
     public void SetMovingOverride(bool moving)
@@ -267,6 +378,7 @@ public class RobotAni : MonoBehaviour
         {
             wasMoving = false;
             phaseElapsed = 0f;
+            chargeSquashFactor = 0f;
         }
     }
 }

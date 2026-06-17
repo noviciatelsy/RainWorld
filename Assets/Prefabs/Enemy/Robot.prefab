@@ -26,7 +26,7 @@ Transform:
   m_GameObject: {fileID: 379411101162143799}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.013, y: -0.29, z: -0.02}
+  m_LocalPosition: {x: -0.035, y: -0.29, z: -0.02}
   m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -109,13 +109,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1261536677189524382}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.3390007, y: -0.28999996, z: -0.02}
+  m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
+  m_LocalPosition: {x: 0.3169937, y: -0.29000092, z: -0.02}
   m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 7215898436394275122}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
 --- !u!212 &6351615882923366031
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -223,7 +223,8 @@ MonoBehaviour:
   Target: {x: 0, y: 0}
   HasEdge: 0
   moveSpeed: 1
-  chargeSpeed: 6
+  chargeSpeed: 4
+  chargeDistance: 6
   arriveThreshold: 0.08
   feetYOffset: 0.1
   idleBounds:
@@ -231,13 +232,13 @@ MonoBehaviour:
     m_Extent: {x: 6, y: 2, z: 0.05}
   activeBounds:
     m_Center: {x: -32, y: -7.5, z: 0}
-    m_Extent: {x: 3, y: 2, z: 0.05}
+    m_Extent: {x: 4, y: 2, z: 0.05}
   playerLayer:
     serializedVersion: 2
     m_Bits: 64
   attackRange: 0.9
   attackDamage: 12
-  recoverDuration: 2
+  recoverDuration: 1
   chargeMaxDuration: 3
   bodyVisual: {fileID: 7215898436394275122}
   drawDebugGizmos: 1
@@ -301,11 +302,16 @@ MonoBehaviour:
   leftWheel: {fileID: 3170321819678335026}
   rightWheel: {fileID: 6505963401133258325}
   visualTransform: {fileID: 7215898436394275122}
+  flipTransform: {fileID: 0}
+  squashTransform: {fileID: 0}
   robot: {fileID: 7539659396269623092}
   speed: 120
   baseScale: {x: 1, y: 1, z: 1}
   cycleDuration: 0.5
-  squishAmount: 0.06
+  squishAmount: 0.08
+  chargeSquashScaleX: 1.25
+  chargeSquashScaleY: 0.75
+  chargeSquashAttackDuration: 0.1
   restoreSpeed: 12
   minMoveDelta: 0.002
 --- !u!1 &5015183846912480924

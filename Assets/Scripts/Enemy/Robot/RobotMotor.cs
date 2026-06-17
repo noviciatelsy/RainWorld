@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 与 MoleMotor 相同：Idle 用路点列表；Charge 沿平地朝玩家 X 冲刺（路点可选）。
+/// Idle 沿平地来回巡逻；Charge 固定水平 6 单位冲刺，遇边缘/墙面即停。
 /// </summary>
 public class RobotMotor : IMonsterMotor
 {
@@ -14,6 +14,12 @@ public class RobotMotor : IMonsterMotor
     private int pathIndex;
     private bool chargeDamageDealt;
     private Vector2 chargeStartPosition;
+
+    private float lockedFeetY;
+    private int lockedRowY = int.MinValue;
+    private bool chargeActive;
+    private int chargeDir;
+    private float chargeEndX;
 
     public RobotMotor(Robot2D robot)
     {
@@ -31,198 +37,248 @@ public class RobotMotor : IMonsterMotor
 
         if (move.behavior == RobotBehavior.Recover)
         {
-            activePath = null;
-            pathIndex = 0;
+            ResetMovementState(rb);
             rb.Arrived = true;
             return;
         }
 
         if (move.behavior == RobotBehavior.Charge)
         {
-            if (activePath != move.pathVertices)
+            if (!chargeActive)
             {
-                chargeDamageDealt = false;
-                chargeStartPosition = rb.Position;
+                BeginCharge(rb, move.chargeTarget);
             }
 
-            DriveCharge(rb, move.pathVertices, move.moveSpeed, move.chargeTarget);
+            DriveCharge(rb, move.moveSpeed, move.chargeTarget);
             return;
         }
 
+        chargeActive = false;
+
         if (move.pathVertices == null || move.pathVertices.Count == 0)
         {
-            activePath = null;
-            pathIndex = 0;
+            ResetMovementState(rb);
             rb.Arrived = true;
             return;
         }
 
-        DriveMovement(rb, move.pathVertices, move.moveSpeed, null, false);
+        DriveMovement(rb, move.pathVertices, move.moveSpeed);
     }
 
-    /// <summary>
-    /// 冲刺：保持当前 Y，朝玩家 X（或路点）快速移动。
-    /// </summary>
-    private void DriveCharge(
-        Robot2D rb,
-        List<Vector2> path,
-        float speed,
-        Transform chargeTarget)
+    private bool TryLockRow(Robot2D rb)
     {
-        if (activePath != path)
+        if (!RobotGroundPath.TryGetFlatRowCell(rb.Position, rb.feetYOffset, out lockedRowY, out _))
         {
-            activePath = path;
-            pathIndex = 0;
+            return false;
+        }
+
+        lockedFeetY = RobotGroundPath.GetRowFeetY(lockedRowY, rb.feetYOffset);
+        return true;
+    }
+
+    private void BeginCharge(Robot2D rb, Transform chargeTarget)
+    {
+        chargeDamageDealt = false;
+        chargeStartPosition = rb.Position;
+        chargeActive = true;
+        activePath = null;
+        pathIndex = 0;
+
+        if (chargeTarget == null || !TryLockRow(rb))
+        {
+            chargeActive = false;
+            rb.Arrived = true;
+            return;
+        }
+
+        AlignToLockedRow(rb);
+
+        float dx = chargeTarget.position.x - rb.Position.x;
+        chargeDir = Mathf.Abs(dx) < 0.01f
+            ? RobotGroundPath.PickPatrolDirection(rb.Position, rb.idleBounds, rb.feetYOffset)
+            : (dx >= 0f ? 1 : -1);
+
+        float walkableDist = RobotGroundPath.ProbeFlatDistance(
+            rb.Position,
+            lockedRowY,
+            chargeDir,
+            rb.chargeDistance,
+            rb.feetYOffset
+        );
+
+        float travelDist = Mathf.Min(rb.chargeDistance, walkableDist);
+        chargeEndX = rb.Position.x + chargeDir * travelDist;
+
+        rb.Arrived = false;
+        rb.CurrentTarget = new Vector2(chargeEndX, lockedFeetY);
+        rb.DebugTarget = rb.CurrentTarget;
+    }
+
+    private void DriveCharge(Robot2D rb, float speed, Transform chargeTarget)
+    {
+        if (!chargeActive)
+        {
+            rb.Arrived = true;
+            return;
         }
 
         rb.Arrived = false;
 
-        Vector2 moveTarget = GetChargeMoveTarget(rb, path, chargeTarget);
-
-        if ((moveTarget - rb.Position).sqrMagnitude < 0.0001f)
-        {
-            TryFinishCharge(rb, chargeTarget);
-            return;
-        }
-
-        rb.CurrentTarget = moveTarget;
-        rb.DebugTarget = moveTarget;
-
-        rb.Transform.position = Vector2.MoveTowards(
-            rb.Position,
-            moveTarget,
-            speed * Time.fixedDeltaTime
-        );
-
-        SnapToGround(rb);
-
-        rb.UpdateFacingToward(moveTarget);
-
-        AdvanceChargePathIndex(rb, path, moveTarget);
-
-        if (Vector2.Distance(rb.Position, moveTarget) <= rb.arriveThreshold)
-        {
-            AdvanceChargePathIndex(rb, path, moveTarget);
-        }
-
-        TryFinishCharge(rb, chargeTarget);
-    }
-
-    private Vector2 GetChargeMoveTarget(Robot2D rb, List<Vector2> path, Transform chargeTarget)
-    {
-        float groundY = RobotGroundPath.SnapToFlatGround(rb.Position, rb.feetYOffset).y;
-
         if (chargeTarget != null)
         {
-            return new Vector2(chargeTarget.position.x, groundY);
+            float travelSqr = (rb.Position - chargeStartPosition).sqrMagnitude;
+            float attackRangeSqr = rb.attackRange * rb.attackRange;
+            float distToPlayerSqr = ((Vector2)chargeTarget.position - rb.Position).sqrMagnitude;
+
+            if (travelSqr >= MinChargeTravelBeforeHit * MinChargeTravelBeforeHit
+                && distToPlayerSqr <= attackRangeSqr)
+            {
+                TryChargeHit(rb, chargeTarget);
+                FinishCharge(rb);
+                return;
+            }
         }
 
-        if (path != null && pathIndex < path.Count)
+        if (IsChargeComplete(rb))
         {
-            Vector2 node = path[pathIndex];
-            return new Vector2(node.x, groundY);
+            FinishCharge(rb);
+            return;
         }
 
-        return new Vector2(rb.Position.x, groundY);
+        float step = speed * Time.fixedDeltaTime;
+        float nextX = rb.Position.x + chargeDir * step;
+
+        if (chargeDir > 0)
+        {
+            nextX = Mathf.Min(nextX, chargeEndX);
+        }
+        else
+        {
+            nextX = Mathf.Max(nextX, chargeEndX);
+        }
+
+        if (!RobotGroundPath.CanStandOnRowAtX(lockedRowY, nextX, rb.feetYOffset))
+        {
+            FinishCharge(rb);
+            return;
+        }
+
+        rb.Transform.position = new Vector3(nextX, lockedFeetY, rb.Transform.position.z);
+        rb.CurrentTarget = new Vector2(chargeEndX, lockedFeetY);
+        rb.DebugTarget = rb.CurrentTarget;
+
+        if (IsChargeComplete(rb))
+        {
+            FinishCharge(rb);
+        }
     }
 
-    private void AdvanceChargePathIndex(Robot2D rb, List<Vector2> path, Vector2 moveTarget)
+    private bool IsChargeComplete(Robot2D rb)
     {
-        if (path == null || pathIndex >= path.Count)
+        float traveledX = Mathf.Abs(rb.Position.x - chargeStartPosition.x);
+
+        if (traveledX >= rb.chargeDistance - rb.arriveThreshold)
         {
-            return;
+            return true;
         }
 
-        if (Vector2.Distance(rb.Position, moveTarget) <= rb.arriveThreshold)
+        if (chargeDir > 0)
         {
-            pathIndex++;
+            return rb.Position.x >= chargeEndX - rb.arriveThreshold;
         }
+
+        return rb.Position.x <= chargeEndX + rb.arriveThreshold;
     }
 
-    private void TryFinishCharge(Robot2D rb, Transform chargeTarget)
+    private void FinishCharge(Robot2D rb)
     {
-        if (chargeTarget == null)
-        {
-            return;
-        }
-
-        float travelSqr = (rb.Position - chargeStartPosition).sqrMagnitude;
-        float attackRangeSqr = rb.attackRange * rb.attackRange;
-        float distToPlayerSqr = ((Vector2)chargeTarget.position - rb.Position).sqrMagnitude;
-
-        if (travelSqr < MinChargeTravelBeforeHit * MinChargeTravelBeforeHit
-            && distToPlayerSqr > attackRangeSqr)
-        {
-            return;
-        }
-
-        if (distToPlayerSqr <= attackRangeSqr)
-        {
-            TryChargeHit(rb, chargeTarget);
-            rb.Arrived = true;
-            activePath = null;
-            pathIndex = 0;
-            return;
-        }
-
-        if (pathIndex >= (activePath?.Count ?? 0)
-            && Mathf.Abs(chargeTarget.position.x - rb.Position.x) <= rb.arriveThreshold)
-        {
-            rb.Arrived = true;
-            activePath = null;
-            pathIndex = 0;
-        }
+        rb.Arrived = true;
+        chargeActive = false;
+        activePath = null;
+        pathIndex = 0;
     }
 
-    private void DriveMovement(
-        Robot2D rb,
-        List<Vector2> path,
-        float speed,
-        Transform chargeTarget,
-        bool isCharging)
+    private void DriveMovement(Robot2D rb, List<Vector2> path, float speed)
     {
         if (activePath != path)
         {
             activePath = path;
             pathIndex = 0;
             rb.Arrived = false;
+
+            if (!TryLockRow(rb))
+            {
+                rb.Arrived = true;
+                activePath = null;
+                pathIndex = 0;
+                return;
+            }
+
+            AlignToLockedRow(rb);
         }
 
         if (pathIndex >= path.Count)
         {
-            activePath = null;
-            pathIndex = 0;
+            ResetMovementState(rb);
             rb.Arrived = true;
             return;
         }
 
-        Vector2 nodeTarget = path[pathIndex];
-        rb.CurrentTarget = nodeTarget;
-        rb.DebugTarget = nodeTarget;
+        float targetX = path[pathIndex].x;
+        rb.CurrentTarget = new Vector2(targetX, lockedFeetY);
+        rb.DebugTarget = rb.CurrentTarget;
 
-        rb.Transform.position = Vector2.MoveTowards(
-            rb.Position,
-            nodeTarget,
-            speed * Time.fixedDeltaTime
-        );
+        float step = speed * Time.fixedDeltaTime;
+        float dir = Mathf.Sign(targetX - rb.Position.x);
 
-        SnapToGround(rb);
-
-        rb.UpdateFacingToward(nodeTarget);
-
-        if (Vector2.Distance(rb.Position, nodeTarget) > rb.arriveThreshold)
+        if (Mathf.Abs(targetX - rb.Position.x) <= rb.arriveThreshold)
         {
+            pathIndex++;
+
+            if (pathIndex >= path.Count)
+            {
+                ResetMovementState(rb);
+                rb.Arrived = true;
+            }
+
             return;
         }
 
-        pathIndex++;
+        float nextX = rb.Position.x + dir * step;
 
-        if (pathIndex >= path.Count)
+        if (dir > 0f)
         {
-            activePath = null;
-            pathIndex = 0;
-            rb.Arrived = true;
+            nextX = Mathf.Min(nextX, targetX);
         }
+        else
+        {
+            nextX = Mathf.Max(nextX, targetX);
+        }
+
+        if (!RobotGroundPath.CanStandOnRowAtX(lockedRowY, nextX, rb.feetYOffset))
+        {
+            ResetMovementState(rb);
+            rb.Arrived = true;
+            return;
+        }
+
+        rb.Transform.position = new Vector3(nextX, lockedFeetY, rb.Transform.position.z);
+
+        if (Mathf.Abs(targetX - rb.Position.x) <= rb.arriveThreshold)
+        {
+            pathIndex++;
+
+            if (pathIndex >= path.Count)
+            {
+                ResetMovementState(rb);
+                rb.Arrived = true;
+            }
+        }
+    }
+
+    private void AlignToLockedRow(Robot2D rb)
+    {
+        rb.Transform.position = new Vector3(rb.Position.x, lockedFeetY, rb.Transform.position.z);
     }
 
     private void TryChargeHit(Robot2D rb, Transform chargeTarget)
@@ -244,10 +300,11 @@ public class RobotMotor : IMonsterMotor
         }
     }
 
-    private static void SnapToGround(Robot2D rb)
+    private void ResetMovementState(Robot2D rb)
     {
-        float groundY = RobotGroundPath.SnapToFlatGround(rb.Position, rb.feetYOffset).y;
-        Vector3 pos = rb.Transform.position;
-        rb.Transform.position = new Vector3(pos.x, groundY, pos.z);
+        activePath = null;
+        pathIndex = 0;
+        chargeActive = false;
+        lockedRowY = int.MinValue;
     }
 }
