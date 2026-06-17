@@ -37,7 +37,7 @@ MonoBehaviour:
     clips:
     - {fileID: 8300000, guid: 2c5eaf81332f98c48adbce1e7ba3c649, type: 3}
     volume: 0.5
-  - audioName: BackpackOpenSFX
+  - audioName: BackpackUIOpenSFX
     clips:
     - {fileID: 8300000, guid: 85d5003eec2034045a3d656edb9732da, type: 3}
     volume: 1
@@ -58,6 +58,22 @@ MonoBehaviour:
   - audioName: ItemRotateSFX
     clips:
     - {fileID: 8300000, guid: cb854ea8198a8a04eac18d74f6b4166e, type: 3}
+    volume: 1
+  - audioName: MerchantUIOpenSFX
+    clips:
+    - {fileID: 8300000, guid: 157e5c2e849bbce4cbcabdbd3d85481e, type: 3}
+    volume: 1
+  - audioName: ReduceMoneySFX
+    clips:
+    - {fileID: 8300000, guid: 1c75de2c455bef14ebcdc7d402267a96, type: 3}
+    volume: 1
+  - audioName: AddMoneySFX
+    clips:
+    - {fileID: 8300000, guid: a93c1f4f1454cc54c8967daf929e34c4, type: 3}
+    volume: 0.5
+  - audioName: LootUIOpenSFX
+    clips:
+    - {fileID: 8300000, guid: 6224d796d5ca9a744ad5dada284e32d4, type: 3}
     volume: 1
   BGM:
   - audioName: MainMenuBGM

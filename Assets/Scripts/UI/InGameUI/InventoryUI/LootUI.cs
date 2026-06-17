@@ -64,6 +64,7 @@ public class LootUI : MonoBehaviour
         lootInventoryGrid.SetInventory(currentLootInventory);
         playerBackpack.SetInventory(playerInventory);
         quickItemSlots.SetInventory(playerInventory);
+        AudioManager.Instance.PlayUI("LootUIOpenSFX");
     }
 
     public void Close()

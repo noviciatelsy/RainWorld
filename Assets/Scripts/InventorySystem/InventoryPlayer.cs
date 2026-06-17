@@ -650,6 +650,7 @@ public class InventoryPlayer : InventoryBase
         if(amount>=0)
         {
             money += amount;
+            AudioManager.Instance.PlayUI("AddMoneySFX");
             onMoneyChanged?.Invoke(money);
             onMoneyAdd?.Invoke(amount);
         }
@@ -664,6 +665,7 @@ public class InventoryPlayer : InventoryBase
             {
                 money = 0;
             }
+            AudioManager.Instance.PlayUI("ReduceMoneySFX");
             onMoneyChanged?.Invoke(money);
         }
     }

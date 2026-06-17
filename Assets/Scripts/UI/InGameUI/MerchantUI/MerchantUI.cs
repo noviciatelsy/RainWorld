@@ -53,6 +53,7 @@ public class MerchantUI : MonoBehaviour
         playerBackpack.SetInventory(playerInventory);
         quickItemSlots.SetInventory(playerInventory);
         goodsShelfUI.SetInventory(playerInventory);
+        AudioManager.Instance.PlayUI("MerchantUIOpenSFX");
     }
 
     public void Close()
