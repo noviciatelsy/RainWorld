@@ -56,13 +56,14 @@ public class IntelligencerUI : MonoBehaviour
         gameObject.SetActive(true);
 
         ShowExchangePanel();
+        AudioManager.Instance.PlayUI("IntelligencerUIOpenSFX");
     }
 
     public void Close()
     {
         ClearExchangeRows();
         ClearPurchaseRows();
-
+        AudioManager.Instance.PlayUI("IntelligencerUIOpenSFX");
         gameObject.SetActive(false);
     }
 

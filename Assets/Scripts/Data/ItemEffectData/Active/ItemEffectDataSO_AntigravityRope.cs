@@ -33,6 +33,7 @@ public class ItemEffectDataSO_AntigravityRope : ItemEffectDataSO
         if (playerAntigravityRopeSpawner != null)
         {
             playerAntigravityRopeSpawner.SpawnRope();
+            AudioManager.Instance.PlaySFX("UseItemWhooshSFX");
             return true;
         }
         return false;

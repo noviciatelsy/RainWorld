@@ -679,6 +679,12 @@ MonoBehaviour:
   hungerIncreaseAmount: 1
   playerBackpackSprite: {fileID: 3019942942140580155, guid: 448f2dbad3de3eb4dbddf9023991c160,
     type: 3}
+  playerSR:
+  - {fileID: 3478814898869686432}
+  - {fileID: 7874282980875062518}
+  invincibleTime: 1
+  hurtFlashInterval: 0.2
+  hurtFlashRedStrength: 0.5
 --- !u!114 &808092062085497677
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -2279,7 +2279,7 @@ GameObject:
   - component: {fileID: 5361181292222138146}
   - component: {fileID: 9222776365448246585}
   m_Layer: 5
-  m_Name: Map
+  m_Name: MapUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

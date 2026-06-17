@@ -123,6 +123,7 @@ public class NoteBookUI : MonoBehaviour
 
         SetInputEnabled(true);
         RefreshNavigationButtons();
+        AudioManager.Instance.PlaySFX("NoteBookUIOpenSFX");
     }
 
     public void Close()
@@ -133,7 +134,7 @@ public class NoteBookUI : MonoBehaviour
 
         HideTurningPagesImmediate();
         SetInputEnabled(true);
-
+        AudioManager.Instance.PlaySFX("NoteBookUIOpenSFX");
         gameObject.SetActive(false);
     }
 
@@ -147,6 +148,7 @@ public class NoteBookUI : MonoBehaviour
         // 从初始页翻到内容页时，装饰书签不能一开始就隐藏
         // 它要等 TurningPageLeft 盖下来的动画结束后，再被真正的 BookMarkButton 替换
         TryStartPageTurn(FlipRightToSectionRoutine(NoteBookSection.Intelligence), true);
+        AudioManager.Instance.PlayUI("ButtonClickSFX");
     }
 
     public void OnClickEnemyOption()
@@ -159,6 +161,7 @@ public class NoteBookUI : MonoBehaviour
         // 从初始页翻到内容页时，装饰书签不能一开始就隐藏
         // 它要等 TurningPageLeft 盖下来的动画结束后，再被真正的 BookMarkButton 替换
         TryStartPageTurn(FlipRightToSectionRoutine(NoteBookSection.Enemy), true);
+        AudioManager.Instance.PlayUI("ButtonClickSFX");
     }
 
     public void OnClickNextPage()
@@ -176,6 +179,7 @@ public class NoteBookUI : MonoBehaviour
         }
 
         TryStartPageTurn(FlipRightToNextSpreadRoutine());
+        AudioManager.Instance.PlayUI("ButtonClickSFX");
     }
 
     public void OnClickLastPage()
@@ -186,6 +190,7 @@ public class NoteBookUI : MonoBehaviour
         }
 
         TryStartPageTurn(FlipLeftToPreviousSpreadRoutine());
+        AudioManager.Instance.PlayUI("ButtonClickSFX");
     }
 
     public void OnClickBookMark()
@@ -196,11 +201,13 @@ public class NoteBookUI : MonoBehaviour
         }
 
         TryStartPageTurn(FlipLeftToHomeByBookMarkRoutine());
+        AudioManager.Instance.PlayUI("ButtonClickSFX");
     }
 
     public void OnClickExit()
     {
         inGameUI.ToggleNoteBookUI();
+        AudioManager.Instance.PlayUI("ButtonClickSFX");
     }
 
     public void OpenToUnlockedArchiveEntry(ArchiveUnlockRecord unlockRecord)
@@ -225,6 +232,7 @@ public class NoteBookUI : MonoBehaviour
         HideTurningPagesImmediate();
 
         pageTurnCoroutine = StartCoroutine(AutoOpenToUnlockedEntryRoutine(unlockRecord));
+        AudioManager.Instance.PlaySFX("TurnPageSFX");
     }
 
     private void RebuildAllPagesFromArchive()
@@ -459,6 +467,7 @@ public class NoteBookUI : MonoBehaviour
         }
 
         pageTurnCoroutine = StartCoroutine(PageTurnWrapperRoutine(routine, keepBookMarkDecorationDuringTurn));
+        AudioManager.Instance.PlaySFX("TurnPageSFX");
     }
 
     private IEnumerator PageTurnWrapperRoutine(IEnumerator routine, bool keepBookMarkDecorationDuringTurn)

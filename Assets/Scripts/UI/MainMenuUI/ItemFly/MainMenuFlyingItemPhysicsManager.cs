@@ -200,6 +200,7 @@ public class MainMenuFlyingItemPhysicsManager : MonoBehaviour
 
                 itemA.PlayCollisionSquash(impulseStrength);
                 itemB.PlayCollisionSquash(impulseStrength);
+                AudioManager.Instance.PlaySFX("TittleItemCollisionSFX");
             }
         }
     }
@@ -302,7 +303,7 @@ public class MainMenuFlyingItemPhysicsManager : MonoBehaviour
 
             item.ApplyImpulse(impulse, closestPoint, angularImpulseFactor);
             item.PlayCollisionSquash(impulse.magnitude);
-
+            AudioManager.Instance.PlaySFX("TittleItemCollisionSFX");
             nextMouseCollisionTimes[item] = currentTime + mouseCollisionCooldown;
         }
     }

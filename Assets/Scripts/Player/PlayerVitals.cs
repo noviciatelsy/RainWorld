@@ -35,6 +35,17 @@ public class PlayerVitals : MonoBehaviour
     [Header("死亡设置")]
     [SerializeField] private SpriteRenderer playerBackpackSprite;
 
+    [Header("受伤设置")]
+    [SerializeField] private SpriteRenderer[] playerSR;
+
+    [SerializeField, Min(0f)]
+    private float invincibleTime = 1f;
+
+    [SerializeField, Min(0.01f)]
+    private float hurtFlashInterval = 0.08f;
+
+    [SerializeField, Range(0f, 1f)]
+    private float hurtFlashRedStrength = 1f;
 
     public event Action<float> CurrentHealthChanged;
 
@@ -51,7 +62,10 @@ public class PlayerVitals : MonoBehaviour
     private bool isDead;
     private Coroutine hungerCoroutine;
     private Coroutine pauseAutoIncreaseHungerCoroutine;
+    private Coroutine invincibleCoroutine;
     private bool isAutoIncreaseHungerPaused;
+    private bool isInvincible;
+    private Color[] playerSpriteOriginalColors;
     private InventoryPlayer playerInventory;
 
     public float BaseMaxHealth => baseMaxHealth;
@@ -65,6 +79,8 @@ public class PlayerVitals : MonoBehaviour
     public float CurrentMaxHealth => Mathf.Max(0, baseMaxHealth - currentHunger);
 
     public bool IsDead => isDead;
+
+    public bool IsInvincible => isInvincible;
 
     private bool hasStartedAutoIncreaseHunger = false;
 
@@ -99,7 +115,8 @@ public class PlayerVitals : MonoBehaviour
 
         isDead = currentHealth <= 0;
         playerInventory = GetComponent<InventoryPlayer>();
-        InvisibleCloakPassiveEffect=GetComponentInChildren<InvisibleCloakPassiveEffect>();
+        InvisibleCloakPassiveEffect = GetComponentInChildren<InvisibleCloakPassiveEffect>();
+        CachePlayerSpriteOriginalColors();
     }
 
     private void OnEnable()
@@ -119,6 +136,7 @@ public class PlayerVitals : MonoBehaviour
     {
         StopAutoIncreaseHunger();
         StopAutoIncreaseHungerPause();
+        StopPlayerInvincibility();
     }
 
     private void Start()
@@ -140,6 +158,10 @@ public class PlayerVitals : MonoBehaviour
         {
             KillPlayer();
         }
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            TakeDamage(1);
+        }
     }
 
     public void TakeDamage(float damageAmount)
@@ -149,14 +171,35 @@ public class PlayerVitals : MonoBehaviour
             return;
         }
 
-        if(InvisibleCloakPassiveEffect.isInvisible)
+        // 无敌帧只拦截 TakeDamage。
+        // 直接调用 ReduceHealth 仍然可以扣血，但不会被视作“受伤”。
+        if (isInvincible)
+        {
+            return;
+        }
+
+        if (InvisibleCloakPassiveEffect != null && InvisibleCloakPassiveEffect.isInvisible)
         {
             return;
         }
 
         float actualDamageAmount = Mathf.Max(0, damageAmount - currentDefense);
 
+        if (actualDamageAmount <= 0)
+        {
+            return;
+        }
+
+        float healthBeforeDamage = currentHealth;
+
         ReduceHealth(actualDamageAmount);
+        AudioManager.Instance.PlaySFX("PlayerHurtSFX");
+
+        // 只有 TakeDamage 真的让血量下降了，才算受伤，并启动受伤无敌帧。
+        if (currentHealth < healthBeforeDamage && !isDead)
+        {
+            StartPlayerInvincibility();
+        }
     }
 
     /// <summary>
@@ -513,7 +556,7 @@ public class PlayerVitals : MonoBehaviour
     public void ReduceHungerIncreaseAmount(float amount)
     {
         hungerIncreaseAmount -= amount;
-        if(hungerIncreaseAmount < 0)
+        if (hungerIncreaseAmount < 0)
         {
             hungerIncreaseAmount = 0;
         }
@@ -595,12 +638,144 @@ public class PlayerVitals : MonoBehaviour
         isDead = true;
 
 
+        StopPlayerInvincibility();
         StopAutoIncreaseHunger();
         SaveManager.Instance.GetRunTimeGameData().playerDiePosition = transform.position;
         playerInventory.SaveCurrentItemsToRetrieveInventoryAndClearSelf(); // 记录遗失物品
         SaveManager.Instance.SaveGame();
         PlayerDied?.Invoke();
         DeathEffect();
+    }
+
+
+    private void StartPlayerInvincibility()
+    {
+        if (invincibleTime <= 0f)
+        {
+            return;
+        }
+
+        if (invincibleCoroutine != null)
+        {
+            StopCoroutine(invincibleCoroutine);
+            invincibleCoroutine = null;
+        }
+
+        invincibleCoroutine = StartCoroutine(PlayerInvincibilityCoroutine());
+    }
+
+    private IEnumerator PlayerInvincibilityCoroutine()
+    {
+        isInvincible = true;
+        CachePlayerSpriteOriginalColors();
+
+        float elapsedTime = 0f;
+        float flashTimer = 0f;
+        bool isShowingHurtColor = false;
+
+        while (elapsedTime < invincibleTime && !isDead)
+        {
+            if (flashTimer <= 0f)
+            {
+                isShowingHurtColor = !isShowingHurtColor;
+
+                if (isShowingHurtColor)
+                {
+                    SetPlayerSpriteHurtColor();
+                }
+                else
+                {
+                    RestorePlayerSpriteColors();
+                }
+
+                flashTimer = hurtFlashInterval;
+            }
+
+            elapsedTime += Time.deltaTime;
+            flashTimer -= Time.deltaTime;
+
+            yield return null;
+        }
+
+        RestorePlayerSpriteColors();
+
+        isInvincible = false;
+        invincibleCoroutine = null;
+    }
+
+    private void StopPlayerInvincibility()
+    {
+        if (invincibleCoroutine != null)
+        {
+            StopCoroutine(invincibleCoroutine);
+            invincibleCoroutine = null;
+        }
+
+        isInvincible = false;
+        RestorePlayerSpriteColors();
+    }
+
+    private void CachePlayerSpriteOriginalColors()
+    {
+        if (playerSR == null || playerSR.Length == 0)
+        {
+            playerSR = GetComponentsInChildren<SpriteRenderer>();
+        }
+
+        playerSpriteOriginalColors = new Color[playerSR.Length];
+
+        for (int i = 0; i < playerSR.Length; i++)
+        {
+            if (playerSR[i] == null)
+            {
+                continue;
+            }
+
+            playerSpriteOriginalColors[i] = playerSR[i].color;
+        }
+    }
+
+    private void SetPlayerSpriteHurtColor()
+    {
+        if (playerSR == null || playerSpriteOriginalColors == null)
+        {
+            return;
+        }
+
+        int spriteCount = Mathf.Min(playerSR.Length, playerSpriteOriginalColors.Length);
+
+        for (int i = 0; i < spriteCount; i++)
+        {
+            if (playerSR[i] == null)
+            {
+                continue;
+            }
+
+            Color originalColor = playerSpriteOriginalColors[i];
+            Color hurtColor = new Color(1f, 0f, 0f, originalColor.a);
+
+            playerSR[i].color = Color.Lerp(originalColor, hurtColor, hurtFlashRedStrength);
+        }
+    }
+
+    private void RestorePlayerSpriteColors()
+    {
+        if (playerSR == null || playerSpriteOriginalColors == null)
+        {
+            return;
+        }
+
+        int spriteCount = Mathf.Min(playerSR.Length, playerSpriteOriginalColors.Length);
+
+        for (int i = 0; i < spriteCount; i++)
+        {
+            if (playerSR[i] == null)
+            {
+                continue;
+            }
+
+            playerSR[i].color = playerSpriteOriginalColors[i];
+        }
     }
 
     private void DeathEffect()

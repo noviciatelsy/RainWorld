@@ -90,5 +90,6 @@ public class LootUI : MonoBehaviour
         currentLootInventory = null;
 
         gameObject.SetActive(false);
+        AudioManager.Instance.PlayUI("BackpackUIOpenSFX");
     }
 }

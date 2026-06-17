@@ -84,7 +84,7 @@ public class MerchantUI : MonoBehaviour
         }
 
         playerInventory = null;
-
+        AudioManager.Instance.PlayUI("MerchantUIOpenSFX");
         gameObject.SetActive(false);
     }
 }

@@ -35,8 +35,8 @@ MonoBehaviour:
     volume: 0.25
   - audioName: ButtonClickSFX
     clips:
-    - {fileID: 8300000, guid: 2c5eaf81332f98c48adbce1e7ba3c649, type: 3}
-    volume: 0.5
+    - {fileID: 8300000, guid: 60d30d5d3317c364eac76bb15cea0a61, type: 3}
+    volume: 0.75
   - audioName: BackpackUIOpenSFX
     clips:
     - {fileID: 8300000, guid: 85d5003eec2034045a3d656edb9732da, type: 3}
@@ -53,8 +53,8 @@ MonoBehaviour:
     volume: 0.25
   - audioName: ItemSelectSFX
     clips:
-    - {fileID: 8300000, guid: 5742a49ab78b36b4ebb5e880bbbd6851, type: 3}
-    volume: 0.15
+    - {fileID: 8300000, guid: ee4e5d63e381c944cb20b542878ab05d, type: 3}
+    volume: 1
   - audioName: ItemRotateSFX
     clips:
     - {fileID: 8300000, guid: cb854ea8198a8a04eac18d74f6b4166e, type: 3}
@@ -74,6 +74,48 @@ MonoBehaviour:
   - audioName: LootUIOpenSFX
     clips:
     - {fileID: 8300000, guid: 6224d796d5ca9a744ad5dada284e32d4, type: 3}
+    volume: 1
+  - audioName: IntelligencerUIOpenSFX
+    clips:
+    - {fileID: 8300000, guid: e769956628498804fa4db69fdf00d72b, type: 3}
+    volume: 1
+  - audioName: MapUIOpenSFX
+    clips:
+    - {fileID: 8300000, guid: 3a3afede2102fa5479aad51c0b84a26e, type: 3}
+    volume: 1
+  - audioName: TurnPageSFX
+    clips:
+    - {fileID: 8300000, guid: 34aab659a8625b24181a2003713b3b97, type: 3}
+    volume: 1
+  - audioName: TittleItemPopSFX
+    clips:
+    - {fileID: 8300000, guid: e8f8a35cc5d0b8f44b0e87fd758f0ae0, type: 3}
+    - {fileID: 8300000, guid: 091e1c7d80b70214db47f71cdfe4c431, type: 3}
+    - {fileID: 8300000, guid: 9a62866ed3b159d4daf40a4ffbadb9fc, type: 3}
+    - {fileID: 8300000, guid: 80ab09d1e1905bc47ba1b030f4858c71, type: 3}
+    - {fileID: 8300000, guid: 2aa7461f811034840a95ffd4d0bb707a, type: 3}
+    - {fileID: 8300000, guid: 98b3100d869e98b469f847833ac900f9, type: 3}
+    volume: 0.5
+  - audioName: TittleItemCollisionSFX
+    clips:
+    - {fileID: 8300000, guid: 347e27bac8334f24ab1c141dae551d50, type: 3}
+    - {fileID: 8300000, guid: 05edd4deadcf7cc498159fd0b5a1ff53, type: 3}
+    - {fileID: 8300000, guid: af69674e94617d34498748cdeec5698f, type: 3}
+    - {fileID: 8300000, guid: 3883a42386099a34da3fa6576bbd2bf4, type: 3}
+    - {fileID: 8300000, guid: d529bd540b2fbad48b3e74dced949909, type: 3}
+    - {fileID: 8300000, guid: 3c4331c17a4c4174eaae469ee0a7cc38, type: 3}
+    volume: 1
+  - audioName: NoteBookUIOpenSFX
+    clips:
+    - {fileID: 8300000, guid: 03704d9c018244a4d8471146cdd9d1e1, type: 3}
+    volume: 1
+  - audioName: PlayerHurtSFX
+    clips:
+    - {fileID: 8300000, guid: a089e770879fd894cab213383be9b545, type: 3}
+    volume: 0.5
+  - audioName: UseItemWhooshSFX
+    clips:
+    - {fileID: 8300000, guid: 5e9bf5a54cf22784a98bb7b8f6d3907c, type: 3}
     volume: 1
   BGM:
   - audioName: MainMenuBGM

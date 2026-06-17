@@ -89,5 +89,6 @@ public class RetrieveUI : MonoBehaviour
         currentLostInventory = null;
 
         gameObject.SetActive(false);
+        AudioManager.Instance.PlayUI("BackpackUIOpenSFX");
     }
 }

@@ -35,6 +35,7 @@ public class MapPanelViewInput : MonoBehaviour,
         {
             mapCameraController.EnterPanelMode();
         }
+        AudioManager.Instance.PlayUI("MapUIOpenSFX");
     }
 
     private void OnDisable()
@@ -45,6 +46,7 @@ public class MapPanelViewInput : MonoBehaviour,
         {
             mapCameraController.ExitPanelMode();
         }
+        AudioManager.Instance.PlayUI("MapUIOpenSFX");
     }
 
     public void OnScroll(PointerEventData eventData)

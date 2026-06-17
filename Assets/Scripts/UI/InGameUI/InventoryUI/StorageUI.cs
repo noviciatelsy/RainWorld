@@ -66,6 +66,7 @@ public class StorageUI : MonoBehaviour
         StorageInventoryGrid.SetInventory(storageInventory);
         playerBackpack.SetInventory(playerInventory);
         quickItemSlots.SetInventory(playerInventory);
+        AudioManager.Instance.PlayUI("LootUIOpenSFX");
     }
 
     public void Close()
@@ -91,5 +92,6 @@ public class StorageUI : MonoBehaviour
         storageInventory = null;
 
         gameObject.SetActive(false);
+        AudioManager.Instance.PlayUI("BackpackUIOpenSFX");
     }
 }
