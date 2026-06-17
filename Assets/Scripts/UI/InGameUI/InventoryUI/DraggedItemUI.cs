@@ -182,7 +182,7 @@ public class DraggedItemUI : MonoBehaviour
         {
             return;
         }
-
+        AudioManager.Instance.PlayUI("ItemRotateSFX");
         draggedItem.rotateState = BackpackItemShapeUtility.GetNextClockwise(draggedItem.rotateState);
         ShowItem();
         OnDraggedItemRotated?.Invoke();

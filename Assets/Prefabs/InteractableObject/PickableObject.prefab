@@ -152,7 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3545a83970b4144f92cb891dfd6f38f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseScaleMultiplier: 3
+  baseScaleMultiplier: 2
   originalGroundBounceColliderSize: {x: 0.2, y: 0.2}
   originalPlayerPickableTriggerCollider: {x: 0.25, y: 0.25}
   rb: {fileID: 5719873907770716907}
@@ -318,7 +318,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -2120415309
-  m_SortingLayer: -1
+  m_SortingLayer: -2
   m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: 5c078085289df6442bdddcec224ea177, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

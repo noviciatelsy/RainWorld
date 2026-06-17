@@ -79,7 +79,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.1, y: 0.51}
+  m_Size: {x: 0.2, y: 0.8}
   m_EdgeRadius: 0
 --- !u!50 &6746746126001828214
 Rigidbody2D:
@@ -179,7 +179,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.19000001, y: 0.19000001, z: 0.19000001}
+  m_LocalScale: {x: 0.285, y: 0.285, z: 0.285}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 4418215154862306764}
@@ -223,7 +223,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 227208307
-  m_SortingLayer: -3
+  m_SortingLayer: -4
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: accc048840cb1fd4eb4ccd0838355cfe, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

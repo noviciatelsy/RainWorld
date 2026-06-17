@@ -123,7 +123,7 @@ public class InventoryGridUI : MonoBehaviour
         {
             return;
         }
-
+        AudioManager.Instance.PlayUI("ItemSelectSFX");
         ItemRotateState oldRotateState = item.rotateState;
         Vector2Int oldTopLeft = Vector2Int.zero;
         bool hasOldTopLeft = inventory.TryGetTopLeftOfItem(item, out oldTopLeft);
@@ -175,7 +175,7 @@ public class InventoryGridUI : MonoBehaviour
         {
             return;
         }
-
+        AudioManager.Instance.PlayUI("ItemSelectSFX");
         if (replacedItem == null)
         {
             draggedItemUI.EndDrag();

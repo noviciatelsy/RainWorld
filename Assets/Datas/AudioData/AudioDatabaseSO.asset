@@ -39,7 +39,7 @@ MonoBehaviour:
     volume: 0.5
   - audioName: BackpackOpenSFX
     clips:
-    - {fileID: 8300000, guid: e3b64d1c745ee8f49beb9cf830ee7feb, type: 3}
+    - {fileID: 8300000, guid: 85d5003eec2034045a3d656edb9732da, type: 3}
     volume: 1
   - audioName: TittleBackpackItemPopSFX
     clips:
@@ -51,6 +51,14 @@ MonoBehaviour:
     - {fileID: 8300000, guid: baeda3174344b2b468137f80d2842a42, type: 3}
     - {fileID: 8300000, guid: 0da71b4905059384cb16c4c022bf553b, type: 3}
     volume: 0.25
+  - audioName: ItemSelectSFX
+    clips:
+    - {fileID: 8300000, guid: 5742a49ab78b36b4ebb5e880bbbd6851, type: 3}
+    volume: 0.15
+  - audioName: ItemRotateSFX
+    clips:
+    - {fileID: 8300000, guid: cb854ea8198a8a04eac18d74f6b4166e, type: 3}
+    volume: 1
   BGM:
   - audioName: MainMenuBGM
     clips:
@@ -59,4 +67,4 @@ MonoBehaviour:
   - audioName: BaseBGM
     clips:
     - {fileID: 8300000, guid: c4368aa3a3947dc42908c47ac41c3ace, type: 3}
-    volume: 0.35
+    volume: 0.2

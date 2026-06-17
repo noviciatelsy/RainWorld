@@ -115,6 +115,7 @@ public class QuickItemSlotUI : MonoBehaviour, IPointerDownHandler,IPointerEnterH
         }
 
         HideItemToolTip();
+        AudioManager.Instance.PlayUI("ItemSelectSFX");
         owner.ClearQuickItem(quickSlotIndex);
     }
 

@@ -201,7 +201,7 @@ public class PickableObject : MonoBehaviour
     
         if(playerInventory.AddItem(itemData)) // ����ɹ�ʰȡ
         {
-            string pickupMessage = "��ʰȡ:" + itemData.itemDisplayName;
+            string pickupMessage = "已拾取:" + itemData.itemDisplayName;
             GlobalUI.Instance.hintMessageUI.ShowQuickMessage(pickupMessage);
             AudioManager.Instance.PlaySFX("PlayerPickUpItemSFX");
             Destroy(gameObject);

@@ -310,6 +310,7 @@ MonoBehaviour:
   climbHorizontalSpeed: 2.5
   climbVerticalSpeed: 2.5
   climbInputDeadZone: 0.1
+  platformJumpGroundIgnoreTime: 0.2
   jumpBufferTimer: -999
 --- !u!114 &2536843987404145219
 MonoBehaviour:
@@ -691,7 +692,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   holdingItemSprite: {fileID: 7874282980875062518}
-  baseScaleMultiplier: 3
+  baseScaleMultiplier: 2
   secondaryUseHoldThreshold: 0.35
 --- !u!114 &198939815352364345
 MonoBehaviour:
