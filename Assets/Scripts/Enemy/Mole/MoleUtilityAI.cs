@@ -62,7 +62,20 @@ public class MoleUtilityAI : IMonsterAI
         }
 
         // 3. 偷取玩家
-        bool hasPlayer = Physics2D.OverlapCircle(mole.Position, mole.playerCheckRadius, mole.playerLayer) != null;
+        bool hasPlayer = PlayerInvisibilityPerception.TryFindDetectablePlayer(
+            mole.Position,
+            mole.playerCheckRadius,
+            mole.playerLayer,
+            out _);
+
+        if (isStealing
+            && lastStealPlayer != null
+            && !PlayerInvisibilityPerception.IsPlayerDetectable(lastStealPlayer))
+        {
+            isStealing = false;
+            mole.stealTimer = 0f;
+        }
+
         if (hasPlayer && !isStealing)
         {
             isStealing = true;
@@ -94,7 +107,13 @@ public class MoleUtilityAI : IMonsterAI
         if (wasStealing)
         {
             SetStealClawActive(false);
-            mole.CompleteSteal(lastStealPlayer);
+
+            if (lastStealPlayer != null
+                && PlayerInvisibilityPerception.IsPlayerDetectable(lastStealPlayer))
+            {
+                mole.CompleteSteal(lastStealPlayer);
+            }
+
             wasStealing = false;
             lastStealPlayer = null;
         }
@@ -297,7 +316,7 @@ public class MoleUtilityAI : IMonsterAI
             mole.playerLayer
         );
 
-        if (playerHit != null)
+        if (playerHit != null && PlayerInvisibilityPerception.IsPlayerDetectable(playerHit))
         {
             Player player = playerHit.GetComponentInParent<Player>();
             if (player != null)

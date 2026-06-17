@@ -123,6 +123,12 @@ public class RobotUtilityAI : IMonsterAI
 
         if (mode == RobotMode.Charge)
         {
+            if (chargeTarget != null && !PlayerInvisibilityPerception.IsPlayerDetectable(chargeTarget))
+            {
+                BeginRecover(rb);
+                return;
+            }
+
             chargeTimer -= Time.fixedDeltaTime;
 
             if (chargeTimer <= 0f)

@@ -304,7 +304,7 @@ public class Robot2D : MonsterBase, IContactWithLiquid, IAttractedByMilk
 
             Player player = hit.GetComponentInParent<Player>();
 
-            if (player == null)
+            if (player == null || !PlayerInvisibilityPerception.IsPlayerDetectable(player))
             {
                 continue;
             }
@@ -331,7 +331,7 @@ public class Robot2D : MonsterBase, IContactWithLiquid, IAttractedByMilk
         {
             Player scenePlayer = PlayerManager.Instance.TryGetCurrentPlayer();
 
-            if (scenePlayer != null)
+            if (scenePlayer != null && PlayerInvisibilityPerception.IsPlayerDetectable(scenePlayer))
             {
                 Vector2 playerPos = scenePlayer.transform.position;
 
