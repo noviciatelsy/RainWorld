@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 
 /// <summary>
-/// 电梯选层 UI（世界空间 GameObject：Sprite 白底 + TextMeshPro 黑字）。
+/// 电梯选层 UI（世界空间 GameObject：按钮 Sprite + TextMeshPro 加粗白字）。
 /// </summary>
 [DisallowMultipleComponent]
 public class ElevatorUI : MonoBehaviour
@@ -18,10 +18,12 @@ public class ElevatorUI : MonoBehaviour
     [Header("Assets")]
     [SerializeField] private Sprite backgroundSprite;
     [SerializeField] private TMP_FontAsset labelFont;
+    [SerializeField] private string buttonSpriteResourcePath = "textures/ui资源/InGameUI/设置界面ui/按钮";
 
     [Header("Layout")]
     [SerializeField] private Vector3 worldOffset = new Vector3(2.2f, 1.2f, 0f);
     [SerializeField] private Vector2 optionWorldSize = new Vector2(2.4f, 0.65f);
+    [SerializeField] private Vector3 backgroundBaseScale = Vector3.zero;
     [SerializeField] private float fontSize = 2.8f;
     [SerializeField] private string sortingLayerName = "InteractableObject";
     [SerializeField] private int backgroundSortingOrder = 200;
@@ -86,6 +88,7 @@ public class ElevatorUI : MonoBehaviour
         EnsureUiHierarchy();
         visualRoot.gameObject.SetActive(true);
         uiAni.RefreshInstant(unlockedFloors, selectedIndex);
+        confirmView?.ApplySelectedStyle();
         UpdateConfirmPosition();
         UpdateWorldPosition();
     }
@@ -238,7 +241,7 @@ public class ElevatorUI : MonoBehaviour
                 uiAni = gameObject.AddComponent<ElevatorUIAni>();
             }
 
-            uiAni.Initialize(optionsRoot, backgroundSprite, labelFont, sortingLayerId);
+            uiAni.Initialize(optionsRoot, backgroundSprite, labelFont, sortingLayerId, optionWorldSize, backgroundBaseScale, fontSize);
         }
 
         if (confirmView == null)
@@ -248,12 +251,14 @@ public class ElevatorUI : MonoBehaviour
                 backgroundSprite,
                 labelFont,
                 optionWorldSize,
+                backgroundBaseScale,
                 fontSize,
                 sortingLayerId,
                 backgroundSortingOrder,
                 textSortingOrder);
             confirmView.name = "ConfirmOption";
-            confirmView.SetLabel("[E 确定]");
+            confirmView.SetLabel("E 确定");
+            confirmView.ApplySelectedStyle();
         }
 
         visualRoot.gameObject.SetActive(false);
@@ -261,14 +266,9 @@ public class ElevatorUI : MonoBehaviour
 
     private void ResolveDefaultAssets()
     {
-        if (backgroundSprite == null)
+        if (backgroundSprite == null && !string.IsNullOrWhiteSpace(buttonSpriteResourcePath))
         {
-            backgroundSprite = Resources.GetBuiltinResource<Sprite>("Square.png");
-        }
-
-        if (backgroundSprite == null)
-        {
-            backgroundSprite = Resources.GetBuiltinResource<Sprite>("Knob.psd");
+            backgroundSprite = Resources.Load<Sprite>(buttonSpriteResourcePath);
         }
 
         if (labelFont == null)

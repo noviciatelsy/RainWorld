@@ -2,9 +2,10 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// 电梯平台：FixedUpdate 内 MovePosition 移动。
+/// 电梯平台：FixedUpdate 内 MovePosition 移动（晚于 PlayerControl，避免上升时地面检测失效）。
 /// </summary>
 [DisallowMultipleComponent]
+[DefaultExecutionOrder(110)]
 public class ElevatorPlatform : MovingGroundPlatform
 {
     [Header("Movement")]

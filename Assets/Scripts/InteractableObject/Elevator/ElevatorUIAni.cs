@@ -15,11 +15,11 @@ public class ElevatorUIAni : MonoBehaviour
 
     [Header("Visual")]
     [SerializeField] private float selectedScale = 1f;
-    [SerializeField] private float scaleStepPerDistance = 0.1f;
+    [SerializeField] private float scaleStepPerDistance = 0.14f;
     [SerializeField] private float selectedAlpha = 1f;
-    [SerializeField] private float alphaStepPerDistance = 0.2f;
-    [SerializeField] private float minScale = 0.7f;
-    [SerializeField] private float minAlpha = 0.35f;
+    [SerializeField] private float alphaStepPerDistance = 0.32f;
+    [SerializeField] private float minScale = 0.68f;
+    [SerializeField] private float minAlpha = 0.22f;
 
     [Header("Animation")]
     [SerializeField] private float scrollDuration = 0.18f;
@@ -30,6 +30,7 @@ public class ElevatorUIAni : MonoBehaviour
     [SerializeField] private Sprite backgroundSprite;
     [SerializeField] private TMP_FontAsset labelFont;
     [SerializeField] private Vector2 optionWorldSize = new Vector2(2.4f, 0.65f);
+    [SerializeField] private Vector3 backgroundBaseScale = Vector3.zero;
     [SerializeField] private float fontSize = 2.8f;
     [SerializeField] private int sortingLayerId;
     [SerializeField] private int backgroundSortingOrder = 200;
@@ -41,7 +42,14 @@ public class ElevatorUIAni : MonoBehaviour
     private Coroutine scrollRoutine;
     private float scrollOffset;
 
-    public void Initialize(Transform root, Sprite sprite, TMP_FontAsset font, int layerId)
+    public void Initialize(
+        Transform root,
+        Sprite sprite,
+        TMP_FontAsset font,
+        int layerId,
+        Vector2 worldSize,
+        Vector3 baseScale,
+        float labelFontSize)
     {
         if (optionsRoot == null)
         {
@@ -58,11 +66,16 @@ public class ElevatorUIAni : MonoBehaviour
             labelFont = font;
         }
 
+        optionWorldSize = worldSize;
+        backgroundBaseScale = baseScale;
+        fontSize = labelFontSize;
+
         if (sortingLayerId == 0 && layerId != 0)
         {
             sortingLayerId = layerId;
         }
 
+        RefreshLayoutFromBackground();
         EnsureOptionPool(3);
     }
 
@@ -175,6 +188,27 @@ public class ElevatorUIAni : MonoBehaviour
         return lowestY - confirmSpacing;
     }
 
+    private void RefreshLayoutFromBackground()
+    {
+        if (backgroundSprite == null)
+        {
+            return;
+        }
+
+        float buttonHeight = backgroundSprite.bounds.size.y;
+        if (backgroundBaseScale != Vector3.zero)
+        {
+            buttonHeight *= backgroundBaseScale.y;
+        }
+        else if (optionWorldSize.y > 0f)
+        {
+            buttonHeight = optionWorldSize.y;
+        }
+
+        slotSpacing = Mathf.Max(0.55f, buttonHeight * 1.35f);
+        confirmSpacing = Mathf.Max(0.75f, buttonHeight * 1.75f);
+    }
+
     private void EnsureOptionPool(int count)
     {
         while (optionViews.Count < count)
@@ -186,6 +220,7 @@ public class ElevatorUIAni : MonoBehaviour
                     backgroundSprite,
                     labelFont,
                     optionWorldSize,
+                    backgroundBaseScale,
                     fontSize,
                     sortingLayerId,
                     backgroundSortingOrder,

@@ -387,13 +387,18 @@ public class PlayerControl : MonoBehaviour
 
     public bool IsGroundedOnMovingElevator()
     {
-        if (platformJumpIgnoreTimer > 0f || !groundDetected || !IsInGroundedMovementState())
+        if (platformJumpIgnoreTimer > 0f || !IsInGroundedMovementState())
         {
             return false;
         }
 
         ElevatorPlatform platform = GetElevatorUnderFeet() ?? ridingElevator;
-        return platform != null && platform.IsMoving;
+        if (platform == null || !platform.IsMoving || !IsElevatorRiderActive())
+        {
+            return false;
+        }
+
+        return groundDetected || platform.HasRider(this);
     }
 
     private ElevatorPlatform GetElevatorUnderFeet()
