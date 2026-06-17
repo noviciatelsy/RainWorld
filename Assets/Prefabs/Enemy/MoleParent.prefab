@@ -81,6 +81,8 @@ MonoBehaviour:
   acceptAnyTreasureType: 1
   detectInterval: 0.25
   happyLandingWorldPosition: {x: 129, y: -43.6}
+  destructibleWall: {fileID: 0}
+  permanentWallDestroy: 1
   moleParentAni: {fileID: 9012345678901234561}
 --- !u!1 &3663797757834754782
 GameObject:

@@ -25,6 +25,13 @@ public class MoleParentController : MonoBehaviour
     [Tooltip("开心动画结束后根节点的世界坐标")]
     [SerializeField] private Vector2 happyLandingWorldPosition;
 
+    [Header("Destructible Wall")]
+    [Tooltip("开心下落开始时破坏的墙壁（场景内由 Prefab 放置的实例）")]
+    [SerializeField] private DestructibleWall destructibleWall;
+
+    [Tooltip("是否永久破坏（对应 DestructibleWall.isPermanentDestroy）")]
+    [SerializeField] private bool permanentWallDestroy = true;
+
     [Header("References")]
     [SerializeField] private MoleParentAni moleParentAni;
 
@@ -107,7 +114,10 @@ public class MoleParentController : MonoBehaviour
             return;
         }
 
-        moleParentAni.EnterPermanentHappyState(happyLandingWorldPosition);
+        moleParentAni.EnterPermanentHappyState(
+            happyLandingWorldPosition,
+            destructibleWall,
+            permanentWallDestroy);
     }
 
     private bool IsValidDiscardedTreasure(PickableObject pickable)

@@ -46,6 +46,8 @@ public class MoleParentAni : MonoBehaviour
     private Vector3 textureBaseLocalPosition;
     private Coroutine breathRoutine;
     private Coroutine happyRoutine;
+    private DestructibleWall happySequenceDestructibleWall;
+    private bool happySequencePermanentWallDestroy = true;
     private bool isBreathing;
     private bool isZBubbleSpawning;
     private float spawnTimer;
@@ -89,6 +91,8 @@ public class MoleParentAni : MonoBehaviour
             IsPlayingHappySequence = false;
         }
 
+        happySequenceDestructibleWall = null;
+
         if (visualTransform != null)
         {
             visualTransform.localScale = baseScale;
@@ -118,12 +122,18 @@ public class MoleParentAni : MonoBehaviour
         SpawnZBubble();
     }
 
-    public void EnterPermanentHappyState(Vector2 landingWorldPosition)
+    public void EnterPermanentHappyState(
+        Vector2 landingWorldPosition,
+        DestructibleWall destructibleWall = null,
+        bool permanentWallDestroy = true)
     {
         if (IsHappy || IsPlayingHappySequence)
         {
             return;
         }
+
+        happySequenceDestructibleWall = destructibleWall;
+        happySequencePermanentWallDestroy = permanentWallDestroy;
 
         StopBreathBehavior();
 
@@ -231,6 +241,7 @@ public class MoleParentAni : MonoBehaviour
 
         yield return TweenLocalPosition(textureRoot, textureStart, texturePeak, jumpDuration);
         yield return PlaySquashSequence();
+        NotifyHappyFallStarted();
         yield return TweenHappyFall(rootStart, rootTarget, texturePeak, textureStart);
 
         transform.position = rootTarget;
@@ -242,6 +253,17 @@ public class MoleParentAni : MonoBehaviour
         happyRoutine = null;
 
         StartHappyBreathBehavior();
+    }
+
+    private void NotifyHappyFallStarted()
+    {
+        if (happySequenceDestructibleWall == null)
+        {
+            return;
+        }
+
+        happySequenceDestructibleWall.NotifyWallDestroy(happySequencePermanentWallDestroy);
+        happySequenceDestructibleWall = null;
     }
 
     private IEnumerator PlaySquashSequence()
