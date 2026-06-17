@@ -53,6 +53,8 @@ public class WaveLightEffect : MonoBehaviour
     private float waveTimer;
     private bool isPlaying;
 
+    private bool visualsInitialized;
+
     private void Awake()
     {
         InitializeVisuals();
@@ -178,8 +180,14 @@ public class WaveLightEffect : MonoBehaviour
 
     private void InitializeVisuals()
     {
+        if (visualsInitialized)
+        {
+            return;
+        }
+
         EnsureRenderers();
         EnsureMaterials();
+        visualsInitialized = true;
     }
 
     private void EnsureRenderers()
@@ -265,9 +273,17 @@ public class WaveLightEffect : MonoBehaviour
             return;
         }
 
-        Sprite filledCircle = GetFilledCircleSprite();
-        baseGlowRenderer.sprite = filledCircle;
-        wavePulseRenderer.sprite = filledCircle;
+        Sprite filledCircle = baseGlowRenderer.sprite ?? wavePulseRenderer.sprite ?? GetFilledCircleSprite();
+
+        if (baseGlowRenderer.sprite == null)
+        {
+            baseGlowRenderer.sprite = filledCircle;
+        }
+
+        if (wavePulseRenderer.sprite == null)
+        {
+            wavePulseRenderer.sprite = filledCircle;
+        }
     }
 
     private void ApplyBaseVisual()
@@ -406,13 +422,6 @@ public class WaveLightEffect : MonoBehaviour
             return sharedFilledCircleSprite;
         }
 
-        Sprite builtinCircle = Resources.GetBuiltinResource<Sprite>("UI/Skin/Knob.psd");
-        if (builtinCircle != null)
-        {
-            sharedFilledCircleSprite = builtinCircle;
-            return sharedFilledCircleSprite;
-        }
-
         sharedFilledCircleSprite = CreateFilledCircleSprite();
         return sharedFilledCircleSprite;
     }
@@ -429,28 +438,46 @@ public class WaveLightEffect : MonoBehaviour
     {
         const int size = 64;
         Texture2D texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        texture.hideFlags = HideFlags.HideAndDontSave;
         texture.wrapMode = TextureWrapMode.Clamp;
         texture.filterMode = FilterMode.Bilinear;
 
-        Vector2 center = new Vector2(size * 0.5f, size * 0.5f);
-        float radiusPixels = size * 0.5f - 1f;
+        Color[] pixels = new Color[size * size];
+        float center = (size - 1) * 0.5f;
+        float radius = size * 0.5f - 1f;
+        float radiusSq = radius * radius;
 
         for (int y = 0; y < size; y++)
         {
+            float dy = y - center;
+
             for (int x = 0; x < size; x++)
             {
-                float dist = Vector2.Distance(new Vector2(x, y), center);
-                float alpha = dist <= radiusPixels ? 1f : 0f;
-                texture.SetPixel(x, y, new Color(1f, 1f, 1f, alpha));
+                float dx = x - center;
+                float alpha = dx * dx + dy * dy <= radiusSq ? 1f : 0f;
+                pixels[y * size + x] = new Color(1f, 1f, 1f, alpha);
             }
         }
 
-        texture.Apply();
-        return Sprite.Create(
+        texture.SetPixels(pixels);
+        texture.Apply(false, false);
+
+        Sprite sprite = Sprite.Create(
             texture,
             new Rect(0f, 0f, size, size),
             new Vector2(0.5f, 0.5f),
             size);
+        sprite.hideFlags = HideFlags.HideAndDontSave;
+        return sprite;
+    }
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void PrewarmFilledCircleSprite()
+    {
+        if (sharedFilledCircleSprite == null)
+        {
+            sharedFilledCircleSprite = CreateFilledCircleSprite();
+        }
     }
 
     private void OnDrawGizmosSelected()

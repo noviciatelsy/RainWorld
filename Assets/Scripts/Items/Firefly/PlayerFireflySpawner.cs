@@ -31,7 +31,17 @@ public class PlayerFireflySpawner : MonoBehaviour
             return null;
         }
 
-        Vector2 spawnPosition = FlySpawnUtility.ResolveSpawnPosition(worldPosition);
+        if (!FlySpawnUtility.TryResolveSpawn(
+                worldPosition,
+                out Vector2 spawnPosition,
+                out Vector2 initialTarget))
+        {
+            Debug.LogWarning(
+                $"PlayerFireflySpawner: 附近没有可飞行的生成点，已取消生成。位置={worldPosition}",
+                this);
+            return null;
+        }
+
         Fly2D fly = Instantiate(fireflyPrefab, spawnPosition, Quaternion.identity);
         fly.ConfigureDropItem(fireflyItemData, pickableObjectPrefab);
 
@@ -41,7 +51,7 @@ public class PlayerFireflySpawner : MonoBehaviour
         }
         else
         {
-            fly.InitializeAsFly();
+            fly.InitializeAsFly(initialTarget);
         }
 
         return fly;

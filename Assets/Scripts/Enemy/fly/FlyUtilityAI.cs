@@ -13,6 +13,7 @@ public class FlyUtilityAI : IMonsterAI
     private float interval = 2f;
 
     private Vector2 lastIssuedTarget;
+    private bool hasInitialTarget;
 
     public FlyUtilityAI(Fly2D owner)
     {
@@ -40,7 +41,15 @@ public class FlyUtilityAI : IMonsterAI
         if (owner.Arrived)
         {
             timer = interval;
-            lastIssuedTarget = PickRandomTarget();
+
+            if (hasInitialTarget)
+            {
+                hasInitialTarget = false;
+            }
+            else
+            {
+                lastIssuedTarget = PickRandomTarget();
+            }
 
             return new FlyMoveIntent
             {
@@ -86,6 +95,13 @@ public class FlyUtilityAI : IMonsterAI
             MosquitoCoilRegistry.GetRadiusAtCenter(coilPosition));
     }
 
+    public void SetInitialTarget(Vector2 target)
+    {
+        lastIssuedTarget = target;
+        hasInitialTarget = true;
+        timer = interval;
+    }
+
     private void EnsureFleeTargetOutsideCoil()
     {
         if (!MosquitoCoilAvoidance.IsInsideAnyActiveCoil(lastIssuedTarget))
@@ -123,12 +139,6 @@ public class FlyUtilityAI : IMonsterAI
             }
         }
 
-        Vector2 fallback = owner.Position + Random.insideUnitCircle * 2f;
-        if (!MosquitoCoilAvoidance.IsInsideAnyActiveCoil(fallback))
-        {
-            return fallback;
-        }
-
-        return MosquitoCoilAvoidance.GetFleePointAwayFromAllCoils(owner.Position);
+        return owner.Position;
     }
 }

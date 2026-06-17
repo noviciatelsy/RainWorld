@@ -33,11 +33,13 @@ public class Fly2D : MonsterBase, IMosquitoCoilRepellable
     public int EnemyHitCount { get; private set; }
 
     private bool behaviorInitialized;
+    private Vector2? pendingInitialTarget;
 
     protected override void Init()
     {
         ai = new FlyUtilityAI(this);
         motor = new FlyMotor(this);
+        ApplyPendingInitialTarget();
     }
 
     private void Awake()
@@ -86,7 +88,7 @@ public class Fly2D : MonsterBase, IMosquitoCoilRepellable
         }
     }
 
-    public void InitializeAsFly()
+    public void InitializeAsFly(Vector2? initialTarget = null)
     {
         behaviorInitialized = true;
         CurrentState = FlyState.Normal;
@@ -94,6 +96,23 @@ public class Fly2D : MonsterBase, IMosquitoCoilRepellable
         Arrived = true;
         SetPhysicsMode(true);
         flyWings?.SetFlappingEnabled(true);
+
+        if (initialTarget.HasValue)
+        {
+            pendingInitialTarget = initialTarget;
+            ApplyPendingInitialTarget();
+        }
+    }
+
+    private void ApplyPendingInitialTarget()
+    {
+        if (!pendingInitialTarget.HasValue || ai is not FlyUtilityAI flyAI)
+        {
+            return;
+        }
+
+        flyAI.SetInitialTarget(pendingInitialTarget.Value);
+        pendingInitialTarget = null;
     }
 
     public void InitializeThrown(Vector2 initialVelocity)
@@ -134,6 +153,15 @@ public class Fly2D : MonsterBase, IMosquitoCoilRepellable
 
         if (!IsGrounded())
         {
+            return;
+        }
+
+        Vector2 settlePosition = transform.position;
+
+        if (FlySpawnUtility.TryResolveSpawn(settlePosition, out Vector2 spawnPosition, out Vector2 initialTarget))
+        {
+            transform.position = spawnPosition;
+            InitializeAsFly(initialTarget);
             return;
         }
 
