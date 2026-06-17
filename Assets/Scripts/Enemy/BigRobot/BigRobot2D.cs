@@ -203,7 +203,7 @@ public class BigRobot2D : MonsterBase
 
             Player player = hit.GetComponentInParent<Player>();
 
-            if (player == null)
+            if (player == null || !PlayerInvisibilityPerception.IsPlayerDetectable(player))
             {
                 continue;
             }
@@ -230,7 +230,9 @@ public class BigRobot2D : MonsterBase
         {
             Player scenePlayer = PlayerManager.Instance.TryGetCurrentPlayer();
 
-            if (scenePlayer != null && IsInsideActiveBounds(scenePlayer.transform.position))
+            if (scenePlayer != null
+                && PlayerInvisibilityPerception.IsPlayerDetectable(scenePlayer)
+                && IsInsideActiveBounds(scenePlayer.transform.position))
             {
                 closest = scenePlayer.transform;
             }

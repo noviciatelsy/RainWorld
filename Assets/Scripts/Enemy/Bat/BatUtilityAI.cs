@@ -185,7 +185,15 @@ public class BatUtilityAI : IMonsterAI
 
         if (currentPrey != null)
         {
-            if (currentPrey.gameObject.activeInHierarchy)
+            if (!PlayerInvisibilityPerception.IsPlayerDetectable(currentPrey)
+                && currentPrey.GetComponentInParent<Player>() != null)
+            {
+                currentPrey = null;
+                currentPreySource = EnemyAttractionSource.None;
+                hasHuntPoint = false;
+                aggroMemoryTimer = 0f;
+            }
+            else if (currentPrey.gameObject.activeInHierarchy)
             {
                 lastKnownPreyPosition = currentPrey.position;
 
@@ -293,6 +301,13 @@ public class BatUtilityAI : IMonsterAI
 
     private void ApplyDetectedPrey(Bat2D bat, Transform detected, EnemyAttractionSource source)
     {
+        if (detected != null
+            && detected.GetComponentInParent<Player>() != null
+            && !PlayerInvisibilityPerception.IsPlayerDetectable(detected))
+        {
+            return;
+        }
+
         bool preyChanged = currentPrey != detected || currentPreySource != source;
 
         if (preyChanged)

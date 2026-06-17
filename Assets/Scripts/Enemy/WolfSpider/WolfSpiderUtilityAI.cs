@@ -151,7 +151,14 @@ public class WolfSpiderUtilityAI : IMonsterAI
 
         if (currentPrey != null)
         {
-            if (currentPrey.gameObject.activeInHierarchy)
+            if (!PlayerInvisibilityPerception.IsPlayerDetectable(currentPrey)
+                && currentPrey.GetComponentInParent<Player>() != null)
+            {
+                currentPrey = null;
+                currentPreySource = EnemyAttractionSource.None;
+                aggroMemoryTimer = 0f;
+            }
+            else if (currentPrey.gameObject.activeInHierarchy)
             {
                 lastKnownPreyPosition = currentPrey.position;
 
@@ -227,6 +234,13 @@ public class WolfSpiderUtilityAI : IMonsterAI
 
     private void ApplyDetectedPrey(WolfSpider2D spider, Transform detected, EnemyAttractionSource source)
     {
+        if (detected != null
+            && detected.GetComponentInParent<Player>() != null
+            && !PlayerInvisibilityPerception.IsPlayerDetectable(detected))
+        {
+            return;
+        }
+
         bool preyChanged = currentPrey != detected || currentPreySource != source;
 
         if (preyChanged)

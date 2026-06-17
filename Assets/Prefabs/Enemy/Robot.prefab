@@ -180,7 +180,8 @@ GameObject:
   - component: {fileID: 7539659396269623092}
   - component: {fileID: 3821333109287300204}
   - component: {fileID: 1487579936593728791}
-  m_Layer: 0
+  - component: {fileID: 8823456789012345601}
+  m_Layer: 8
   m_Name: Robot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -241,6 +242,7 @@ MonoBehaviour:
   recoverDuration: 1
   chargeMaxDuration: 3
   bodyVisual: {fileID: 7215898436394275122}
+  drinkCollector: {fileID: 8823456789012345601}
   drawDebugGizmos: 1
 --- !u!61 &3821333109287300204
 BoxCollider2D:
@@ -314,6 +316,30 @@ MonoBehaviour:
   chargeSquashAttackDuration: 0.1
   restoreSpeed: 12
   minMoveDelta: 0.002
+--- !u!114 &8823456789012345601
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2630524371018857482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bf804dfe6bfcbf45a49fef958b12dcc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  detectBounds:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 6, y: 2, z: 0.05}
+  targetDrinks:
+  - {fileID: 11400000, guid: dac9b82a91406174ea6fe8b6b01fcfbc, type: 2}
+  - {fileID: 11400000, guid: 2c2cdb083138f21488eb853f8ef1fbdb, type: 2}
+  - {fileID: 11400000, guid: bb721189e6c567d4b89131f23ab0a7e3, type: 2}
+  absorbPoint: {fileID: 3741226254032144877}
+  flySpeed: 12
+  collectArriveDistance: 0.12
+  dropSearchRadius: 1.5
+  robot: {fileID: 7539659396269623092}
 --- !u!1 &5015183846912480924
 GameObject:
   m_ObjectHideFlags: 0

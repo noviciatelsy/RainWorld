@@ -153,6 +153,11 @@ public class WaveLightEffect : MonoBehaviour
     {
         isPlaying = true;
 
+        if (!visualsInitialized || baseMaterial == null || waveMaterial == null)
+        {
+            visualsInitialized = false;
+        }
+
         InitializeVisuals();
         ApplyVisualSettings();
         waveTimer = 0f;
@@ -180,14 +185,13 @@ public class WaveLightEffect : MonoBehaviour
 
     private void InitializeVisuals()
     {
-        if (visualsInitialized)
-        {
-            return;
-        }
-
         EnsureRenderers();
         EnsureMaterials();
-        visualsInitialized = true;
+
+        if (baseMaterial != null && waveMaterial != null)
+        {
+            visualsInitialized = true;
+        }
     }
 
     private void EnsureRenderers()

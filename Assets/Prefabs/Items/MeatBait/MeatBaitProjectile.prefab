@@ -127,10 +127,7 @@ MonoBehaviour:
     m_Bits: 640
   embedDistance: 0.2
   stuckDuration: 10
-  attractableMonsterLayerMask:
-    serializedVersion: 2
-    m_Bits: 256
-  attractionRadius: 4
+  effectRadius: 4
   waveLightEffectPrefab: {fileID: 1001001001001001003, guid: 2d7f8a1b3c4e5f60718293a4b5c6d7e8,
     type: 3}
   effectCenterAlpha: 40

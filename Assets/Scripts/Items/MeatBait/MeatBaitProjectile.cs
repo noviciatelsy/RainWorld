@@ -259,6 +259,7 @@ public class MeatBaitProjectile : MonoBehaviour
     {
         if (waveLightEffectPrefab == null)
         {
+            Debug.LogWarning($"{nameof(MeatBaitProjectile)}: waveLightEffectPrefab 未配置。", this);
             return;
         }
 
@@ -270,7 +271,7 @@ public class MeatBaitProjectile : MonoBehaviour
         activeWaveLightEffect.transform.localRotation = Quaternion.identity;
         activeWaveLightEffect.PlayAttached(
             effectRadius,
-            stuckDuration,
+            0f,
             effectCenterAlpha,
             effectWaveStartAlpha,
             effectColor,

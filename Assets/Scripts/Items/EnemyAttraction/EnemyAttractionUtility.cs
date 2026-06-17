@@ -64,7 +64,7 @@ public static class EnemyAttractionUtility
                 ? PlayerManager.Instance.TryGetCurrentPlayer()
                 : null;
 
-            if (player != null)
+            if (player != null && PlayerInvisibilityPerception.IsPlayerDetectable(player))
             {
                 float distSqr = ((Vector2)player.transform.position - from).sqrMagnitude;
                 if (distSqr <= queryRadius * queryRadius)
