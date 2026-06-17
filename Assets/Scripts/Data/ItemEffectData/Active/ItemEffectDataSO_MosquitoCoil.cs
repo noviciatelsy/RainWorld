@@ -7,12 +7,24 @@ public class ItemEffectDataSO_MosquitoCoil : ItemEffectDataSO
 {
     public override bool MainUse(InventoryItem item, InventoryPlayer inventoryPlayer)
     {
-        MosquitoCoil mosquitoCoil=player.GetComponentInChildren<MosquitoCoil>();
-        if (mosquitoCoil != null)
+        if (inventoryPlayer == null)
         {
-            mosquitoCoil.UseMosquitoCoil();
-            return true;
+            return false;
         }
-        return false;
+
+        Player targetPlayer = inventoryPlayer.GetComponent<Player>() ?? player;
+        if (targetPlayer == null)
+        {
+            return false;
+        }
+
+        MosquitoCoil mosquitoCoil = targetPlayer.GetComponentInChildren<MosquitoCoil>(true);
+        if (mosquitoCoil == null)
+        {
+            Debug.LogWarning("使用蚊香失败：Player 的 ItemAbilities 下未找到 MosquitoCoil 组件。");
+            return false;
+        }
+
+        return mosquitoCoil.UseMosquitoCoil();
     }
 }

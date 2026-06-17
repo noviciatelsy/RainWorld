@@ -27,6 +27,13 @@ public abstract class MonsterBase : MonoBehaviour
     protected IMonsterAI ai;
     protected IMonsterMotor motor;
 
+    public bool IsStompPaused { get; private set; }
+
+    public void SetStompPaused(bool paused)
+    {
+        IsStompPaused = paused;
+    }
+
     protected virtual void Start()
     {
         Init();
@@ -36,7 +43,7 @@ public abstract class MonsterBase : MonoBehaviour
 
     protected virtual void FixedUpdate()
     {
-        if (ai == null || motor == null)
+        if (IsStompPaused || ai == null || motor == null)
         {
             return;
         }

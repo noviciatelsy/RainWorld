@@ -7,6 +7,9 @@ public class FlyMotor : IMonsterMotor
 
     private List<Vector2> path;
     private int index;
+    private float pathRetryCooldown;
+
+    private const float PathRetryInterval = 0.25f;
 
     public FlyMotor(Fly2D owner)
     {
@@ -25,21 +28,44 @@ public class FlyMotor : IMonsterMotor
             return;
         }
 
-        // 只在没有路径 或 到达时 才重建
-        if (path == null || owner.Arrived || owner.TargetChanged(move.target))
+        Vector2 moveTarget = move.target;
+
+        if (pathRetryCooldown > 0f)
         {
-            path = TileMapGuideManager.Instance.FindPath(owner.Position, move.target);
+            pathRetryCooldown -= Time.fixedDeltaTime;
+        }
+
+        // 只在没有路径、到达或 AI 明确换目标时重建
+        if (path == null || owner.Arrived || owner.TargetChanged(moveTarget))
+        {
+            if (path == null && pathRetryCooldown > 0f)
+            {
+                return;
+            }
+
+            TileMapGuideManager mgr = TileMapGuideManager.Instance;
+
+            if (mgr == null)
+            {
+                return;
+            }
+
+            path = mgr.FindPath(owner.Position, moveTarget);
 
             if (path == null || path.Count == 0)
+            {
+                pathRetryCooldown = PathRetryInterval;
                 return;
+            }
 
+            pathRetryCooldown = 0f;
             index = 0;
 
-            owner.CurrentTarget = move.target;
+            owner.CurrentTarget = moveTarget;
             owner.Arrived = false;
 
             owner.DebugPath = path;
-            owner.DebugTarget = move.target;
+            owner.DebugTarget = moveTarget;
         }
 
         Move();

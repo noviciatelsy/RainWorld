@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1315614827933821868}
   - component: {fileID: 9012345678901234561}
+  - component: {fileID: 9012345678901234562}
   m_Layer: 0
   m_Name: MoleParent
   m_TagString: Untagged
@@ -54,6 +55,33 @@ MonoBehaviour:
   zTexturePrefab: {fileID: 5012345678901234567, guid: e4f5a6b7c8d9401234567890abcdef01,
     type: 3}
   zSpawnInterval: 0.8
+  textureRoot: {fileID: 5768116336219717785}
+  faceRenderer: {fileID: 6764528823915590728}
+  happySprite: {fileID: 21300000, guid: c9d1748de8f40c54ca248532803785eb, type: 3}
+  jumpLocalY: 2.5
+  jumpDuration: 0.5
+  squashDuration: 0.3
+  squashAmount: 0.1
+  fallDuration: 1
+--- !u!114 &9012345678901234562
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1939753863665353310}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51c518a85d8a4b6fbe39cca4e005a7f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  treasureDetectRadius: 8
+  requiredTreasureCount: 1
+  targetTreasures: []
+  acceptAnyTreasureType: 1
+  detectInterval: 0.25
+  happyLandingWorldPosition: {x: 129, y: -43.6}
+  moleParentAni: {fileID: 9012345678901234561}
 --- !u!1 &3663797757834754782
 GameObject:
   m_ObjectHideFlags: 0
@@ -80,7 +108,7 @@ Transform:
   m_GameObject: {fileID: 3663797757834754782}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 3.12, y: -6.92, z: 0.025595851}
+  m_LocalPosition: {x: 0, y: 0, z: 0.025595851}
   m_LocalScale: {x: 0.7, y: 0.7, z: 0.7}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -163,7 +191,7 @@ Transform:
   m_GameObject: {fileID: 4244068751997802864}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.2, y: -4.13, z: 0}
+  m_LocalPosition: {x: 1.91, y: 2.69, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -227,7 +255,7 @@ Transform:
   m_GameObject: {fileID: 8325019736815674311}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 3.3162994, y: -6.5599995, z: -0.1}
+  m_LocalPosition: {x: 0, y: 0, z: -0.1}
   m_LocalScale: {x: 0.6, y: 0.4, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children: []

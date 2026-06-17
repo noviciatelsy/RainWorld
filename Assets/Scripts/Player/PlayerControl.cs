@@ -280,6 +280,21 @@ public class PlayerControl : MonoBehaviour
         platform?.UnregisterRider(this);
     }
 
+    /// <summary>
+    /// 踩弹跳物（如萤火虫）时施加向上速度，效果类似弹簧。
+    /// </summary>
+    /// <param name="upwardImpulse">向上速度；&lt;= 0 时使用当前 jumpForce。</param>
+    public void ApplyStompBounce(float upwardImpulse = 0f)
+    {
+        float impulse = upwardImpulse > 0f ? upwardImpulse : jumpForce;
+        float xVelocity = Mathf.Abs(moveInput.x) > climbInputDeadZone
+            ? moveInput.x * moveSpeed
+            : rb.velocity.x;
+
+        ApplyJumpVelocity(xVelocity, impulse);
+        stateMachine.ChangeState(jumpState);
+    }
+
     private void ApplyElevatorAirVelocityInheritance()
     {
         if (!inheritElevatorVelocityInAir)

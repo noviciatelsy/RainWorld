@@ -127,6 +127,11 @@ public class BatAni : MonoBehaviour
             return;
         }
 
+        if (bat.IsStompPaused)
+        {
+            return;
+        }
+
         ApplySpriteAnimation(false);
         UpdateSquish(bat.IsInAttackSequence);
         lastWorldPosition = transform.position;

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WolfSpider2D : MonsterBase
+public class WolfSpider2D : MonsterBase, IMeatBaitAttractable, IToyCarAttractable
 {
     [Header("Jump")]
     public float moveSpeed = 8f;
@@ -79,6 +79,11 @@ public class WolfSpider2D : MonsterBase
         ResolveFlyLayerMask();
         RebuildPerceptionMask();
         SnapToNearestSurface();
+
+        EnemyStompReceiver.Ensure(
+            this,
+            bodyVisual != null ? bodyVisual : transform,
+            new Vector2(0.75f, 0.12f));
     }
 
     public void RebuildPerceptionMask()
@@ -379,5 +384,15 @@ public class WolfSpider2D : MonsterBase
             Gizmos.color = new Color(0f, 0.6f, 1f, 0.25f);
             Gizmos.DrawWireSphere(transform.position, maxJumpDist);
         }
+    }
+
+    public void AttractToMeatBait(Vector2 myMeatBaitPosition)
+    {
+        spiderAI?.ForcePerceptionRefresh();
+    }
+
+    public void AttractToToyCar(Vector2 myToyCarPosition)
+    {
+        spiderAI?.ForcePerceptionRefresh();
     }
 }

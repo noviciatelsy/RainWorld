@@ -78,6 +78,11 @@ public class MoleMoveAni : MonoBehaviour
             return;
         }
 
+        if (mole != null && mole.IsStompPaused)
+        {
+            return;
+        }
+
         bool moving = IsMoving();
 
         if (moving)

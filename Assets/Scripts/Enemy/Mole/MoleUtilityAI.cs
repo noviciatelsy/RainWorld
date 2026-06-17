@@ -17,10 +17,21 @@ public class MoleUtilityAI : IMonsterAI
     private bool isMovingToCave = false;
     private float teleportCooldown = 0f;
     private Player lastStealPlayer;
+    private bool isChasingToyCar;
+    private float toyCarPathRefreshTimer;
+    private Vector2 committedToyCarPosition;
+    private bool hasCommittedToyCarPosition;
+
+    private const float ToyCarPathRefreshInterval = 0.45f;
 
     public MoleUtilityAI(Mole2D mole)
     {
         this.mole = mole;
+    }
+
+    public void ForceAttractionRefresh()
+    {
+        toyCarPathRefreshTimer = 0f;
     }
 
     public IIntent Evaluate(MonsterBase owner)
@@ -118,6 +129,14 @@ public class MoleUtilityAI : IMonsterAI
             return new MoleUseCaveIntent { targetCave = mole.currentHomeCave };
         }
 
+        if (!isStealing && mole.idleArrivalCount < 3 && TryUpdateToyCarChasePath())
+        {
+            isChasingToyCar = true;
+            return new MoleIdleIntent { strictPath = lastIssuedPath, isTeleportCleanup = false };
+        }
+
+        isChasingToyCar = false;
+
         // 7. 日常游荡
         if (mole.Arrived || lastIssuedPath == null || lastIssuedPath.Count == 0)
         {
@@ -212,6 +231,52 @@ public class MoleUtilityAI : IMonsterAI
         }
 
         return pathPoints;
+    }
+
+    private bool TryUpdateToyCarChasePath()
+    {
+        bool carInRange = ToyCarRegistry.TryFindClosest(
+            mole.Position,
+            mole.detectRadius,
+            out ToyCarController car,
+            out _);
+
+        if (carInRange)
+        {
+            committedToyCarPosition = car.AttractionCenter;
+            hasCommittedToyCarPosition = true;
+        }
+
+        if (!hasCommittedToyCarPosition || !ToyCarRegistry.HasActiveCar())
+        {
+            return false;
+        }
+
+        toyCarPathRefreshTimer -= Time.fixedDeltaTime;
+
+        if (isChasingToyCar
+            && !mole.Arrived
+            && toyCarPathRefreshTimer > 0f
+            && lastIssuedPath != null
+            && lastIssuedPath.Count > 0)
+        {
+            return true;
+        }
+
+        List<Vector2> path = SurfaceEdgePath.FindVertexPath(mole.Position, committedToyCarPosition);
+
+        if (path == null || path.Count == 0)
+        {
+            return isChasingToyCar
+                && !mole.Arrived
+                && lastIssuedPath != null
+                && lastIssuedPath.Count > 0;
+        }
+
+        lastIssuedPath = path;
+        mole.Arrived = false;
+        toyCarPathRefreshTimer = ToyCarPathRefreshInterval;
+        return true;
     }
 
     private void UpdateStealClawVisual()

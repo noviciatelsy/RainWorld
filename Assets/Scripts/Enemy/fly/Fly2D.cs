@@ -7,7 +7,7 @@ public enum FlyState
     Stunned
 }
 
-public class Fly2D : MonsterBase
+public class Fly2D : MonsterBase, IMosquitoCoilRepellable
 {
     [Header("Movement")]
     public float moveSpeed = 3f;
@@ -15,6 +15,9 @@ public class Fly2D : MonsterBase
     [Header("Stomp Drop")]
     [SerializeField] private ItemDataSO dropItemData;
     [SerializeField] private PickableObject pickableObjectPrefab;
+
+    [Header("Enemy Hits")]
+    [SerializeField] private int maxEnemyHitsBeforeDrop = 5;
 
     [Header("Thrown / Ground")]
     [SerializeField] private LayerMask groundLayerMask;
@@ -27,6 +30,7 @@ public class Fly2D : MonsterBase
 
     public FlyState CurrentState { get; private set; } = FlyState.Normal;
     public bool CanBeStomped => CurrentState == FlyState.Normal;
+    public int EnemyHitCount { get; private set; }
 
     private bool behaviorInitialized;
 
@@ -86,6 +90,7 @@ public class Fly2D : MonsterBase
     {
         behaviorInitialized = true;
         CurrentState = FlyState.Normal;
+        EnemyHitCount = 0;
         Arrived = true;
         SetPhysicsMode(true);
         flyWings?.SetFlappingEnabled(true);
@@ -133,6 +138,27 @@ public class Fly2D : MonsterBase
         }
 
         InitializeAsFly();
+    }
+
+    /// <summary>
+    /// 被敌人攻击时累计命中次数；达到上限后像被踩头一样掉落为道具。
+    /// </summary>
+    public bool TakeEnemyHit()
+    {
+        if (CurrentState != FlyState.Normal)
+        {
+            return false;
+        }
+
+        EnemyHitCount++;
+
+        if (EnemyHitCount < maxEnemyHitsBeforeDrop)
+        {
+            return true;
+        }
+
+        EnterStunAndDropAsItem(true);
+        return true;
     }
 
     public void EnterStunAndDropAsItem(bool facingRight)
@@ -190,6 +216,14 @@ public class Fly2D : MonsterBase
         }
 
         return Physics2D.OverlapCircle(transform.position, groundCheckRadius, groundLayerMask) != null;
+    }
+
+    public void RepelByMosquitoCoil(Vector2 coilPosition)
+    {
+        if (ai is FlyUtilityAI flyAI)
+        {
+            flyAI.NotifyRepelledByMosquitoCoil(coilPosition);
+        }
     }
 
     void OnDrawGizmos()

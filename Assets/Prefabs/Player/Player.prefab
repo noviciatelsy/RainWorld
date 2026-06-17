@@ -299,7 +299,7 @@ MonoBehaviour:
   groundCheck: {fileID: 316811649123266590}
   wallCheck: {fileID: 316811649123266590}
   moveSpeed: 3
-  jumpForce: 10.5
+  jumpForce: 9
   inAirMoveMultiplier: 1
   playerCollider: {fileID: 7815576328976498153}
   groundCheckSize: {x: 0.6, y: 0.1}
@@ -2194,11 +2194,18 @@ MonoBehaviour:
   repellableMonsterLayerMask:
     serializedVersion: 2
     m_Bits: 256
-  repelRadius: 3
+  repelRadius: 5
   detectInterval: 1
   activeDuration: 60
   detectImmediatelyOnUse: 1
   restartDurationWhenUsedAgain: 1
+  waveLightEffectPrefab: {fileID: 1001001001001001003, guid: 2d7f8a1b3c4e5f60718293a4b5c6d7e8,
+    type: 3}
+  effectCenterAlpha: 20
+  effectWaveStartAlpha: 40
+  effectColor: {r: 1, g: 0.8445019, b: 0.64465404, a: 1}
+  effectWavePeriod: 1.5
+  effectWaveExpandDuration: 1.5
 --- !u!1 &8496342664382143431
 GameObject:
   m_ObjectHideFlags: 0
