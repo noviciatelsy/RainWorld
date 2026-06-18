@@ -10,6 +10,7 @@ public class ItemEffectDataSO_ToyCar : ItemEffectDataSO
         PlayerToyCarSpawner playerToyCarSpawner = player.GetComponentInChildren<PlayerToyCarSpawner>();
         if (playerToyCarSpawner != null)
         {
+            AudioManager.Instance.PlaySFX("UseItemToyCarSFX");
             playerToyCarSpawner.TrySpawnToyCar();
             return true;
         }

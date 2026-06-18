@@ -11,6 +11,7 @@ public class ItemEffectDataSO_MedicalKit : ItemEffectDataSO
         if (playerVitals != null)
         {
             playerVitals.AddHealth(100);
+            AudioManager.Instance.PlaySFX("UseItemBindUpSFX");
             return true;
         }
         return false;

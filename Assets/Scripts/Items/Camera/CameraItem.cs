@@ -147,7 +147,7 @@ public class CameraItem : MonoBehaviour
         // 这样检测范围仍然是按下快门前的完整可视矩形，
         // 不会被快门闭合动画影响。
         PhotographVisibleTargets();
-
+        AudioManager.Instance.PlaySFX("UseItemCameraSFX");
         // 再播放快门动画。
         photographyOverlayUI.PlayShutterPulse();
 

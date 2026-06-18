@@ -293,7 +293,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   visualRoot: {fileID: 4758271259952745959}
   frontCheck: {fileID: 4231829807589965968}
-  moveSpeed: 1.5
+  moveSpeed: 4.5
   spriteFacesRightByDefault: 1
   reverseCooldown: 0.12
   freezeRotationOnAwake: 1

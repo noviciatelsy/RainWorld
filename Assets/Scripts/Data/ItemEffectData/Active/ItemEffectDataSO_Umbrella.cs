@@ -11,6 +11,7 @@ public class ItemEffectDataSO_Umbrella : ItemEffectDataSO
         PlayerUmbrella playerUmbrella=player.GetComponentInChildren<PlayerUmbrella>();
         if (playerUmbrella != null )
         {
+            AudioManager.Instance.PlaySFX("UseItemUmbrellaSFX");
             playerUmbrella.OpenUmbrella();
         }
     }

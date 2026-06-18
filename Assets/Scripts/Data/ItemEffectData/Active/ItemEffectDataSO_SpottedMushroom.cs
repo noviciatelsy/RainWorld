@@ -14,6 +14,7 @@ public class ItemEffectDataSO_SpottedMushroom : ItemEffectDataSO
             playerVitals.AddHealth(40);
 
             BlurEffectManager.Instance.StartTemporaryBlur(60);
+            AudioManager.Instance.PlaySFX("UseItemEatSFX");
             return true;
         }
         return false;

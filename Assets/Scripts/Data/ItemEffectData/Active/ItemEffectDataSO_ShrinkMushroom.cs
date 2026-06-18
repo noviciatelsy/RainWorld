@@ -11,6 +11,8 @@ public class ItemEffectDataSO_ShrinkMushroom : ItemEffectDataSO
         if (shrinkMushroom != null)
         {
             shrinkMushroom.UseMushroom();
+            AudioManager.Instance.PlaySFX("UseItemEatSFX");
+            AudioManager.Instance.PlaySFX("UseItemShrinkMushroomSFX");
             return true;
         }
         return false;

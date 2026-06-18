@@ -13,6 +13,7 @@ public class ItemEffectDataSO_Coffee : ItemEffectDataSO
         {
             playerVitals.AddHunger(10);
             playerControl.AddMoveSpeedTemporarily(2, 30);
+            AudioManager.Instance.PlaySFX("UseItemDrinkSFX");
             return true;
         }
         return false;

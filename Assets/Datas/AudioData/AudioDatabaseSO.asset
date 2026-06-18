@@ -117,6 +117,74 @@ MonoBehaviour:
     clips:
     - {fileID: 8300000, guid: 5e9bf5a54cf22784a98bb7b8f6d3907c, type: 3}
     volume: 1
+  - audioName: UseItemEatSFX
+    clips:
+    - {fileID: 8300000, guid: 532609e2a66c3464d9c9cfd50cb19c18, type: 3}
+    volume: 1
+  - audioName: UseItemBindUpSFX
+    clips:
+    - {fileID: 8300000, guid: 51a21a9c24c492642b84009290d15498, type: 3}
+    volume: 1
+  - audioName: UseItemCameraSFX
+    clips:
+    - {fileID: 8300000, guid: afe8ce15a28e1a140a4f68b07d8aebad, type: 3}
+    volume: 1
+  - audioName: StorageUIOpenSFX
+    clips:
+    - {fileID: 8300000, guid: e2cb43186d00639498b89e60a065abcd, type: 3}
+    volume: 1
+  - audioName: UseItemDemonRevealingMirrorSFX
+    clips:
+    - {fileID: 8300000, guid: 3f499c69093c1e247962fcc9cfc44c86, type: 3}
+    volume: 1
+  - audioName: UseItemDrinkSFX
+    clips:
+    - {fileID: 8300000, guid: 76567201b9264684ca0b9138e09f7c74, type: 3}
+    volume: 1
+  - audioName: UseItemSplashSFX
+    clips:
+    - {fileID: 8300000, guid: cafa2cd0d91d2c043b2102b009132ee1, type: 3}
+    volume: 1
+  - audioName: UseItemMosquitoCoilSFX
+    clips:
+    - {fileID: 8300000, guid: f3a9dfcb17f48bf42b597748e5d518d6, type: 3}
+    volume: 1
+  - audioName: UseItemMushroomPanSFX
+    clips:
+    - {fileID: 8300000, guid: f4686080ca35f4f4bb8cc5071c75169b, type: 3}
+    volume: 0.5
+  - audioName: UseItemShrinkMushroomSFX
+    clips:
+    - {fileID: 8300000, guid: 038e84d2d1b0741479805a00b981bafc, type: 3}
+    volume: 0.5
+  - audioName: UseItemTeleportScrollSFX
+    clips:
+    - {fileID: 8300000, guid: 7a893f8057021ce4bb54486717af3d0d, type: 3}
+    volume: 0.5
+  - audioName: UseItemTorchSFX
+    clips:
+    - {fileID: 8300000, guid: 20e92b3d4c08da948b1b6b5a121fd1e1, type: 3}
+    volume: 0.5
+  - audioName: UseItemToyCarSFX
+    clips:
+    - {fileID: 8300000, guid: 64cbcbb42c7d43e408bc89e6d6598637, type: 3}
+    volume: 1
+  - audioName: UseItemUmbrellaSFX
+    clips:
+    - {fileID: 8300000, guid: 271ae4c6afade7c4a9ba50fe0c09c4a7, type: 3}
+    volume: 1
+  - audioName: EquipItemArmorSFX
+    clips:
+    - {fileID: 8300000, guid: f40bc70026f1d094c99133a4d942c6b9, type: 3}
+    volume: 0.25
+  - audioName: UseItemInvisibleCloakSFX
+    clips:
+    - {fileID: 8300000, guid: 832d3d99138bf4645bab83e756080a32, type: 3}
+    volume: 0.25
+  - audioName: ToyCarSFX
+    clips:
+    - {fileID: 8300000, guid: c42ef0dea482d8b4da452e8dfa5f1a8e, type: 3}
+    volume: 0.5
   BGM:
   - audioName: MainMenuBGM
     clips:

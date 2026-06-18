@@ -11,6 +11,7 @@ public class ItemEffectDataSO_Candy : ItemEffectDataSO
         if(playerVitals != null)
         {
             playerVitals.AddHealth(5);
+            AudioManager.Instance.PlaySFX("UseItemEatSFX");
             return true;
         }
         return false;

@@ -11,6 +11,7 @@ public class ItemEffectDataSO_MeatBait : ItemEffectDataSO
         if(playerMeatBaitThrower != null )
         {
             playerMeatBaitThrower.TryThrowMeatBait();
+            AudioManager.Instance.PlaySFX("UseItemWhooshSFX");
             return true;
         }
         return false;

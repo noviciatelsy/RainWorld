@@ -11,6 +11,7 @@ public class ItemEffectDataSO_Talisman : ItemEffectDataSO
         if(playerTalismanThrower != null )
         {
             playerTalismanThrower.TryThrowTalisman();
+            AudioManager.Instance.PlaySFX("UseItemWhooshSFX");
             return true;
         }
         return false;

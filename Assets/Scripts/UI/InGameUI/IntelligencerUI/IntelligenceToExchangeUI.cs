@@ -97,7 +97,7 @@ public class IntelligenceToExchangeUI : MonoBehaviour
             return;
         }
 
-        int currentCount = archiveManager.GetUnlockedNonImportantEnemyIntelligenceCount(enemyData);
+        int currentCount = archiveManager.GetEnemyExchangeCollectedCount(enemyData);
         int requiredCount = Mathf.Max(1, exchangeData.requiredNonImportantEnemyIntelligenceCount);
 
         missionProgressText.text = $"{currentCount}/{requiredCount}";

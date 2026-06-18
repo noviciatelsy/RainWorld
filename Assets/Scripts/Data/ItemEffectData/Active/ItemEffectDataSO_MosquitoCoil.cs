@@ -24,7 +24,7 @@ public class ItemEffectDataSO_MosquitoCoil : ItemEffectDataSO
             Debug.LogWarning("使用蚊香失败：Player 的 ItemAbilities 下未找到 MosquitoCoil 组件。");
             return false;
         }
-
+        AudioManager.Instance.PlaySFX("UseItemMosquitoCoilSFX");
         return mosquitoCoil.UseMosquitoCoil();
     }
 }

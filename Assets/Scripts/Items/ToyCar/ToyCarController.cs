@@ -73,6 +73,7 @@ public class ToyCarController : MonoBehaviour{
     private Vector3 visualRootOriginalScale;
     // ??????????????
 
+    private AudioSource toyCarSFXAudioSource;
 
     public bool IsAttracting => hasBeenInitialized;
 
@@ -108,6 +109,7 @@ public class ToyCarController : MonoBehaviour{
         {
             Initialize(1);
         }
+        toyCarSFXAudioSource= AudioManager.Instance.PlayLoopSFX("ToyCarSFX");
     }
 
 
@@ -181,7 +183,7 @@ public class ToyCarController : MonoBehaviour{
         {
             return;
         }
-
+        toyCarSFXAudioSource.Stop();
         Destroy(gameObject);
     }
 

@@ -66,7 +66,7 @@ public class StorageUI : MonoBehaviour
         StorageInventoryGrid.SetInventory(storageInventory);
         playerBackpack.SetInventory(playerInventory);
         quickItemSlots.SetInventory(playerInventory);
-        AudioManager.Instance.PlayUI("LootUIOpenSFX");
+        AudioManager.Instance.PlayUI("StorageUIOpenSFX");
     }
 
     public void Close()

@@ -83,6 +83,7 @@ public class DroppedLiquid : MonoBehaviour
 
     private void TriggerContactLiquidTargets()
     {
+        AudioManager.Instance.PlaySFX("UseItemSplashSFX");
         Vector2 liquidPosition = transform.position;
 
         Collider2D[] detectedColliders = Physics2D.OverlapCircleAll(

@@ -11,6 +11,7 @@ public class ItemEffectDataSO_FragrantFruit : ItemEffectDataSO
         if (playerVitals != null)
         {
             playerVitals.ReduceHunger(10);
+            AudioManager.Instance.PlaySFX("UseItemEatSFX");
             return true;
         }
         return false;

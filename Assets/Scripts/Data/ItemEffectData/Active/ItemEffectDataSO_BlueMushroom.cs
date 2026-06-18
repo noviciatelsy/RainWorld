@@ -14,6 +14,7 @@ public class ItemEffectDataSO_BlueMushroom : ItemEffectDataSO
             playerVitals.ReduceHunger(40);
             playerVitals.AddHealth(40);
             playerControl.ReduceMoveSpeedTemporarily(2, 60);
+            AudioManager.Instance.PlaySFX("UseItemEatSFX");
             return true;
         }
         return false;

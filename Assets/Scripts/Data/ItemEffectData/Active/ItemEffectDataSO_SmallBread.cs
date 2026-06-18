@@ -12,7 +12,7 @@ public class ItemEffectDataSO_SmallBread : ItemEffectDataSO
         {
             playerVitals.ReduceHunger(10);
             playerVitals.AddHealth(10);
-
+            AudioManager.Instance.PlaySFX("UseItemEatSFX");
             return true;
         }
         return false;

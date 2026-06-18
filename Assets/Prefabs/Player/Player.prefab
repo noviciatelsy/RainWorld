@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 84443864950711972}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.25, y: 0.25, z: 0}
+  m_LocalPosition: {x: 0.5, y: 0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -741,7 +741,7 @@ Transform:
   m_GameObject: {fileID: 836124736466832743}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.25, y: 0.25, z: 0}
+  m_LocalPosition: {x: 0.5, y: 0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1023,7 +1023,7 @@ MonoBehaviour:
   talismanPrefab: {fileID: 7897385313401895284, guid: ccf8c9fdb4bbd134781bc33bf67263af,
     type: 3}
   talismanSpawnPosition: {fileID: 8501952461255266512}
-  throwSpeed: 3
+  throwSpeed: 3.5
   upwardRatio: 0.5
 --- !u!1 &3236090605730510781
 GameObject:
@@ -1127,7 +1127,7 @@ Transform:
   m_GameObject: {fileID: 3783018455314164413}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.28, y: 0.24, z: 0}
+  m_LocalPosition: {x: 0.5, y: 0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1781,7 +1781,7 @@ MonoBehaviour:
   torchPrefab: {fileID: 5932757048169832420, guid: b8ac0519a5dd5334fa12b4d2dcad205f,
     type: 3}
   torchSpawnPosition: {fileID: 2468143742757615159}
-  throwSpeed: 2.5
+  throwSpeed: 3
 --- !u!1 &7048640844545441055
 GameObject:
   m_ObjectHideFlags: 0
@@ -1853,7 +1853,7 @@ Transform:
   m_GameObject: {fileID: 7358837681034139147}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.25, y: 0.25, z: 0}
+  m_LocalPosition: {x: 0.5, y: 0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
