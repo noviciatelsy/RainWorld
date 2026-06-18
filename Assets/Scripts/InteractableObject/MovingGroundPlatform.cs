@@ -18,6 +18,7 @@ public abstract class MovingGroundPlatform : MonoBehaviour
     protected bool isMoving;
 
     private readonly HashSet<PlayerControl> riders = new HashSet<PlayerControl>();
+    private readonly List<PlayerControl> riderRefreshBuffer = new List<PlayerControl>(4);
 
     public Vector2 Velocity => isMoving ? platformVelocity : Vector2.zero;
     public Vector2 FrameDelta => frameDelta;
@@ -110,6 +111,28 @@ public abstract class MovingGroundPlatform : MonoBehaviour
         }
 
         riders.Remove(playerControl);
+    }
+
+    protected void RefreshRegisteredRiderElevatorPhysics(ElevatorPlatform elevator)
+    {
+        if (elevator == null || !elevator.IsMoving || riders.Count == 0)
+        {
+            return;
+        }
+
+        riderRefreshBuffer.Clear();
+        foreach (PlayerControl rider in riders)
+        {
+            if (rider != null)
+            {
+                riderRefreshBuffer.Add(rider);
+            }
+        }
+
+        for (int i = 0; i < riderRefreshBuffer.Count; i++)
+        {
+            riderRefreshBuffer[i].RefreshElevatorGroundPhysicsAfterPlatform(elevator);
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)

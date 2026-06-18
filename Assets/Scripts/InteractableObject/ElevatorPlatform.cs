@@ -61,6 +61,7 @@ public class ElevatorPlatform : MovingGroundPlatform
         {
             SetFrameMotion(delta);
             rb.MovePosition(newPos);
+            RefreshRegisteredRiderElevatorPhysics(this);
         }
         else
         {
