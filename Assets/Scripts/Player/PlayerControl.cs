@@ -117,7 +117,11 @@ public class PlayerControl : MonoBehaviour
     {
         stateMachine.UpdateActiveState();
 
-        if (!IsGroundedOnMovingElevator())
+        if (IsGroundedOnMovingElevator())
+        {
+            rb.gravityScale = 0f;
+        }
+        else
         {
             rb.gravityScale = originalGravityScale * baseGravityMultiplier * BonusGravityMultiplier;
         }
@@ -352,15 +356,39 @@ public class PlayerControl : MonoBehaviour
             return;
         }
 
-        ElevatorPlatform platform = GetElevatorUnderFeet() ?? ridingElevator;
-        if (platform == null)
+        // 平台尚未移动前只关重力；Y 速度在电梯 MovePosition 后按本帧 Velocity 刷新。
+        rb.gravityScale = 0f;
+    }
+
+    /// <summary>
+    /// 电梯本帧 MovePosition 之后调用，使用当前帧平台速度，避免不同 fixedDeltaTime 下 Y 速度落后半拍。
+    /// </summary>
+    public void RefreshElevatorGroundPhysicsAfterPlatform(ElevatorPlatform platform)
+    {
+        if (platform == null || platformJumpIgnoreTimer > 0f || !IsInGroundedMovementState())
         {
             return;
         }
 
+        if (!platform.IsMoving)
+        {
+            return;
+        }
+
+        if (!platform.HasRider(this)
+            && GetElevatorUnderFeet() != platform
+            && ridingElevator != platform)
+        {
+            return;
+        }
+
+        if (ridingElevator != platform)
+        {
+            NotifyStandingOnElevator(platform);
+        }
+
         rb.gravityScale = 0f;
-        Vector2 platformVelocity = platform.Velocity;
-        rb.velocity = new Vector2(GetElevatorGroundHorizontalVelocity(), platformVelocity.y);
+        rb.velocity = new Vector2(GetElevatorGroundHorizontalVelocity(), platform.Velocity.y);
     }
 
     private float GetElevatorGroundHorizontalVelocity()
