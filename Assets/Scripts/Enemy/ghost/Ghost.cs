@@ -61,8 +61,7 @@ public class Ghost : MonsterBase
             return false;
         }
 
-        vitals.ReduceHealth(attackDamage);
-        return true;
+        return MonsterPlayerDamage.TryDealDamage(vitals, attackDamage);
     }
 
     private void OnDrawGizmosSelected()
