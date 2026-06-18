@@ -1,7 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-public struct ChaseIntent : IIntent
+
+public struct GhostIntent : IIntent
 {
     public Transform target;
 }
@@ -9,21 +8,25 @@ public struct ChaseIntent : IIntent
 public class ghostAI : IMonsterAI
 {
     private Transform player;
-    GameObject Playerobj;
 
     public IIntent Evaluate(MonsterBase owner)
     {
         if (player == null)
         {
-            Playerobj = GameObject.FindGameObjectWithTag("Player");
-            if (Playerobj != null)
-                player = Playerobj.transform;
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+
+            if (playerObj != null)
+            {
+                player = playerObj.transform;
+            }
         }
 
-        if (player == null)
+        if (player == null || !PlayerInvisibilityPerception.IsPlayerDetectable(player))
+        {
             return null;
+        }
 
-        return new ChaseIntent
+        return new GhostIntent
         {
             target = player
         };
