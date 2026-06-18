@@ -283,8 +283,7 @@ public class BigRobot2D : MonsterBase
             return false;
         }
 
-        vitals.ReduceHealth(attackDamage);
-        return true;
+        return MonsterPlayerDamage.TryDealDamage(vitals, attackDamage);
     }
 
     /// <summary>

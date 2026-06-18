@@ -447,11 +447,7 @@ public class Bat2D : MonsterBase, IMosquitoCoilRepellable, IMeatBaitAttractable,
         }
 
         PlayerVitals vitals = player.GetComponent<PlayerVitals>();
-
-        if (vitals != null && !vitals.IsDead)
-        {
-            vitals.ReduceHealth(attackDamage);
-        }
+        MonsterPlayerDamage.TryDealDamage(vitals, attackDamage);
 
         InventoryPlayer inventory = player.GetComponent<InventoryPlayer>();
 

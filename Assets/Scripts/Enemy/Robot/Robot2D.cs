@@ -422,8 +422,7 @@ public class Robot2D : MonsterBase, IContactWithLiquid, IAttractedByMilk
             return false;
         }
 
-        vitals.ReduceHealth(attackDamage);
-        return true;
+        return MonsterPlayerDamage.TryDealDamage(vitals, attackDamage);
     }
 
     public void UpdateFacingToward(Vector2 worldPoint)

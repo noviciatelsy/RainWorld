@@ -44,13 +44,10 @@ public class MonsterTouchDamage : MonoBehaviour
         // (1 << target.layer) 可以把物体的 layer 转换为对应的二进制位进行位与运算
         if (((1 << target.layer) & playerLayer) != 0)
         {
-            // 3. 尝试获取玩家的生命组件
-            PlayerVitals playerVitals = target.GetComponent<PlayerVitals>();
+            PlayerVitals playerVitals = MonsterPlayerDamage.ResolveVitals(target.transform);
 
-            if (playerVitals != null && !playerVitals.IsDead)
+            if (MonsterPlayerDamage.TryDealDamage(playerVitals, damageAmount))
             {
-                // 4. 实施伤害并重置冷却时间
-                playerVitals.ReduceHealth(damageAmount);
                 cooldownTimer = cooldownTime;
 
                 Debug.Log($"【怪物伤害】{gameObject.name} 触碰了玩家，造成 {damageAmount} 点伤害！" +

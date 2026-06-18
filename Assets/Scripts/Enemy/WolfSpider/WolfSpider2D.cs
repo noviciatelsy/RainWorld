@@ -281,12 +281,9 @@ public class WolfSpider2D : MonsterBase, IMeatBaitAttractable, IToyCarAttractabl
                 continue;
             }
 
-            PlayerVitals vitals = hit.GetComponent<PlayerVitals>();
+            PlayerVitals vitals = MonsterPlayerDamage.ResolveVitals(hit);
 
-            if (vitals != null && !vitals.IsDead)
-            {
-                vitals.ReduceHealth(attackDamage);
-            }
+            MonsterPlayerDamage.TryDealDamage(vitals, attackDamage);
         }
     }
 
