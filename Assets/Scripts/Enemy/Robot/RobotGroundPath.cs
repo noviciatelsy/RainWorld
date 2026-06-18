@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 /// <summary>
 /// 机器人在同一高度（同一 cell 行）上的地面寻路，仅左右移动，不跨高度。
@@ -16,6 +17,317 @@ public static class RobotGroundPath
 
     /// <summary>鼹鼠等沿边单位脚底偏移（格子中心向下）。</summary>
     public const float DefaultFeetYOffset = -0.45f;
+
+    private const float PlatformStandTolerance = 0.32f;
+    private const float SurfaceStepHeightFactor = 1.15f;
+
+    private static Tilemap cachedPlatformTilemap;
+
+    public struct RobotSurfaceSupport
+    {
+        public bool IsValid;
+        public bool IsPlatform;
+        public float FeetY;
+        public int RowY;
+        public Vector3Int PlatformCell;
+    }
+
+    public static bool TryResolveSurfaceSupport(
+        Vector2 worldPos,
+        float feetYOffset,
+        out RobotSurfaceSupport support)
+    {
+        support = default;
+
+        bool hasGround = TryGetFlatRowCell(worldPos, feetYOffset, out int groundRowY, out _);
+        float groundFeetY = hasGround ? GetRowFeetY(groundRowY, feetYOffset) : float.PositiveInfinity;
+        float groundDelta = hasGround ? Mathf.Abs(worldPos.y - groundFeetY) : float.PositiveInfinity;
+
+        bool hasPlatform = TryGetPlatformSupport(worldPos, feetYOffset, out Vector3Int platformCell, out float platformFeetY);
+        float platformDelta = hasPlatform ? Mathf.Abs(worldPos.y - platformFeetY) : float.PositiveInfinity;
+
+        if (!hasGround && !hasPlatform)
+        {
+            return false;
+        }
+
+        bool usePlatform = hasPlatform
+            && (!hasGround || platformDelta + 0.01f < groundDelta);
+
+        if (usePlatform)
+        {
+            TileMapGuideManager mgr = TileMapGuideManager.Instance;
+            support = new RobotSurfaceSupport
+            {
+                IsValid = true,
+                IsPlatform = true,
+                FeetY = platformFeetY,
+                RowY = mgr != null
+                    ? mgr.WorldToCell(new Vector2(worldPos.x, platformFeetY)).y
+                    : platformCell.y,
+                PlatformCell = platformCell
+            };
+            return true;
+        }
+
+        support = new RobotSurfaceSupport
+        {
+            IsValid = true,
+            IsPlatform = false,
+            FeetY = groundFeetY,
+            RowY = groundRowY
+        };
+        return true;
+    }
+
+    public static bool TryQueryStandPoint(
+        Vector2 worldPos,
+        float feetYOffset,
+        float referenceFeetY,
+        out RobotSurfaceSupport support)
+    {
+        support = default;
+
+        if (!TryResolveSurfaceSupport(worldPos, feetYOffset, out support))
+        {
+            return false;
+        }
+
+        float maxStep = GetSurfaceStepHeight();
+        return Mathf.Abs(support.FeetY - referenceFeetY) <= maxStep + 0.001f;
+    }
+
+    public static float ProbeSurfaceDistance(
+        Vector2 fromWorld,
+        RobotSurfaceSupport startSupport,
+        int dirSign,
+        float maxDistance,
+        float feetYOffset)
+    {
+        if (dirSign == 0 || maxDistance <= 0f || !startSupport.IsValid)
+        {
+            return 0f;
+        }
+
+        float step = ResolveProbeStep();
+        float lastValid = 0f;
+        float currentFeetY = startSupport.FeetY;
+
+        for (float distance = step; distance <= maxDistance + step * 0.5f; distance += step)
+        {
+            float testX = fromWorld.x + dirSign * distance;
+            Vector2 testPos = new Vector2(testX, currentFeetY);
+
+            if (!TryQueryStandPoint(testPos, feetYOffset, currentFeetY, out RobotSurfaceSupport stand))
+            {
+                break;
+            }
+
+            currentFeetY = stand.FeetY;
+            lastValid = Mathf.Min(distance, maxDistance);
+        }
+
+        return lastValid;
+    }
+
+    public static bool TryGetPlatformSupport(
+        Vector2 worldPos,
+        float feetYOffset,
+        out Vector3Int platformCell,
+        out float feetY)
+    {
+        platformCell = default;
+        feetY = worldPos.y;
+
+        Tilemap platformTilemap = GetPlatformTilemap();
+
+        if (platformTilemap == null)
+        {
+            return false;
+        }
+
+        Vector3Int baseCell = platformTilemap.WorldToCell(worldPos);
+        bool found = false;
+        float bestDelta = float.MaxValue;
+        Vector3Int bestCell = default;
+        float bestFeetY = worldPos.y;
+
+        for (int dy = -4; dy <= 3; dy++)
+        {
+            Vector3Int cell = baseCell + new Vector3Int(0, dy, 0);
+
+            if (!platformTilemap.HasTile(cell))
+            {
+                continue;
+            }
+
+            float candidateFeetY = PlatformCellToFeetWorld(platformTilemap, cell, feetYOffset).y;
+            float delta = Mathf.Abs(worldPos.y - candidateFeetY);
+
+            if (delta >= bestDelta)
+            {
+                continue;
+            }
+
+            bestDelta = delta;
+            bestCell = cell;
+            bestFeetY = candidateFeetY;
+            found = true;
+        }
+
+        if (!found || bestDelta > PlatformStandTolerance)
+        {
+            return false;
+        }
+
+        platformCell = bestCell;
+        feetY = bestFeetY;
+        return true;
+    }
+
+    public static Vector2 PlatformCellToFeetWorld(Tilemap platformTilemap, Vector3Int cell, float feetYOffset)
+    {
+        Vector3Int standCell = cell + Vector3Int.up;
+        Vector3 standCenter = platformTilemap.GetCellCenterWorld(standCell);
+        return new Vector2(standCenter.x, standCenter.y + feetYOffset);
+    }
+
+    public static Tilemap GetPlatformTilemap()
+    {
+        if (cachedPlatformTilemap != null)
+        {
+            return cachedPlatformTilemap;
+        }
+
+        Tilemap[] tilemaps = Object.FindObjectsByType<Tilemap>(FindObjectsSortMode.None);
+
+        for (int i = 0; i < tilemaps.Length; i++)
+        {
+            Tilemap tilemap = tilemaps[i];
+
+            if (tilemap != null && tilemap.gameObject.name == "Tilemap_Platform")
+            {
+                cachedPlatformTilemap = tilemap;
+                return cachedPlatformTilemap;
+            }
+        }
+
+        int platformLayer = LayerMask.NameToLayer("Platform");
+
+        for (int i = 0; i < tilemaps.Length; i++)
+        {
+            Tilemap tilemap = tilemaps[i];
+
+            if (tilemap != null && platformLayer >= 0 && tilemap.gameObject.layer == platformLayer)
+            {
+                cachedPlatformTilemap = tilemap;
+                return cachedPlatformTilemap;
+            }
+        }
+
+        return null;
+    }
+
+    public static float GetSurfaceStepHeight()
+    {
+        Tilemap platformTilemap = GetPlatformTilemap();
+
+        if (platformTilemap != null)
+        {
+            return platformTilemap.cellSize.y * SurfaceStepHeightFactor;
+        }
+
+        TileMapGuideManager mgr = TileMapGuideManager.Instance;
+
+        if (mgr != null)
+        {
+            return mgr.CellToWorld(Vector2Int.one).y - mgr.CellToWorld(Vector2Int.zero).y;
+        }
+
+        return 0.575f;
+    }
+
+    // 兼容旧接口
+    public static bool TryResolveGroundSupport(
+        Vector2 worldPos,
+        float feetYOffset,
+        LayerMask _,
+        out int rowY,
+        out float feetY,
+        out bool onPlatform)
+    {
+        onPlatform = false;
+        rowY = 0;
+        feetY = worldPos.y;
+
+        if (!TryResolveSurfaceSupport(worldPos, feetYOffset, out RobotSurfaceSupport support))
+        {
+            return false;
+        }
+
+        rowY = support.RowY;
+        feetY = support.FeetY;
+        onPlatform = support.IsPlatform;
+        return true;
+    }
+
+    public static bool CanStandAtX(
+        float worldX,
+        int rowY,
+        float feetY,
+        bool onPlatform,
+        float feetYOffset,
+        LayerMask _)
+    {
+        return TryQueryStandPoint(
+            new Vector2(worldX, feetY),
+            feetYOffset,
+            feetY,
+            out RobotSurfaceSupport _);
+    }
+
+    public static float ProbeSupportDistance(
+        Vector2 fromWorld,
+        int rowY,
+        float feetY,
+        bool onPlatform,
+        int dirSign,
+        float maxDistance,
+        float feetYOffset,
+        LayerMask _)
+    {
+        RobotSurfaceSupport support = new RobotSurfaceSupport
+        {
+            IsValid = true,
+            IsPlatform = onPlatform,
+            FeetY = feetY,
+            RowY = rowY
+        };
+
+        return ProbeSurfaceDistance(fromWorld, support, dirSign, maxDistance, feetYOffset);
+    }
+
+    private static float ResolveProbeStep()
+    {
+        Tilemap platformTilemap = GetPlatformTilemap();
+
+        if (platformTilemap != null)
+        {
+            return Mathf.Clamp(platformTilemap.cellSize.x * 0.5f, 0.2f, 1f);
+        }
+
+        TileMapGuideManager mgr = TileMapGuideManager.Instance;
+
+        if (mgr == null)
+        {
+            return 0.25f;
+        }
+
+        return Mathf.Clamp(
+            mgr.CellToWorld(Vector2Int.one).x - mgr.CellToWorld(Vector2Int.zero).x,
+            0.2f,
+            1f) * 0.5f;
+    }
 
     public static bool IsFlatWalkable(TileMapGuideManager mgr, Vector2Int cell)
     {
@@ -48,6 +360,18 @@ public static class RobotGroundPath
         float maxY = bounds.max.y + margin;
 
         return point.x >= minX && point.x <= maxX && point.y >= minY && point.y <= maxY;
+    }
+
+    public static bool IsInsideBoundsX(Bounds bounds, Vector2 point, float margin = BoundsMargin)
+    {
+        if (bounds.size.sqrMagnitude < 0.01f)
+        {
+            return true;
+        }
+
+        float minX = bounds.min.x - margin;
+        float maxX = bounds.max.x + margin;
+        return point.x >= minX && point.x <= maxX;
     }
 
     /// <summary>
@@ -161,15 +485,16 @@ public static class RobotGroundPath
     public static int PickPatrolDirection(
         Vector2 fromWorld,
         Bounds idleBounds,
-        float feetYOffset = DefaultFeetYOffset)
+        float feetYOffset = DefaultFeetYOffset,
+        LayerMask _ = default)
     {
-        if (!TryGetFlatRowCell(fromWorld, feetYOffset, out int rowY, out _))
+        if (!TryResolveSurfaceSupport(fromWorld, feetYOffset, out RobotSurfaceSupport support))
         {
             return Random.value > 0.5f ? 1 : -1;
         }
 
-        float leftDist = ProbeFlatDistance(fromWorld, rowY, -1, 24f, feetYOffset);
-        float rightDist = ProbeFlatDistance(fromWorld, rowY, 1, 24f, feetYOffset);
+        float leftDist = ProbeSurfaceDistance(fromWorld, support, -1, 24f, feetYOffset);
+        float rightDist = ProbeSurfaceDistance(fromWorld, support, 1, 24f, feetYOffset);
 
         if (Mathf.Approximately(leftDist, rightDist))
         {
@@ -187,7 +512,8 @@ public static class RobotGroundPath
         int dirSign,
         Bounds idleBounds,
         float feetYOffset = DefaultFeetYOffset,
-        int maxCells = 48)
+        int maxCells = 48,
+        LayerMask platformLayer = default)
     {
         List<Vector2> path = BuildPatrolPathInternal(
             fromWorld,
@@ -195,7 +521,8 @@ public static class RobotGroundPath
             idleBounds,
             feetYOffset,
             maxCells,
-            clipToBounds: true);
+            clipToBounds: true,
+            platformLayer);
 
         if (path.Count > 0)
         {
@@ -208,7 +535,8 @@ public static class RobotGroundPath
             idleBounds,
             feetYOffset,
             maxCells,
-            clipToBounds: false);
+            clipToBounds: false,
+            platformLayer);
     }
 
     /// <summary>
@@ -217,7 +545,8 @@ public static class RobotGroundPath
     public static List<Vector2> BuildReturnToIdleBoundsPath(
         Vector2 fromWorld,
         Bounds idleBounds,
-        float feetYOffset = DefaultFeetYOffset)
+        float feetYOffset = DefaultFeetYOffset,
+        LayerMask platformLayer = default)
     {
         List<Vector2> path = new List<Vector2>();
 
@@ -228,12 +557,15 @@ public static class RobotGroundPath
 
         TileMapGuideManager mgr = TileMapGuideManager.Instance;
 
-        if (mgr == null || !TryGetFlatRowCell(fromWorld, feetYOffset, out int rowY, out _))
+        if (mgr == null
+            || !TryResolveSurfaceSupport(fromWorld, feetYOffset, out RobotSurfaceSupport startSupport))
         {
             return path;
         }
 
-        float feetY = GetRowFeetY(rowY, feetYOffset);
+        float feetY = startSupport.FeetY;
+        int rowY = startSupport.RowY;
+
         int minCellX = mgr.WorldToCell(new Vector2(idleBounds.min.x, feetY)).x;
         int maxCellX = mgr.WorldToCell(new Vector2(idleBounds.max.x, feetY)).x;
 
@@ -249,13 +581,14 @@ public static class RobotGroundPath
         for (int cellX = minCellX; cellX <= maxCellX; cellX++)
         {
             Vector2Int cell = new Vector2Int(cellX, rowY);
+            float standX = CellToFeetWorld(mgr, cell, feetYOffset).x;
 
-            if (!IsFlatWalkable(mgr, cell))
+            if (!TryQueryStandPoint(new Vector2(standX, feetY), feetYOffset, feetY, out RobotSurfaceSupport stand))
             {
                 continue;
             }
 
-            Vector2 feet = CellToFeetWorld(mgr, cell, feetYOffset);
+            Vector2 feet = new Vector2(standX, stand.FeetY);
 
             if (!IsInsideBoundsXY(idleBounds, feet))
             {
@@ -289,58 +622,50 @@ public static class RobotGroundPath
         Bounds idleBounds,
         float feetYOffset,
         int maxCells,
-        bool clipToBounds)
+        bool clipToBounds,
+        LayerMask _)
     {
         List<Vector2> path = new List<Vector2>();
-        TileMapGuideManager mgr = TileMapGuideManager.Instance;
 
-        if (mgr == null || dirSign == 0)
+        if (dirSign == 0 || !TryResolveSurfaceSupport(fromWorld, feetYOffset, out RobotSurfaceSupport startSupport))
         {
             return path;
         }
 
-        if (!TryGetFlatRowCell(fromWorld, feetYOffset, out int rowY, out Vector2Int startCell))
+        float step = ResolveProbeStep();
+        float maxDistance = step * 2f * maxCells;
+        Vector2 bestPoint = fromWorld;
+        bool found = false;
+        float currentFeetY = startSupport.FeetY;
+
+        for (float distance = step; distance <= maxDistance + step * 0.5f; distance += step)
+        {
+            float testX = fromWorld.x + dirSign * distance;
+            Vector2 testPos = new Vector2(testX, currentFeetY);
+
+            if (!TryQueryStandPoint(testPos, feetYOffset, currentFeetY, out RobotSurfaceSupport stand))
+            {
+                break;
+            }
+
+            Vector2 candidate = new Vector2(testX, stand.FeetY);
+
+            if (clipToBounds && !IsInsideBoundsXY(idleBounds, candidate))
+            {
+                break;
+            }
+
+            currentFeetY = stand.FeetY;
+            bestPoint = candidate;
+            found = true;
+        }
+
+        if (!found || (bestPoint - fromWorld).sqrMagnitude <= step * step * 0.25f)
         {
             return path;
         }
 
-        Vector2Int lastCell = startCell;
-
-        for (int step = 1; step <= maxCells; step++)
-        {
-            Vector2Int cell = new Vector2Int(startCell.x + dirSign * step, rowY);
-
-            if (!clipToBounds)
-            {
-                if (!IsFlatWalkable(mgr, cell))
-                {
-                    break;
-                }
-
-                lastCell = cell;
-                continue;
-            }
-
-            if (!IsFlatWalkable(mgr, cell))
-            {
-                break;
-            }
-
-            Vector2 feet = CellToFeetWorld(mgr, cell, feetYOffset);
-
-            if (!IsInsideBoundsXY(idleBounds, feet))
-            {
-                break;
-            }
-
-            lastCell = cell;
-        }
-
-        if (lastCell != startCell)
-        {
-            path.Add(CellToFeetWorld(mgr, lastCell, feetYOffset));
-        }
-
+        path.Add(bestPoint);
         return path;
     }
 
@@ -369,21 +694,14 @@ public static class RobotGroundPath
     /// <summary>
     /// 将世界坐标对齐到当前行上最近的可行走格子的脚底点。
     /// </summary>
-    public static Vector2 SnapToFlatGround(Vector2 worldPos, float feetYOffset = DefaultFeetYOffset)
+    public static Vector2 SnapToFlatGround(
+        Vector2 worldPos,
+        float feetYOffset = DefaultFeetYOffset,
+        LayerMask _ = default)
     {
-        TileMapGuideManager mgr = TileMapGuideManager.Instance;
-
-        if (mgr == null)
+        if (TryResolveSurfaceSupport(worldPos, feetYOffset, out RobotSurfaceSupport support))
         {
-            return worldPos;
-        }
-
-        Vector2Int startCell = mgr.WorldToCell(worldPos);
-        Vector2Int walkable = ResolveWalkableCell(mgr, startCell);
-
-        if (IsFlatWalkable(mgr, walkable))
-        {
-            return CellToFeetWorld(mgr, walkable, feetYOffset);
+            return new Vector2(worldPos.x, support.FeetY);
         }
 
         return worldPos;

@@ -14,11 +14,13 @@ public class Robot2D : MonsterBase, IContactWithLiquid, IAttractedByMilk
     [Header("Areas")]
     [Tooltip("Idle 巡逻范围（世界坐标 Center/Size，固定区域，需在 Inspector 手动配置）")]
     public Bounds idleBounds;
-    [Tooltip("以机器人为中心的感知/激活范围（仅 Size 有效，Center 运行时随机器人更新）")]
+    [Tooltip("感知/冲刺触发范围（世界坐标 Center/Size，固定区域，需在 Inspector 手动配置）")]
     public Bounds activeBounds;
 
     [Header("Perception")]
     public LayerMask playerLayer;
+    [Tooltip("冲刺撞停时检测可破坏墙的 Layer（默认 Ground + Platform）")]
+    public LayerMask destructibleWallLayer;
 
     [Header("Combat")]
     public float attackRange = 0.9f;
@@ -70,6 +72,7 @@ public class Robot2D : MonsterBase, IContactWithLiquid, IAttractedByMilk
 
         EnsureDefaultAreas();
         ResolvePlayerLayerMask();
+        ResolveDestructibleWallLayerMask();
         EnsureEnemyLayer();
         EnsureDrinkCollector();
         SnapFeetToGround();
@@ -112,6 +115,7 @@ public class Robot2D : MonsterBase, IContactWithLiquid, IAttractedByMilk
     {
         EnsureDefaultAreas();
         ResolvePlayerLayerMask();
+        ResolveDestructibleWallLayerMask();
     }
 
     public void EnsureDefaultAreas()
@@ -192,15 +196,38 @@ public class Robot2D : MonsterBase, IContactWithLiquid, IAttractedByMilk
         }
     }
 
+    public void ResolveDestructibleWallLayerMask()
+    {
+        if (destructibleWallLayer.value != 0)
+        {
+            return;
+        }
+
+        int mask = 0;
+        int groundLayerIndex = LayerMask.NameToLayer("Ground");
+        int platformLayerIndex = LayerMask.NameToLayer("Platform");
+
+        if (groundLayerIndex >= 0)
+        {
+            mask |= 1 << groundLayerIndex;
+        }
+
+        if (platformLayerIndex >= 0)
+        {
+            mask |= 1 << platformLayerIndex;
+        }
+
+        destructibleWallLayer = mask;
+    }
+
     /// <summary>
     /// OverlapBox 的 size 为全宽/全高（非 halfExtents）。
     /// </summary>
     public Vector2 GetActiveBoxSize()
     {
-        Bounds active = GetActiveBoundsWorld();
         return new Vector2(
-            Mathf.Max(active.size.x, 0.5f),
-            Mathf.Max(active.size.y, 0.5f)
+            Mathf.Max(activeBounds.size.x, 0.5f),
+            Mathf.Max(activeBounds.size.y, 0.5f)
         );
     }
 
@@ -211,11 +238,11 @@ public class Robot2D : MonsterBase, IContactWithLiquid, IAttractedByMilk
     }
 
     /// <summary>
-    /// 以当前机器人位置为中心的 active 区域（感知/冲刺触发）。
+    /// 世界坐标下的固定 active 区域（感知/冲刺触发）。
     /// </summary>
     public Bounds GetActiveBoundsWorld()
     {
-        return new Bounds(transform.position, activeBounds.size);
+        return activeBounds;
     }
 
     public bool IsInsideIdleBounds(Vector2 point)
@@ -225,7 +252,7 @@ public class Robot2D : MonsterBase, IContactWithLiquid, IAttractedByMilk
 
     public bool IsInsideActiveBounds(Vector2 point)
     {
-        return RobotGroundPath.IsInsideBoundsXY(GetActiveBoundsWorld(), point);
+        return RobotGroundPath.IsInsideBoundsXY(activeBounds, point);
     }
 
     public int OverlapPlayerNonAlloc(out Collider2D[] buffer)
@@ -235,10 +262,12 @@ public class Robot2D : MonsterBase, IContactWithLiquid, IAttractedByMilk
         float radius = GetActiveSenseRadius();
         int count = 0;
 
+        Vector2 senseCenter = activeBounds.center;
+
         if (playerLayer.value != 0)
         {
             count = Physics2D.OverlapBoxNonAlloc(
-                Position,
+                senseCenter,
                 boxSize,
                 0f,
                 overlapBuffer,
@@ -247,7 +276,7 @@ public class Robot2D : MonsterBase, IContactWithLiquid, IAttractedByMilk
         }
         else
         {
-            count = Physics2D.OverlapBoxNonAlloc(Position, boxSize, 0f, overlapBuffer);
+            count = Physics2D.OverlapBoxNonAlloc(senseCenter, boxSize, 0f, overlapBuffer);
         }
 
         if (count > 0)
@@ -258,14 +287,20 @@ public class Robot2D : MonsterBase, IContactWithLiquid, IAttractedByMilk
         if (playerLayer.value != 0)
         {
             return Physics2D.OverlapCircleNonAlloc(
-                Position,
+                senseCenter,
                 radius,
                 overlapBuffer,
                 playerLayer
             );
         }
 
-        return Physics2D.OverlapCircleNonAlloc(Position, radius, overlapBuffer);
+        return Physics2D.OverlapCircleNonAlloc(senseCenter, radius, overlapBuffer);
+    }
+
+    public bool IsOnPlatformSurface()
+    {
+        return RobotGroundPath.TryResolveSurfaceSupport(Position, feetYOffset, out RobotGroundPath.RobotSurfaceSupport support)
+            && support.IsPlatform;
     }
 
     public bool IsPlayerCollider(Collider2D collider)
@@ -429,12 +464,8 @@ public class Robot2D : MonsterBase, IContactWithLiquid, IAttractedByMilk
         Gizmos.color = new Color(0.2f, 1f, 0.35f, alpha);
         Gizmos.DrawWireCube(idleBounds.center, idleBounds.size);
 
-        Bounds activeWorld = Application.isPlaying
-            ? GetActiveBoundsWorld()
-            : new Bounds(transform.position, activeBounds.size);
-
         Gizmos.color = new Color(1f, 0.55f, 0.15f, alpha * 0.85f);
-        Gizmos.DrawWireCube(activeWorld.center, activeWorld.size);
+        Gizmos.DrawWireCube(activeBounds.center, activeBounds.size);
 
         Gizmos.color = new Color(1f, 0.2f, 0.2f, alpha * 0.6f);
         Gizmos.DrawWireSphere(transform.position, attackRange);

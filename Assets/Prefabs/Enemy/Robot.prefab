@@ -225,22 +225,27 @@ MonoBehaviour:
   HasEdge: 0
   moveSpeed: 1
   chargeSpeed: 4
-  chargeDistance: 6
+  chargeDistance: 5
   arriveThreshold: 0.08
   feetYOffset: 0.1
   idleBounds:
-    m_Center: {x: -32, y: -7.5, z: 0}
+    m_Center: {x: -90, y: -74, z: 0}
     m_Extent: {x: 6, y: 2, z: 0.05}
   activeBounds:
-    m_Center: {x: -32, y: -7.5, z: 0}
+    m_Center: {x: -90, y: -75, z: 0}
     m_Extent: {x: 4, y: 2, z: 0.05}
   playerLayer:
     serializedVersion: 2
     m_Bits: 64
-  attackRange: 0.9
+  destructibleWallLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  attackRange: 0.7
   attackDamage: 12
-  recoverDuration: 1
+  recoverDuration: 1.5
   chargeMaxDuration: 3
+  chargeDestructibleWallProbeDistance: 0.65
+  chargeDestructibleWallProbeHalfHeight: 0.55
   bodyVisual: {fileID: 7215898436394275122}
   drinkCollector: {fileID: 8823456789012345601}
   drawDebugGizmos: 1
@@ -276,7 +281,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.15385437, y: -0.018597841}
+  m_Offset: {x: 0.15259552, y: -0.066352844}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -287,7 +292,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.48264313, y: 0.6787658}
+  m_Size: {x: 0.3745575, y: 0.51789856}
   m_EdgeRadius: 0
 --- !u!114 &1487579936593728791
 MonoBehaviour:

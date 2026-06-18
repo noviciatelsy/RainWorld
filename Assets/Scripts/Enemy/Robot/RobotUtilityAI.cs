@@ -94,7 +94,10 @@ public class RobotUtilityAI : IMonsterAI
 
         if (patrolDir == 0)
         {
-            patrolDir = RobotGroundPath.PickPatrolDirection(rb.Position, robot.idleBounds, robot.feetYOffset);
+            patrolDir = RobotGroundPath.PickPatrolDirection(
+                rb.Position,
+                robot.idleBounds,
+                robot.feetYOffset);
         }
 
         return RobotGroundPath.BuildPatrolPath(
@@ -123,7 +126,9 @@ public class RobotUtilityAI : IMonsterAI
 
         if (mode == RobotMode.Charge)
         {
-            if (chargeTarget != null && !PlayerInvisibilityPerception.IsPlayerDetectable(chargeTarget))
+            if (chargeTarget != null
+                && (!PlayerInvisibilityPerception.IsPlayerDetectable(chargeTarget)
+                    || !robot.IsInsideActiveBounds(chargeTarget.position)))
             {
                 BeginRecover(rb);
                 return;
@@ -160,6 +165,11 @@ public class RobotUtilityAI : IMonsterAI
         Transform player = rb.FindClosestPlayerTransform();
 
         if (player == null)
+        {
+            return false;
+        }
+
+        if (rb.IsOnPlatformSurface() && !IsPlayerAhead(rb, player.position))
         {
             return false;
         }
@@ -203,6 +213,26 @@ public class RobotUtilityAI : IMonsterAI
             moveSpeed = robot.chargeSpeed,
             chargeTarget = target
         };
+    }
+
+    private bool IsPlayerAhead(Robot2D rb, Vector2 playerPos)
+    {
+        float deltaX = playerPos.x - rb.Position.x;
+
+        if (Mathf.Abs(deltaX) <= robot.arriveThreshold)
+        {
+            return true;
+        }
+
+        int moveDir = patrolDir;
+
+        if (moveDir == 0)
+        {
+            Transform visual = robot.bodyVisual != null ? robot.bodyVisual : rb.transform;
+            moveDir = visual.localScale.x >= 0f ? 1 : -1;
+        }
+
+        return Mathf.Sign(deltaX) == moveDir;
     }
 
     private RobotMoveIntent RecoverIntent()
