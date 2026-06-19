@@ -225,6 +225,11 @@ public class InGameUI : MonoBehaviour
 
     private void OnMapPerformed(UnityEngine.InputSystem.InputAction.CallbackContext context)
     {
+        if (ElevatorInputGate.IsMapBlocking)
+        {
+            return;
+        }
+
         ToggleMapUI();
     }
 
