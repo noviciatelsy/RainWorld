@@ -468,6 +468,7 @@ GameObject:
   - component: {fileID: 4268894465921324274}
   - component: {fileID: 2854278965049123756}
   - component: {fileID: 9012345678901234601}
+  - component: {fileID: 6619689907813102319}
   m_Layer: 8
   m_Name: Fly
   m_TagString: Fly
@@ -516,6 +517,7 @@ MonoBehaviour:
   dropItemData: {fileID: 11400000, guid: d28e91883df10b14c8ab0081b5c0211f, type: 2}
   pickableObjectPrefab: {fileID: 8677623834353847797, guid: c813b335070fe534e927a641d31420e5,
     type: 3}
+  maxEnemyHitsBeforeDrop: 5
   groundLayerMask:
     serializedVersion: 2
     m_Bits: 640
@@ -577,6 +579,19 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
+--- !u!114 &6619689907813102319
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8577359883850200549}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fef0aeab7753504469f86b92b114728a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  overlapActiveRooms: []
 --- !u!1 &9012345678901234604
 GameObject:
   m_ObjectHideFlags: 0
@@ -670,6 +685,7 @@ MonoBehaviour:
   fly: {fileID: 4268894465921324274}
   stompCollider: {fileID: 9012345678901234605}
   minStompDownSpeed: 0.5
+  stompBounceImpulse: 0
 --- !u!1001 &3150401150393307016
 PrefabInstance:
   m_ObjectHideFlags: 0

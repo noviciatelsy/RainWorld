@@ -2445,6 +2445,7 @@ GameObject:
   - component: {fileID: 2889358890627333663}
   - component: {fileID: 1567508111692317823}
   - component: {fileID: 818207883925730995}
+  - component: {fileID: 1781812323646009671}
   m_Layer: 8
   m_Name: Shibie
   m_TagString: Untagged
@@ -2524,6 +2525,8 @@ MonoBehaviour:
   legSystem: {fileID: 0}
   visualTransform: {fileID: 6500360359165781748}
   visualRotationOffset: 0
+  detectRadius: 10
+  perceptionInterval: 0.3
 --- !u!114 &818207883925730995
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2584,6 +2587,19 @@ MonoBehaviour:
   legMoveSpeed: 12
   legMoveRange: 0.3
   stepArcHeight: 0.05
+--- !u!114 &1781812323646009671
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5818872615241360620}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fef0aeab7753504469f86b92b114728a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  overlapActiveRooms: []
 --- !u!1 &5976395288306646540
 GameObject:
   m_ObjectHideFlags: 0

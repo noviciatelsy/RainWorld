@@ -83,10 +83,10 @@ public class RoomManager : MonoBehaviour
 
         registeredRooms.Add(room);
 
-        // 如果游戏已经初始化过，后续重新启用的房间应该立刻同步自己的激活状态。
+        // 如果游戏已经初始化过，后续重新启用的房间应该立刻同步敌人激活状态。
         if (hasInitialized)
         {
-            room.SetRoomActive(room == CurrentRoom);
+            SyncEnemyActivation();
         }
     }
 
@@ -134,6 +134,21 @@ public class RoomManager : MonoBehaviour
             StartRoomSwitchFade(targetRoom);
             return;
         }
+
+        SwitchToRoom(targetRoom, false, false);
+    }
+
+    public RoomController FindRoomContainingPosition(Vector2 worldPosition)
+    {
+        foreach (RoomController room in registeredRooms)
+        {
+            if (room != null && room.ContainsPosition(worldPosition))
+            {
+                return room;
+            }
+        }
+
+        return null;
     }
    
     private void InitializeInitialRoomIfNeeded()
@@ -162,15 +177,6 @@ public class RoomManager : MonoBehaviour
             }
         }
 
-        // 先把所有房间敌人休眠，再开启初始房间
-        foreach (RoomController room in registeredRooms)
-        {
-            if (room != null)
-            {
-                room.SetRoomActive(false);
-            }
-        }
-
         if (roomToEnter != null)
         {
             SwitchToRoom(roomToEnter, true,true);
@@ -180,19 +186,6 @@ public class RoomManager : MonoBehaviour
         {
             Debug.LogWarning("RoomManager 没有找到初始房间。请设置 initialRoom，或确保玩家出生点位于某个房间的 CameraBounds 内。");
         }
-    }
-
-    private RoomController FindRoomContainingPosition(Vector2 worldPosition)
-    {
-        foreach (RoomController room in registeredRooms)
-        {
-            if (room != null && room.ContainsPosition(worldPosition))
-            {
-                return room;
-            }
-        }
-
-        return null;
     }
 
     private void StartRoomSwitchFade(RoomController targetRoom)
@@ -243,12 +236,7 @@ public class RoomManager : MonoBehaviour
         RoomController previousRoom = CurrentRoom;
         CurrentRoom = newRoom;
 
-        if (previousRoom != null)
-        {
-            previousRoom.SetRoomActive(false);
-        }
-
-        CurrentRoom.SetRoomActive(true);
+        SyncEnemyActivation();
         CurrentRoom.TryEnableRoomContent();
         if (roomCameraController != null)
         {
@@ -256,6 +244,11 @@ public class RoomManager : MonoBehaviour
         }
 
         OnRoomChanged?.Invoke(previousRoom, CurrentRoom);
+    }
+
+    private void SyncEnemyActivation()
+    {
+        RoomEnemyActivationService.SyncForRoom(CurrentRoom);
     }
 
     private void SetRoomFadeControlledBehavioursActive(bool active)

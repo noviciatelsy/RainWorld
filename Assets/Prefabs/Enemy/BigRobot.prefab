@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5829471038472910599}
   - component: {fileID: 4790567607833133304}
   - component: {fileID: 9012345678901234501}
+  - component: {fileID: 3805292190825094050}
   m_Layer: 9
   m_Name: BigRobot
   m_TagString: Untagged
@@ -144,6 +145,19 @@ MonoBehaviour:
   shutdownSpriteResourcePath: textures/\u654C\u4EBA\u8D44\u6E90/\u5927\u673A\u5668\u4EBA/\u5173\u673A\u52A8\u753B/\u56FE\u5C42_57-removebg-preview
   shutdownScale: {x: 0.9, y: 0.9, z: 0.9}
   shutdownPosition: {x: 0, y: 0, z: 0}
+--- !u!114 &3805292190825094050
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 655137027452463140}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fef0aeab7753504469f86b92b114728a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  overlapActiveRooms: []
 --- !u!1 &2663248745151360903
 GameObject:
   m_ObjectHideFlags: 0

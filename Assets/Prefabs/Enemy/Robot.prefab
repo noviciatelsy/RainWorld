@@ -181,6 +181,7 @@ GameObject:
   - component: {fileID: 3821333109287300204}
   - component: {fileID: 1487579936593728791}
   - component: {fileID: 8823456789012345601}
+  - component: {fileID: 81127663917121517}
   m_Layer: 8
   m_Name: Robot
   m_TagString: Untagged
@@ -345,6 +346,19 @@ MonoBehaviour:
   collectArriveDistance: 0.12
   dropSearchRadius: 1.5
   robot: {fileID: 7539659396269623092}
+--- !u!114 &81127663917121517
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2630524371018857482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fef0aeab7753504469f86b92b114728a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  overlapActiveRooms: []
 --- !u!1 &5015183846912480924
 GameObject:
   m_ObjectHideFlags: 0

@@ -43,6 +43,7 @@ GameObject:
   - component: {fileID: 7625808759262539979}
   - component: {fileID: -4428974715500886016}
   - component: {fileID: 7123456789012345678}
+  - component: {fileID: 5902265362926967256}
   m_Layer: 0
   m_Name: BatKing
   m_TagString: Untagged
@@ -148,6 +149,19 @@ MonoBehaviour:
   attackSquishAmount: 0.2
   restoreSpeed: 12
   minMoveDelta: 0.002
+--- !u!114 &5902265362926967256
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5871502380270661758}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fef0aeab7753504469f86b92b114728a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  overlapActiveRooms: []
 --- !u!1 &8956899310618150152
 GameObject:
   m_ObjectHideFlags: 0

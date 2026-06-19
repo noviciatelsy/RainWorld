@@ -1,26 +1,25 @@
-using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
 
 public class RoomController : MonoBehaviour
 {
-    [Header("·¿¼ä´æµµ")]
-    [Tooltip("Êµ¼ÊÓÎÏ··¿¼äµÄÎ¨Ò» ID¡£ÓÉ RoomsSaveIDRoot ÔÚ±à¼­Æ÷ÖĞ×Ô¶¯Éú³É£¬²»ÒªÊÖ¶¯ĞŞ¸Ä¡£")]
+    [Header("æˆ¿é—´å­˜æ¡£")]
+    [Tooltip("å®é™…æ¸¸æˆæˆ¿é—´çš„å”¯ä¸€ IDã€‚ç”± RoomsSaveIDRoot åœ¨ç¼–è¾‘å™¨ä¸­è‡ªåŠ¨ç”Ÿæˆï¼Œä¸è¦æ‰‹åŠ¨ä¿®æ”¹ã€‚")]
     [SerializeField] private string roomSaveID;
     [SerializeField] private bool saveImmediatelyWhenFirstVisited = true;
 
-    [Header("ÉãÏñ»úÏŞÖÆ·¶Î§")]
+    [Header("æ‘„åƒæœºé™åˆ¶èŒƒå›´")]
     [SerializeField] private Collider2D cameraBoundsCollider;
     [SerializeField] private BoxCollider2D roomBoundsCollider;
 
-    [Header("·¿¼äÇĞ»»ÅĞ¶¨·¶Î§")]
+    [Header("æˆ¿é—´åˆ‡æ¢åˆ¤å®šèŒƒå›´")]
     [SerializeField] private BoxCollider2D switchTriggerCollider;
 
-    [Header("µĞÈË")]
+    [Header("æ•Œäºº")]
     [SerializeField] private bool autoCollectEnemiesInChildren = true;
     [SerializeField] private List<RoomEnemyMember> roomEnemies = new List<RoomEnemyMember>();
 
-    [Header("·¿¼äËùÓĞÎï")]
+    [Header("æˆ¿é—´æ‰€æœ‰ç‰©")]
     [SerializeField] private GameObject roomContent;
     private RoomManager manager;
 
@@ -48,8 +47,8 @@ public class RoomController : MonoBehaviour
 
     private void OnEnable()
     {
-        // µÚÒ»´ÎÆôÓÃÊ±²»ÔÚ OnEnable ×¢²á£¬±ÜÃâ RoomManager ÉúÃüÖÜÆÚ»¹Ã»×¼±¸ºÃ
-        // µÚÒ»´Î×¢²á½»¸ø Start£»ºóĞø´Ó½ûÓÃ»Ö¸´Ê±£¬ÔÙÔÚ OnEnable ×¢²á
+        // ç¬¬ä¸€æ¬¡å¯ç”¨æ—¶ä¸åœ¨ OnEnable æ³¨å†Œï¼Œé¿å… RoomManager ç”Ÿå‘½å‘¨æœŸè¿˜æ²¡å‡†å¤‡å¥½
+        // ç¬¬ä¸€æ¬¡æ³¨å†Œäº¤ç»™ Startï¼›åç»­ä»ç¦ç”¨æ¢å¤æ—¶ï¼Œå†åœ¨ OnEnable æ³¨å†Œ
         if (hasStarted)
         {
             RegisterSelf();
@@ -63,9 +62,6 @@ public class RoomController : MonoBehaviour
         SyncRoomContentFromCurrentRunData();
 
         RegisterSelf();
-
-        // ³õÊ¼ÏÈĞİÃß£¬µÈ RoomManager È·ÈÏµ±Ç°·¿¼äºóÔÙ´ò¿ªµ±Ç°·¿¼äµĞÈË¡£
-        SetRoomActive(false);
     }
 
     private void OnDisable()
@@ -94,7 +90,7 @@ public class RoomController : MonoBehaviour
 
     public bool ContainsPosition(Vector2 worldPosition)
     {
-        // ³õÊ¼·¿¼äÅĞ¶ÏÓÃ¡°´ó·¶Î§¡±µÄ cameraBoundsCollider ¸üºÏÊÊ¡£
+        // åˆå§‹æˆ¿é—´åˆ¤æ–­ç”¨â€œå¤§èŒƒå›´â€çš„ cameraBoundsCollider æ›´åˆé€‚ã€‚
         if (cameraBoundsCollider != null && cameraBoundsCollider.OverlapPoint(worldPosition))
         {
             return true;
@@ -108,6 +104,9 @@ public class RoomController : MonoBehaviour
         return false;
     }
 
+    /// <summary>
+    /// å°†è¯¥æˆ¿é—´åˆ—è¡¨ä¸­çš„æ•Œäººå…¨éƒ¨è®¾ä¸ºåŒä¸€æ¿€æ´»çŠ¶æ€ï¼ˆå…¼å®¹æ—§è°ƒç”¨ï¼›åˆ‡æˆ¿é€»è¾‘è¯·èµ° RoomEnemyActivationServiceï¼‰ã€‚
+    /// </summary>
     public void SetRoomActive(bool active)
     {
         for (int i = 0; i < roomEnemies.Count; i++)
@@ -138,7 +137,7 @@ public class RoomController : MonoBehaviour
 
         if (manager == null)
         {
-            Debug.LogWarning($"·¿¼ä {name} ÕÒ²»µ½ RoomManager£¬ÔİÊ±ÎŞ·¨×¢²á¡£");
+            Debug.LogWarning($"æˆ¿é—´ {name} æ‰¾ä¸åˆ° RoomManagerï¼Œæš‚æ—¶æ— æ³•æ³¨å†Œã€‚");
             return;
         }
 
@@ -224,13 +223,13 @@ public class RoomController : MonoBehaviour
     {
         if (string.IsNullOrWhiteSpace(roomSaveID))
         {
-            Debug.LogWarning($"·¿¼ä {name} Ã»ÓĞÉèÖÃ Room Save ID£¬ÎŞ·¨¼ÇÂ¼·ÃÎÊ×´Ì¬¡£");
+            Debug.LogWarning($"æˆ¿é—´ {name} æ²¡æœ‰è®¾ç½® Room Save IDï¼Œæ— æ³•è®°å½•è®¿é—®çŠ¶æ€ã€‚");
             return;
         }
 
         if (RoomVisitSaveService.Instance == null)
         {
-            Debug.LogWarning($"·¿¼ä {name} ÕÒ²»µ½ RoomVisitSaveService£¬ÎŞ·¨¼ÇÂ¼·ÃÎÊ×´Ì¬¡£");
+            Debug.LogWarning($"æˆ¿é—´ {name} æ‰¾ä¸åˆ° RoomVisitSaveServiceï¼Œæ— æ³•è®°å½•è®¿é—®çŠ¶æ€ã€‚");
             return;
         }
 
@@ -252,13 +251,13 @@ public class RoomController : MonoBehaviour
 
         Gizmos.color = color;
 
-        // ±£´æÔ­±¾µÄ Gizmos ¾ØÕó£¬±ÜÃâÓ°Ïì±ğµÄ Gizmos
+        // ä¿å­˜åŸæœ¬çš„ Gizmos çŸ©é˜µï¼Œé¿å…å½±å“åˆ«çš„ Gizmos
         Matrix4x4 oldMatrix = Gizmos.matrix;
 
-        // Ê¹ÓÃ Collider ×Ô¼ºµÄ Transform£¬±ÜÃâ Collider ÔÚ×ÓÎïÌåÉÏÊ±»­´íÎ»ÖÃ
+        // ä½¿ç”¨ Collider è‡ªå·±çš„ Transformï¼Œé¿å… Collider åœ¨å­ç‰©ä½“ä¸Šæ—¶ç”»é”™ä½ç½®
         Gizmos.matrix = targetCollider.transform.localToWorldMatrix;
 
-        // BoxCollider2D µÄ offset ºÍ size ¶¼ÊÇ±¾µØ¿Õ¼äÊı¾İ
+        // BoxCollider2D çš„ offset å’Œ size éƒ½æ˜¯æœ¬åœ°ç©ºé—´æ•°æ®
         Gizmos.DrawWireCube(targetCollider.offset, targetCollider.size);
 
         Gizmos.matrix = oldMatrix;

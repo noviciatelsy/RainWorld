@@ -115,6 +115,7 @@ GameObject:
   - component: {fileID: 2541457386464874989}
   - component: {fileID: 3731327808569568669}
   - component: {fileID: 7123456789012345006}
+  - component: {fileID: 3732952398623403793}
   m_Layer: 0
   m_Name: Snail
   m_TagString: Untagged
@@ -174,6 +175,7 @@ MonoBehaviour:
   attractedItemData: {fileID: 11400000, guid: dac9b82a91406174ea6fe8b6b01fcfbc, type: 2}
   eatWaitDuration: 3
   arriveThreshold: 0.08
+  detectRadius: 8
   drawAreaGizmos: 1
 --- !u!114 &7123456789012345006
 MonoBehaviour:
@@ -189,6 +191,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   snail: {fileID: 3731327808569568669}
   moveAni: {fileID: 7123456789012345007}
+--- !u!114 &3732952398623403793
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1492779552362819572}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fef0aeab7753504469f86b92b114728a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  overlapActiveRooms: []
 --- !u!1 &5840493593169919311
 GameObject:
   m_ObjectHideFlags: 0
@@ -345,7 +360,6 @@ MonoBehaviour:
   movingEpsilon: 0.0001
   visualTransform: {fileID: 0}
   turnAngleThreshold: 0.5
-  turnLocalPositionThresholdSqr: 0.0001
   turnSuspendDuration: 0.2
   downwardDetectDepth: 1.5
   downwardDetectPaddingX: 0.35

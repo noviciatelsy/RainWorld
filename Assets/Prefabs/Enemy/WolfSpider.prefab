@@ -43,6 +43,7 @@ GameObject:
   - component: {fileID: 7891601111735932476}
   - component: {fileID: -7562830907451845910}
   - component: {fileID: 6284496953832666010}
+  - component: {fileID: 2318907822464081034}
   m_Layer: 0
   m_Name: WolfSpider
   m_TagString: Untagged
@@ -136,6 +137,19 @@ MonoBehaviour:
   spider: {fileID: -7562830907451845910}
   animator: {fileID: 1969837244329838490}
   crossFadeDuration: 0.05
+--- !u!114 &2318907822464081034
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1517624288190499507}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fef0aeab7753504469f86b92b114728a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  overlapActiveRooms: []
 --- !u!1 &2740227717384332534
 GameObject:
   m_ObjectHideFlags: 0

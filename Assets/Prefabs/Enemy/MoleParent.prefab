@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1315614827933821868}
   - component: {fileID: 9012345678901234561}
   - component: {fileID: 9012345678901234562}
+  - component: {fileID: 7784956539448789251}
   m_Layer: 0
   m_Name: MoleParent
   m_TagString: Untagged
@@ -84,6 +85,19 @@ MonoBehaviour:
   destructibleWall: {fileID: 0}
   permanentWallDestroy: 1
   moleParentAni: {fileID: 9012345678901234561}
+--- !u!114 &7784956539448789251
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1939753863665353310}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fef0aeab7753504469f86b92b114728a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  overlapActiveRooms: []
 --- !u!1 &3663797757834754782
 GameObject:
   m_ObjectHideFlags: 0
