@@ -1,3 +1,4 @@
+using System.Collections;
 using Cinemachine;
 using UnityEngine;
 
@@ -5,12 +6,14 @@ using UnityEngine;
 [RequireComponent(typeof(CinemachineConfiner2D))]
 public class RoomCameraController : MonoBehaviour
 {
-    [Header("Cinemachine ×é¼ş")]
+    [Header("Cinemachine ç»„ä»¶")]
     private CinemachineVirtualCamera virtualCamera;
     private CinemachineConfiner2D confiner2D;
 
-    [Header("·¿¼äÇĞ»»ÉèÖÃ")]
+    [Header("æˆ¿é—´åˆ‡æ¢è®¾ç½®")]
     [SerializeField] private bool invalidateConfinerCacheWhenApplyRoom = true;
+
+    private Coroutine cameraTransitionRoutine;
 
     private void Awake()
     {
@@ -30,7 +33,8 @@ public class RoomCameraController : MonoBehaviour
         virtualCamera.LookAt = null;
     }
 
-    public void ApplyRoom(RoomController room, bool forceCameraImmediately)
+    /// <param name="cameraMoveDuration">æ‘„åƒæœºå¹³ç§»åˆ°è·Ÿéšç›®æ ‡çš„ç”¨æ—¶ï¼ˆç§’ï¼‰ã€‚0 è¡¨ç¤ºç«‹å³è·³è½¬ã€‚</param>
+    public void ApplyRoom(RoomController room, float cameraMoveDuration)
     {
         if (room == null)
         {
@@ -39,28 +43,69 @@ public class RoomCameraController : MonoBehaviour
 
         if (confiner2D == null)
         {
-            Debug.LogWarning("RoomCameraController È±ÉÙ CinemachineConfiner2D¡£");
+            Debug.LogWarning("RoomCameraController ç¼ºå°‘ CinemachineConfiner2Dã€‚");
             return;
         }
 
         if (room.CameraBoundsCollider == null)
         {
-            Debug.LogWarning($"·¿¼ä {room.name} Ã»ÓĞÉèÖÃ CameraBoundsCollider¡£");
+            Debug.LogWarning($"æˆ¿é—´ {room.name} æ²¡æœ‰è®¾ç½® CameraBoundsColliderã€‚");
             return;
         }
 
         confiner2D.m_BoundingShape2D = room.CameraBoundsCollider;
 
-        // »»·¿¼ä±ß½çºó£¬Ç¿ÖÆÈÃ Confiner2D ÖØĞÂ¼ÆËã»º´æ¡£
         if (invalidateConfinerCacheWhenApplyRoom)
         {
             confiner2D.InvalidateCache();
         }
 
-        if (forceCameraImmediately)
+        if (cameraTransitionRoutine != null)
+        {
+            StopCoroutine(cameraTransitionRoutine);
+            cameraTransitionRoutine = null;
+        }
+
+        if (cameraMoveDuration <= 0f)
         {
             ForceCameraToFollowTargetImmediately();
+            return;
         }
+
+        cameraTransitionRoutine = StartCoroutine(TransitionCameraToFollowTarget(cameraMoveDuration));
+    }
+
+    private IEnumerator TransitionCameraToFollowTarget(float duration)
+    {
+        if (virtualCamera == null || virtualCamera.Follow == null)
+        {
+            yield break;
+        }
+
+        virtualCamera.PreviousStateIsValid = false;
+
+        Vector3 startPosition = virtualCamera.transform.position;
+        float elapsed = 0f;
+        float safeDuration = Mathf.Max(0.0001f, duration);
+
+        while (elapsed < safeDuration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / safeDuration));
+
+            Vector3 followPosition = virtualCamera.Follow.position;
+            Vector3 nextPosition = new Vector3(
+                Mathf.Lerp(startPosition.x, followPosition.x, t),
+                Mathf.Lerp(startPosition.y, followPosition.y, t),
+                startPosition.z
+            );
+
+            virtualCamera.ForceCameraPosition(nextPosition, virtualCamera.transform.rotation);
+            yield return null;
+        }
+
+        ForceCameraToFollowTargetImmediately();
+        cameraTransitionRoutine = null;
     }
 
     private void ForceCameraToFollowTargetImmediately()
@@ -81,12 +126,7 @@ public class RoomCameraController : MonoBehaviour
         cameraPosition.x = targetPosition.x;
         cameraPosition.y = targetPosition.y;
 
-        // ¸æËß Cinemachine ²»ÒªÑØÓÃÉÏÒ»Ö¡µÄÆ½»¬×´Ì¬¡£
-        // ·ñÔòËü¿ÉÄÜ»¹»á´ø×Å¾É·¿¼äµÄ¹ßĞÔ¼ÌĞø²åÖµ¡£
         virtualCamera.PreviousStateIsValid = false;
-
-        // ºÚÆÁÆÚ¼äÖ±½Ó°ÑĞéÄâÏà»úÌùµ½Íæ¼Ò¸½½ü¡£
-        // Ö®ºó Confiner2D »á¸ù¾İĞÂ·¿¼ä±ß½ç°Ñ×îÖÕ»­ÃæÏŞÖÆÔÚ·¿¼äÄÚ¡£
         virtualCamera.ForceCameraPosition(cameraPosition, virtualCamera.transform.rotation);
     }
 }

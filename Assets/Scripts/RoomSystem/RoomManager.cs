@@ -8,16 +8,20 @@ public class RoomManager : MonoBehaviour
     private Transform player;
     private RoomCameraController roomCameraController;
 
-    [Header("³õÊ¼·¿¼ä")]
+    [Header("åˆå§‹æˆ¿é—´")]
     [SerializeField] private RoomController initialRoom;
 
-    [Tooltip("Èç¹ûÎª true£¬Ôò»á¸ù¾İÍæ¼Ò³öÉúÎ»ÖÃ×Ô¶¯²éÕÒ³õÊ¼·¿¼ä")]
+    [Tooltip("å¦‚æœä¸º trueï¼Œåˆ™ä¼šæ ¹æ®ç©å®¶å‡ºç”Ÿä½ç½®è‡ªåŠ¨æŸ¥æ‰¾åˆå§‹æˆ¿é—´")]
     [SerializeField] private bool findInitialRoomByPlayerPosition = true;
 
-    [Header("ºÚÆÁ¿ØÖÆ")]
-    [Tooltip("·¿¼äÇĞ»»Ê±ÊÇ·ñÊ¹ÓÃºÚÆÁ¹ı¶É")]
+    [Header("é»‘å±æ§åˆ¶")]
+    [Tooltip("æˆ¿é—´åˆ‡æ¢æ—¶æ˜¯å¦ä½¿ç”¨é»‘å±è¿‡æ¸¡")]
     [SerializeField] private bool useFadeWhenSwitchRoom = true;
     [SerializeField] private bool disablePlayerControlWhenSwitchRoom=true;
+
+    [Header("æ‘„åƒæœºåˆ‡æ¢")]
+    [Tooltip("æˆ¿é—´åˆ‡æ¢æ—¶æ‘„åƒæœºå¹³ç§»åˆ°æ–°ä½ç½®çš„ç”¨æ—¶ï¼ˆç§’ï¼‰ã€‚æ•°å€¼è¶Šå¤§è¶Šæ…¢ï¼›0 è¡¨ç¤ºç«‹å³è·³è½¬ã€‚")]
+    [SerializeField] private float roomCameraSwitchDuration = 0.55f;
 
 
     private readonly HashSet<RoomController> registeredRooms = new HashSet<RoomController>();
@@ -48,8 +52,8 @@ public class RoomManager : MonoBehaviour
 
     private IEnumerator Start()
     {
-        // µÈÒ»Ö¡£¬ÊÇÎªÁËÈÃËùÓĞ RoomController µÄ Start ¶¼ÓĞ»ú»áÏÈÍê³É×¢²á
-        // ÕâÑù¿ÉÒÔ±Ü¿ª¡°RoomManager ÏÈ Start£¬·¿¼ä»¹Ã»×¢²á¡±µÄÉúÃüÖÜÆÚÎÊÌâ
+        // ç­‰ä¸€å¸§ï¼Œæ˜¯ä¸ºäº†è®©æ‰€æœ‰ RoomController çš„ Start éƒ½æœ‰æœºä¼šå…ˆå®Œæˆæ³¨å†Œ
+        // è¿™æ ·å¯ä»¥é¿å¼€â€œRoomManager å…ˆ Startï¼Œæˆ¿é—´è¿˜æ²¡æ³¨å†Œâ€çš„ç”Ÿå‘½å‘¨æœŸé—®é¢˜
         yield return null;
         roomCameraController=FindAnyObjectByType<RoomCameraController>();
         InitializeInitialRoomIfNeeded();
@@ -83,7 +87,7 @@ public class RoomManager : MonoBehaviour
 
         registeredRooms.Add(room);
 
-        // Èç¹ûÓÎÏ·ÒÑ¾­³õÊ¼»¯¹ı£¬ºóĞøÖØĞÂÆôÓÃµÄ·¿¼äÓ¦¸ÃÁ¢¿ÌÍ¬²½µĞÈË¼¤»î×´Ì¬¡£
+        // å¦‚æœæ¸¸æˆå·²ç»åˆå§‹åŒ–è¿‡ï¼Œåç»­é‡æ–°å¯ç”¨çš„æˆ¿é—´åº”è¯¥ç«‹åˆ»åŒæ­¥æ•Œäººæ¿€æ´»çŠ¶æ€ã€‚
         if (hasInitialized)
         {
             SyncEnemyActivation();
@@ -135,7 +139,7 @@ public class RoomManager : MonoBehaviour
             return;
         }
 
-        SwitchToRoom(targetRoom, false, false);
+        SwitchToRoom(targetRoom, useInstantCamera: false);
     }
 
     public RoomController FindRoomContainingPosition(Vector2 worldPosition)
@@ -179,12 +183,12 @@ public class RoomManager : MonoBehaviour
 
         if (roomToEnter != null)
         {
-            SwitchToRoom(roomToEnter, true,true);
+            SwitchToRoom(roomToEnter, useInstantCamera: true);
             enableRoomSwitchByCollider=true;
         }
         else
         {
-            Debug.LogWarning("RoomManager Ã»ÓĞÕÒµ½³õÊ¼·¿¼ä¡£ÇëÉèÖÃ initialRoom£¬»òÈ·±£Íæ¼Ò³öÉúµãÎ»ÓÚÄ³¸ö·¿¼äµÄ CameraBounds ÄÚ¡£");
+            Debug.LogWarning("RoomManager æ²¡æœ‰æ‰¾åˆ°åˆå§‹æˆ¿é—´ã€‚è¯·è®¾ç½® initialRoomï¼Œæˆ–ç¡®ä¿ç©å®¶å‡ºç”Ÿç‚¹ä½äºæŸä¸ªæˆ¿é—´çš„ CameraBounds å†…ã€‚");
         }
     }
 
@@ -210,7 +214,7 @@ public class RoomManager : MonoBehaviour
         RoomController targetRoom = pendingRoomToSwitch;
         pendingRoomToSwitch = null;
 
-        SwitchToRoom(targetRoom, false, true);
+        SwitchToRoom(targetRoom, useInstantCamera: false);
     }
 
     private void HandleRoomSwitchFadeCompleted()
@@ -221,7 +225,7 @@ public class RoomManager : MonoBehaviour
         SetRoomFadeControlledBehavioursActive(true);
     }
 
-    private void SwitchToRoom(RoomController newRoom, bool isInitialRoom, bool forceCameraImmediately)
+    private void SwitchToRoom(RoomController newRoom, bool useInstantCamera)
     {
         if (newRoom == null)
         {
@@ -240,7 +244,8 @@ public class RoomManager : MonoBehaviour
         CurrentRoom.TryEnableRoomContent();
         if (roomCameraController != null)
         {
-            roomCameraController.ApplyRoom(CurrentRoom, forceCameraImmediately);
+            float cameraMoveDuration = useInstantCamera ? 0f : roomCameraSwitchDuration;
+            roomCameraController.ApplyRoom(CurrentRoom, cameraMoveDuration);
         }
 
         OnRoomChanged?.Invoke(previousRoom, CurrentRoom);
