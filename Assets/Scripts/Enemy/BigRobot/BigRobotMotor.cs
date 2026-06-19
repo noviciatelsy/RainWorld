@@ -24,7 +24,7 @@ public class BigRobotMotor : IMonsterMotor
         br.CurrentBehavior = move.behavior;
         br.Arrived = true;
 
-        if (move.behavior != BigRobotBehavior.Attack)
+        if (br.IsShutdown || move.behavior != BigRobotBehavior.Attack)
         {
             return;
         }
@@ -39,9 +39,8 @@ public class BigRobotMotor : IMonsterMotor
             return;
         }
 
-        bool damageDealt = br.TryDamagePlayer(move.attackTarget);
-        br.OnAttackPerformed(move.attackTarget, damageDealt);
         br.BeginAttackSequence();
+        br.ScheduleAttackDamage(move.attackTarget);
         bigRobotAI?.NotifyAttackFinished();
     }
 }

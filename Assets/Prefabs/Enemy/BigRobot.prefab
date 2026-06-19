@@ -9,9 +9,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4196061378064432175}
+  - component: {fileID: 5829471038472910599}
   - component: {fileID: 4790567607833133304}
   - component: {fileID: 9012345678901234501}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: BigRobot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -32,8 +33,54 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3498486197563993216}
+  - {fileID: 5829471038472910569}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!61 &5829471038472910599
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 655137027452463140}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 5, y: 6}
+  m_EdgeRadius: 0
 --- !u!114 &4790567607833133304
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -54,16 +101,20 @@ MonoBehaviour:
   Target: {x: 0, y: 0}
   HasEdge: 0
   activeBounds:
-    m_Center: {x: -39.62, y: -5.79, z: -9.01141}
-    m_Extent: {x: 5, y: 3, z: 0.05}
+    m_Center: {x: -49.3, y: -93, z: 0}
+    m_Extent: {x: 4, y: 3, z: 0.05}
   playerLayer:
     serializedVersion: 2
     m_Bits: 64
   attackRange: 2.5
   attackDamage: 20
-  attackCooldown: 1.5
+  attackCooldown: 2
   attackSequenceDuration: 1.5
+  attackDelay: 0.8
   bodyVisual: {fileID: 3498486197563993216}
+  battery: {fileID: 5829471038472910583}
+  liquidHitboxSize: {x: 5, y: 6}
+  liquidHitboxOffset: {x: 0, y: 0}
   drawDebugGizmos: 1
   enableDebugLog: 1
 --- !u!114 &9012345678901234501
@@ -82,11 +133,202 @@ MonoBehaviour:
   attackStateName: BigRobotAttack1
   bigRobot: {fileID: 4790567607833133304}
   animator: {fileID: 9012345678901234502}
+  bodySpriteRenderer: {fileID: 685427675976855562}
   scaleTransform: {fileID: 3498486197563993216}
   idleScale: {x: 0.75, y: 0.75, z: 0.75}
   attackScale: {x: 1, y: 1, z: 1}
   idlePosition: {x: 0, y: 0, z: 0}
-  attackPosition: {x: -1, y: 0.9, z: 0}
+  attackPosition: {x: -1, y: 0.8, z: 0}
+  shutdownSpriteAsset: {fileID: 21300000, guid: 2bcdea1d4e890aa4cacb82b1e218ab47,
+    type: 3}
+  shutdownSpriteResourcePath: textures/\u654C\u4EBA\u8D44\u6E90/\u5927\u673A\u5668\u4EBA/\u5173\u673A\u52A8\u753B/\u56FE\u5C42_57-removebg-preview
+  shutdownScale: {x: 0.9, y: 0.9, z: 0.9}
+  shutdownPosition: {x: 0, y: 0, z: 0}
+--- !u!1 &2663248745151360903
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8130728784146527180}
+  - component: {fileID: 4386675895525419436}
+  m_Layer: 9
+  m_Name: texture
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8130728784146527180
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2663248745151360903}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.5, z: 0}
+  m_LocalScale: {x: 0.3, y: 0.25, z: 0.25}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5829471038472910569}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &4386675895525419436
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2663248745151360903}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_Sprite: {fileID: 21300000, guid: 331cdd29c94cc2e489035b4bfb81baf1, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 2, y: 4}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
+--- !u!1 &5829471038472910568
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5829471038472910569}
+  - component: {fileID: 5829471038472910581}
+  - component: {fileID: 5829471038472910583}
+  m_Layer: 9
+  m_Name: Battery
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5829471038472910569
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5829471038472910568}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 54.32, y: 15.66, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children:
+  - {fileID: 8130728784146527180}
+  m_Father: {fileID: 4196061378064432175}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!61 &5829471038472910581
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5829471038472910568}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 1
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0.4}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 2, y: 4}
+    newSize: {x: 1.28, y: 2.56}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 0.6, y: 0.1}
+  m_EdgeRadius: 0
+--- !u!114 &5829471038472910583
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5829471038472910568}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4d5e6f7a8b90123456789abcdef1234, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bigRobot: {fileID: 4790567607833133304}
+  spriteRenderer: {fileID: 4386675895525419436}
+  stompCollider: {fileID: 5829471038472910581}
+  brokenSpriteAsset: {fileID: 21300000, guid: b38bb14880b7f994592f1fde9b1f9d97, type: 3}
+  normalSpriteResourcePath: textures/\u654C\u4EBA\u8D44\u6E90/\u5927\u673A\u5668\u4EBA/\u7535\u6C60
+  brokenSpriteResourcePath: textures/\u654C\u4EBA\u8D44\u6E90/\u5927\u673A\u5668\u4EBA/\u77ED\u8DEF\u7535\u6C60
+  stompSquashScaleY: 0.4
+  minStompDownSpeed: 0.5
+  topContactTolerance: 0.12
+  stompBounceImpulse: 0
 --- !u!1 &7487049778382049308
 GameObject:
   m_ObjectHideFlags: 0
@@ -161,7 +403,7 @@ SpriteRenderer:
   m_SortingLayerID: 1479021791
   m_SortingLayer: -3
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 6d9179481fb531c4eb4ff05059e485e2, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 2bcdea1d4e890aa4cacb82b1e218ab47, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

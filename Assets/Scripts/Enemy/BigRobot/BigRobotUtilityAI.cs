@@ -18,6 +18,12 @@ public class BigRobotUtilityAI : IMonsterAI
             return IdleIntent();
         }
 
+        if (br.IsShutdown)
+        {
+            br.CurrentBehavior = BigRobotBehavior.Idle;
+            return IdleIntent();
+        }
+
         if (cooldownTimer > 0f)
         {
             cooldownTimer -= Time.fixedDeltaTime;

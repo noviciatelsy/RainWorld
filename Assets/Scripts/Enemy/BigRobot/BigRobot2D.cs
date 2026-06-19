@@ -1,6 +1,7 @@
+using System.Collections;
 using UnityEngine;
 
-public class BigRobot2D : MonsterBase
+public class BigRobot2D : MonsterBase, IContactWithLiquid, IAttractedByMilk
 {
     [Header("Areas")]
     [Tooltip("以机器人为中心的感知/攻击触发范围（仅 Size 有效）")]
@@ -18,10 +19,20 @@ public class BigRobot2D : MonsterBase
 
     [Tooltip("攻击动画保持时长（秒），需覆盖攻击 clip 长度")]
     public float attackSequenceDuration = 1.5f;
+    [Tooltip("攻击动画开始后，延迟多久再判定伤害")]
+    public float attackDelay = 1f;
 
     [Header("Visual")]
     [Tooltip("做 scale 挤压的视觉根（通常为 Textures）")]
     public Transform bodyVisual;
+
+    [Header("Battery")]
+    [SerializeField] private BigRobotBattery battery;
+
+    [Header("Liquid")]
+    [Tooltip("液体泼洒检测盒 Size（Center 为相对机器人 pivot 的 offset）")]
+    [SerializeField] private Vector2 liquidHitboxSize = new Vector2(5f, 6f);
+    [SerializeField] private Vector2 liquidHitboxOffset = Vector2.zero;
 
     [Header("Debug")]
     public bool drawDebugGizmos = true;
@@ -30,13 +41,19 @@ public class BigRobot2D : MonsterBase
     public BigRobotBehavior CurrentBehavior { get; set; } = BigRobotBehavior.Idle;
 
     public bool IsInAttackSequence { get; private set; }
+    public int AttackAnimVersion { get; private set; }
     public bool IsCoolingDown => CurrentBehavior == BigRobotBehavior.Cooldown;
+
+    public bool IsBatteryBroken => battery != null && battery.IsBroken;
+    public bool IsLiquidDisabled { get; private set; }
+    public bool IsShutdown => IsBatteryBroken || IsLiquidDisabled;
 
     public bool DebugHasPlayer { get; private set; }
     public Vector2 DebugPlayerPosition { get; private set; }
 
     private readonly Collider2D[] overlapBuffer = new Collider2D[16];
     private float attackSequenceTimer;
+    private Coroutine attackDamageCoroutine;
 
     protected override void Init()
     {
@@ -47,6 +64,99 @@ public class BigRobot2D : MonsterBase
         Arrived = true;
         EnsureDefaultAreas();
         ResolvePlayerLayerMask();
+        ResolveBatteryReference();
+        EnsureEnemyLayer();
+        EnsureLiquidHitbox();
+    }
+
+    private void ResolveBatteryReference()
+    {
+        if (battery == null)
+        {
+            battery = GetComponentInChildren<BigRobotBattery>(true);
+        }
+    }
+
+    public void NotifyBatteryBroken()
+    {
+        ApplyShutdownState();
+    }
+
+    public void ContactWithLiquid()
+    {
+        if (IsShutdown)
+        {
+            return;
+        }
+
+        IsLiquidDisabled = true;
+        ApplyShutdownState();
+    }
+
+    public void AttractedByMilk(Vector2 milkPosition)
+    {
+        if (IsShutdown)
+        {
+            return;
+        }
+
+        if (!IsInsideActiveBounds(milkPosition))
+        {
+            return;
+        }
+
+        IsLiquidDisabled = true;
+        ApplyShutdownState();
+    }
+
+    private void ApplyShutdownState()
+    {
+        IsInAttackSequence = false;
+        CurrentBehavior = BigRobotBehavior.Idle;
+        CancelPendingAttackDamage();
+
+        BigRobotAni ani = GetComponent<BigRobotAni>();
+
+        if (ani != null)
+        {
+            ani.ApplyShutdownVisual();
+        }
+    }
+
+    private void EnsureEnemyLayer()
+    {
+        int enemyLayer = LayerMask.NameToLayer("Enemy");
+
+        if (enemyLayer < 0 || gameObject.layer == enemyLayer)
+        {
+            return;
+        }
+
+        gameObject.layer = enemyLayer;
+    }
+
+    private void EnsureLiquidHitbox()
+    {
+        if (GetComponent<Collider2D>() != null)
+        {
+            return;
+        }
+
+        BoxCollider2D hitbox = gameObject.AddComponent<BoxCollider2D>();
+        hitbox.isTrigger = true;
+        hitbox.size = liquidHitboxSize;
+        hitbox.offset = liquidHitboxOffset;
+    }
+
+    protected override void FixedUpdate()
+    {
+        if (IsShutdown)
+        {
+            CurrentBehavior = BigRobotBehavior.Idle;
+            return;
+        }
+
+        base.FixedUpdate();
     }
 
     private void OnValidate()
@@ -72,7 +182,45 @@ public class BigRobot2D : MonsterBase
     public void BeginAttackSequence()
     {
         IsInAttackSequence = true;
+        AttackAnimVersion++;
         attackSequenceTimer = Mathf.Max(0.05f, attackSequenceDuration);
+    }
+
+    public void ScheduleAttackDamage(Transform target)
+    {
+        CancelPendingAttackDamage();
+        attackDamageCoroutine = StartCoroutine(DealAttackDamageAfterDelay(target));
+    }
+
+    private void CancelPendingAttackDamage()
+    {
+        if (attackDamageCoroutine == null)
+        {
+            return;
+        }
+
+        StopCoroutine(attackDamageCoroutine);
+        attackDamageCoroutine = null;
+    }
+
+    private IEnumerator DealAttackDamageAfterDelay(Transform target)
+    {
+        float delay = Mathf.Max(0f, attackDelay);
+
+        if (delay > 0f)
+        {
+            yield return new WaitForSeconds(delay);
+        }
+
+        attackDamageCoroutine = null;
+
+        if (IsShutdown || target == null)
+        {
+            yield break;
+        }
+
+        bool damageDealt = TryDamagePlayer(target);
+        OnAttackPerformed(target, damageDealt);
     }
 
     public void EnsureDefaultAreas()
