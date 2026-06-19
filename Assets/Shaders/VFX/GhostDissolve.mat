@@ -34,9 +34,9 @@ Material:
     m_Ints: []
     m_Floats:
     - _DissolveAmount: 1
-    - _EdgeWidth: 0.06
+    - _EdgeWidth: 0.02
     - _NoiseScale: 8
     m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _EdgeColor: {r: 0.45, g: 0.9, b: 1, a: 1}
+    - _Color: {r: 0.7798742, g: 0, b: 0, a: 1}
+    - _EdgeColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
