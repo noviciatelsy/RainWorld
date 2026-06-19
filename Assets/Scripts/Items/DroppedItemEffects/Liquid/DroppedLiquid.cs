@@ -5,11 +5,11 @@ public class DroppedLiquid : MonoBehaviour
 {
     private PickableObject pickableObject;
 
-    [SerializeField] private string EnemyLayerName = "Enemy"; // µĞÈËLayerÃû³Æ
-    [SerializeField] private string PlayerSensorTargetLayerName = "PlayerSensorTarget"; // Íæ¼Ò¸ĞÓ¦Ä¿±êLayerÃû³Æ
-    [SerializeField] private float ContactRadius = 1f; // ÒºÌå½Ó´¥¼ì²â°ë¾¶
+    [SerializeField] private string EnemyLayerName = "Enemy"; // æ•ŒäººLayeråç§°
+    [SerializeField] private string PlayerSensorTargetLayerName = "PlayerSensorTarget"; // ç©å®¶æ„Ÿåº”ç›®æ ‡Layeråç§°
+    [SerializeField] private float ContactRadius = 1f; // æ¶²ä½“æ¥è§¦æ£€æµ‹åŠå¾„
 
-    // ¸ù¾İLayerÃû³ÆÉú³É²¢»º´æµÄLayerMask
+    // æ ¹æ®Layeråç§°ç”Ÿæˆå¹¶ç¼“å­˜çš„LayerMask
     private int liquidContactLayerMask;
 
     private void Awake()
@@ -19,21 +19,21 @@ public class DroppedLiquid : MonoBehaviour
         if (pickableObject == null)
         {
             Debug.LogError(
-                $"{name} Ã»ÓĞÕÒµ½ PickableObject ×é¼ş£¬DroppedLiquid ÎŞ·¨¼àÌıÎïÆ·ÂäµØÊÂ¼ş¡£",
+                $"{name} æ²¡æœ‰æ‰¾åˆ° PickableObject ç»„ä»¶ï¼ŒDroppedLiquid æ— æ³•ç›‘å¬ç‰©å“è½åœ°äº‹ä»¶ã€‚",
                 this);
 
             enabled = false;
             return;
         }
 
-        // ¼ì²éÌîĞ´µÄLayerÃû³ÆÊÇ·ñ´æÔÚ
+        // æ£€æŸ¥å¡«å†™çš„Layeråç§°æ˜¯å¦å­˜åœ¨
         int enemyLayerIndex = LayerMask.NameToLayer(EnemyLayerName);
         int playerSensorTargetLayerIndex = LayerMask.NameToLayer(PlayerSensorTargetLayerName);
 
         if (enemyLayerIndex == -1)
         {
             Debug.LogError(
-                $"Ã»ÓĞÕÒµ½ÃûÎª¡°{EnemyLayerName}¡±µÄLayer£¬Çë¼ì²éTags and LayersÉèÖÃ¡£",
+                $"æ²¡æœ‰æ‰¾åˆ°åä¸ºâ€œ{EnemyLayerName}â€çš„Layerï¼Œè¯·æ£€æŸ¥Tags and Layersè®¾ç½®ã€‚",
                 this);
 
             enabled = false;
@@ -43,14 +43,14 @@ public class DroppedLiquid : MonoBehaviour
         if (playerSensorTargetLayerIndex == -1)
         {
             Debug.LogError(
-                $"Ã»ÓĞÕÒµ½ÃûÎª¡°{PlayerSensorTargetLayerName}¡±µÄLayer£¬Çë¼ì²éTags and LayersÉèÖÃ¡£",
+                $"æ²¡æœ‰æ‰¾åˆ°åä¸ºâ€œ{PlayerSensorTargetLayerName}â€çš„Layerï¼Œè¯·æ£€æŸ¥Tags and Layersè®¾ç½®ã€‚",
                 this);
 
             enabled = false;
             return;
         }
 
-        // ½«Layer×Ö·û´®Ãû³Æ×ª»»ÎªPhysics2D¼ì²âËùĞèµÄLayerMask
+        // å°†Layerå­—ç¬¦ä¸²åç§°è½¬æ¢ä¸ºPhysics2Dæ£€æµ‹æ‰€éœ€çš„LayerMask
         liquidContactLayerMask = LayerMask.GetMask(
             EnemyLayerName,
             PlayerSensorTargetLayerName);
@@ -85,6 +85,7 @@ public class DroppedLiquid : MonoBehaviour
     {
         AudioManager.Instance.PlaySFX("UseItemSplashSFX");
         Vector2 liquidPosition = transform.position;
+        bool isWater = IsWaterPickable(pickableObject);
 
         Collider2D[] detectedColliders = Physics2D.OverlapCircleAll(
             liquidPosition,
@@ -97,9 +98,19 @@ public class DroppedLiquid : MonoBehaviour
         {
             Collider2D detectedCollider = detectedColliders[i];
 
+            if (isWater)
+            {
+                MonoBehaviour waterBehaviour =
+                    FindInterfaceBehaviourInParents<IActivatedByWater>(detectedCollider);
+
+                if (waterBehaviour != null && triggeredTargets.Add(waterBehaviour))
+                {
+                    (waterBehaviour as IActivatedByWater)?.ActivateByWater();
+                }
+            }
+
             MonoBehaviour interfaceBehaviour =
-                FindInterfaceBehaviourInParents<IContactWithLiquid>(
-                    detectedCollider);
+                FindInterfaceBehaviourInParents<IContactWithLiquid>(detectedCollider);
 
             if (interfaceBehaviour == null)
             {
@@ -118,9 +129,19 @@ public class DroppedLiquid : MonoBehaviour
         }
     }
 
+    private static bool IsWaterPickable(PickableObject pickable)
+    {
+        if (pickable == null || pickable.ItemData == null)
+        {
+            return false;
+        }
+
+        return pickable.ItemData.itemEffectData is ItemEffectDataSO_Water;
+    }
+
     /// <summary>
-    /// ´ÓÅö×²Ìå×ÔÉí¼°Æä¸¸ÎïÌåÉÏ£¬
-    /// Ñ°ÕÒµÚÒ»¸öÊµÏÖÖ¸¶¨½Ó¿ÚµÄ MonoBehaviour¡£
+    /// ä»ç¢°æ’ä½“è‡ªèº«åŠå…¶çˆ¶ç‰©ä½“ä¸Šï¼Œ
+    /// å¯»æ‰¾ç¬¬ä¸€ä¸ªå®ç°æŒ‡å®šæ¥å£çš„ MonoBehaviourã€‚
     /// </summary>
     private MonoBehaviour FindInterfaceBehaviourInParents<T>(
         Collider2D myCollider) where T : class
