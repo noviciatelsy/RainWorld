@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public struct SurfaceSnapResult
@@ -20,7 +21,37 @@ public static class WolfSpiderSurfaceProbe
     private const int TrajectorySampleCount = 8;
     private const int LineOfSightStepSize = 4;
 
-    public static SurfaceSnapResult SnapToSurface(
+    /// <summary>
+    /// 将 worldHint 投影到指定边 index 上并计算站立点（不漂移到其它边）。
+    /// </summary>
+    public static SurfaceSnapResult SnapToEdgeIndex(
+        int edgeIndex,
+        Vector2 worldHint,
+        float surfaceOffset = 0f)
+    {
+        TileMapGuideManager mgr = TileMapGuideManager.Instance;
+
+        if (mgr == null || edgeIndex < 0 || edgeIndex >= mgr.GetEdgeCount())
+        {
+            return Fail();
+        }
+
+        Edge edge = mgr.GetEdge(edgeIndex);
+
+        if (!mgr.TryGetStandPointOnEdge(edge, worldHint, surfaceOffset, out Vector2 standPoint, out Vector2 normal))
+        {
+            return Fail();
+        }
+
+        return new SurfaceSnapResult
+        {
+            success = true,
+            point = standPoint,
+            normal = normal
+        };
+    }
+
+    public static SurfaceSnapResult SnapToContourSurface(
         Vector2 worldHint,
         float maxDistance = 0.85f,
         float surfaceOffset = 0.08f,
@@ -33,87 +64,109 @@ public static class WolfSpiderSurfaceProbe
             return Fail();
         }
 
+        int centerEdge = mgr.FindClosestEdgeIndex(worldHint);
+        SurfaceSnapResult best = Fail();
+        float bestScore = float.MaxValue;
+
+        List<List<int>> adjacency = SurfaceEdgePath.GetEdgeAdjacencyAllLoops(mgr);
+        List<int> candidateEdges = adjacency[centerEdge];
+        TryPickStandOnEdge(mgr, centerEdge, worldHint, maxDistance, surfaceOffset, preferNear, ref best, ref bestScore);
+
+        for (int i = 0; i < candidateEdges.Count; i++)
+        {
+            TryPickStandOnEdge(
+                mgr,
+                candidateEdges[i],
+                worldHint,
+                maxDistance,
+                surfaceOffset,
+                preferNear,
+                ref best,
+                ref bestScore);
+        }
+
+        if (best.success)
+        {
+            return best;
+        }
+
+        return Fail();
+    }
+
+    private static void TryPickStandOnEdge(
+        TileMapGuideManager mgr,
+        int edgeIndex,
+        Vector2 worldHint,
+        float maxDistance,
+        float surfaceOffset,
+        Vector2? preferNear,
+        ref SurfaceSnapResult best,
+        ref float bestScore)
+    {
+        Edge edge = mgr.GetEdge(edgeIndex);
+        Vector2 pointOnEdge = ClosestPointOnSegment(worldHint, edge.a, edge.b);
+        float maxDistanceSqr = maxDistance * maxDistance;
+        float edgeDistanceSqr = (worldHint - pointOnEdge).sqrMagnitude;
+
+        if (edgeDistanceSqr > maxDistanceSqr)
+        {
+            return;
+        }
+
+        if (!mgr.TryGetStandPointOnEdge(edge, worldHint, surfaceOffset, out Vector2 standPoint, out Vector2 normal))
+        {
+            return;
+        }
+
+        float score = edgeDistanceSqr;
+
+        if (preferNear.HasValue)
+        {
+            score += (preferNear.Value - standPoint).sqrMagnitude * 0.25f;
+        }
+
+        if (score >= bestScore)
+        {
+            return;
+        }
+
+        bestScore = score;
+        best = new SurfaceSnapResult
+        {
+            success = true,
+            point = standPoint,
+            normal = normal
+        };
+    }
+
+    public static SurfaceSnapResult SnapToSurface(
+        Vector2 worldHint,
+        float maxDistance = 0.85f,
+        float surfaceOffset = 0.08f,
+        Vector2? preferNear = null)
+    {
+        SurfaceSnapResult contour = SnapToContourSurface(worldHint, maxDistance, surfaceOffset, preferNear);
+
+        if (contour.success)
+        {
+            return contour;
+        }
+
+        TileMapGuideManager mgr = TileMapGuideManager.Instance;
+
+        if (mgr == null)
+        {
+            return Fail();
+        }
+
         SurfaceSnapResult rayResult = SnapByTileRaycast(worldHint, mgr, surfaceOffset, preferNear);
-
-        if (rayResult.success && rayResult.normal.y > 0.2f)
-        {
-            return rayResult;
-        }
-
-        if (mgr.TryGetFloorTop(worldHint, out Vector2 floorPoint, surfaceOffset))
-        {
-            return new SurfaceSnapResult
-            {
-                success = true,
-                point = floorPoint,
-                normal = Vector2.up
-            };
-        }
 
         if (rayResult.success)
         {
             return rayResult;
         }
 
-        int edgeIndex = FindBestEdgeIndex(mgr, worldHint, maxDistance);
-        Edge edge = mgr.GetEdge(edgeIndex);
-        Vector2 pointOnEdge = ClosestPointOnSegment(worldHint, edge.a, edge.b);
-        float edgeDistanceSqr = (worldHint - pointOnEdge).sqrMagnitude;
-        float maxDistanceSqr = maxDistance * maxDistance;
-
-        if (edgeDistanceSqr > maxDistanceSqr)
-        {
-            return Fail();
-        }
-
-        if (mgr.TryGetStandPointOnEdge(edge, worldHint, surfaceOffset, out Vector2 standPoint, out Vector2 normal))
-        {
-            return new SurfaceSnapResult
-            {
-                success = true,
-                point = standPoint,
-                normal = normal
-            };
-        }
-
         return Fail();
-    }
-
-    private static int FindBestEdgeIndex(TileMapGuideManager mgr, Vector2 worldHint, float maxDistance)
-    {
-        float maxDistanceSqr = maxDistance * maxDistance;
-        int bestIndex = mgr.FindClosestEdgeIndex(worldHint);
-        float bestScore = float.MaxValue;
-
-        int edgeCount = mgr.GetEdgeCount();
-
-        for (int i = 0; i < edgeCount; i++)
-        {
-            Edge edge = mgr.GetEdge(i);
-            Vector2 pointOnEdge = ClosestPointOnSegment(worldHint, edge.a, edge.b);
-            float edgeDistanceSqr = (worldHint - pointOnEdge).sqrMagnitude;
-
-            if (edgeDistanceSqr > maxDistanceSqr)
-            {
-                continue;
-            }
-
-            Vector2 normal = mgr.GetEdgeAirNormal(edge);
-            float score = edgeDistanceSqr - normal.y * 2f;
-
-            if (normal.y < 0f)
-            {
-                score += 100f;
-            }
-
-            if (score < bestScore)
-            {
-                bestScore = score;
-                bestIndex = i;
-            }
-        }
-
-        return bestIndex;
     }
 
     public static SurfaceSnapResult SnapToFloorSurface(
@@ -121,6 +174,13 @@ public static class WolfSpiderSurfaceProbe
         float maxDistance = 0.85f,
         float surfaceOffset = 0.08f)
     {
+        SurfaceSnapResult contour = SnapToContourSurface(worldHint, maxDistance, surfaceOffset);
+
+        if (contour.success)
+        {
+            return contour;
+        }
+
         TileMapGuideManager mgr = TileMapGuideManager.Instance;
 
         if (mgr == null)
@@ -141,6 +201,30 @@ public static class WolfSpiderSurfaceProbe
         return Fail();
     }
 
+    public static Vector2 ResolveJumpArcNormal(
+        Vector2 from,
+        Vector2 to,
+        Vector2 startNormal,
+        float surfaceSnapMaxDistance = 0.85f)
+    {
+        Vector2 start = startNormal.sqrMagnitude > 0.0001f ? startNormal.normalized : Vector2.up;
+        SurfaceSnapResult endSnap = SnapToContourSurface(to, surfaceSnapMaxDistance, 0f, from);
+
+        if (!endSnap.success)
+        {
+            return start;
+        }
+
+        Vector2 blended = start + endSnap.normal.normalized;
+
+        if (blended.sqrMagnitude < 0.0001f)
+        {
+            return start;
+        }
+
+        return blended.normalized;
+    }
+
     public static bool IsJumpTrajectoryClear(
         Vector2 from,
         Vector2 to,
@@ -148,11 +232,6 @@ public static class WolfSpiderSurfaceProbe
         Vector2 arcNormal,
         int samples = TrajectorySampleCount)
     {
-        if (!HasLineOfSight(from, to))
-        {
-            return false;
-        }
-
         TileMapGuideManager mgr = TileMapGuideManager.Instance;
 
         if (mgr == null)
@@ -199,6 +278,55 @@ public static class WolfSpiderSurfaceProbe
         return IsJumpTrajectoryClear(from, to, arcHeight, arcNormal);
     }
 
+    /// <summary>
+    /// 落点处是否有足够站立净空（沿表面法线方向检查，兼容天花板/墙面）。
+    /// </summary>
+    public static bool HasStandHeadroom(Vector2 standPoint, Vector2 surfaceNormal = default)
+    {
+        TileMapGuideManager mgr = TileMapGuideManager.Instance;
+
+        if (mgr == null)
+        {
+            return true;
+        }
+
+        Vector2 normal = surfaceNormal.sqrMagnitude > 0.0001f ? surfaceNormal.normalized : Vector2.up;
+        Vector2Int normalStep = new Vector2Int(
+            Mathf.RoundToInt(normal.x),
+            Mathf.RoundToInt(normal.y));
+
+        if (normalStep == Vector2Int.zero)
+        {
+            normalStep = Vector2Int.up;
+        }
+
+        Vector2Int tangentStep = new Vector2Int(-normalStep.y, normalStep.x);
+        Vector2Int baseCell = mgr.WorldToCell(standPoint);
+
+        for (int along = 0; along <= 2; along++)
+        {
+            for (int side = -1; side <= 1; side++)
+            {
+                Vector2Int cell = baseCell + normalStep * along + tangentStep * side;
+
+                if (mgr.IsSolid(cell))
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// 兼容旧调用。
+    /// </summary>
+    public static bool HasStandBodyClearance(Vector2 standPoint, float bodyRadius = 0.34f)
+    {
+        return HasStandHeadroom(standPoint);
+    }
+
     public static SurfaceSnapResult SampleSurfaceInRing(
         Vector2 origin,
         float minDistance,
@@ -243,7 +371,7 @@ public static class WolfSpiderSurfaceProbe
             Vector2 dir = Rotate(normalizedBias, angleOffset).normalized;
             Vector2 hint = origin + dir * distance;
 
-            SurfaceSnapResult snap = SnapToSurface(hint, maxSnapDistance, surfaceOffset, origin);
+            SurfaceSnapResult snap = SnapToContourSurface(hint, maxSnapDistance, surfaceOffset, origin);
 
             if (!snap.success)
             {
@@ -352,12 +480,6 @@ public static class WolfSpiderSurfaceProbe
                 if (!mgr.IsSolid(cell) && mgr.IsSolid(adjacentSolid))
                 {
                     Vector2 normal = -dir.normalized;
-
-                    if (normal.y < 0.2f)
-                    {
-                        continue;
-                    }
-
                     Vector2 point = sample + normal * surfaceOffset;
 
                     if (!preferNear.HasValue)

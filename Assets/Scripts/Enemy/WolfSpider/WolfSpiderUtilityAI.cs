@@ -26,18 +26,22 @@ public class WolfSpiderUtilityAI : IMonsterAI
 
     private Vector2 toyCarChasePoint;
     private bool hasToyCarChasePoint;
+    private readonly List<Vector2> rejectedJumpTargets = new List<Vector2>();
+    private bool hasLastVisitPoint;
+    private Vector2 lastVisitPoint;
+    private bool forceContourRepick;
+    private int pathPickSeed;
+    private float movementStuckTimer;
+    private Vector2 lastMovementCheckPosition;
 
-    private const float JumpTargetLockThreshold = 0.12f;
-    private const float JumpTargetLockThresholdSqr = JumpTargetLockThreshold * JumpTargetLockThreshold;
+    private const int MaxRejectedJumpTargets = 6;
     private const float PreyGoalChangeThresholdSqr = 1.5f * 1.5f;
-    private const int MaxPathNodeChecks = 6;
-    private const int RefractSampleCount = 10;
-    private const int IdleRingSampleCount = 10;
+    private const float ArrivedThresholdSqr = 0.1f * 0.1f;
 
     public WolfSpiderUtilityAI(WolfSpider2D owner)
     {
         this.owner = owner;
-        idleTimer = owner.idleJumpInterval;
+        idleTimer = 0f;
         perceptionTimer = 0f;
         pathPickTimer = 0f;
         lastIssuedIntent = new WolfSpiderIntent
@@ -73,6 +77,8 @@ public class WolfSpiderUtilityAI : IMonsterAI
         {
             HandleJumpTargetRejected(spider);
         }
+
+        UpdateMovementStuck(spider);
 
         if (spider.IsJumping)
         {
@@ -112,7 +118,7 @@ public class WolfSpiderUtilityAI : IMonsterAI
 
     public void NotifyAttackPerformed()
     {
-        postAttackRecoveryTimer = owner.attackStiffDuration;
+        postAttackRecoveryTimer = owner.attackInterval;
         idleTimer = owner.idleJumpInterval;
         pathPickTimer = 0f;
     }
@@ -126,11 +132,135 @@ public class WolfSpiderUtilityAI : IMonsterAI
 
     private void HandleJumpTargetRejected(WolfSpider2D spider)
     {
-        lastIssuedIntent = CreateIdleIntent(spider, spider.Position);
-        hasIssuedIntent = true;
+        float arriveSqr = JumpArriveThreshold * JumpArriveThreshold;
+        float distSqr = (lastIssuedIntent.jumpTarget - spider.Position).sqrMagnitude;
+
+        if (distSqr > arriveSqr)
+        {
+            RegisterRejectedJumpTarget(lastIssuedIntent.jumpTarget);
+        }
+        else if (rejectedJumpTargets.Count >= 6)
+        {
+            rejectedJumpTargets.Clear();
+        }
+
         pathPickTimer = 0f;
-        idleTimer = 0f;
+        forceContourRepick = true;
+        hasIssuedIntent = false;
+        movementStuckTimer = 0f;
+
         spider.LogDebug("落点无效，重新选择跳跃目标。");
+    }
+
+    private const float JumpArriveThreshold = 0.05f;
+
+    private void RegisterRejectedJumpTarget(Vector2 target)
+    {
+        TryAddRejectedJumpTarget(target);
+        movementStuckTimer = 0f;
+        forceContourRepick = true;
+    }
+
+    private bool TryAddRejectedJumpTarget(Vector2 target)
+    {
+        for (int i = 0; i < rejectedJumpTargets.Count; i++)
+        {
+            if ((rejectedJumpTargets[i] - target).sqrMagnitude <= 0.08f * 0.08f)
+            {
+                return false;
+            }
+        }
+
+        rejectedJumpTargets.Add(target);
+
+        while (rejectedJumpTargets.Count > MaxRejectedJumpTargets)
+        {
+            rejectedJumpTargets.RemoveAt(0);
+        }
+
+        return true;
+    }
+
+    public void NotifySuccessfulLanding(Vector2 landPoint, Vector2 jumpOrigin)
+    {
+        lastVisitPoint = jumpOrigin;
+        hasLastVisitPoint = true;
+        rejectedJumpTargets.Clear();
+        forceContourRepick = false;
+
+        if (hasIssuedIntent)
+        {
+            float snapTolSqr = owner.surfaceSnapMaxDistance * owner.surfaceSnapMaxDistance;
+
+            if ((lastIssuedIntent.jumpTarget - landPoint).sqrMagnitude <= snapTolSqr)
+            {
+                lastIssuedIntent.jumpTarget = landPoint;
+            }
+        }
+    }
+
+    private void UpdateMovementStuck(WolfSpider2D spider)
+    {
+        if (spider.IsJumping || spider.IsCoolingDown)
+        {
+            movementStuckTimer = 0f;
+            lastMovementCheckPosition = spider.Position;
+            return;
+        }
+
+        float minJump = spider.minJumpDist + 0.02f;
+        float minJumpSqr = minJump * minJump;
+
+        if (hasIssuedIntent)
+        {
+            float targetDistSqr = (lastIssuedIntent.jumpTarget - spider.Position).sqrMagnitude;
+            float snapTolSqr = spider.surfaceSnapMaxDistance * spider.surfaceSnapMaxDistance;
+
+            if (targetDistSqr <= snapTolSqr)
+            {
+                movementStuckTimer = 0f;
+                lastMovementCheckPosition = spider.Position;
+                return;
+            }
+
+            if (targetDistSqr < minJumpSqr)
+            {
+                forceContourRepick = true;
+                pathPickTimer = 0f;
+                movementStuckTimer = 0f;
+                lastMovementCheckPosition = spider.Position;
+                return;
+            }
+        }
+
+        if ((spider.Position - lastMovementCheckPosition).sqrMagnitude > 0.08f * 0.08f)
+        {
+            movementStuckTimer = 0f;
+            lastMovementCheckPosition = spider.Position;
+            return;
+        }
+
+        movementStuckTimer += Time.fixedDeltaTime;
+
+        if (movementStuckTimer < spider.movementStuckTimeout)
+        {
+            return;
+        }
+
+        movementStuckTimer = 0f;
+        lastMovementCheckPosition = spider.Position;
+        forceContourRepick = true;
+        pathPickTimer = 0f;
+
+        if (hasIssuedIntent && (lastIssuedIntent.jumpTarget - spider.Position).sqrMagnitude >= minJumpSqr)
+        {
+            RegisterRejectedJumpTarget(lastIssuedIntent.jumpTarget);
+        }
+
+        if (rejectedJumpTargets.Count >= 4)
+        {
+            rejectedJumpTargets.Clear();
+        }
     }
 
     private IIntent GetHeldIntent(WolfSpider2D spider)
@@ -399,41 +529,61 @@ public class WolfSpiderUtilityAI : IMonsterAI
                 : CreateHuntIntent(spider, lastIssuedIntent.jumpTarget);
         }
 
-        if (ShouldKeepCurrentJumpTarget(spider, WolfSpiderBehavior.Hunt))
+        Vector2 preyPosition = GetPreyPosition(spider);
+        float snapTolSqr = spider.surfaceSnapMaxDistance * spider.surfaceSnapMaxDistance;
+        bool isStayIntent = hasIssuedIntent
+            && (lastIssuedIntent.jumpTarget - spider.Position).sqrMagnitude
+                <= Mathf.Max(ArrivedThresholdSqr, snapTolSqr);
+
+        if (isStayIntent && pathPickTimer > spider.pathPickInterval)
         {
-            return lastIssuedIntent;
+            pathPickTimer = spider.pathPickInterval;
         }
 
-        Vector2 preyPosition = GetPreyPosition(spider);
+        if (forceContourRepick || pathPickTimer <= 0f || HasPreyGoalChanged(preyPosition))
+        {
+            pathPickTimer = spider.pathPickInterval;
+            lastPathGoal = preyPosition;
+            forceContourRepick = false;
 
-        if (pathPickTimer > 0f && !HasPreyGoalChanged(preyPosition))
+            Vector2 huntGoal = preyPosition;
+            Vector2 jumpTarget;
+
+            if (currentPreySource == EnemyAttractionSource.ToyCar)
+            {
+                if (ShouldPickNewToyCarChasePoint(spider, preyPosition))
+                {
+                    toyCarChasePoint = preyPosition;
+                    hasToyCarChasePoint = true;
+                }
+
+                Vector2 chaseGoal = hasToyCarChasePoint ? toyCarChasePoint : preyPosition;
+                huntGoal = chaseGoal;
+                jumpTarget = PickJumpTarget(spider, huntGoal, WolfSpiderBehavior.Hunt);
+            }
+            else
+            {
+                jumpTarget = PickJumpTarget(spider, huntGoal, WolfSpiderBehavior.Hunt);
+            }
+
+            if ((jumpTarget - spider.Position).sqrMagnitude <= ArrivedThresholdSqr)
+            {
+                pathPickTimer = spider.pathPickInterval;
+                forceContourRepick = true;
+            }
+
+            return CreateHuntIntent(spider, jumpTarget);
+        }
+
+        if (!isStayIntent
+            && ShouldKeepCurrentJumpTarget(spider, WolfSpiderBehavior.Hunt))
         {
             pathPickTimer -= Time.fixedDeltaTime;
             return lastIssuedIntent;
         }
 
-        pathPickTimer = spider.pathPickInterval;
-        lastPathGoal = preyPosition;
-
-        Vector2 jumpTarget;
-
-        if (currentPreySource == EnemyAttractionSource.ToyCar)
-        {
-            if (ShouldPickNewToyCarChasePoint(spider, preyPosition))
-            {
-                toyCarChasePoint = preyPosition;
-                hasToyCarChasePoint = true;
-            }
-
-            jumpTarget = hasToyCarChasePoint ? toyCarChasePoint : preyPosition;
-            spider.DebugPickReason = "HuntToyCarCommitted";
-            spider.DebugTarget = jumpTarget;
-            CacheArcDebug(spider, jumpTarget);
-            return CreateHuntIntent(spider, jumpTarget);
-        }
-
-        jumpTarget = PickJumpTarget(spider, preyPosition, WolfSpiderBehavior.Hunt);
-        return CreateHuntIntent(spider, jumpTarget);
+        pathPickTimer -= Time.fixedDeltaTime;
+        return lastIssuedIntent;
     }
 
     private WolfSpiderIntent CreateHuntIntent(WolfSpider2D spider, Vector2 jumpTarget)
@@ -453,31 +603,38 @@ public class WolfSpiderUtilityAI : IMonsterAI
             return hasIssuedIntent ? lastIssuedIntent : CreateIdleIntent(spider, spider.Position);
         }
 
-        if (ShouldKeepCurrentJumpTarget(spider, WolfSpiderBehavior.Idle))
+        float snapTolSqr = spider.surfaceSnapMaxDistance * spider.surfaceSnapMaxDistance;
+        bool isStayIntent = hasIssuedIntent
+            && (lastIssuedIntent.jumpTarget - spider.Position).sqrMagnitude
+                <= Mathf.Max(ArrivedThresholdSqr, snapTolSqr);
+
+        if (forceContourRepick || idleTimer <= 0f)
+        {
+            idleTimer = spider.idleJumpInterval;
+
+            Vector2 jumpTarget = PickJumpTarget(
+                spider,
+                GetRandomIdleGoal(spider),
+                WolfSpiderBehavior.Idle
+            );
+
+            if ((jumpTarget - spider.Position).sqrMagnitude <= ArrivedThresholdSqr)
+            {
+                idleTimer = spider.idleJumpInterval;
+                forceContourRepick = true;
+            }
+
+            return CreateIdleIntent(spider, jumpTarget);
+        }
+
+        if (!isStayIntent && ShouldKeepCurrentJumpTarget(spider, WolfSpiderBehavior.Idle))
         {
             idleTimer -= Time.fixedDeltaTime;
             return lastIssuedIntent;
         }
 
         idleTimer -= Time.fixedDeltaTime;
-
-        if (idleTimer > 0f)
-        {
-            return hasIssuedIntent && lastIssuedIntent.behaviorState == WolfSpiderBehavior.Idle
-                ? lastIssuedIntent
-                : CreateIdleIntent(spider, spider.Position);
-        }
-
-        idleTimer = spider.idleJumpInterval;
-        pathPickTimer = spider.pathPickInterval;
-
-        Vector2 jumpTarget = PickJumpTarget(
-            spider,
-            GetRandomIdleGoal(spider),
-            WolfSpiderBehavior.Idle
-        );
-
-        return CreateIdleIntent(spider, jumpTarget);
+        return lastIssuedIntent;
     }
 
     private bool HasPreyGoalChanged(Vector2 preyPosition)
@@ -492,7 +649,28 @@ public class WolfSpiderUtilityAI : IMonsterAI
             return false;
         }
 
-        return (lastIssuedIntent.jumpTarget - spider.Position).sqrMagnitude > JumpTargetLockThresholdSqr;
+        float distSqr = (lastIssuedIntent.jumpTarget - spider.Position).sqrMagnitude;
+        float snapTolSqr = spider.surfaceSnapMaxDistance * spider.surfaceSnapMaxDistance;
+
+        if (distSqr <= snapTolSqr)
+        {
+            return false;
+        }
+
+        float minJump = spider.minJumpDist + 0.02f;
+        float minJumpSqr = minJump * minJump;
+
+        if (distSqr < minJumpSqr)
+        {
+            return false;
+        }
+
+        if (distSqr > spider.maxJumpDist * spider.maxJumpDist)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     private WolfSpiderIntent CreateIdleIntent(WolfSpider2D spider, Vector2 jumpTarget)
@@ -523,6 +701,17 @@ public class WolfSpiderUtilityAI : IMonsterAI
     private Vector2 GetRandomIdleGoal(WolfSpider2D spider)
     {
         Bounds bounds = spider.activityBounds;
+
+        if (bounds.size.sqrMagnitude < 0.01f)
+        {
+            return spider.Position;
+        }
+
+        if (!bounds.Contains(spider.Position))
+        {
+            return bounds.center;
+        }
+
         Vector2 center = bounds.center;
         Vector2 extents = bounds.extents;
 
@@ -544,181 +733,154 @@ public class WolfSpiderUtilityAI : IMonsterAI
 
     private Vector2 PickJumpTarget(WolfSpider2D spider, Vector2 goal, WolfSpiderBehavior behavior)
     {
-        if (TryPathBasedJump(spider, goal, out Vector2 pathJumpTarget))
+        List<Vector2> debugRoute = null;
+        List<Vector2> debugCandidates = null;
+
+        if (spider.drawDebugGizmos)
         {
-            spider.DebugPickReason = "Path";
-            spider.DebugTarget = pathJumpTarget;
-            CacheArcDebug(spider, pathJumpTarget);
-            return pathJumpTarget;
+            spider.DebugPath ??= new List<Vector2>();
+            spider.DebugPath.Clear();
+            debugRoute = spider.DebugPath;
+
+            spider.DebugCandidatePoints.Clear();
+            debugCandidates = spider.DebugCandidatePoints;
         }
 
-        Vector2 bias = goal - spider.Position;
+        IReadOnlyList<Vector2> excludes = rejectedJumpTargets;
+        bool isHunt = behavior == WolfSpiderBehavior.Hunt;
+        bool picked = false;
+        Vector2 pickedTarget = spider.Position;
+        string pickedReason = "Stay";
+        pathPickSeed = unchecked(pathPickSeed * 1664525 + 1013904223 + spider.GetInstanceID());
 
-        if (TryRefractJump(spider, goal, bias, behavior, out Vector2 refractJumpTarget))
+        if (isHunt)
         {
-            spider.DebugPickReason = "Refract";
-            spider.DebugTarget = refractJumpTarget;
-            CacheArcDebug(spider, refractJumpTarget);
-            return refractJumpTarget;
+            picked = WolfSpiderJumpPlanner.TryPickHuntJumpTarget(
+                spider.Position,
+                goal,
+                spider.CurrentSurfaceNormal,
+                spider.HasEdge ? spider.EdgeIndex : -1,
+                spider.minJumpDist,
+                spider.maxJumpDist,
+                spider.arcHeight,
+                spider.surfaceSnapMaxDistance,
+                0f,
+                spider.bodyRadius,
+                excludes,
+                hasLastVisitPoint,
+                lastVisitPoint,
+                pathPickSeed,
+                out pickedTarget,
+                out pickedReason,
+                debugCandidates,
+                debugRoute);
+        }
+        else if (behavior == WolfSpiderBehavior.Idle)
+        {
+            picked = WolfSpiderJumpPlanner.TryPickIdleJumpTarget(
+                spider.Position,
+                goal,
+                spider.CurrentSurfaceNormal,
+                spider.HasEdge ? spider.EdgeIndex : -1,
+                spider.minJumpDist,
+                spider.maxJumpDist,
+                spider.arcHeight,
+                spider.surfaceSnapMaxDistance,
+                0f,
+                spider.bodyRadius,
+                spider.activityBounds,
+                excludes,
+                hasLastVisitPoint,
+                lastVisitPoint,
+                pathPickSeed,
+                out pickedTarget,
+                out pickedReason,
+                debugCandidates);
         }
 
-        if (behavior == WolfSpiderBehavior.Idle)
+        if (picked)
         {
-            SurfaceSnapResult idleSample = WolfSpiderSurfaceProbe.SampleSurfaceInRing(
+            spider.DebugPickReason = pickedReason;
+            spider.DebugTarget = pickedTarget;
+            CacheArcDebug(spider, pickedTarget);
+
+            if (spider.enableDebugLog)
+            {
+                spider.LogDebug(
+                    $"选点 {pickedReason} → {pickedTarget}，候选 {debugCandidates?.Count ?? 0} 个");
+            }
+
+            return pickedTarget;
+        }
+
+        if (WolfSpiderJumpPlanner.TryPickRelaxedFromCandidates(
                 spider.Position,
                 spider.minJumpDist,
                 spider.maxJumpDist,
-                Random.insideUnitCircle,
-                IdleRingSampleCount,
-                spider.surfaceSnapMaxDistance,
-                spider.visualSurfaceOffset,
-                deterministic: false
-            );
-
-            if (idleSample.success
-                && spider.activityBounds.Contains(idleSample.point)
-                && IsCandidateJumpValid(spider, idleSample.point))
-            {
-                spider.DebugPickReason = "IdleRing";
-                spider.DebugTarget = idleSample.point;
-                CacheArcDebug(spider, idleSample.point);
-                return idleSample.point;
-            }
+                hasLastVisitPoint,
+                lastVisitPoint,
+                pathPickSeed,
+                spider.activityBounds,
+                restrictToActivityBounds: behavior == WolfSpiderBehavior.Idle,
+                out Vector2 relaxedTarget,
+                out string relaxedReason))
+        {
+            spider.DebugPickReason = relaxedReason;
+            spider.DebugTarget = relaxedTarget;
+            return relaxedTarget;
         }
 
+        if (WolfSpiderJumpPlanner.TryPickRelaxedFromCandidates(
+                spider.Position,
+                spider.minJumpDist,
+                spider.maxJumpDist,
+                hasRecentVisit: false,
+                recentVisitPoint: default,
+                pathPickSeed,
+                spider.activityBounds,
+                restrictToActivityBounds: behavior == WolfSpiderBehavior.Idle,
+                out Vector2 ignoreVisitTarget,
+                out string ignoreVisitReason))
+        {
+            spider.DebugPickReason = ignoreVisitReason;
+            spider.DebugTarget = ignoreVisitTarget;
+            return ignoreVisitTarget;
+        }
+
+        if (WolfSpiderJumpPlanner.TryPickDesperateJump(
+                spider.Position,
+                goal,
+                spider.CurrentSurfaceNormal,
+                spider.HasEdge ? spider.EdgeIndex : -1,
+                spider.minJumpDist,
+                spider.maxJumpDist,
+                spider.arcHeight,
+                0f,
+                spider.bodyRadius,
+                isHunt,
+                spider.activityBounds,
+                restrictToActivityBounds: behavior == WolfSpiderBehavior.Idle,
+                out Vector2 desperateTarget,
+                out string desperateReason,
+                debugCandidates))
+        {
+            rejectedJumpTargets.Clear();
+            forceContourRepick = false;
+            spider.DebugPickReason = desperateReason;
+            spider.DebugTarget = desperateTarget;
+            CacheArcDebug(spider, desperateTarget);
+            return desperateTarget;
+        }
+
+        forceContourRepick = true;
+        pathPickTimer = 0f;
         spider.DebugPickReason = "Stay";
         return spider.Position;
     }
 
     private void CacheArcDebug(WolfSpider2D spider, Vector2 jumpTarget)
     {
-        if (!spider.drawDebugGizmos)
-        {
-            spider.DebugArcSamples.Clear();
-            return;
-        }
-
-        WolfSpiderSurfaceProbe.FillArcSamples(
-            spider.Position,
-            jumpTarget,
-            spider.arcHeight,
-            spider.CurrentSurfaceNormal,
-            spider.DebugArcSamples
-        );
-    }
-
-    private bool TryPathBasedJump(WolfSpider2D spider, Vector2 goal, out Vector2 jumpTarget)
-    {
-        jumpTarget = spider.Position;
-
-        TileMapGuideManager mgr = TileMapGuideManager.Instance;
-
-        if (mgr == null)
-        {
-            return false;
-        }
-
-        List<Vector2> path = mgr.FindPath(spider.Position, goal);
-
-        if (spider.drawDebugGizmos)
-        {
-            spider.DebugPath = path;
-        }
-
-        if (path == null || path.Count == 0)
-        {
-            return false;
-        }
-
-        Vector2 bestPoint = spider.Position;
-        float bestScore = float.MinValue;
-        int step = Mathf.Max(1, path.Count / MaxPathNodeChecks);
-
-        for (int i = path.Count - 1; i >= 0; i -= step)
-        {
-            SurfaceSnapResult snap = WolfSpiderSurfaceProbe.SnapToSurface(
-                path[i],
-                spider.surfaceSnapMaxDistance,
-                spider.visualSurfaceOffset,
-                spider.Position
-            );
-
-            if (!snap.success || !IsCandidateJumpValid(spider, snap.point))
-            {
-                continue;
-            }
-
-            float towardGoal = Vector2.Dot(
-                (snap.point - spider.Position).normalized,
-                (goal - spider.Position).normalized
-            );
-            float score = (snap.point - spider.Position).sqrMagnitude + towardGoal * 2f;
-
-            if (score > bestScore)
-            {
-                bestScore = score;
-                bestPoint = snap.point;
-            }
-        }
-
-        if (bestScore <= float.MinValue)
-        {
-            return false;
-        }
-
-        jumpTarget = bestPoint;
-        return true;
-    }
-
-    private bool TryRefractJump(
-        WolfSpider2D spider,
-        Vector2 goal,
-        Vector2 bias,
-        WolfSpiderBehavior behavior,
-        out Vector2 jumpTarget)
-    {
-        jumpTarget = spider.Position;
-
-        SurfaceSnapResult sample = WolfSpiderSurfaceProbe.SampleSurfaceInRing(
-            spider.Position,
-            spider.minJumpDist,
-            spider.maxJumpDist,
-            bias.sqrMagnitude > 0.0001f ? bias : Vector2.right,
-            RefractSampleCount,
-            spider.surfaceSnapMaxDistance,
-            spider.visualSurfaceOffset,
-            deterministic: behavior == WolfSpiderBehavior.Hunt
-        );
-
-        if (!sample.success)
-        {
-            return false;
-        }
-
-        if (behavior == WolfSpiderBehavior.Idle && !spider.activityBounds.Contains(sample.point))
-        {
-            return false;
-        }
-
-        if (!IsCandidateJumpValid(spider, sample.point))
-        {
-            return false;
-        }
-
-        jumpTarget = sample.point;
-        return true;
-    }
-
-    private bool IsCandidateJumpValid(WolfSpider2D spider, Vector2 candidate)
-    {
-        return WolfSpiderSurfaceProbe.IsValidJumpTarget(
-            spider.Position,
-            candidate,
-            spider.minJumpDist,
-            spider.maxJumpDist,
-            spider.arcHeight,
-            spider.CurrentSurfaceNormal
-        );
+        spider.DebugArcSamples.Clear();
     }
 
     private bool IsHuntOnlyPrey()

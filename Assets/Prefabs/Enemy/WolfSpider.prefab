@@ -1,5 +1,37 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1462344477083777008
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7240166873290788892}
+  m_Layer: 0
+  m_Name: texture
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7240166873290788892
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1462344477083777008}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 8924309763885876675}
+  m_Father: {fileID: 7891601111735932476}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1517624288190499507
 GameObject:
   m_ObjectHideFlags: 0
@@ -10,6 +42,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7891601111735932476}
   - component: {fileID: -7562830907451845910}
+  - component: {fileID: 6284496953832666010}
   m_Layer: 0
   m_Name: WolfSpider
   m_TagString: Untagged
@@ -30,7 +63,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 8924309763885876675}
+  - {fileID: 7240166873290788892}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &-7562830907451845910
@@ -52,13 +85,14 @@ MonoBehaviour:
   EdgeIndex: 0
   Target: {x: 0, y: 0}
   HasEdge: 0
-  moveSpeed: 8
-  minJumpDist: 0.5
-  maxJumpDist: 3
-  arcHeight: 1.2
-  detectRadius: 8
-  perceptionInterval: 0.2
-  pathPickInterval: 0.35
+  moveSpeed: 6
+  minJumpDist: 2
+  maxJumpDist: 6
+  arcHeight: 0.5
+  detectRadius: 7
+  perceptionInterval: 1
+  pathPickInterval: 1
+  movementStuckTimeout: 1
   playerLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -66,19 +100,42 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 32768
   flyTag: Fly
-  attackRange: 1.2
-  attackStiffDuration: 1
+  attackRange: 1
+  attackAnimDuration: 0.45
+  attackInterval: 2
   attackDamage: 10
+  stompPlatformSize: {x: 0.75, y: 0.12}
   aggroMemoryDuration: 3
   activityBounds:
-    m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 0, y: 0, z: 0}
-  idleJumpInterval: 1
+    m_Center: {x: 103, y: -51, z: 0}
+    m_Extent: {x: 8, y: 6, z: 0}
+  idleJumpInterval: 2
+  postLandJumpCooldown: 1
   surfaceSnapMaxDistance: 0.85
-  visualSurfaceOffset: 0.1
-  bodyVisual: {fileID: 8924309763885876675}
+  bodyRadius: 0.2
+  visualSurfaceOffset: 0.2
+  visualRotationOffset: 0
+  bodyVisual: {fileID: 7240166873290788892}
   enableDebugLog: 1
   drawDebugGizmos: 1
+--- !u!114 &6284496953832666010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1517624288190499507}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b6a594837263548596a7b8c9d0e1f2a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  idleStateName: WolfspiderIdle
+  jumpStateName: WolfspiderJump
+  attackStateName: WolfspiderAttack
+  spider: {fileID: -7562830907451845910}
+  animator: {fileID: 1969837244329838490}
+  crossFadeDuration: 0.05
 --- !u!1 &2740227717384332534
 GameObject:
   m_ObjectHideFlags: 0
@@ -89,6 +146,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8924309763885876675}
   - component: {fileID: 7069454513545551629}
+  - component: {fileID: 1969837244329838490}
   m_Layer: 0
   m_Name: "\u56FE\u5C42 1"
   m_TagString: Untagged
@@ -109,7 +167,7 @@ Transform:
   m_LocalScale: {x: 0.25, y: 0.25, z: 0.25}
   m_ConstrainProportionsScale: 1
   m_Children: []
-  m_Father: {fileID: 7891601111735932476}
+  m_Father: {fileID: 7240166873290788892}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &7069454513545551629
 SpriteRenderer:
@@ -163,3 +221,24 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!95 &1969837244329838490
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2740227717384332534}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: f4a8b2c1d3e5476890abcdef12345679, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0

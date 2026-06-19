@@ -15,7 +15,6 @@ public class BatUtilityAI : IMonsterAI
 
     private float idleTimer;
     private float perceptionTimer;
-    private float pathPickTimer;
     private Vector2 lastPathGoal;
     private float postAttackRecoveryTimer;
 
@@ -125,14 +124,12 @@ public class BatUtilityAI : IMonsterAI
     {
         postAttackRecoveryTimer = owner.attackStiffDuration;
         idleTimer = owner.idleMoveInterval;
-        pathPickTimer = 0f;
         hasHuntPoint = false;
     }
 
     public void NotifyRepelledByMosquitoCoil(Vector2 coilPosition)
     {
         hasHuntPoint = false;
-        pathPickTimer = 0f;
         idleTimer = 0f;
     }
 
@@ -140,7 +137,6 @@ public class BatUtilityAI : IMonsterAI
     {
         perceptionTimer = 0f;
         hasHuntPoint = false;
-        pathPickTimer = 0f;
         idleTimer = 0f;
     }
 
@@ -314,7 +310,6 @@ public class BatUtilityAI : IMonsterAI
         {
             string preyType = GetPreyTypeLabel(source, detected);
             bat.LogDebug($"发现目标: {detected.name} ({preyType})");
-            pathPickTimer = 0f;
             idleTimer = 0f;
             hasHuntPoint = false;
 

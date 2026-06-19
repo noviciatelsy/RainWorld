@@ -465,11 +465,20 @@ public static class SurfaceEdgePath
 
         List<int> edgeChain = new List<int>();
         int back = goalEdge;
+        int backtrackSteps = 0;
+        const int maxBacktrackSteps = 256;
 
-        while (back != startEdge)
+        while (back != startEdge && backtrackSteps < maxBacktrackSteps)
         {
+            backtrackSteps++;
             edgeChain.Add(back);
-            back = cameFrom[back];
+
+            if (!cameFrom.TryGetValue(back, out int previous))
+            {
+                break;
+            }
+
+            back = previous;
         }
 
         edgeChain.Reverse();
@@ -505,6 +514,778 @@ public static class SurfaceEdgePath
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// 从 from 到 goal 沿全图边链的有序折线（首点为 from 在起点边上的投影）。
+    /// </summary>
+    public static List<Vector2> BuildRoutePolylineAllLoops(Vector2 fromWorld, Vector2 toWorld)
+    {
+        List<Vector2> route = new List<Vector2>();
+        TileMapGuideManager mgr = TileMapGuideManager.Instance;
+
+        if (mgr == null || mgr.GetEdgeCount() == 0)
+        {
+            return route;
+        }
+
+        int startEdge = FindClosestEdgeIndex(mgr, fromWorld);
+        Edge startEdgeData = mgr.GetEdge(startEdge);
+        Vector2 startOnEdge = SurfaceEdgeTraversal.ClosestPointOnSegment(
+            fromWorld,
+            startEdgeData.a,
+            startEdgeData.b);
+        route.Add(startOnEdge);
+
+        List<Vector2> corners = FindVertexPathAllLoops(fromWorld, toWorld);
+        Vector2 last = startOnEdge;
+
+        for (int i = 0; i < corners.Count; i++)
+        {
+            if (!SameVertex(corners[i], last))
+            {
+                route.Add(corners[i]);
+                last = corners[i];
+            }
+        }
+
+        return route;
+    }
+
+    /// <summary>
+    /// 将追击目标投影到轮廓上（沿 Dijkstra 选定的 goal 边），避免空中坐标导致无法折线逼近。
+    /// </summary>
+    public static Vector2 ProjectApproachGoalOnContour(Vector2 fromWorld, Vector2 toWorld)
+    {
+        TileMapGuideManager mgr = TileMapGuideManager.Instance;
+
+        if (mgr == null || mgr.GetEdgeCount() == 0)
+        {
+            return toWorld;
+        }
+
+        int goalEdge = FindBestGoalEdgeForPath(fromWorld, toWorld);
+        Edge edge = mgr.GetEdge(goalEdge);
+        return SurfaceEdgeTraversal.ClosestPointOnSegment(toWorld, edge.a, edge.b);
+    }
+
+    public enum EdgeOrientationKind
+    {
+        Horizontal,
+        Vertical
+    }
+
+    public static EdgeOrientationKind GetEdgeOrientation(Edge edge)
+    {
+        Vector2 delta = edge.b - edge.a;
+        return Mathf.Abs(delta.x) >= Mathf.Abs(delta.y)
+            ? EdgeOrientationKind.Horizontal
+            : EdgeOrientationKind.Vertical;
+    }
+
+    public static bool IsDifferentOrientation(Edge fromEdge, Edge toEdge)
+    {
+        return GetEdgeOrientation(fromEdge) != GetEdgeOrientation(toEdge);
+    }
+
+    private const float SameLoopPathPenalty = 2.25f;
+
+    /// <summary>
+    /// 同 loop 上 CW/CCW 直接相邻边（沿轮廓爬行，非马步）。
+    /// </summary>
+    public static bool IsDirectNeighborInSameLoop(TileMapGuideManager mgr, int fromEdgeIndex, int toEdgeIndex)
+    {
+        if (mgr == null || fromEdgeIndex < 0 || toEdgeIndex < 0 || fromEdgeIndex == toEdgeIndex)
+        {
+            return false;
+        }
+
+        Edge fromEdge = mgr.GetEdge(fromEdgeIndex);
+        Edge toEdge = mgr.GetEdge(toEdgeIndex);
+
+        if (fromEdge.loopId != toEdge.loopId)
+        {
+            return false;
+        }
+
+        return toEdgeIndex == mgr.GetNextIndex(fromEdgeIndex, true)
+            || toEdgeIndex == mgr.GetNextIndex(fromEdgeIndex, false);
+    }
+
+    /// <summary>
+    /// 马步候选边：跨 loop 共享顶点边 + 同 loop 上 depth-2 的 L 形折线边（排除同边与 depth-1 爬行）。
+    /// </summary>
+    public static void CollectKnightCandidateEdges(
+        TileMapGuideManager mgr,
+        int fromEdgeIndex,
+        HashSet<int> output)
+    {
+        output.Clear();
+
+        if (mgr == null || fromEdgeIndex < 0)
+        {
+            return;
+        }
+
+        Edge fromEdge = mgr.GetEdge(fromEdgeIndex);
+        int fromLoop = fromEdge.loopId;
+        List<List<int>> adjacency = GetEdgeAdjacencyAllLoops(mgr);
+        List<int> neighbors = adjacency[fromEdgeIndex];
+
+        for (int i = 0; i < neighbors.Count; i++)
+        {
+            int edgeIndex = neighbors[i];
+
+            if (edgeIndex == fromEdgeIndex)
+            {
+                continue;
+            }
+
+            if (mgr.GetEdge(edgeIndex).loopId != fromLoop)
+            {
+                output.Add(edgeIndex);
+            }
+        }
+
+        HashSet<int> depthOne = new HashSet<int>();
+        CollectNeighborEdgeIndices(mgr, fromEdgeIndex, 1, depthOne);
+        HashSet<int> depthTwo = new HashSet<int>();
+        CollectNeighborEdgeIndices(mgr, fromEdgeIndex, 2, depthTwo);
+
+        foreach (int edgeIndex in depthTwo)
+        {
+            if (edgeIndex == fromEdgeIndex || depthOne.Contains(edgeIndex))
+            {
+                continue;
+            }
+
+            if (mgr.GetEdge(edgeIndex).loopId == fromLoop)
+            {
+                output.Add(edgeIndex);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 沿 Dijkstra 马步折线路线，在跳跃距离环内选取最远可达路点（优先跨 loop 拐角）。
+    /// </summary>
+    public static bool TryPickRouteWaypointInJumpRange(
+        Vector2 fromWorld,
+        int fromEdgeIndex,
+        Vector2 goalWorld,
+        float minJumpDist,
+        float maxJumpDist,
+        out Vector2 waypoint,
+        out int waypointEdgeIndex)
+    {
+        waypoint = fromWorld;
+        waypointEdgeIndex = fromEdgeIndex;
+
+        TileMapGuideManager mgr = TileMapGuideManager.Instance;
+
+        if (mgr == null || mgr.GetEdgeCount() == 0)
+        {
+            return false;
+        }
+
+        if (fromEdgeIndex < 0)
+        {
+            fromEdgeIndex = FindClosestEdgeIndex(mgr, fromWorld);
+        }
+
+        List<Vector2> route = BuildRoutePolylineAllLoops(fromWorld, goalWorld);
+
+        if (route.Count < 2)
+        {
+            return false;
+        }
+
+        float minJumpSqr = minJumpDist * minJumpDist;
+        float maxJumpSqr = maxJumpDist * maxJumpDist;
+        int bestRouteIndex = -1;
+        float bestGoalDistSqr = float.MaxValue;
+
+        for (int i = 1; i < route.Count; i++)
+        {
+            Vector2 candidate = route[i];
+            float jumpSqr = (candidate - fromWorld).sqrMagnitude;
+
+            if (jumpSqr < minJumpSqr)
+            {
+                continue;
+            }
+
+            if (jumpSqr > maxJumpSqr)
+            {
+                Vector2 prev = route[i - 1];
+                Vector2 seg = candidate - prev;
+                float segLen = seg.magnitude;
+
+                if (segLen > 0.001f)
+                {
+                    Vector2 dir = seg / segLen;
+                    float targetDist = Mathf.Clamp(maxJumpDist * 0.95f, minJumpDist, maxJumpDist);
+                    Vector2 clamped = fromWorld + (candidate - fromWorld).normalized * targetDist;
+                    jumpSqr = (clamped - fromWorld).sqrMagnitude;
+                    candidate = clamped;
+                }
+
+                if (jumpSqr < minJumpSqr || jumpSqr > maxJumpSqr)
+                {
+                    continue;
+                }
+            }
+
+            float goalDistSqr = (candidate - goalWorld).sqrMagnitude;
+
+            if (bestRouteIndex < 0 || goalDistSqr < bestGoalDistSqr - 0.0001f)
+            {
+                bestRouteIndex = i;
+                bestGoalDistSqr = goalDistSqr;
+                waypoint = candidate;
+            }
+        }
+
+        if (bestRouteIndex >= 0)
+        {
+            waypointEdgeIndex = FindEdgeIndexForStandPoint(mgr, waypoint);
+            return true;
+        }
+
+        Vector2 firstCorner = route[1];
+        float cornerDistSqr = (firstCorner - fromWorld).sqrMagnitude;
+
+        if (cornerDistSqr > maxJumpSqr)
+        {
+            Vector2 dir = (firstCorner - fromWorld).normalized;
+            float clampDist = Mathf.Clamp(maxJumpDist * 0.95f, minJumpDist, maxJumpDist);
+            Vector2 clamped = fromWorld + dir * clampDist;
+
+            if ((clamped - fromWorld).sqrMagnitude >= minJumpSqr)
+            {
+                waypoint = clamped;
+                waypointEdgeIndex = FindEdgeIndexForStandPoint(mgr, clamped);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// 从起点边沿邻接图扩展 maxDepth 跳，收集候选边（不含起点边）。
+    /// </summary>
+    public static void CollectNeighborEdgeIndices(
+        TileMapGuideManager mgr,
+        int fromEdgeIndex,
+        int maxDepth,
+        HashSet<int> output)
+    {
+        output.Clear();
+
+        if (mgr == null || fromEdgeIndex < 0 || maxDepth <= 0)
+        {
+            return;
+        }
+
+        List<List<int>> adjacency = GetEdgeAdjacencyAllLoops(mgr);
+        HashSet<int> visited = new HashSet<int> { fromEdgeIndex };
+        List<int> frontier = new List<int> { fromEdgeIndex };
+
+        for (int depth = 0; depth < maxDepth && frontier.Count > 0; depth++)
+        {
+            List<int> nextFrontier = new List<int>();
+
+            for (int i = 0; i < frontier.Count; i++)
+            {
+                List<int> neighbors = adjacency[frontier[i]];
+
+                for (int n = 0; n < neighbors.Count; n++)
+                {
+                    int edgeIndex = neighbors[n];
+
+                    if (!visited.Add(edgeIndex))
+                    {
+                        continue;
+                    }
+
+                    output.Add(edgeIndex);
+                    nextFrontier.Add(edgeIndex);
+                }
+            }
+
+            frontier = nextFrontier;
+        }
+    }
+
+    private static int cachedAdjacencyEdgeCount = -1;
+    private static List<List<int>> cachedEdgeAdjacency;
+
+    /// <summary>
+    /// 全图边邻接：同 loop 的 CW/CCW + 共享顶点的跨 loop 边。
+    /// </summary>
+    public static List<List<int>> GetEdgeAdjacencyAllLoops(TileMapGuideManager mgr)
+    {
+        int edgeCount = mgr.GetEdgeCount();
+
+        if (cachedEdgeAdjacency != null && cachedAdjacencyEdgeCount == edgeCount)
+        {
+            return cachedEdgeAdjacency;
+        }
+
+        cachedEdgeAdjacency = BuildEdgeAdjacencyAllLoops(mgr);
+        cachedAdjacencyEdgeCount = edgeCount;
+        return cachedEdgeAdjacency;
+    }
+
+    public static int FindEdgeIndexForStandPoint(TileMapGuideManager mgr, Vector2 standPoint)
+    {
+        if (mgr == null)
+        {
+            return -1;
+        }
+
+        int closest = FindClosestEdgeIndex(mgr, standPoint);
+        List<List<int>> adjacency = GetEdgeAdjacencyAllLoops(mgr);
+        float bestDist = SurfaceEdgeTraversal.DistanceToSegment(
+            standPoint,
+            mgr.GetEdge(closest).a,
+            mgr.GetEdge(closest).b);
+
+        List<int> neighbors = adjacency[closest];
+
+        for (int i = 0; i < neighbors.Count; i++)
+        {
+            int edgeIndex = neighbors[i];
+            Edge edge = mgr.GetEdge(edgeIndex);
+            float dist = SurfaceEdgeTraversal.DistanceToSegment(standPoint, edge.a, edge.b);
+
+            if (dist < bestDist)
+            {
+                bestDist = dist;
+                closest = edgeIndex;
+            }
+        }
+
+        return closest;
+    }
+
+    /// <summary>
+    /// 在目标附近候选边中，选从起点沿轮廓 Dijkstra 代价最小的 goal 边（避免只认最近 loop）。
+    /// </summary>
+    public static int FindBestGoalEdgeForPath(Vector2 fromWorld, Vector2 toWorld, float goalEdgeRadius = 1.35f)
+    {
+        TileMapGuideManager mgr = TileMapGuideManager.Instance;
+
+        if (mgr == null || mgr.GetEdgeCount() == 0)
+        {
+            return 0;
+        }
+
+        int startEdge = FindClosestEdgeIndex(mgr, fromWorld);
+        int hintEdge = FindClosestEdgeIndex(mgr, toWorld);
+        List<List<int>> adjacency = GetEdgeAdjacencyAllLoops(mgr);
+        HashSet<int> candidates = new HashSet<int> { hintEdge };
+
+        for (int i = 0; i < adjacency[hintEdge].Count; i++)
+        {
+            candidates.Add(adjacency[hintEdge][i]);
+        }
+
+        int edgeCount = mgr.GetEdgeCount();
+
+        for (int i = 0; i < edgeCount; i++)
+        {
+            Edge edge = mgr.GetEdge(i);
+
+            if (SurfaceEdgeTraversal.DistanceToSegment(toWorld, edge.a, edge.b) <= goalEdgeRadius)
+            {
+                candidates.Add(i);
+            }
+        }
+
+        int bestEdge = hintEdge;
+        float bestCost = float.MaxValue;
+
+        foreach (int candidate in candidates)
+        {
+            if (!TryGetContourDistanceToGoalEdge(mgr, startEdge, fromWorld, candidate, toWorld, out float cost))
+            {
+                continue;
+            }
+
+            if (cost < bestCost)
+            {
+                bestCost = cost;
+                bestEdge = candidate;
+            }
+        }
+
+        return bestEdge;
+    }
+
+    private static bool TryGetContourDistanceToGoalEdge(
+        TileMapGuideManager mgr,
+        int startEdge,
+        Vector2 fromWorld,
+        int goalEdge,
+        Vector2 toWorld,
+        out float cost)
+    {
+        cost = float.MaxValue;
+
+        Edge startEdgeData = mgr.GetEdge(startEdge);
+        Vector2 startOnEdge = SurfaceEdgeTraversal.ClosestPointOnSegment(
+            fromWorld,
+            startEdgeData.a,
+            startEdgeData.b);
+
+        if (startEdge == goalEdge)
+        {
+            Edge goalEdgeData = mgr.GetEdge(goalEdge);
+            Vector2 goalPoint = SurfaceEdgeTraversal.ClosestPointOnSegment(
+                toWorld,
+                goalEdgeData.a,
+                goalEdgeData.b);
+            cost = Vector2.Distance(startOnEdge, goalPoint);
+            return true;
+        }
+
+        List<List<int>> adjacency = GetEdgeAdjacencyAllLoops(mgr);
+        Dictionary<int, float> dist = new Dictionary<int, float>();
+        Dictionary<int, Vector2> anchorOnEdge = new Dictionary<int, Vector2>();
+        List<int> open = new List<int>();
+
+        dist[startEdge] = 0f;
+        anchorOnEdge[startEdge] = startOnEdge;
+        open.Add(startEdge);
+
+        int dijkstraSteps = 0;
+        const int maxDijkstraSteps = 600;
+
+        while (open.Count > 0 && dijkstraSteps < maxDijkstraSteps)
+        {
+            dijkstraSteps++;
+            int current = PopClosestEdge(open, dist);
+
+            if (current == goalEdge)
+            {
+                Edge goalEdgeData = mgr.GetEdge(goalEdge);
+                Vector2 goalPoint = SurfaceEdgeTraversal.ClosestPointOnSegment(
+                    toWorld,
+                    goalEdgeData.a,
+                    goalEdgeData.b);
+                cost = dist[current] + Vector2.Distance(anchorOnEdge[current], goalPoint);
+                return true;
+            }
+
+            Edge currentEdge = mgr.GetEdge(current);
+            Vector2 onCurrent = anchorOnEdge[current];
+            List<int> neighbors = adjacency[current];
+
+            for (int i = 0; i < neighbors.Count; i++)
+            {
+                int next = neighbors[i];
+                Edge nextEdge = mgr.GetEdge(next);
+                Vector2 shared = GetSharedVertex(currentEdge, nextEdge);
+                Vector2 exitPoint = shared.sqrMagnitude > 0.0001f
+                    ? shared
+                    : SurfaceEdgeTraversal.ClosestPointOnSegment(onCurrent, nextEdge.a, nextEdge.b);
+                Vector2 enterPoint = SurfaceEdgeTraversal.ClosestPointOnSegment(
+                    onCurrent,
+                    currentEdge.a,
+                    currentEdge.b);
+                float stepCost = ComputeContourStepCost(mgr, current, next, enterPoint, exitPoint);
+                float newDist = dist[current] + stepCost;
+
+                if (dist.TryGetValue(next, out float oldDist) && newDist >= oldDist - 0.0001f)
+                {
+                    continue;
+                }
+
+                dist[next] = newDist;
+                anchorOnEdge[next] = exitPoint;
+
+                if (!open.Contains(next))
+                {
+                    open.Add(next);
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private static float ComputeContourStepCost(
+        TileMapGuideManager mgr,
+        int fromEdgeIndex,
+        int toEdgeIndex,
+        Vector2 enterPoint,
+        Vector2 exitPoint)
+    {
+        float stepCost = Mathf.Max(0.001f, Vector2.Distance(enterPoint, exitPoint));
+        Edge fromEdge = mgr.GetEdge(fromEdgeIndex);
+        Edge toEdge = mgr.GetEdge(toEdgeIndex);
+
+        if (fromEdge.loopId == toEdge.loopId)
+        {
+            stepCost *= SameLoopPathPenalty;
+        }
+
+        return stepCost;
+    }
+
+    private static List<List<int>> BuildEdgeAdjacencyAllLoops(TileMapGuideManager mgr)
+    {
+        int edgeCount = mgr.GetEdgeCount();
+        List<List<int>> adjacency = new List<List<int>>(edgeCount);
+        Dictionary<long, List<int>> vertexToEdges = new Dictionary<long, List<int>>();
+
+        for (int i = 0; i < edgeCount; i++)
+        {
+            adjacency.Add(new List<int>(6));
+            Edge edge = mgr.GetEdge(i);
+            RegisterVertexEdge(vertexToEdges, edge.a, i);
+            RegisterVertexEdge(vertexToEdges, edge.b, i);
+        }
+
+        for (int i = 0; i < edgeCount; i++)
+        {
+            AddAdjacencyEdge(adjacency, i, mgr.GetNextIndex(i, true));
+            AddAdjacencyEdge(adjacency, i, mgr.GetNextIndex(i, false));
+
+            Edge edge = mgr.GetEdge(i);
+            LinkVertexAdjacency(adjacency, vertexToEdges, edge.a, i);
+            LinkVertexAdjacency(adjacency, vertexToEdges, edge.b, i);
+        }
+
+        return adjacency;
+    }
+
+    private static void RegisterVertexEdge(Dictionary<long, List<int>> vertexToEdges, Vector2 vertex, int edgeIndex)
+    {
+        long key = QuantizeVertexKey(vertex);
+
+        if (!vertexToEdges.TryGetValue(key, out List<int> edges))
+        {
+            edges = new List<int>(4);
+            vertexToEdges[key] = edges;
+        }
+
+        edges.Add(edgeIndex);
+    }
+
+    private static void LinkVertexAdjacency(
+        List<List<int>> adjacency,
+        Dictionary<long, List<int>> vertexToEdges,
+        Vector2 vertex,
+        int edgeIndex)
+    {
+        if (!vertexToEdges.TryGetValue(QuantizeVertexKey(vertex), out List<int> edges))
+        {
+            return;
+        }
+
+        for (int i = 0; i < edges.Count; i++)
+        {
+            AddAdjacencyEdge(adjacency, edgeIndex, edges[i]);
+        }
+    }
+
+    private static void AddAdjacencyEdge(List<List<int>> adjacency, int from, int to)
+    {
+        if (from == to)
+        {
+            return;
+        }
+
+        List<int> neighbors = adjacency[from];
+
+        for (int i = 0; i < neighbors.Count; i++)
+        {
+            if (neighbors[i] == to)
+            {
+                return;
+            }
+        }
+
+        neighbors.Add(to);
+    }
+
+    private static long QuantizeVertexKey(Vector2 vertex)
+    {
+        int x = Mathf.RoundToInt(vertex.x / VertexEpsilon);
+        int y = Mathf.RoundToInt(vertex.y / VertexEpsilon);
+        return ((long)x << 32) ^ (uint)y;
+    }
+
+    /// <summary>
+    /// 跨 loop 的边 Dijkstra 折线路径（共享顶点连通，代价为沿边几何距离）。
+    /// </summary>
+    public static List<Vector2> FindVertexPathAllLoops(Vector2 fromWorld, Vector2 toWorld, int maxEdgeSteps = 500)
+    {
+        List<Vector2> result = new List<Vector2>();
+        TileMapGuideManager mgr = TileMapGuideManager.Instance;
+
+        if (mgr == null || mgr.GetEdgeCount() == 0)
+        {
+            return result;
+        }
+
+        int startEdge = FindClosestEdgeIndex(mgr, fromWorld);
+        int goalEdge = FindBestGoalEdgeForPath(fromWorld, toWorld);
+
+        Edge goalEdgeData = mgr.GetEdge(goalEdge);
+        Vector2 goalPoint = SurfaceEdgeTraversal.ClosestPointOnSegment(
+            toWorld,
+            goalEdgeData.a,
+            goalEdgeData.b
+        );
+
+        if (startEdge == goalEdge)
+        {
+            result.Add(goalPoint);
+            return result;
+        }
+
+        List<List<int>> adjacency = GetEdgeAdjacencyAllLoops(mgr);
+        Dictionary<int, float> dist = new Dictionary<int, float>();
+        Dictionary<int, int> cameFrom = new Dictionary<int, int>();
+        Dictionary<int, Vector2> anchorOnEdge = new Dictionary<int, Vector2>();
+        List<int> open = new List<int>();
+
+        Edge startEdgeData = mgr.GetEdge(startEdge);
+        Vector2 startOnEdge = SurfaceEdgeTraversal.ClosestPointOnSegment(
+            fromWorld,
+            startEdgeData.a,
+            startEdgeData.b);
+
+        dist[startEdge] = 0f;
+        anchorOnEdge[startEdge] = startOnEdge;
+        cameFrom[startEdge] = startEdge;
+        open.Add(startEdge);
+
+        bool found = false;
+        int steps = 0;
+
+        while (open.Count > 0 && steps < maxEdgeSteps)
+        {
+            steps++;
+            int current = PopClosestEdge(open, dist);
+
+            if (current == goalEdge)
+            {
+                found = true;
+                break;
+            }
+
+            Edge currentEdge = mgr.GetEdge(current);
+            Vector2 onCurrent = anchorOnEdge[current];
+            List<int> neighbors = adjacency[current];
+
+            for (int i = 0; i < neighbors.Count; i++)
+            {
+                int next = neighbors[i];
+                Edge nextEdge = mgr.GetEdge(next);
+                Vector2 shared = GetSharedVertex(currentEdge, nextEdge);
+                Vector2 exitPoint = shared.sqrMagnitude > 0.0001f
+                    ? shared
+                    : SurfaceEdgeTraversal.ClosestPointOnSegment(onCurrent, nextEdge.a, nextEdge.b);
+                Vector2 enterPoint = SurfaceEdgeTraversal.ClosestPointOnSegment(
+                    onCurrent,
+                    currentEdge.a,
+                    currentEdge.b);
+                float stepCost = ComputeContourStepCost(mgr, current, next, enterPoint, exitPoint);
+                float newDist = dist[current] + stepCost;
+
+                if (dist.TryGetValue(next, out float oldDist) && newDist >= oldDist - 0.0001f)
+                {
+                    continue;
+                }
+
+                dist[next] = newDist;
+                cameFrom[next] = current;
+                anchorOnEdge[next] = exitPoint;
+
+                if (!open.Contains(next))
+                {
+                    open.Add(next);
+                }
+            }
+        }
+
+        if (!found)
+        {
+            result.Add(goalPoint);
+            return result;
+        }
+
+        List<int> edgeChain = new List<int>();
+        int back = goalEdge;
+        int backtrackSteps = 0;
+        const int maxBacktrackSteps = 256;
+
+        while (back != startEdge && backtrackSteps < maxBacktrackSteps)
+        {
+            backtrackSteps++;
+            edgeChain.Add(back);
+
+            if (!cameFrom.TryGetValue(back, out int previous))
+            {
+                break;
+            }
+
+            back = previous;
+        }
+
+        edgeChain.Reverse();
+
+        Vector2 cursor = startOnEdge;
+        int prevEdgeIndex = startEdge;
+
+        for (int i = 0; i < edgeChain.Count; i++)
+        {
+            int nextEdgeIndex = edgeChain[i];
+            Edge prevEdge = mgr.GetEdge(prevEdgeIndex);
+            Edge nextEdge = mgr.GetEdge(nextEdgeIndex);
+            Vector2 corner = GetSharedVertex(prevEdge, nextEdge);
+
+            if (corner.sqrMagnitude > 0.0001f && !SameVertex(corner, cursor))
+            {
+                result.Add(corner);
+                cursor = corner;
+            }
+
+            prevEdgeIndex = nextEdgeIndex;
+        }
+
+        if (!SameVertex(cursor, goalPoint))
+        {
+            result.Add(goalPoint);
+        }
+
+        return result;
+    }
+
+    private static int PopClosestEdge(List<int> open, Dictionary<int, float> dist)
+    {
+        int bestListIndex = 0;
+        float bestDist = dist[open[0]];
+
+        for (int i = 1; i < open.Count; i++)
+        {
+            float candidateDist = dist[open[i]];
+
+            if (candidateDist < bestDist)
+            {
+                bestDist = candidateDist;
+                bestListIndex = i;
+            }
+        }
+
+        int edgeIndex = open[bestListIndex];
+        open.RemoveAt(bestListIndex);
+        return edgeIndex;
     }
 
     private static void TryEnqueue(

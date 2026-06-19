@@ -228,6 +228,97 @@ public static class SurfaceCrawlerVisual
         return fallbackClockwise;
     }
 
+    /// <summary>
+    /// 跳跃落地时根据起跳/落点在边上的投影判断 loop 方向，避免纯竖直或斜向落点误判。
+    /// </summary>
+    public static bool ComputeTravelClockwiseForLanding(
+        TileMapGuideManager mgr,
+        int edgeIndex,
+        Vector2 jumpOrigin,
+        Vector2 landPoint,
+        bool fallbackClockwise,
+        Vector2? progressGoal = null)
+    {
+        if (mgr == null || edgeIndex < 0)
+        {
+            return fallbackClockwise;
+        }
+
+        Edge edge = mgr.GetEdge(edgeIndex);
+        Vector2 originOnEdge = SurfaceEdgeTraversal.ClosestPointOnSegment(jumpOrigin, edge.a, edge.b);
+        Vector2 landOnEdge = SurfaceEdgeTraversal.ClosestPointOnSegment(landPoint, edge.a, edge.b);
+        Vector2 edgeDelta = landOnEdge - originOnEdge;
+
+        if (TryResolveTravelClockwiseFromMoveDir(
+                mgr, edgeIndex, landOnEdge, edgeDelta, fallbackClockwise, out bool fromEdgeDelta))
+        {
+            return fromEdgeDelta;
+        }
+
+        if (progressGoal.HasValue)
+        {
+            Vector2 toGoal = progressGoal.Value - landOnEdge;
+
+            if (TryResolveTravelClockwiseFromMoveDir(
+                    mgr, edgeIndex, landOnEdge, toGoal, fallbackClockwise, out bool fromGoal))
+            {
+                return fromGoal;
+            }
+        }
+
+        Vector2 edgeDir = (edge.b - edge.a).normalized;
+        float alongEdge = Vector2.Dot(landPoint - jumpOrigin, edgeDir);
+
+        if (Mathf.Abs(alongEdge) >= TravelDotThreshold)
+        {
+            Vector2 tangentialMove = edgeDir * alongEdge;
+
+            if (TryResolveTravelClockwiseFromMoveDir(
+                    mgr, edgeIndex, landOnEdge, tangentialMove, fallbackClockwise, out bool fromTangent))
+            {
+                return fromTangent;
+            }
+        }
+
+        return fallbackClockwise;
+    }
+
+    private static bool TryResolveTravelClockwiseFromMoveDir(
+        TileMapGuideManager mgr,
+        int edgeIndex,
+        Vector2 onEdge,
+        Vector2 moveDelta,
+        bool fallbackClockwise,
+        out bool clockwise)
+    {
+        clockwise = fallbackClockwise;
+
+        if (moveDelta.sqrMagnitude < MinTravelDeltaSqr)
+        {
+            return false;
+        }
+
+        Vector2 cwCorner = SurfaceEdgePath.GetForwardCorner(mgr, edgeIndex, onEdge, true);
+        Vector2 ccwCorner = SurfaceEdgePath.GetForwardCorner(mgr, edgeIndex, onEdge, false);
+        Vector2 moveDir = moveDelta.normalized;
+        float dotCw = Vector2.Dot(moveDir, (cwCorner - onEdge).normalized);
+        float dotCcw = Vector2.Dot(moveDir, (ccwCorner - onEdge).normalized);
+
+        if (dotCw >= TravelDotThreshold && dotCw > dotCcw)
+        {
+            clockwise = true;
+            return true;
+        }
+
+        if (dotCcw >= TravelDotThreshold && dotCcw > dotCw)
+        {
+            clockwise = false;
+            return true;
+        }
+
+        return false;
+    }
+
     public static int ComputeTravelSignAlongEdge(
         Edge edge,
         Vector2 fromPosition,

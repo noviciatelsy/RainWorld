@@ -9,9 +9,14 @@ public class WolfSpiderMotor : IMonsterMotor
     private Vector2 jumpArcNormal;
     private float jumpProgress;
     private float jumpDuration;
+    private float jumpElapsed;
     private float cooldownTimer;
 
     private const float JumpArriveThreshold = 0.05f;
+    private const float MinJumpSlack = 0.02f;
+    private const float MaxJumpTime = 2.5f;
+
+    private float attackAnimTimer;
 
     public WolfSpiderMotor(WolfSpider2D owner)
     {
@@ -27,7 +32,14 @@ public class WolfSpiderMotor : IMonsterMotor
             return;
         }
 
+        if (!spider.Arrived && !spider.IsJumping)
+        {
+            spider.Arrived = true;
+        }
+
         UpdateCooldown(spider);
+        UpdateAttackAnim(spider);
+        spider.TickPostLandJumpCooldown(Time.fixedDeltaTime);
         spider.CurrentBehavior = spiderIntent.behaviorState;
 
         if (spider.IsCoolingDown)
@@ -49,20 +61,13 @@ public class WolfSpiderMotor : IMonsterMotor
 
         if (ShouldBeginJump(spider, spiderIntent))
         {
-            if (!WolfSpiderSurfaceProbe.IsValidJumpTarget(
+            Vector2 arcNormal = WolfSpiderSurfaceProbe.ResolveJumpArcNormal(
                 spider.Position,
                 spiderIntent.jumpTarget,
-                spider.minJumpDist,
-                spider.maxJumpDist,
-                spider.arcHeight,
-                spider.CurrentSurfaceNormal))
-            {
-                spider.NotifyJumpTargetRejected();
-                spider.Arrived = true;
-                return;
-            }
+                spider.CurrentSurfaceNormal,
+                spider.surfaceSnapMaxDistance);
 
-            BeginJump(spider, spiderIntent);
+            BeginJump(spider, spiderIntent, arcNormal);
             TickJump(spider);
         }
     }
@@ -73,13 +78,21 @@ public class WolfSpiderMotor : IMonsterMotor
         spider.CurrentTarget = spider.Position;
         spider.DebugArcSamples.Clear();
         spider.PerformAttack(intent.focusTarget);
+        spider.SetPerformingAttackAnim(true);
+        attackAnimTimer = Mathf.Max(0.05f, spider.attackAnimDuration);
+        spider.NotifyAttackStarted();
         spider.IsCoolingDown = true;
-        cooldownTimer = spider.attackStiffDuration;
+        cooldownTimer = Mathf.Max(attackAnimTimer, spider.attackInterval);
         spider.NotifyAttackPerformed();
     }
 
     private bool ShouldBeginJump(WolfSpider2D spider, WolfSpiderIntent intent)
     {
+        if (spider.IsPostLandJumpCooldown)
+        {
+            return false;
+        }
+
         if (!spider.Arrived)
         {
             return false;
@@ -91,17 +104,31 @@ public class WolfSpiderMotor : IMonsterMotor
         }
 
         float distanceSqr = (spider.Position - intent.jumpTarget).sqrMagnitude;
-        return distanceSqr > JumpArriveThreshold * JumpArriveThreshold;
+        float snapTolSqr = spider.surfaceSnapMaxDistance * spider.surfaceSnapMaxDistance;
+
+        if (distanceSqr <= snapTolSqr || distanceSqr <= JumpArriveThreshold * JumpArriveThreshold)
+        {
+            return false;
+        }
+
+        float minJump = spider.minJumpDist + MinJumpSlack;
+
+        if (distanceSqr < minJump * minJump)
+        {
+            spider.Arrived = true;
+            return false;
+        }
+
+        return true;
     }
 
-    private void BeginJump(WolfSpider2D spider, WolfSpiderIntent intent)
+    private void BeginJump(WolfSpider2D spider, WolfSpiderIntent intent, Vector2 arcNormal)
     {
         jumpStart = spider.Position;
         jumpTarget = intent.jumpTarget;
-        jumpArcNormal = spider.CurrentSurfaceNormal.sqrMagnitude > 0.0001f
-            ? spider.CurrentSurfaceNormal.normalized
-            : Vector2.up;
+        jumpArcNormal = arcNormal;
         jumpProgress = 0f;
+        jumpElapsed = 0f;
 
         float distance = Vector2.Distance(jumpStart, jumpTarget);
         jumpDuration = Mathf.Max(0.08f, distance / Mathf.Max(0.01f, spider.moveSpeed));
@@ -110,6 +137,7 @@ public class WolfSpiderMotor : IMonsterMotor
         spider.Arrived = false;
         spider.CurrentTarget = jumpTarget;
         spider.DebugTarget = jumpTarget;
+        spider.NotifyJumpStarted();
 
         if (spider.drawDebugGizmos)
         {
@@ -122,17 +150,20 @@ public class WolfSpiderMotor : IMonsterMotor
             );
         }
 
-        if ((jumpTarget - jumpStart).sqrMagnitude > 0.0001f)
-        {
-            spider.FaceToward(jumpTarget);
-        }
+        Vector2? progressGoal = intent.focusTarget != null
+            ? (Vector2?)intent.focusTarget.position
+            : null;
+
+        spider.PrepareJumpVisual(jumpTarget, jumpStart, progressGoal);
     }
 
     private void TickJump(WolfSpider2D spider)
     {
-        if (jumpDuration <= 0f)
+        jumpElapsed += Time.fixedDeltaTime;
+
+        if (jumpDuration <= 0f || jumpElapsed >= MaxJumpTime)
         {
-            Land(spider);
+            FinishJump(spider, jumpTarget, forced: true);
             return;
         }
 
@@ -145,15 +176,24 @@ public class WolfSpiderMotor : IMonsterMotor
 
         if (!IsAirPositionClear(spider, nextPosition))
         {
-            Land(spider, flatPosition);
+            FinishJump(spider, flatPosition, forced: false);
             return;
         }
 
         spider.Transform.position = nextPosition;
+        spider.SetJumpVisualProgress(t);
 
-        if (t >= 1f - 0.0001f || (spider.Position - jumpTarget).sqrMagnitude <= JumpArriveThreshold * JumpArriveThreshold)
+        if (t >= 1f - 0.0001f)
         {
-            Land(spider);
+            FinishJump(spider, jumpTarget, forced: false);
+            return;
+        }
+
+        float snapTolSqr = spider.surfaceSnapMaxDistance * spider.surfaceSnapMaxDistance;
+
+        if ((spider.Position - jumpTarget).sqrMagnitude <= snapTolSqr)
+        {
+            FinishJump(spider, jumpTarget, forced: false);
         }
     }
 
@@ -169,33 +209,16 @@ public class WolfSpiderMotor : IMonsterMotor
         return !mgr.IsSolid(mgr.WorldToCell(position));
     }
 
-    private void Land(WolfSpider2D spider)
+    private void FinishJump(WolfSpider2D spider, Vector2 landHint, bool forced)
     {
-        Land(spider, jumpTarget);
-    }
+        Vector2 notifyLandPoint = landHint;
+        Vector2 notifyJumpOrigin = jumpStart;
+        bool landed = spider.TryCompleteJumpLanding(landHint, jumpStart);
 
-    private void Land(WolfSpider2D spider, Vector2 landHint)
-    {
-        SurfaceSnapResult snap = WolfSpiderSurfaceProbe.SnapToFloorSurface(
-            landHint,
-            spider.surfaceSnapMaxDistance,
-            spider.visualSurfaceOffset
-        );
-
-        if (!snap.success)
+        if (landed)
         {
-            snap = WolfSpiderSurfaceProbe.SnapToSurface(
-                landHint,
-                spider.surfaceSnapMaxDistance,
-                spider.visualSurfaceOffset,
-                jumpStart
-            );
-        }
-
-        if (snap.success)
-        {
-            spider.Transform.position = snap.point;
-            spider.ApplySurfaceOrientation(snap.normal);
+            notifyLandPoint = spider.Position;
+            spider.NotifySuccessfulLanding(notifyLandPoint, notifyJumpOrigin);
         }
         else
         {
@@ -204,8 +227,34 @@ public class WolfSpiderMotor : IMonsterMotor
 
         spider.IsJumping = false;
         spider.Arrived = true;
+        spider.NotifyJumpEnded();
+        spider.ArmPostLandJumpCooldown();
         jumpProgress = 0f;
+        jumpElapsed = 0f;
         spider.DebugArcSamples.Clear();
+
+        if (!landed)
+        {
+            spider.NotifyJumpTargetRejected();
+        }
+    }
+
+    private void UpdateAttackAnim(WolfSpider2D spider)
+    {
+        if (!spider.IsPerformingAttackAnim)
+        {
+            return;
+        }
+
+        attackAnimTimer -= Time.fixedDeltaTime;
+
+        if (attackAnimTimer > 0f)
+        {
+            return;
+        }
+
+        spider.SetPerformingAttackAnim(false);
+        spider.NotifyAttackAnimEnded();
     }
 
     private void UpdateCooldown(WolfSpider2D spider)

@@ -374,14 +374,12 @@ public class TileMapGuideManager : MonoBehaviour
         bool solidAbove = InBounds(cellAbove) && IsSolid(cellAbove);
         bool solidBelow = InBounds(cellBelow) && IsSolid(cellBelow);
 
-        // 底边：solid 在边上侧、空气在下侧 → 应站在 solid 顶面，不能用朝下的空气法线偏移
+        // 底边：solid 在上、空气在下 → 贴在块下方（天花板/平台底面）
         if (solidAbove && !solidBelow)
         {
-            standPoint = new Vector2(
-                worldHint.x,
-                GetSolidCellTop(cellAbove).y + surfaceOffset
-            );
-            normal = Vector2.up;
+            Vector2 airNormal = Vector2.down;
+            standPoint = pointOnEdge + airNormal * surfaceOffset;
+            normal = airNormal;
             return true;
         }
 
@@ -390,7 +388,7 @@ public class TileMapGuideManager : MonoBehaviour
         {
             Vector2 airNormal = GetEdgeAirNormal(edge);
 
-            if (airNormal.y < 0.2f)
+            if (airNormal.y < 0.2f && Mathf.Abs(airNormal.x) < 0.5f)
             {
                 airNormal = Vector2.up;
             }
@@ -400,19 +398,16 @@ public class TileMapGuideManager : MonoBehaviour
             return true;
         }
 
-        // 竖边 / 兜底：用空气法线，但禁止朝下
+        // 竖边 / 侧墙 / 其它轮廓：允许左右墙面与天花板，不再强制吸到地面。
         Vector2 fallbackNormal = GetEdgeAirNormal(edge);
 
-        if (fallbackNormal.y < 0.2f)
+        if (fallbackNormal.sqrMagnitude < 0.0001f)
         {
-            if (TryGetFloorTop(worldHint, out Vector2 floorPoint, surfaceOffset))
-            {
-                standPoint = floorPoint;
-                normal = Vector2.up;
-                return true;
-            }
-
             fallbackNormal = Vector2.up;
+        }
+        else
+        {
+            fallbackNormal = fallbackNormal.normalized;
         }
 
         standPoint = pointOnEdge + fallbackNormal * surfaceOffset;

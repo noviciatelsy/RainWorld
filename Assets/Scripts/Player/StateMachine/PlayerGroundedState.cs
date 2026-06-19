@@ -13,7 +13,7 @@ public class PlayerGroundedState : PlayerBaseState
     {
         base.Enter();
         playerControl.ResetDoubleJump();
-        // »Øµ½µØÃæ×´Ì¬Ê±£¬ÖØÖÃ¶ş¶ÎÌø
+        // å›åˆ°åœ°é¢çŠ¶æ€æ—¶ï¼Œé‡ç½®äºŒæ®µè·³
     }
 
     public override void Update()
@@ -21,23 +21,23 @@ public class PlayerGroundedState : PlayerBaseState
         base.Update();
 
         if (TryEnterClimbState())
-        // Èç¹ûÈËÎï´¦ÓÚ¿ÉÅÊÅÀÇøÓò£¬²¢ÇÒÓĞÊúÖ±·½ÏòÊäÈë
+        // å¦‚æœäººç‰©å¤„äºå¯æ”€çˆ¬åŒºåŸŸï¼Œå¹¶ä¸”æœ‰ç«–ç›´æ–¹å‘è¾“å…¥
         {
             return;
         }
 
-        if (mainInput.Player.Jump.WasPerformedThisFrame()) // Èç¹ûÈËÎï°´ÏÂÌøÔ¾¼ü
+        if (mainInput.Player.Jump.WasPerformedThisFrame()) // å¦‚æœäººç‰©æŒ‰ä¸‹è·³è·ƒé”®
         {
             if (playerControl.moveInput.y >= 0)
             {
-                stateMachine.ChangeState(playerControl.jumpState); // ÇĞ»»ÖÁÌøÔ¾×´Ì¬
+                stateMachine.ChangeState(playerControl.jumpState); // åˆ‡æ¢è‡³è·³è·ƒçŠ¶æ€
                 return;
             }
             else
             {
                 if (playerControl.TryDropDown())
                 {
-                    stateMachine.ChangeState(playerControl.dropPlatformState); // ÇĞ»»ÖÁÌøÏÂÆ½Ì¨×´Ì¬
+                    stateMachine.ChangeState(playerControl.dropPlatformState); // åˆ‡æ¢è‡³è·³ä¸‹å¹³å°çŠ¶æ€
                     return;
                 }
             }
@@ -46,10 +46,10 @@ public class PlayerGroundedState : PlayerBaseState
         }
 
         if (rb.velocity.y < 0 && playerControl.groundDetected == false)
-        // Èç¹ûÈËÎïÏòÏÂÖ±½ÓÏÂÂä£¬Î´¾­¹ıÌøÔ¾×´Ì¬
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½ä£¬Î´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¾×´Ì¬
         {
             stateMachine.ChangeState(playerControl.fallState);
-            // ÇĞ»»ÖÁÏÂÂä×´Ì¬
+            // åˆ‡æ¢è‡³ä¸‹è½çŠ¶æ€
 
             return;
         }
