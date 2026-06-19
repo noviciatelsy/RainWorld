@@ -192,6 +192,7 @@ public class InvisibleCloakPassiveEffect : MonoBehaviour
 
             yield return EnterInvisibleRoutine();
 
+            AudioManager.Instance.PlaySFX("UseItemInvisibleCloakSFX");
             yield return WaitForDuration(invisibleDuration);
 
             yield return ExitInvisibleRoutine();

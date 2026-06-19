@@ -31,6 +31,7 @@ public class ItemEffectDataSO_Cloud : ItemEffectDataSO
         if (playerCloudSpawner != null)
         {
             playerCloudSpawner.SpawnCloudPlatform();
+            AudioManager.Instance.PlaySFX("UseItemWhooshSFX");
             return true;
         }
         return false;

@@ -13,7 +13,7 @@ public class ItemEffectDataSO_BlackMushroom : ItemEffectDataSO
             playerVitals.ReduceHunger(40);
             playerVitals.AddHealth(40);
             blackMushroom.HideSpritesTemporarily(60);
-            
+            AudioManager.Instance.PlaySFX("UseItemEatSFX");
             return true;
         }
         return false;

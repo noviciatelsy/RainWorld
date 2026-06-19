@@ -11,6 +11,7 @@ public class ItemEffectDataSO_Bandage : ItemEffectDataSO
         if (playerVitals != null)
         {
             playerVitals.AddHealth(30);
+            AudioManager.Instance.PlaySFX("UseItemBindUpSFX");
             return true;
         }
         return false;

@@ -181,7 +181,7 @@ MonoBehaviour:
   - {fileID: 9193141681601755092}
   autoCollectComponents: 1
   fadeInDuration: 0.25
-  lifeDuration: 5
+  lifeDuration: 10
   fadeOutDuration: 0.35
   autoStartLifeCycle: 1
   enableCollidersDuringFadeIn: 1

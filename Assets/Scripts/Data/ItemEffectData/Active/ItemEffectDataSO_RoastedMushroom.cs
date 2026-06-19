@@ -12,6 +12,7 @@ public class ItemEffectDataSO_RoastedMushroom : ItemEffectDataSO
         {
             playerVitals.ReduceHunger(20);
             playerVitals.AddHealth(20);
+            AudioManager.Instance.PlaySFX("UseItemEatSFX");
             return true;
         }
         return false;

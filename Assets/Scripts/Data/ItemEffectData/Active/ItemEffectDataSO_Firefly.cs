@@ -11,6 +11,7 @@ public class ItemEffectDataSO_Firefly : ItemEffectDataSO
         if (playerFireflySpawner != null)
         {
             playerFireflySpawner.SpawnFireFly();
+            AudioManager.Instance.PlaySFX("UseItemWhooshSFX");
             return true;
         }
 

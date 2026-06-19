@@ -12,7 +12,7 @@ public class ItemEffectDataSO_Baguette : ItemEffectDataSO
         {
             playerVitals.ReduceHunger(60);
             playerVitals.AddHealth(60);
-
+            AudioManager.Instance.PlaySFX("UseItemEatSFX");
             return true;
         }
         return false;

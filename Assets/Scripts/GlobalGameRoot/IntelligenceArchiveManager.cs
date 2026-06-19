@@ -1032,7 +1032,7 @@ public class IntelligenceArchiveManager : MonoBehaviour
             return false;
         }
 
-        int currentCount = GetUnlockedNonImportantEnemyIntelligenceCount(exchangeData.requiredEnemyInformationData);
+        int currentCount = GetEnemyExchangeCollectedCount(exchangeData.requiredEnemyInformationData);
         int requiredCount = Mathf.Max(1, exchangeData.requiredNonImportantEnemyIntelligenceCount);
 
         return currentCount >= requiredCount;
@@ -1108,6 +1108,23 @@ public class IntelligenceArchiveManager : MonoBehaviour
             {
                 count++;
             }
+        }
+
+        return count;
+    }
+
+    public int GetEnemyExchangeCollectedCount(EnemyInformationDataSO enemyInformationData)
+    {
+        if (enemyInformationData == null)
+        {
+            return 0;
+        }
+
+        int count = GetUnlockedNonImportantEnemyIntelligenceCount(enemyInformationData);
+
+        if (IsEnemyPictureUnlocked(enemyInformationData))
+        {
+            count++;
         }
 
         return count;

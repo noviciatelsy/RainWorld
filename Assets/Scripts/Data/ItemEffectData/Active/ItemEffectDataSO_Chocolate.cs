@@ -12,7 +12,7 @@ public class ItemEffectDataSO_Chocolate : ItemEffectDataSO
         {
             playerVitals.ReduceHunger(5);
             playerVitals.AddHealth(15);
-
+            AudioManager.Instance.PlaySFX("UseItemEatSFX");
             return true;
         }
         return false;

@@ -13,6 +13,7 @@ public class ItemEffectDataSO_Milk : ItemEffectDataSO
         {
             playerVitals.AddHealth(25);
             playerVitals.AddDefenseTemporarily(3, 60);
+            AudioManager.Instance.PlaySFX("UseItemDrinkSFX");
             return true;
         }
         return false;

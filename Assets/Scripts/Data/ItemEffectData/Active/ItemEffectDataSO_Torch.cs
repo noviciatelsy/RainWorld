@@ -31,6 +31,7 @@ public class ItemEffectDataSO_Torch : ItemEffectDataSO
         PlayerTorchThrower playerTorchThrower=player.GetComponentInChildren<PlayerTorchThrower>();
         if (playerTorchThrower != null )
         {
+            AudioManager.Instance.PlaySFX("UseItemTorchSFX");
             playerTorchThrower.TryThrowTorch();
             return true;
         }

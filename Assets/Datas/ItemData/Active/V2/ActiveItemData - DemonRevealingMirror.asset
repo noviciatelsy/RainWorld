@@ -20,8 +20,8 @@ MonoBehaviour:
   backpackItemData: {fileID: 11400000, guid: 43ae5d4e0e273ce4b998f84bbde81ecc, type: 2}
   itemType: 1
   rarity: 1
-  itemBuyPrice: 2
-  itemSellPrice: 1
+  itemBuyPrice: 8
+  itemSellPrice: 4
   canBuyFromMerchant: 1
   autoUnlock: 0
   sellAmountToUnlock: 1

@@ -11,6 +11,7 @@ public class ItemEffectDataSO_MushroomPan : ItemEffectDataSO
         if (mushroomPan != null)
         {
             mushroomPan.RoastAllMushroom();
+            AudioManager.Instance.PlaySFX("UseItemMushroomPanSFX");
             return true;
         }
         return false;

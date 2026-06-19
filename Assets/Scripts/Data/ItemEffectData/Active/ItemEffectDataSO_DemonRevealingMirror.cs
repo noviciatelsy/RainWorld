@@ -11,6 +11,7 @@ public class ItemEffectDataSO_DemonRevealingMirror : ItemEffectDataSO
         if(demonRevealingMirror != null )
         {
             demonRevealingMirror.UseMirror();
+            AudioManager.Instance.PlaySFX("UseItemDemonRevealingMirrorSFX");
             return true;
         }
         return false;

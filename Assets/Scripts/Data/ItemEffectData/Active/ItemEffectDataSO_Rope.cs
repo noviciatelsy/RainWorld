@@ -31,6 +31,7 @@ public class ItemEffectDataSO_Rope : ItemEffectDataSO
         if (playerRopeSpawner != null)
         {
             playerRopeSpawner.SpawnRope();
+            AudioManager.Instance.PlaySFX("UseItemWhooshSFX");
             return true;
         }
         return false;

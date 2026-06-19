@@ -31,6 +31,7 @@ public class ItemEffectDataSO_Camera : ItemEffectDataSO
         if (cameraItem != null)
         {
             cameraItem.UseCamera();
+
             return true;
         }
         return false;

@@ -23,7 +23,7 @@ MonoBehaviour:
   itemBuyPrice: 8
   itemSellPrice: 4
   canBuyFromMerchant: 1
-  autoUnlock: 0
+  autoUnlock: 1
   sellAmountToUnlock: 1
   isConsumable: 0
   isMushroom: 0

@@ -14,6 +14,7 @@ public class ItemEffectDataSO_GreenMushroom : ItemEffectDataSO
             playerVitals.ReduceHunger(40);
             playerVitals.AddHealth(40);
             playerControl.ReduceJumpForceTemporarily(4, 60);
+            AudioManager.Instance.PlaySFX("UseItemEatSFX");
             return true;
         }
         return false;

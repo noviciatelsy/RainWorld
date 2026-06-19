@@ -11,6 +11,7 @@ public class ItemEffectDataSO_Water : ItemEffectDataSO
         if (playerVitals != null)
         {
             playerVitals.PauseAutoIncreaseHunger(300);
+            AudioManager.Instance.PlaySFX("UseItemDrinkSFX");
             return true;
         }
         return false;

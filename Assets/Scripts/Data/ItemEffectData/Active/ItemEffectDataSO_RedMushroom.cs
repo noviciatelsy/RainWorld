@@ -13,6 +13,7 @@ public class ItemEffectDataSO_RedMushroom : ItemEffectDataSO
             playerVitals.ReduceHunger(100);
             playerVitals.AddHealth(100);
             playerVitals.ReduceHealthOverTime(50, 50);
+            AudioManager.Instance.PlaySFX("UseItemEatSFX");
             return true;
         }
         return false;

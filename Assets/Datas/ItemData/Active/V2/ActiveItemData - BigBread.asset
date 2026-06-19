@@ -19,7 +19,7 @@ MonoBehaviour:
   itemEffectData: {fileID: 11400000, guid: aaceea66ee047aa48b79d92a36c26706, type: 2}
   backpackItemData: {fileID: 11400000, guid: b302d6cb59a6d03449fbf7414396d771, type: 2}
   itemType: 1
-  rarity: 2
+  rarity: 1
   itemBuyPrice: 12
   itemSellPrice: 6
   canBuyFromMerchant: 1

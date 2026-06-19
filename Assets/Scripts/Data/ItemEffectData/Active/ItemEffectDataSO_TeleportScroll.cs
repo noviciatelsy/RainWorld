@@ -40,7 +40,7 @@ public class ItemEffectDataSO_TeleportScroll : ItemEffectDataSO
             Debug.LogWarning("回城卷轴使用失败：找不到 GlobalUI 或 fadeScreenUI。");
             return false;
         }
-
+        AudioManager.Instance.PlaySFX("UseItemTeleportScrollSFX");
         GlobalUI.Instance.fadeScreenUI.PlayRoomSwitchFade(() =>
         {
             PlayerManager.Instance.SetPendingPlayerShowUpPosition(targetPosition, playerControl.facingDir);
