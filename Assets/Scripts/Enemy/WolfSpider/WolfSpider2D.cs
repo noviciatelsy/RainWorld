@@ -238,6 +238,12 @@ public class WolfSpider2D : MonsterBase, IMeatBaitAttractable, IToyCarAttractabl
     public void NotifyJumpStarted()
     {
         spiderAni?.NotifyJumpStarted();
+
+        EnemyWolfSpiderAudioEmitter audioEmitter = GetComponent<EnemyWolfSpiderAudioEmitter>();
+        if (audioEmitter != null)
+        {
+            audioEmitter.PlayJump();
+        }
     }
 
     public void NotifyJumpEnded()
@@ -248,6 +254,12 @@ public class WolfSpider2D : MonsterBase, IMeatBaitAttractable, IToyCarAttractabl
     public void NotifyAttackStarted()
     {
         spiderAni?.NotifyAttackStarted();
+
+        EnemyWolfSpiderAudioEmitter audioEmitter = GetComponent<EnemyWolfSpiderAudioEmitter>();
+        if (audioEmitter != null)
+        {
+            audioEmitter.PlayAttack();
+        }
     }
 
     public void NotifyAttackAnimEnded()

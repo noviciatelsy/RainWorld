@@ -2446,6 +2446,7 @@ GameObject:
   - component: {fileID: 1567508111692317823}
   - component: {fileID: 818207883925730995}
   - component: {fileID: 1781812323646009671}
+  - component: {fileID: 9171685577172732631}
   m_Layer: 8
   m_Name: Shibie
   m_TagString: Untagged
@@ -2600,6 +2601,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   overlapActiveRooms: []
+--- !u!114 &9171685577172732631
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5818872615241360620}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c4d6f4138943ed43b1e6e48636a03b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oneShotSource: {fileID: 0}
+  loopSource: {fileID: 0}
+  minDistance: 1.5
+  maxDistance: 12
+  spatialBlend: 1
+  walker: {fileID: 0}
+  moveLoopVolume: 1
+  stompVolume: 1
 --- !u!1 &5976395288306646540
 GameObject:
   m_ObjectHideFlags: 0

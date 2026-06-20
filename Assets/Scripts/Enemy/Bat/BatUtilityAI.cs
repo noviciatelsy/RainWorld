@@ -317,6 +317,16 @@ public class BatUtilityAI : IMonsterAI
             {
                 hasToyCarChasePoint = false;
             }
+
+            if (source == EnemyAttractionSource.Player
+                || detected != null && detected.GetComponentInParent<Player>() != null)
+            {
+                EnemyBatAudioEmitter audioEmitter = bat.GetComponent<EnemyBatAudioEmitter>();
+                if (audioEmitter != null)
+                {
+                    audioEmitter.PlaySpotPlayer();
+                }
+            }
         }
 
         currentPrey = detected;

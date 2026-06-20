@@ -71,7 +71,7 @@ public class MoleCaveManager : MonoBehaviour
     /// <summary>
     /// Ѱ�Ҿ���ָ��λ�����������ͼ�ṹ��ӵ������һ����ͨ���ڵ���Ч��Ѩ��
     /// </summary>
-    public MoleCave FindClosestValidCave(Vector2 searchPos)
+    public MoleCave FindClosestValidCave(Vector2 searchPos, float feetYOffset = RobotGroundPath.DefaultFeetYOffset)
     {
         MoleCave bestCave = null;
         float minDistance = float.MaxValue;
@@ -85,7 +85,7 @@ public class MoleCaveManager : MonoBehaviour
                 continue;
             }
 
-            float dist = Vector2.Distance(searchPos, cave.Position);
+            float dist = Vector2.Distance(searchPos, cave.GetMoleFeetPosition(feetYOffset));
 
             if (dist < minDistance)
             {
@@ -98,9 +98,9 @@ public class MoleCaveManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ��Ҫ����ͨ��ϵ�������ڳ����㶵�ס�
+    /// 不要求连通关系，用于在场景里兜底找洞。
     /// </summary>
-    public MoleCave FindClosestCave(Vector2 searchPos)
+    public MoleCave FindClosestCave(Vector2 searchPos, float feetYOffset = RobotGroundPath.DefaultFeetYOffset)
     {
         MoleCave bestCave = null;
         float minDistance = float.MaxValue;
@@ -114,7 +114,7 @@ public class MoleCaveManager : MonoBehaviour
                 continue;
             }
 
-            float dist = Vector2.Distance(searchPos, cave.Position);
+            float dist = Vector2.Distance(searchPos, cave.GetMoleFeetPosition(feetYOffset));
 
             if (dist < minDistance)
             {

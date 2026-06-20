@@ -88,6 +88,12 @@ public class Ghost : MonsterBase, IMimicryReleasable, ITalismanExterminable
         {
             Destroy(gameObject, exterminateDissolveDuration);
         }
+
+        EnemyGhostAudioEmitter audioEmitter = GetComponent<EnemyGhostAudioEmitter>();
+        if (audioEmitter != null)
+        {
+            audioEmitter.PlayDeath();
+        }
     }
 
     public bool IsPlayerInAttackRange(Transform playerTransform)

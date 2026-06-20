@@ -121,6 +121,12 @@ public class BigRobot2D : MonsterBase, IContactWithLiquid, IAttractedByMilk
         {
             ani.ApplyShutdownVisual();
         }
+
+        EnemyBigRobotAudioEmitter audioEmitter = GetComponent<EnemyBigRobotAudioEmitter>();
+        if (audioEmitter != null)
+        {
+            audioEmitter.PlayShutdown();
+        }
     }
 
     private void EnsureEnemyLayer()
@@ -184,6 +190,12 @@ public class BigRobot2D : MonsterBase, IContactWithLiquid, IAttractedByMilk
         IsInAttackSequence = true;
         AttackAnimVersion++;
         attackSequenceTimer = Mathf.Max(0.05f, attackSequenceDuration);
+
+        EnemyBigRobotAudioEmitter audioEmitter = GetComponent<EnemyBigRobotAudioEmitter>();
+        if (audioEmitter != null)
+        {
+            audioEmitter.PlaySlash();
+        }
     }
 
     public void ScheduleAttackDamage(Transform target)

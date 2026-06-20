@@ -152,6 +152,12 @@ public class MoleParentAni : MonoBehaviour
         visualTransform.localScale = baseScale;
         textureRoot.localPosition = textureBaseLocalPosition;
         StartBreathLoop();
+
+        EnemyMoleParentAudioEmitter audioEmitter = GetComponent<EnemyMoleParentAudioEmitter>();
+        if (audioEmitter != null)
+        {
+            audioEmitter.StartSleepLoop();
+        }
     }
 
     private void StartHappyBreathBehavior()
@@ -187,6 +193,12 @@ public class MoleParentAni : MonoBehaviour
         if (visualTransform != null)
         {
             visualTransform.localScale = baseScale;
+        }
+
+        EnemyMoleParentAudioEmitter audioEmitter = GetComponent<EnemyMoleParentAudioEmitter>();
+        if (audioEmitter != null)
+        {
+            audioEmitter.StopSleepLoop();
         }
     }
 

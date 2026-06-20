@@ -58,7 +58,7 @@ Transform:
   m_GameObject: {fileID: 1858561940766914677}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.5999999, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -132,6 +132,7 @@ GameObject:
   - component: {fileID: 9012345678901234701}
   - component: {fileID: 9023456789012345602}
   - component: {fileID: 1929296095181732878}
+  - component: {fileID: 1468212355694324806}
   m_Layer: 8
   m_Name: Mole
   m_TagString: Untagged
@@ -148,7 +149,7 @@ Transform:
   m_GameObject: {fileID: 6430993408388382896}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -4, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -176,7 +177,8 @@ MonoBehaviour:
   Target: {x: 0, y: 0}
   HasEdge: 0
   moveSpeed: 1.5
-  playerCheckRadius: 0.5
+  feetYOffset: -0.4
+  playerCheckRadius: 1
   playerLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -262,7 +264,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mole: {fileID: 3669328157405642488}
-  itemReceivePoint: {fileID: 5261003564691755304}
+  itemReceivePoint: {fileID: 3392183046907440409}
   stealFlyDelay: 0.2
   itemFlySpeed: 10
   itemDisplayScale: 0.15
@@ -303,6 +305,28 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   overlapActiveRooms: []
+--- !u!114 &1468212355694324806
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6430993408388382896}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50a134eb891ff48499097336b528e292, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oneShotSource: {fileID: 0}
+  loopSource: {fileID: 0}
+  minDistance: 1.5
+  maxDistance: 12
+  spatialBlend: 1
+  mole: {fileID: 3669328157405642488}
+  stealWarningVolume: 1
+  stealLoopVolume: 1
+  giftVolume: 1
+  digVolume: 1
 --- !u!1001 &5481188885493449138
 PrefabInstance:
   m_ObjectHideFlags: 0

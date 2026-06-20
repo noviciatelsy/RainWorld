@@ -74,6 +74,7 @@ public class MoleUtilityAI : IMonsterAI
         {
             isStealing = false;
             mole.stealTimer = 0f;
+            SetStealClawActive(false);
         }
 
         if (hasPlayer && !isStealing)
@@ -81,6 +82,9 @@ public class MoleUtilityAI : IMonsterAI
             isStealing = true;
             mole.stealTimer = 3f;
             isMovingToCave = false;
+
+            EnemyMoleAudioEmitter audioEmitter = mole.GetComponent<EnemyMoleAudioEmitter>();
+            audioEmitter?.PlayStealWarning();
         }
 
         // 4. Steal 阶段
@@ -235,7 +239,7 @@ public class MoleUtilityAI : IMonsterAI
 
             while (backtrackNode != startCell)
             {
-                Vector2 worldPos = mgr.CellToWorld(backtrackNode) + new Vector2(0f, -0.45f);
+                Vector2 worldPos = RobotGroundPath.CellToFeetWorld(mgr, backtrackNode, mole.feetYOffset);
                 pathPoints.Insert(0, worldPos);
                 backtrackNode = parentMap[backtrackNode];
             }
@@ -331,5 +335,20 @@ public class MoleUtilityAI : IMonsterAI
     private void SetStealClawActive(bool active)
     {
         mole.moleAni?.SetActivate(active);
+
+        EnemyMoleAudioEmitter audioEmitter = mole.GetComponent<EnemyMoleAudioEmitter>();
+        if (audioEmitter == null)
+        {
+            return;
+        }
+
+        if (active)
+        {
+            audioEmitter.StartStealLoop();
+        }
+        else
+        {
+            audioEmitter.StopStealLoop();
+        }
     }
 }

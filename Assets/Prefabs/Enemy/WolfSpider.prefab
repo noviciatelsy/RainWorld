@@ -44,6 +44,7 @@ GameObject:
   - component: {fileID: -7562830907451845910}
   - component: {fileID: 6284496953832666010}
   - component: {fileID: 2318907822464081034}
+  - component: {fileID: 5559514365985526402}
   m_Layer: 0
   m_Name: WolfSpider
   m_TagString: Untagged
@@ -150,6 +151,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   overlapActiveRooms: []
+--- !u!114 &5559514365985526402
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1517624288190499507}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d667dcb6b500bcf4d9e0bb604383372a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oneShotSource: {fileID: 0}
+  loopSource: {fileID: 0}
+  minDistance: 1.5
+  maxDistance: 12
+  spatialBlend: 1
+  attackVolume: 1
+  jumpVolume: 1
+  landVolume: 1
+  stompVolume: 1
 --- !u!1 &2740227717384332534
 GameObject:
   m_ObjectHideFlags: 0
