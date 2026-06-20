@@ -11,17 +11,32 @@ PrefabInstance:
     - target: {fileID: 3524002720783377463, guid: 623049e23bc2f6f478ca8b4371f0be68,
         type: 3}
       propertyPath: m_Name
-      value: LootArea_Jar
+      value: LootArea_Jar_1
       objectReference: {fileID: 0}
     - target: {fileID: 4261061490857749946, guid: 623049e23bc2f6f478ca8b4371f0be68,
         type: 3}
       propertyPath: m_Size.x
-      value: 0.5
+      value: 0.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 4261061490857749946, guid: 623049e23bc2f6f478ca8b4371f0be68,
+        type: 3}
+      propertyPath: m_Size.y
+      value: 0.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 4261061490857749946, guid: 623049e23bc2f6f478ca8b4371f0be68,
+        type: 3}
+      propertyPath: m_Offset.y
+      value: 0.375
       objectReference: {fileID: 0}
     - target: {fileID: 4261061490857749946, guid: 623049e23bc2f6f478ca8b4371f0be68,
         type: 3}
       propertyPath: m_SpriteTilingProperty.oldSize.x
-      value: 0.5
+      value: 0.6666667
+      objectReference: {fileID: 0}
+    - target: {fileID: 4261061490857749946, guid: 623049e23bc2f6f478ca8b4371f0be68,
+        type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.y
+      value: 0.6666667
       objectReference: {fileID: 0}
     - target: {fileID: 5857246982455405516, guid: 623049e23bc2f6f478ca8b4371f0be68,
         type: 3}
