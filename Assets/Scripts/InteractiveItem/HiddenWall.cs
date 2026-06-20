@@ -9,7 +9,6 @@ public class HiddenWall : MonoBehaviour
     {
         if (!other.CompareTag("Player"))
             return;
-
-        GetComponent<TilemapRenderer>().enabled = false;
+        Destroy(transform.parent.gameObject);
     }
 }
