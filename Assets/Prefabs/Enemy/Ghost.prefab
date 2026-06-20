@@ -53,7 +53,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0, type: 2}
+  - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -166,13 +166,13 @@ MonoBehaviour:
   attackRange: 0.9
   attackDamage: 30
   waitDuration: 1.5
-  drawDebugGizmos: 1
   spriteRenderer: {fileID: 6578576672270133160}
   mimickedAlpha: 0.09803922
   revealAlpha: 1
   revealDuration: 0.35
   dissolveEffect: {fileID: 9123456789012345678}
   exterminateDissolveDuration: 1
+  drawDebugGizmos: 1
 --- !u!114 &9123456789012345678
 MonoBehaviour:
   m_ObjectHideFlags: 0
