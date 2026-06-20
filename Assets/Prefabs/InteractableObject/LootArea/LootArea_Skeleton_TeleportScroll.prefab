@@ -1,0 +1,118 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &4003956811425454323
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3982428969880116547, guid: f4470abd6442a694ca3c13f08fd5a73e,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3982428969880116547, guid: f4470abd6442a694ca3c13f08fd5a73e,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3982428969880116547, guid: f4470abd6442a694ca3c13f08fd5a73e,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3982428969880116547, guid: f4470abd6442a694ca3c13f08fd5a73e,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3982428969880116547, guid: f4470abd6442a694ca3c13f08fd5a73e,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3982428969880116547, guid: f4470abd6442a694ca3c13f08fd5a73e,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3982428969880116547, guid: f4470abd6442a694ca3c13f08fd5a73e,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3982428969880116547, guid: f4470abd6442a694ca3c13f08fd5a73e,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3982428969880116547, guid: f4470abd6442a694ca3c13f08fd5a73e,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3982428969880116547, guid: f4470abd6442a694ca3c13f08fd5a73e,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6263017076413944504, guid: f4470abd6442a694ca3c13f08fd5a73e,
+        type: 3}
+      propertyPath: m_Name
+      value: LootArea_Skeleton_TeleportScroll
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 7496294911828334787, guid: f4470abd6442a694ca3c13f08fd5a73e, type: 3}
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6263017076413944504, guid: f4470abd6442a694ca3c13f08fd5a73e,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8786569319206743990}
+  m_SourcePrefab: {fileID: 100100000, guid: f4470abd6442a694ca3c13f08fd5a73e, type: 3}
+--- !u!114 &451733845167287211 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3590503635507917656, guid: f4470abd6442a694ca3c13f08fd5a73e,
+    type: 3}
+  m_PrefabInstance: {fileID: 4003956811425454323}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9541d86e2fd84c1d9990edf0852d74ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1 &7024029203739626059 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6263017076413944504, guid: f4470abd6442a694ca3c13f08fd5a73e,
+    type: 3}
+  m_PrefabInstance: {fileID: 4003956811425454323}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &8786569319206743990
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7024029203739626059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19cd5fe029a6d7f4eb0f7647c1fb22f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayText: {fileID: 451733845167287211}
+  itemDataBase: {fileID: 11400000, guid: 67f3a35b1c96a7c459a28b125f595fcc, type: 2}
+  specialItems: {fileID: 11400000, guid: d198ba4aa00bb034fb19ba63871cb4b4, type: 2}
+  minGenerateItemCount: 2
+  maxGenerateItemCount: 4
+  commonWeight: 50
+  rareWeight: 30
+  epicWeight: 15
+  legendaryWeight: 5
+  bonusLuckWeightGrowthPerPoint: 0.03
+  maxBonusLuckAffect: 50
+  certainItems:
+  - {fileID: 11400000, guid: dcbc2c965b167b0468ea189fe45809cc, type: 2}
