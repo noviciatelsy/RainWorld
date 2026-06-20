@@ -24,3 +24,5 @@ MonoBehaviour:
   dropPlatformBlockSubmersion: 0.5
   swimBoostCooldown: 0.35
   swimBoostDefaultDirection: {x: 1, y: 0.3}
+  minBuoyancyScaleAtFullLoad: 0.1
+  maxWaterGravityScaleAtFullLoad: 2

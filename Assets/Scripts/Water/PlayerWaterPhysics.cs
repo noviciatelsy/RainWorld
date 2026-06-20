@@ -11,6 +11,7 @@ public class PlayerWaterPhysics : MonoBehaviour
 {
     private PlayerControl playerControl;
     private PlayerWaterContact waterContact;
+    private InventoryPlayer inventoryPlayer;
     private Rigidbody2D rb;
     private float swimBoostCooldownTimer;
 
@@ -18,6 +19,7 @@ public class PlayerWaterPhysics : MonoBehaviour
     {
         playerControl = GetComponent<PlayerControl>();
         waterContact = GetComponent<PlayerWaterContact>();
+        inventoryPlayer = GetComponent<InventoryPlayer>();
         rb = playerControl.rb;
     }
 
@@ -40,7 +42,8 @@ public class PlayerWaterPhysics : MonoBehaviour
             return;
         }
 
-        ApplyBuoyancy(settings, submersion);
+        float backpackFillRatio = GetBackpackFillRatio();
+        ApplyBuoyancy(settings, submersion, backpackFillRatio);
         ApplyDrag(settings, submersion);
         ApplySwimInput(settings, submersion);
         ClampSwimSpeed(settings);
@@ -82,12 +85,25 @@ public class PlayerWaterPhysics : MonoBehaviour
         }
 
         WaterPhysicsSettings settings = waterContact.ActiveSettings;
-        return Mathf.Lerp(1f, settings.gravityInWater, playerControl.waterSubmersion);
+        float submersionGravity = Mathf.Lerp(1f, settings.gravityInWater, playerControl.waterSubmersion);
+        float loadGravityScale = settings.GetWaterGravityLoadScaleForFillRatio(GetBackpackFillRatio());
+        return submersionGravity * loadGravityScale;
     }
 
-    private void ApplyBuoyancy(WaterPhysicsSettings settings, float submersion)
+    private float GetBackpackFillRatio()
     {
-        float force = settings.buoyancy * submersion * waterContact.ActiveBuoyancyMultiplier;
+        if (inventoryPlayer == null)
+        {
+            return 0f;
+        }
+
+        return inventoryPlayer.GetCellFillRatio();
+    }
+
+    private void ApplyBuoyancy(WaterPhysicsSettings settings, float submersion, float backpackFillRatio)
+    {
+        float buoyancyScale = settings.GetBuoyancyScaleForFillRatio(backpackFillRatio);
+        float force = settings.buoyancy * submersion * waterContact.ActiveBuoyancyMultiplier * buoyancyScale;
         rb.AddForce(Vector2.up * force, ForceMode2D.Force);
     }
 

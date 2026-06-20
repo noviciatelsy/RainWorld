@@ -30,6 +30,24 @@ public class WaterPhysicsSettings : ScriptableObject
     public float swimBoostCooldown = 0.35f;
     public Vector2 swimBoostDefaultDirection = new Vector2(1f, 0.3f);
 
+    [Header("Backpack load")]
+    [Tooltip("背包满格时浮力倍率；空包为 1。")]
+    [Range(0f, 1f)]
+    public float minBuoyancyScaleAtFullLoad = 0.1f;
+    [Tooltip("背包满格时水中重力额外倍率；空包为 1。")]
+    [Min(1f)]
+    public float maxWaterGravityScaleAtFullLoad = 2f;
+
+    public float GetBuoyancyScaleForFillRatio(float fillRatio)
+    {
+        return Mathf.Lerp(1f, minBuoyancyScaleAtFullLoad, Mathf.Clamp01(fillRatio));
+    }
+
+    public float GetWaterGravityLoadScaleForFillRatio(float fillRatio)
+    {
+        return Mathf.Lerp(1f, maxWaterGravityScaleAtFullLoad, Mathf.Clamp01(fillRatio));
+    }
+
     private static WaterPhysicsSettings runtimeFallback;
 
     public static WaterPhysicsSettings RuntimeFallback
