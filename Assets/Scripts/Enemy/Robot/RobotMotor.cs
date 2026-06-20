@@ -60,6 +60,12 @@ public class RobotMotor : IMonsterMotor
 
         chargeActive = false;
 
+        EnemyRobotAudioEmitter audioEmitter = rb.GetComponent<EnemyRobotAudioEmitter>();
+        if (audioEmitter != null)
+        {
+            audioEmitter.StopDashLoop();
+        }
+
         if (move.pathVertices == null || move.pathVertices.Count == 0)
         {
             ResetMovementState(rb);
@@ -139,6 +145,12 @@ public class RobotMotor : IMonsterMotor
         rb.Arrived = false;
         rb.CurrentTarget = new Vector2(chargeEndX, lockedFeetY);
         rb.DebugTarget = rb.CurrentTarget;
+
+        EnemyRobotAudioEmitter audioEmitter = rb.GetComponent<EnemyRobotAudioEmitter>();
+        if (audioEmitter != null)
+        {
+            audioEmitter.StartDashLoop();
+        }
     }
 
     private void DriveCharge(Robot2D rb, float speed, Transform chargeTarget)
@@ -244,6 +256,12 @@ public class RobotMotor : IMonsterMotor
         chargeWallBroken = false;
         activePath = null;
         pathIndex = 0;
+
+        EnemyRobotAudioEmitter audioEmitter = rb.GetComponent<EnemyRobotAudioEmitter>();
+        if (audioEmitter != null)
+        {
+            audioEmitter.StopDashLoop();
+        }
     }
 
     private void DriveMovement(Robot2D rb, List<Vector2> path, float speed)
@@ -352,6 +370,12 @@ public class RobotMotor : IMonsterMotor
         if (rb.TryDamagePlayer(chargeTarget))
         {
             chargeDamageDealt = true;
+
+            EnemyRobotAudioEmitter audioEmitter = rb.GetComponent<EnemyRobotAudioEmitter>();
+            if (audioEmitter != null)
+            {
+                audioEmitter.PlayHit();
+            }
         }
     }
 

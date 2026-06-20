@@ -26,6 +26,17 @@ public class MoleCave : PlayerSensorTarget
 
     public Vector2 Position => (Vector2)transform.position + teleportOffset;
 
+    /// <summary>鼹鼠 AI 用的洞口脚底世界坐标（与 feetYOffset 贴地逻辑一致，不含玩家传送偏移）。</summary>
+    public Vector2 GetMoleFeetPosition(float feetYOffset = RobotGroundPath.DefaultFeetYOffset)
+    {
+        return RobotGroundPath.SnapToFlatGround((Vector2)transform.position, feetYOffset);
+    }
+
+    public bool IsMoleAtEntrance(Vector2 molePosition, float feetYOffset, float maxDistance = 0.35f)
+    {
+        return Vector2.Distance(molePosition, GetMoleFeetPosition(feetYOffset)) <= maxDistance;
+    }
+
     protected override void Awake()
     {
         EnsureInteractionSetup();

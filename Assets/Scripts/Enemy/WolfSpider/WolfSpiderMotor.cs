@@ -229,6 +229,13 @@ public class WolfSpiderMotor : IMonsterMotor
         spider.Arrived = true;
         spider.NotifyJumpEnded();
         spider.ArmPostLandJumpCooldown();
+
+        EnemyWolfSpiderAudioEmitter audioEmitter = spider.GetComponent<EnemyWolfSpiderAudioEmitter>();
+        if (audioEmitter != null)
+        {
+            audioEmitter.PlayLand();
+        }
+
         jumpProgress = 0f;
         jumpElapsed = 0f;
         spider.DebugArcSamples.Clear();

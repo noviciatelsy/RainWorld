@@ -95,6 +95,12 @@ public class BatMotor : IMonsterMotor
         bat.Arrived = true;
         bat.CurrentTarget = bat.Position;
 
+        EnemyBatAudioEmitter audioEmitter = bat.GetComponent<EnemyBatAudioEmitter>();
+        if (audioEmitter != null)
+        {
+            audioEmitter.PlayAttack();
+        }
+
         attackAnchor = bat.Position;
         lungeTarget = ComputeLungeTarget(bat, intent);
 

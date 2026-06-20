@@ -114,6 +114,12 @@ public class MoleParentController : MonoBehaviour
             return;
         }
 
+        EnemyMoleParentAudioEmitter audioEmitter = GetComponent<EnemyMoleParentAudioEmitter>();
+        if (audioEmitter != null)
+        {
+            audioEmitter.PlayWake();
+        }
+
         moleParentAni.EnterPermanentHappyState(
             happyLandingWorldPosition,
             destructibleWall,

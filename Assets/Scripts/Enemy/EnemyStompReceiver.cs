@@ -104,6 +104,11 @@ public class EnemyStompReceiver : MonoBehaviour
         if (monster != null)
         {
             monster.SetStompPaused(true);
+            EnemyAudioEmitter audioEmitter = monster.GetComponent<EnemyAudioEmitter>();
+            if (audioEmitter != null)
+            {
+                audioEmitter.NotifyStomped();
+            }
         }
 
         Vector3 squashed = baseScale;

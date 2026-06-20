@@ -1,8 +1,8 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 鼹鼠宝物感知与兑换：识别金块/铜块/诅咒宝物，销毁后掉落鼹鼠护符。
+/// 鼹鼠宝物感知与兑换：以 treasureDetectRadius 扫描范围内落地宝物，
+/// AI 驱动鼹鼠走过去拾取并兑换为护符（敌人11 逻辑）。
 /// </summary>
 [DisallowMultipleComponent]
 public class MoleTreasureCollector : MonoBehaviour
@@ -65,14 +65,11 @@ public class MoleTreasureCollector : MonoBehaviour
             return null;
         }
 
-        Collider2D[] hits = Physics2D.OverlapCircleAll(
-            mole != null ? mole.Position : (Vector2)transform.position,
-            treasureDetectRadius
-        );
+        Vector2 origin = GetScanOrigin();
+        Collider2D[] hits = Physics2D.OverlapCircleAll(origin, treasureDetectRadius);
 
         PickableObject closest = null;
         float bestDistSqr = float.MaxValue;
-        Vector2 origin = mole != null ? mole.Position : (Vector2)transform.position;
 
         for (int i = 0; i < hits.Length; i++)
         {
@@ -155,6 +152,11 @@ public class MoleTreasureCollector : MonoBehaviour
             registeredTarget = null;
         }
 
+        EnemyMoleAudioEmitter audioEmitter = mole != null
+            ? mole.GetComponent<EnemyMoleAudioEmitter>()
+            : GetComponent<EnemyMoleAudioEmitter>();
+        audioEmitter?.PlayGift();
+
         return true;
     }
 
@@ -165,13 +167,87 @@ public class MoleTreasureCollector : MonoBehaviour
             return false;
         }
 
-        Vector2 origin = mole != null ? mole.Position : (Vector2)transform.position;
+        Vector2 origin = GetScanOrigin();
         float distSqr = ((Vector2)treasure.transform.position - origin).sqrMagnitude;
         return distSqr <= collectArriveDistance * collectArriveDistance;
+    }
+
+    public bool IsWithinDetectRange(PickableObject treasure)
+    {
+        if (treasure == null)
+        {
+            return false;
+        }
+
+        Vector2 origin = GetScanOrigin();
+        float distSqr = ((Vector2)treasure.transform.position - origin).sqrMagnitude;
+        return distSqr <= treasureDetectRadius * treasureDetectRadius;
+    }
+
+    public void TryRegisterTreasureAt(Vector2 worldPosition, float searchRadius)
+    {
+        if (targetTreasures == null || targetTreasures.Length == 0)
+        {
+            return;
+        }
+
+        Collider2D[] hits = Physics2D.OverlapCircleAll(worldPosition, searchRadius);
+        for (int i = 0; i < hits.Length; i++)
+        {
+            Collider2D hit = hits[i];
+            if (hit == null)
+            {
+                continue;
+            }
+
+            PickableObject pickable = hit.GetComponentInParent<PickableObject>();
+            if (IsValidTreasurePickable(pickable))
+            {
+                RegisterTarget(pickable);
+                return;
+            }
+        }
+    }
+
+    public void FixedUpdate()
+    {
+        if (mole != null && mole.stealTimer > 0f)
+        {
+            return;
+        }
+
+        PickableObject target = ResolveCollectTarget();
+        if (target == null)
+        {
+            return;
+        }
+
+        if (IsWithinCollectRange(target))
+        {
+            TryCollect(target);
+        }
     }
 
     public void ClearRegisteredTarget()
     {
         registeredTarget = null;
     }
+
+    private Vector2 GetScanOrigin()
+    {
+        return mole != null ? mole.Position : (Vector2)transform.position;
+    }
+
+#if UNITY_EDITOR
+    private void OnDrawGizmosSelected()
+    {
+        Vector2 origin = Application.isPlaying ? GetScanOrigin() : (Vector2)transform.position;
+
+        Gizmos.color = new Color(1f, 0.85f, 0.2f, 0.85f);
+        Gizmos.DrawWireSphere(origin, treasureDetectRadius);
+
+        Gizmos.color = new Color(0.2f, 1f, 0.35f, 0.85f);
+        Gizmos.DrawWireSphere(origin, collectArriveDistance);
+    }
+#endif
 }
