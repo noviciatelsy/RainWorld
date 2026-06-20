@@ -135,7 +135,8 @@ MonoBehaviour:
   repellableEnemyLayerMask:
     serializedVersion: 2
     m_Bits: 256
-  repelRadius: 2.5
+  repelRadius: 5
+  repelDetectInterval: 0.5
 --- !u!114 &1478951965232362237
 MonoBehaviour:
   m_ObjectHideFlags: 0

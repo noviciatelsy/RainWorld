@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Mole2D : MonsterBase, IAttractedByTreasure, IToyCarAttractable
+public class Mole2D : MonsterBase, IAttractedByTreasure, IToyCarAttractable, ITorchRepellable
 {
     [Header("鼹鼠属性配置")]
     public float moveSpeed = 2.5f;
@@ -172,5 +172,10 @@ public class Mole2D : MonsterBase, IAttractedByTreasure, IToyCarAttractable
     public void AttractToToyCar(Vector2 myToyCarPosition)
     {
         moleAI?.ForceAttractionRefresh();
+    }
+
+    public void FleeFromTorch(Vector2 torchPosition)
+    {
+        moleAI?.NotifyRepelledByTorch(torchPosition);
     }
 }

@@ -34,6 +34,20 @@ public class MoleUtilityAI : IMonsterAI
         toyCarPathRefreshTimer = 0f;
     }
 
+    public void NotifyRepelledByTorch(Vector2 torchPosition)
+    {
+        isStealing = false;
+        wasStealing = false;
+        mole.stealTimer = 0f;
+        SetStealClawActive(false);
+        isMovingToCave = false;
+        isChasingToyCar = false;
+
+        Vector2 fleeTarget = TorchAvoidance.GetFleePointAwayFromAllTorches(mole.Position);
+        lastIssuedPath = BuildTorchFleePath(fleeTarget);
+        mole.Arrived = false;
+    }
+
     public IIntent Evaluate(MonsterBase owner)
     {
         // 1. ???????????????????? Idle ???? cleanup ???
@@ -44,6 +58,23 @@ public class MoleUtilityAI : IMonsterAI
             {
                 strictPath = new List<Vector2> { mole.Position },
                 isTeleportCleanup = true
+            };
+        }
+
+        if (TorchAvoidance.IsInsideAnyActiveTorch(mole.Position))
+        {
+            Vector2 fleeTarget = TorchAvoidance.GetFleePointAwayFromAllTorches(mole.Position);
+            isStealing = false;
+            wasStealing = false;
+            mole.stealTimer = 0f;
+            SetStealClawActive(false);
+            isMovingToCave = false;
+            isChasingToyCar = false;
+
+            return new MoleIdleIntent
+            {
+                strictPath = BuildTorchFleePath(fleeTarget),
+                isTeleportCleanup = false
             };
         }
 
@@ -254,6 +285,17 @@ public class MoleUtilityAI : IMonsterAI
         }
 
         return pathPoints;
+    }
+
+    private List<Vector2> BuildTorchFleePath(Vector2 fleeTarget)
+    {
+        List<Vector2> path = SurfaceEdgePath.FindVertexPath(mole.Position, fleeTarget);
+        if (path != null && path.Count > 0)
+        {
+            return path;
+        }
+
+        return new List<Vector2> { fleeTarget };
     }
 
     private bool TryUpdateToyCarChasePath()

@@ -243,9 +243,9 @@ public class BatMotor : IMonsterMotor
 
     private void RebuildPath(Bat2D bat, Vector2 target)
     {
-        if (MosquitoCoilAvoidance.IsInsideAnyActiveCoil(target))
+        if (RepellentAvoidance.IsInsideAnyZone(target))
         {
-            target = MosquitoCoilAvoidance.GetFleePointAwayFromAllCoils(bat.Position);
+            target = RepellentAvoidance.GetFleePointAwayFromAll(bat.Position);
         }
 
         TileMapGuideManager mgr = TileMapGuideManager.Instance;
@@ -347,8 +347,8 @@ public class BatMotor : IMonsterMotor
 
     private static bool ShouldAbortAttackForMosquitoCoil(Bat2D bat)
     {
-        return MosquitoCoilAvoidance.HasActiveCoils()
-            && MosquitoCoilAvoidance.IsInsideAnyActiveCoil(bat.Position);
+        return RepellentAvoidance.HasActiveZones()
+            && RepellentAvoidance.IsInsideAnyZone(bat.Position);
     }
 
     private void AbortAttackForMosquitoCoil(Bat2D bat, BatIntent fleeIntent)
@@ -368,7 +368,7 @@ public class BatMotor : IMonsterMotor
         return new BatIntent
         {
             behaviorState = BatBehavior.Idle,
-            moveTarget = MosquitoCoilAvoidance.GetFleePointAwayFromAllCoils(bat.Position),
+            moveTarget = RepellentAvoidance.GetFleePointAwayFromAll(bat.Position),
             focusTarget = null
         };
     }
