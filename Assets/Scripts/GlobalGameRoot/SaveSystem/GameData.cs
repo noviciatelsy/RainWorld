@@ -157,6 +157,11 @@ public class GameRunData
 
     public Vector3 retrieveBackpackSpawnPosition = new Vector3(0,0,0);
 
+    public bool hasPassedMerchantTutorialDialogue=false;
+    public bool hasPassedIntelligencerTutorialDialogue = false;
+    public bool hasFirstDeath=false;
+    public bool hasPassedMerchantFirstDeathDialogue=false;
+
     public void EnsureDataValid()
     {
         if (unlockedIntelligences == null)

@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a7f644f87bcf7449a2f7aface436024, type: 3}
+  m_Name: "EnemyIntelligenceData - \u5927\u8759\u8760\u7684\u5DE2\u7A74"
+  m_EditorClassIdentifier: 
+  intelligenceText: "\u6709\u4F20\u95FB\u79F0\uFF0C\u5927\u8759\u8760\u7684\u5DE2\u7A74\u4E2D\u5806\u79EF\u7740\u5927\u91CF\u201C\u5C1A\u672A\u88AB\u5904\u7406\u5B8C\u7684\u98DF\u7269\u201D\u3002\u4F46\u7531\u4E8E\u6CA1\u6709\u4EFB\u4F55\u4EBA\u80FD\u5728\u8FDB\u5165\u540E\u5B8C\u6574\u8FD4\u56DE\uFF0C\u8FD9\u4E00\u8BF4\u6CD5\u59CB\u7EC8\u505C\u7559\u5728\u4F20\u95FB\u9636\u6BB5"
+  intelligenceName: "\u5927\u8759\u8760\u7684\u5DE2\u7A74 "
+  isImportant: 0
+  canBePurchased: 1
+  canBeLockedByNote: 1
+  priceToPurchase: 5
+  saveID: aea2611ec9f6b2f4c8aa42cb397f46e6

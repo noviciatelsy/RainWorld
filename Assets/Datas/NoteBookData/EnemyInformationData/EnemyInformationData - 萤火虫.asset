@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: deaf7a38db05c9c479e73886e9fd8da8, type: 3}
+  m_Name: "EnemyInformationData - \u8424\u706B\u866B"
+  m_EditorClassIdentifier: 
+  enemyName: "\u8424\u706B\u866B "
+  enemyPicture: {fileID: -1829883486, guid: 8f6d3d1073648914ea8c8d7faca34041, type: 3}
+  enemyIntelligences:
+  - {fileID: 11400000, guid: 35250bc7b15954b47aed82b27c64183e, type: 2}
+  - {fileID: 11400000, guid: 63c7758bb04e98d4da6e88f595a28cac, type: 2}
+  - {fileID: 11400000, guid: 53e2138683fa99244ba4d58700042d0a, type: 2}
+  - {fileID: 11400000, guid: 6c46f6ab2508a024cba7a276fbb8f13b, type: 2}
+  saveID: e0950280275358d48970e87b96a8c2ba

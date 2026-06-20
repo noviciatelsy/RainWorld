@@ -642,6 +642,10 @@ public class PlayerVitals : MonoBehaviour
         StopAutoIncreaseHunger();
         SaveManager.Instance.GetRunTimeGameData().playerDiePosition = transform.position;
         playerInventory.SaveCurrentItemsToRetrieveInventoryAndClearSelf(); // 记录遗失物品
+        if(SaveManager.Instance.GetRunTimeGameData().hasFirstDeath==false)
+        {
+            SaveManager.Instance.GetRunTimeGameData().hasFirstDeath=true;
+        }
         SaveManager.Instance.SaveGame();
         PlayerDied?.Invoke();
         DeathEffect();

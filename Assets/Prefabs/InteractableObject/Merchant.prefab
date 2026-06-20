@@ -95,7 +95,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   displayText: {fileID: 4418447518834986542}
-  dialogueData: {fileID: 11400000, guid: afd4137f76d79144e98ad042e2474bd0, type: 2}
+  tutorialDialogueData: {fileID: 11400000, guid: 28a450ddd5a4d60479e376afe2aa799a,
+    type: 2}
+  firstDeathDialogueData: {fileID: 11400000, guid: 405d63699be145845a5bdf3d89d60d07,
+    type: 2}
 --- !u!1 &4959768301230505392
 GameObject:
   m_ObjectHideFlags: 0
@@ -168,7 +171,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 227208307
-  m_SortingLayer: -3
+  m_SortingLayer: -4
   m_SortingOrder: 0
   m_Sprite: {fileID: -2117029394, guid: 8234f954775c1144ab860c431c4fa00d, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -351,7 +354,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 227208307
-  m_SortingLayer: -3
+  m_SortingLayer: -4
   m_SortingOrder: 1
   m_Sprite: {fileID: -2014283009, guid: 8199e6ef50402fa44a046707920b291e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

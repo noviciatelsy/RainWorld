@@ -5,16 +5,42 @@ using UnityEngine;
 
 public class Merchant : PlayerSensorTarget
 {
-    [SerializeField] private DialogueDataSO dialogueData;   
+
+    [SerializeField] private DialogueDataSO tutorialDialogueData;
+    [SerializeField] private DialogueDataSO firstDeathDialogueData;
+
+    GameRunData gameRunData;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        gameRunData=SaveManager.Instance.GetRunTimeGameData();
+    }
 
     public override void Interact()
     {
         base.Interact();
-        if(InGameUI.Instance!=null)
-        {
-            InGameUI.Instance.dialogueUI.StartDialogue(dialogueData, InGameUI.Instance.ToggleMerchantUI);
-        }
+        InGameUI.Instance.ToggleMerchantUI();
     }
 
+    protected override void OnTriggerEnter2D(Collider2D collision)
+    {
+        base.OnTriggerEnter2D(collision);
+        if(gameRunData.hasPassedMerchantTutorialDialogue==false)
+        {
+            gameRunData.hasPassedMerchantTutorialDialogue = true;
+            InGameUI.Instance.dialogueUI.StartDialogue(tutorialDialogueData);
+            AudioManager.Instance.PlaySFX("MerchantDialogueSFX");
+            SaveManager.Instance.SaveGame();
+        }
+
+        if(gameRunData.hasFirstDeath==true&&gameRunData.hasPassedMerchantFirstDeathDialogue==false)
+        {
+            gameRunData.hasPassedMerchantFirstDeathDialogue = true;
+            InGameUI.Instance.dialogueUI.StartDialogue(firstDeathDialogueData);
+            AudioManager.Instance.PlaySFX("MerchantDialogueSFX");
+            SaveManager.Instance.SaveGame();
+        }
+    }
 
 }

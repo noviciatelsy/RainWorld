@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7f89d9075d3fde4094d7fd8a6449452, type: 3}
+  m_Name: "IntelligenceData - \u6700\u7EC8\u79D8\u5BC6\u4E00\uFF0C\u673A\u5173\u95E8\u7684\u5F00\u542F\u65B9\u6CD5"
+  m_EditorClassIdentifier: 
+  intelligenceText: "\u5728\u673A\u5173\u95E8\u53E3\u8DF3\u8DC3\u4E09\u6B21\u5373\u53EF\u5F00\u95E8\n"
+  intelligenceName: "\u6700\u7EC8\u79D8\u5BC6\u4E00\uFF0C\u673A\u5173\u95E8\u7684\u5F00\u542F\u65B9\u6CD5 "
+  isImportant: 0
+  canBePurchased: 0
+  canBeLockedByNote: 0
+  priceToPurchase: 0
+  saveID: 574e340ffc0440142880bb12508fb560

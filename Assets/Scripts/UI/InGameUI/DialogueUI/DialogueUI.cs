@@ -48,11 +48,13 @@ public class DialogueUI : MonoBehaviour
     private void OnEnable()
     {
         inGameUI.ShowHud(false);
+        InputManager.Instance.mainInput.UI.Disable();
     }
 
     private void OnDisable()
     {
         inGameUI.ShowHud(true);
+        InputManager.Instance.mainInput.UI.Enable();
     }
 
     private void Update()

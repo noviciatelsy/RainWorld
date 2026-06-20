@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3bd8cedadffab2428c3de775a47804c, type: 3}
+  m_Name: "IntelligenceExchangeData - \u5927\u673A\u5668\u4EBA\u7684\u5C01\u9501\u7EBF"
+  m_EditorClassIdentifier: 
+  requiredEnemyInformationData: {fileID: 11400000, guid: da90d79842f32f946a0f52d3bafa200e,
+    type: 2}
+  requiredNonImportantEnemyIntelligenceCount: 5
+  missionDescription: "\u6211\u8D8A\u7814\u7A76\u8FD9\u4E9B\u53E4\u4EE3\u673A\u5668\u4EBA\uFF0C\u5C31\u8D8A\u89C9\u5F97\u4E0D\u5BF9\u52B2\u3002\n\u5B83\u4EEC\u867D\u7136\u578B\u53F7\u4E0D\u540C\u3001\u529F\u80FD\u4E0D\u540C\u3001\u5371\u9669\u7A0B\u5EA6\u4E5F\u4E0D\u540C\u3002\n\u4F46\u67D0\u4E9B\u884C\u4E3A\u6A21\u5F0F\u5374\u51FA\u5947\u4E00\u81F4\u3002\n\u5C31\u50CF\u2026\u2026\n\u9075\u5FAA\u7740\u540C\u4E00\u5957\u89C4\u5219\u3002\n\u5982\u679C\u80FD\u627E\u5230\u8FD9\u79CD\u89C4\u5219\uFF0C\u8BF4\u4E0D\u5B9A\u5C31\u80FD\u627E\u5230\u8FDB\u5165\u5DE5\u5382\u6DF1\u5904\u7684\u529E\u6CD5"
+  rewardType: 1
+  rewardIntelligenceData: {fileID: 0}
+  rewardEnemyInformationData: {fileID: 11400000, guid: 5e40cd4389fafb64dac689fd739fc119,
+    type: 2}
+  rewardEnemyIntelligenceData: {fileID: 11400000, guid: 98f9014d2d74164448a6d1f007ebecf7,
+    type: 2}
+  saveID: 059e0cec0f8ebe14e9278ce408ecb319

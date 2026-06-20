@@ -132,7 +132,7 @@ MonoBehaviour:
   - audioName: StorageUIOpenSFX
     clips:
     - {fileID: 8300000, guid: e2cb43186d00639498b89e60a065abcd, type: 3}
-    volume: 1
+    volume: 0.5
   - audioName: UseItemDemonRevealingMirrorSFX
     clips:
     - {fileID: 8300000, guid: 3f499c69093c1e247962fcc9cfc44c86, type: 3}
@@ -185,6 +185,14 @@ MonoBehaviour:
     clips:
     - {fileID: 8300000, guid: c42ef0dea482d8b4da452e8dfa5f1a8e, type: 3}
     volume: 0.5
+  - audioName: MerchantDialogueSFX
+    clips:
+    - {fileID: 8300000, guid: a09cd9ff5ec2dd84cbb944a97e10af40, type: 3}
+    volume: 0.2
+  - audioName: IntelligencerDialogueSFX
+    clips:
+    - {fileID: 8300000, guid: 100129dcc6b75ef458e2e88e233d5975, type: 3}
+    volume: 0.2
   BGM:
   - audioName: MainMenuBGM
     clips:
