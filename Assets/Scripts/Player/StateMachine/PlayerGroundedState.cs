@@ -26,6 +26,11 @@ public class PlayerGroundedState : PlayerBaseState
             return;
         }
 
+        if (TryEnterSwimState())
+        {
+            return;
+        }
+
         if (mainInput.Player.Jump.WasPerformedThisFrame()) // 如果人物按下跳跃键
         {
             if (playerControl.moveInput.y >= 0)
@@ -35,6 +40,11 @@ public class PlayerGroundedState : PlayerBaseState
             }
             else
             {
+                if (playerControl.ShouldBlockDropPlatform())
+                {
+                    return;
+                }
+
                 if (playerControl.TryDropDown())
                 {
                     stateMachine.ChangeState(playerControl.dropPlatformState); // 切换至跳下平台状态

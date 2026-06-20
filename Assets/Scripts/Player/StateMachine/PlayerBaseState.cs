@@ -8,14 +8,14 @@ public class PlayerBaseState
 
     protected PlayerControl playerControl;
     protected string animBoolName;
-    // 状态对应的动画器bool参数名
+    // ????????????bool??????
 
     protected Animator anim;
     protected Rigidbody2D rb;
     protected MainInput mainInput;
 
     public PlayerBaseState(PlayerStateMachine stateMachine, string animBoolName, PlayerControl playerControl)
-    // 构造函数，获取传入所属的状态机和该状态对应的动画器bool参数名
+    // ????????????????????????????????????????bool??????
     {
         this.stateMachine = stateMachine;
         this.animBoolName = animBoolName;
@@ -28,20 +28,20 @@ public class PlayerBaseState
     public virtual void Enter()
     {
         anim.SetBool(animBoolName, true);
-        // 进入状态时将动画器对应的bool参数设为true
+        // ????????????????????bool???????true
 
     }
 
     public virtual void Update()
     {
         anim.SetFloat("yVelocity", rb.velocity.y);
-        // 将每一帧的y方向速度传入动画参数
+        // ???????y????????????????
     }
 
     public virtual void Exit()
     {
         anim.SetBool(animBoolName, false);
-        // 退出状态时将动画器对应的bool参数设为false
+        // ???????????????????bool???????false
     }
 
     protected bool IsCurrentState()
@@ -54,6 +54,17 @@ public class PlayerBaseState
         if (playerControl.CanEnterClimbState())
         {
             stateMachine.ChangeState(playerControl.climbState);
+            return true;
+        }
+
+        return false;
+    }
+
+    protected bool TryEnterSwimState()
+    {
+        if (playerControl.CanEnterSwimState())
+        {
+            stateMachine.ChangeState(playerControl.swimState);
             return true;
         }
 
