@@ -19,6 +19,10 @@ public class MoleParentController : MonoBehaviour
     [Tooltip("是否接受所有 ItemType.Treasure")]
     [SerializeField] private bool acceptAnyTreasureType = true;
 
+    [Header("Mole Charm Detection")]
+    [Tooltip("鼹鼠护符 ItemData；留空则按名称包含「护符」识别")]
+    [SerializeField] private ItemDataSO[] moleCharmItems;
+
     [SerializeField] private float detectInterval = 0.25f;
 
     [Header("Happy Landing")]
@@ -37,6 +41,7 @@ public class MoleParentController : MonoBehaviour
 
     private int absorbedTreasureCount;
     private float detectTimer;
+    private bool kinSenseIntelUnlocked;
 
     public bool IsHappy => moleParentAni != null && moleParentAni.IsHappy;
 
@@ -64,6 +69,7 @@ public class MoleParentController : MonoBehaviour
 
         detectTimer = Mathf.Max(0.05f, detectInterval);
         ScanAndAbsorbTreasures();
+        ScanForMoleCharm();
     }
 
     private void ScanAndAbsorbTreasures()
@@ -105,6 +111,42 @@ public class MoleParentController : MonoBehaviour
 
         Destroy(treasure.gameObject);
         absorbedTreasureCount++;
+
+        if (absorbedTreasureCount == 1)
+        {
+            EnemyIntelligenceUnlockUtility.TryUnlockByName(EnemyIntelligenceNames.MoleParentCollection);
+        }
+    }
+
+    private void ScanForMoleCharm()
+    {
+        if (kinSenseIntelUnlocked)
+        {
+            return;
+        }
+
+        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, treasureDetectRadius);
+
+        for (int i = 0; i < hits.Length; i++)
+        {
+            Collider2D hit = hits[i];
+
+            if (hit == null)
+            {
+                continue;
+            }
+
+            PickableObject pickable = hit.GetComponentInParent<PickableObject>();
+
+            if (!IsValidDiscardedMoleCharm(pickable))
+            {
+                continue;
+            }
+
+            kinSenseIntelUnlocked = true;
+            EnemyIntelligenceUnlockUtility.TryUnlockByName(EnemyIntelligenceNames.MoleParentKinSense);
+            return;
+        }
     }
 
     private void TriggerPermanentHappyState()
@@ -159,6 +201,37 @@ public class MoleParentController : MonoBehaviour
         }
 
         return false;
+    }
+
+    private bool IsValidDiscardedMoleCharm(PickableObject pickable)
+    {
+        if (pickable == null || pickable.ItemData == null)
+        {
+            return false;
+        }
+
+        if (!pickable.IsSettledOnGround)
+        {
+            return false;
+        }
+
+        ItemDataSO itemData = pickable.ItemData;
+
+        if (moleCharmItems != null && moleCharmItems.Length > 0)
+        {
+            for (int i = 0; i < moleCharmItems.Length; i++)
+            {
+                if (moleCharmItems[i] == itemData)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        string itemName = itemData.name;
+        return itemName.Contains("护符") || itemName.IndexOf("Amulet", System.StringComparison.OrdinalIgnoreCase) >= 0;
     }
 
 #if UNITY_EDITOR

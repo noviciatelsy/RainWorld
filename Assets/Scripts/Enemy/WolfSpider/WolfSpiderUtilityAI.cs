@@ -410,6 +410,12 @@ public class WolfSpiderUtilityAI : IMonsterAI
             pathPickTimer = 0f;
             idleTimer = 0f;
 
+            if (source == EnemyAttractionSource.Fly
+                || (detected != null && detected.GetComponentInParent<Fly2D>() != null))
+            {
+                EnemyIntelligenceUnlockUtility.TryUnlockByName(EnemyIntelligenceNames.WolfSpiderPreyPreference);
+            }
+
             if (source != EnemyAttractionSource.ToyCar)
             {
                 hasToyCarChasePoint = false;

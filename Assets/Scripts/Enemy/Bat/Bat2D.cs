@@ -450,6 +450,15 @@ public class Bat2D : MonsterBase, IMosquitoCoilRepellable, ITorchRepellable, IMe
             return true;
         }
 
+        Snail2D snail = preyTransform.GetComponentInParent<Snail2D>();
+
+        if (snail != null)
+        {
+            Destroy(preyTransform.root.gameObject);
+            EnemyIntelligenceUnlockUtility.TryUnlockByName(EnemyIntelligenceNames.BatDiet);
+            return true;
+        }
+
         Collider2D col = preyTransform.GetComponent<Collider2D>();
 
         if (col != null && !IsPlayerCollider(col))

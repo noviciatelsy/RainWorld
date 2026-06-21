@@ -72,6 +72,8 @@ public class MoleStealController : MonoBehaviour, IMoleStealHandler
             itemDisplayScale
         );
 
+        EnemyIntelligenceUnlockUtility.TryUnlockByName(EnemyIntelligenceNames.MolePrank);
+
         pendingStealRoutine = null;
     }
 

@@ -568,6 +568,7 @@ public class RobotMotor : IMonsterMotor
         {
             wall.NotifyWallDestroy();
             chargeWallBroken = true;
+            EnemyIntelligenceUnlockUtility.TryUnlockByName(EnemyIntelligenceNames.RobotCleverUse);
         }
     }
 

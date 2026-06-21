@@ -140,6 +140,8 @@ public class BigRobotBattery : MonoBehaviour
         {
             bigRobot.NotifyBatteryBroken();
         }
+
+        EnemyIntelligenceUnlockUtility.TryUnlockByName(EnemyIntelligenceNames.BigRobotPowerSource);
     }
 
     private Sprite GetBrokenSprite()

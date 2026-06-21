@@ -346,6 +346,11 @@ public class BatUtilityAI : IMonsterAI
                 {
                     audioEmitter.PlaySpotPlayer();
                 }
+
+                if (bat is BatKing2D)
+                {
+                    EnemyIntelligenceUnlockUtility.TryUnlockByName(EnemyIntelligenceNames.BatKingTerritory);
+                }
             }
         }
 

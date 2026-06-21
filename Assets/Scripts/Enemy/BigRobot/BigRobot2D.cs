@@ -98,6 +98,7 @@ public class BigRobot2D : MonsterBase, IContactWithLiquid, IAttractedByMilk
 
         IsLiquidDisabled = true;
         ApplyShutdownState();
+        EnemyIntelligenceUnlockUtility.TryUnlockByName(EnemyIntelligenceNames.BigRobotWeakness);
     }
 
     public void AttractedByMilk(Vector2 milkPosition)
@@ -509,6 +510,11 @@ public class BigRobot2D : MonsterBase, IContactWithLiquid, IAttractedByMilk
     /// </summary>
     public virtual void OnAttackPerformed(Transform target, bool damageDealt)
     {
+        if (damageDealt)
+        {
+            EnemyIntelligenceUnlockUtility.TryUnlockByName(EnemyIntelligenceNames.BigRobotDuty);
+        }
+
         if (!enableDebugLog)
         {
             return;

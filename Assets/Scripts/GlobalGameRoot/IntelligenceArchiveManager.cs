@@ -166,7 +166,7 @@ public class IntelligenceArchiveManager : MonoBehaviour
 
         if (gameRunData == null)
         {
-            Debug.LogWarning("图鉴初始化失败：当前 GameRunData 为空。");
+            Debug.LogWarning("?????????? GameRunData ???");
             return false;
         }
 
@@ -415,6 +415,22 @@ public class IntelligenceArchiveManager : MonoBehaviour
     {
         EnemyInformationDataSO ownerEnemyData = FindEnemyInformationByEnemyIntelligence(enemyIntelligenceData);
         return UnlockEnemyIntelligenceInternal(ownerEnemyData, enemyIntelligenceData, true);
+    }
+
+    /// <summary>
+    /// ? intelligenceName ???????????? Trim??
+    /// </summary>
+    public bool TryUnlockEnemyIntelligenceByName(string intelligenceName)
+    {
+        EnemyIntelligenceDataSO enemyIntelligenceData = FindEnemyIntelligenceByName(intelligenceName);
+
+        if (enemyIntelligenceData == null)
+        {
+            LogArchiveDebug($"TryUnlockEnemyIntelligenceByName: ??????{intelligenceName}?");
+            return false;
+        }
+
+        return UnlockEnemyIntelligence(enemyIntelligenceData);
     }
 
     // ????????????????????l
@@ -856,6 +872,36 @@ public class IntelligenceArchiveManager : MonoBehaviour
             if (enemyInformationData != null && enemyInformationData.ContainsEnemyIntelligence(enemyIntelligenceData))
             {
                 return enemyInformationData;
+            }
+        }
+
+        return null;
+    }
+
+    private EnemyIntelligenceDataSO FindEnemyIntelligenceByName(string intelligenceName)
+    {
+        if (string.IsNullOrWhiteSpace(intelligenceName)
+            || enemyIntelligenceDataBase == null
+            || enemyIntelligenceDataBase.enemyIntelligenceDataBase == null)
+        {
+            return null;
+        }
+
+        string trimmedName = intelligenceName.Trim();
+        EnemyIntelligenceDataSO[] database = enemyIntelligenceDataBase.enemyIntelligenceDataBase;
+
+        for (int i = 0; i < database.Length; i++)
+        {
+            EnemyIntelligenceDataSO candidate = database[i];
+
+            if (candidate == null || string.IsNullOrWhiteSpace(candidate.intelligenceName))
+            {
+                continue;
+            }
+
+            if (candidate.intelligenceName.Trim() == trimmedName)
+            {
+                return candidate;
             }
         }
 

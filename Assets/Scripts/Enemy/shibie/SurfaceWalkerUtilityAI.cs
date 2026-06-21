@@ -36,6 +36,14 @@ public class SurfaceWalkerUtilityAI : IMonsterAI
         hasCommittedChasePosition = false;
     }
 
+    public void NotifyRepelledByTorch(Vector2 torchPosition)
+    {
+        ForcePerceptionRefresh();
+        activeSource = EnemyAttractionSource.None;
+        walker.travelClockwise = !walker.travelClockwise;
+        walker.Arrived = false;
+    }
+
     public IIntent Evaluate(MonsterBase owner)
     {
         perceptionTimer -= Time.fixedDeltaTime;

@@ -14,6 +14,7 @@ public class SnailRidePlatform : MovingGroundPlatform
     [Header("Downward Player Gate (World Space)")]
     [SerializeField] private float downwardDetectDepth = 1.5f;
     [SerializeField] private float downwardDetectPaddingX = 0.35f;
+    [SerializeField] private float minStompDownSpeed = 0.5f;
 
     private Snail2D snail;
     private PlayerControl cachedPlayer;
@@ -22,6 +23,7 @@ public class SnailRidePlatform : MovingGroundPlatform
     private Vector3 lastVisualLocalScale;
     private float suspendTimer;
     private bool downwardPauseActive;
+    private bool platformIntelUnlocked;
 
     protected override void Awake()
     {
@@ -44,6 +46,40 @@ public class SnailRidePlatform : MovingGroundPlatform
         cachedPlayer = null;
         CacheVisualBaseline();
         ApplyDownwardPause(false);
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        TryUnlockPlatformIntelligence(collision);
+    }
+
+    private void TryUnlockPlatformIntelligence(Collision2D collision)
+    {
+        if (platformIntelUnlocked || collision == null)
+        {
+            return;
+        }
+
+        Collider2D other = collision.collider;
+
+        if (other == null || other.GetComponentInParent<Player>() == null)
+        {
+            return;
+        }
+
+        if (collision.relativeVelocity.y > -minStompDownSpeed)
+        {
+            return;
+        }
+
+        if (platformCollider != null
+            && other.bounds.min.y < platformCollider.bounds.center.y)
+        {
+            return;
+        }
+
+        platformIntelUnlocked = true;
+        EnemyIntelligenceUnlockUtility.TryUnlockByName(EnemyIntelligenceNames.SnailPlatform);
     }
 
     public void PrepareBeforeMotor(IIntent intent)

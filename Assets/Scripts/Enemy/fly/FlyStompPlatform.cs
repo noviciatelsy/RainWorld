@@ -61,5 +61,6 @@ public class FlyStompPlatform : MonoBehaviour
 
         bool facingRight = playerControl == null || playerControl.facingDir >= 0;
         fly.EnterStunAndDropAsItem(facingRight);
+        EnemyIntelligenceUnlockUtility.TryUnlockByName(EnemyIntelligenceNames.FlyCleverUse);
     }
 }

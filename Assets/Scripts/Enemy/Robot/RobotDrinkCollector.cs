@@ -114,6 +114,11 @@ public class RobotDrinkCollector : MonoBehaviour
 
         Destroy(pickable.gameObject);
         robot?.EnterDrinkFrozenState();
+
+        if (IsWaterDrink(pickable.ItemData))
+        {
+            EnemyIntelligenceUnlockUtility.TryUnlockByName(EnemyIntelligenceNames.RobotNaturalEnemy);
+        }
     }
 
     public bool IsWithinCollectRange(PickableObject pickable)
@@ -305,6 +310,22 @@ public class RobotDrinkCollector : MonoBehaviour
         }
 
         return true;
+    }
+
+    private static bool IsWaterDrink(ItemDataSO itemData)
+    {
+        if (itemData == null)
+        {
+            return false;
+        }
+
+        if (itemData.itemEffectData is ItemEffectDataSO_Water)
+        {
+            return true;
+        }
+
+        return itemData.name.IndexOf("Water", System.StringComparison.OrdinalIgnoreCase) >= 0
+            || itemData.name.Contains("水");
     }
 
     private void EnsureTargetDrinks()

@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Serialization;
 
-public class SurfaceWalker2D : MonsterBase, IMeatBaitAttractable, IToyCarAttractable
+public class SurfaceWalker2D : MonsterBase, IMeatBaitAttractable, IToyCarAttractable, ITorchRepellable
 {
     public float moveSpeed = 3f;
     public float fallSpeed = 6f;
@@ -249,5 +249,11 @@ public class SurfaceWalker2D : MonsterBase, IMeatBaitAttractable, IToyCarAttract
     public void AttractToToyCar(Vector2 myToyCarPosition)
     {
         walkerAI?.ForcePerceptionRefresh();
+    }
+
+    public void FleeFromTorch(Vector2 torchPosition)
+    {
+        walkerAI?.NotifyRepelledByTorch(torchPosition);
+        EnemyIntelligenceUnlockUtility.TryUnlockByName(EnemyIntelligenceNames.ShibieWeaknessTorch);
     }
 }

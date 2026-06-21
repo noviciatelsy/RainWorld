@@ -94,7 +94,16 @@ public class EnemyStompReceiver : MonoBehaviour
         }
 
         ApplyStomp(player);
+        NotifyStompIntelligenceUnlock();
         return true;
+    }
+
+    private void NotifyStompIntelligenceUnlock()
+    {
+        if (monster is SurfaceWalker2D)
+        {
+            EnemyIntelligenceUnlockUtility.TryUnlockByName(EnemyIntelligenceNames.ShibieWeaknessStomp);
+        }
     }
 
     private void ApplyStomp(Player player)
