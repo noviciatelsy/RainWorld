@@ -15,7 +15,7 @@ public class PlayerClimbState : PlayerBaseState
     public override void Enter()
     {
         base.Enter();
-
+        playerControl.IgnoreCollisionBetweenPlayerAndPlatform(true);
         playerControl.ResetDoubleJump();
         // 抓到绳子后，视为重新获得支撑，重置二段跳
 
@@ -99,6 +99,7 @@ public class PlayerClimbState : PlayerBaseState
 
     public override void Exit()
     {
+        playerControl.IgnoreCollisionBetweenPlayerAndPlatform(false);
         anim.speed = 1f;
         // 离开攀爬状态时必须恢复动画速度
         // 否则之后待机、移动、跳跃动画都会被暂停

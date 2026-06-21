@@ -241,7 +241,7 @@ public class RoomManager : MonoBehaviour
         CurrentRoom = newRoom;
 
         SyncEnemyActivation();
-        CurrentRoom.TryEnableRoomContent();
+        CurrentRoom.TryEnableMinimap();
         if (roomCameraController != null)
         {
             float cameraMoveDuration = useInstantCamera ? 0f : roomCameraSwitchDuration;

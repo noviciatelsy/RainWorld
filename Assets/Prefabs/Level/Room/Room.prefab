@@ -119,7 +119,7 @@ MonoBehaviour:
   switchTriggerCollider: {fileID: 5716387108933479486}
   autoCollectEnemiesInChildren: 1
   roomEnemies: []
-  roomContent: {fileID: 763046268880138166}
+  miniMap: {fileID: 7732784145518214502}
 --- !u!1 &5172021405048634452
 GameObject:
   m_ObjectHideFlags: 0

@@ -4,6 +4,7 @@ using System.Xml;
 using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 [DefaultExecutionOrder(100)]
 [RequireComponent(typeof(PlayerWaterContact))]
@@ -44,6 +45,9 @@ public class PlayerControl : MonoBehaviour
     [Tooltip("击退竖直冲量每秒衰减量")]
     [SerializeField] private float knockbackVerticalDecay = 6f;
 
+    [Header("平台碰撞")]
+    [SerializeField] private string playerLayerName= "Player";
+    [SerializeField] private string platformLayerName = "Platform";
     public Player player { get; private set; }
     public Animator anim {  get; private set; }
     public Rigidbody2D rb { get; private set; }
@@ -81,6 +85,9 @@ public class PlayerControl : MonoBehaviour
     public bool enableDoubleJump {  get; private set; }
     private bool hasPreparedDoubleJump;
     private bool hasUsedDoubleJump;
+
+    private int playerLayer;
+    private int platformLayer;
     #region State Variables
     public PlayerIdleState idleState { get; private set; }
     public PlayerMoveState moveState { get; private set; }
@@ -113,6 +120,10 @@ public class PlayerControl : MonoBehaviour
 
         waterContact = GetComponent<PlayerWaterContact>();
         waterPhysics = GetComponent<PlayerWaterPhysics>();
+
+        playerLayer=LayerMask.NameToLayer(playerLayerName);
+        platformLayer = LayerMask.NameToLayer(platformLayerName);
+
     }
 
     private void Start()
@@ -650,6 +661,11 @@ public class PlayerControl : MonoBehaviour
         }
 
         isDropping = false;
+    }
+
+    public void IgnoreCollisionBetweenPlayerAndPlatform(bool enable)
+    {
+        Physics2D.IgnoreLayerCollision(playerLayer,platformLayer,enable);
     }
 
     public void SetInRopeArea(bool inRopeArea)

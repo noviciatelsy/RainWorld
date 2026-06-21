@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class RoomController : MonoBehaviour
 {
+    private const string MinimapLayerName = "Minimap";
+
     [Header("房间存档")]
     [Tooltip("实际游戏房间的唯一 ID。由 RoomsSaveIDRoot 在编辑器中自动生成，不要手动修改。")]
     [SerializeField] private string roomSaveID;
@@ -19,16 +21,18 @@ public class RoomController : MonoBehaviour
     [SerializeField] private bool autoCollectEnemiesInChildren = true;
     [SerializeField] private List<RoomEnemyMember> roomEnemies = new List<RoomEnemyMember>();
 
-    [Header("房间所有物")]
-    [SerializeField] private GameObject roomContent;
+    [Header("房间小地图")]
+    private readonly List<GameObject> miniMaps = new List<GameObject>();
+
     private RoomManager manager;
 
     private bool hasStarted;
     private bool isRegistered;
-    private bool hasEnableRoomContent;
+    private bool hasEnableMinimap;
 
     public Collider2D CameraBoundsCollider => cameraBoundsCollider;
     public string RoomSaveID => roomSaveID;
+
     private void Awake()
     {
         if (autoCollectEnemiesInChildren)
@@ -36,13 +40,14 @@ public class RoomController : MonoBehaviour
             CollectEnemiesInChildren();
         }
 
+        CollectMinimapObjectsInChildren();
+
         if (switchTriggerCollider != null)
         {
             switchTriggerCollider.isTrigger = true;
         }
 
-        SyncRoomContentFromCurrentRunData();
-  
+        SyncMinimapFromCurrentRunData();
     }
 
     private void OnEnable()
@@ -59,7 +64,7 @@ public class RoomController : MonoBehaviour
     {
         hasStarted = true;
 
-        SyncRoomContentFromCurrentRunData();
+        SyncMinimapFromCurrentRunData();
 
         RegisterSelf();
     }
@@ -85,6 +90,7 @@ public class RoomController : MonoBehaviour
         {
             return;
         }
+
         manager.RequestSwitchRoom(this);
     }
 
@@ -175,16 +181,60 @@ public class RoomController : MonoBehaviour
         }
     }
 
-    private void SyncRoomContentFromCurrentRunData()
+    private void CollectMinimapObjectsInChildren()
     {
-        bool shouldEnableRoomContent = IsRoomVisitedInCurrentRunData();
+        miniMaps.Clear();
 
-        if (roomContent != null)
+        int minimapLayer = LayerMask.NameToLayer(MinimapLayerName);
+
+        if (minimapLayer == -1)
         {
-            roomContent.SetActive(shouldEnableRoomContent);
+            Debug.LogWarning($"找不到名为 {MinimapLayerName} 的 Layer，房间 {name} 无法自动收集小地图物体。");
+            return;
         }
 
-        hasEnableRoomContent = shouldEnableRoomContent;
+        Transform[] childTransforms = GetComponentsInChildren<Transform>(true);
+
+        for (int i = 0; i < childTransforms.Length; i++)
+        {
+            if (childTransforms[i] == null)
+            {
+                continue;
+            }
+
+            // GetComponentsInChildren 会把自己也包含进去，这里只收集真正的子物体
+            if (childTransforms[i] == transform)
+            {
+                continue;
+            }
+
+            GameObject childGameObject = childTransforms[i].gameObject;
+
+            if (childGameObject.layer == minimapLayer)
+            {
+                miniMaps.Add(childGameObject);
+            }
+        }
+    }
+
+    private void SyncMinimapFromCurrentRunData()
+    {
+        bool shouldEnableMinimap = IsRoomVisitedInCurrentRunData();
+
+        SetMinimapActive(shouldEnableMinimap);
+
+        hasEnableMinimap = shouldEnableMinimap;
+    }
+
+    private void SetMinimapActive(bool active)
+    {
+        for (int i = 0; i < miniMaps.Count; i++)
+        {
+            if (miniMaps[i] != null)
+            {
+                miniMaps[i].SetActive(active);
+            }
+        }
     }
 
     private bool IsRoomVisitedInCurrentRunData()
@@ -202,19 +252,16 @@ public class RoomController : MonoBehaviour
         return RoomVisitSaveService.Instance.IsRoomVisited(roomSaveID);
     }
 
-    public void TryEnableRoomContent()
+    public void TryEnableMinimap()
     {
-        if (hasEnableRoomContent)
+        if (hasEnableMinimap)
         {
             return;
         }
 
-        if (roomContent != null)
-        {
-            roomContent.SetActive(true);
-        }
+        SetMinimapActive(true);
 
-        hasEnableRoomContent = true;
+        hasEnableMinimap = true;
 
         RecordRoomVisitedToSave();
     }

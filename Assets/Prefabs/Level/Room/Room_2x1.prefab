@@ -73,6 +73,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5026874518586723610, guid: ece7845404164c241a52d4cbed545add,
+        type: 3}
+      propertyPath: miniMap
+      value: 
+      objectReference: {fileID: 3254050361094619915}
     - target: {fileID: 5094046838095933680, guid: ece7845404164c241a52d4cbed545add,
         type: 3}
       propertyPath: m_CompositePaths.m_Paths.Array.data[0].Array.data[0].x
@@ -163,3 +168,9 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ece7845404164c241a52d4cbed545add, type: 3}
+--- !u!1 &3254050361094619915 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7732784145518214502, guid: ece7845404164c241a52d4cbed545add,
+    type: 3}
+  m_PrefabInstance: {fileID: 5078067677388635757}
+  m_PrefabAsset: {fileID: 0}
