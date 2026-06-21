@@ -29,6 +29,11 @@ public class BigRobotMotor : IMonsterMotor
             return;
         }
 
+        if (br.IsInAttackSequence)
+        {
+            return;
+        }
+
         if (move.attackTarget == null)
         {
             return;

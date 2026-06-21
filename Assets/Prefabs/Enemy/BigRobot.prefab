@@ -104,18 +104,20 @@ MonoBehaviour:
   HasEdge: 0
   activeBounds:
     m_Center: {x: -49.3, y: -93, z: 0}
-    m_Extent: {x: 4, y: 3, z: 0.05}
+    m_Extent: {x: 5, y: 3, z: 0.05}
   playerLayer:
     serializedVersion: 2
     m_Bits: 64
-  attackRange: 2.5
-  attackDamage: 20
+  attackRange: 3.5
+  attackDamage: 40
   attackCooldown: 2
+  attacksBeforeShutdown: 3
   attackSequenceDuration: 1.5
-  attackDelay: 0.8
+  attackDelay: 0.6
+  attackKnockbackForce: {x: 12, y: 1}
   bodyVisual: {fileID: 3498486197563993216}
   battery: {fileID: 5829471038472910583}
-  liquidHitboxSize: {x: 5, y: 6}
+  liquidHitboxSize: {x: 7, y: 6}
   liquidHitboxOffset: {x: 0, y: 0}
   drawDebugGizmos: 1
   enableDebugLog: 1
@@ -133,6 +135,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   idleStateName: BigRobotIdle
   attackStateName: BigRobotAttack1
+  shutdownStateName: BigRobotOff
   bigRobot: {fileID: 4790567607833133304}
   animator: {fileID: 9012345678901234502}
   bodySpriteRenderer: {fileID: 685427675976855562}
@@ -141,11 +144,11 @@ MonoBehaviour:
   attackScale: {x: 1, y: 1, z: 1}
   idlePosition: {x: 0, y: 0, z: 0}
   attackPosition: {x: -1, y: 0.8, z: 0}
+  shutdownScale: {x: 0.65, y: 0.65, z: 0.65}
+  shutdownPosition: {x: 0, y: 0, z: 0}
   shutdownSpriteAsset: {fileID: 21300000, guid: 2bcdea1d4e890aa4cacb82b1e218ab47,
     type: 3}
   shutdownSpriteResourcePath: textures/\u654C\u4EBA\u8D44\u6E90/\u5927\u673A\u5668\u4EBA/\u5173\u673A\u52A8\u753B/\u56FE\u5C42_57-removebg-preview
-  shutdownScale: {x: 0.9, y: 0.9, z: 0.9}
-  shutdownPosition: {x: 0, y: 0, z: 0}
 --- !u!114 &3805292190825094050
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -158,7 +161,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fef0aeab7753504469f86b92b114728a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  overlapActiveRooms: []
+  overlapActiveRooms:
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!114 &1140580892322411327
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -173,8 +178,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   oneShotSource: {fileID: 0}
   loopSource: {fileID: 0}
-  minDistance: 1.5
-  maxDistance: 12
+  minDistance: 2
+  maxDistance: 30
   spatialBlend: 1
   bigRobot: {fileID: 0}
   idleLoopVolume: 0.85
@@ -291,7 +296,7 @@ Transform:
   m_GameObject: {fileID: 5829471038472910568}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 54.32, y: 15.66, z: 0}
+  m_LocalPosition: {x: 50.993, y: 15.679, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:

@@ -38,6 +38,12 @@ public class PlayerControl : MonoBehaviour
     [Header("Elevator")]
     [SerializeField] private float platformJumpGroundIgnoreTime = 0.2f;
 
+    [Header("Knockback")]
+    [Tooltip("击退水平冲量每秒衰减量")]
+    [SerializeField] private float knockbackHorizontalDecay = 10f;
+    [Tooltip("击退竖直冲量每秒衰减量")]
+    [SerializeField] private float knockbackVerticalDecay = 6f;
+
     public Player player { get; private set; }
     public Animator anim {  get; private set; }
     public Rigidbody2D rb { get; private set; }
@@ -58,6 +64,7 @@ public class PlayerControl : MonoBehaviour
     private float platformJumpIgnoreTimer;
     private float inheritedPlatformVelocityY;
     private bool inheritElevatorVelocityInAir;
+    private Vector2 knockbackVelocity;
     private const float ElevatorDetachGrace = 0.2f;
 
     public float baseGravityMultiplier { get; private set; } = 1;
@@ -154,6 +161,7 @@ public class PlayerControl : MonoBehaviour
 
     private void FixedUpdate()
     {
+        DecayKnockback();
         HandleCollisionDetecion();
         UpdateElevatorReference();
         ApplyElevatorGroundPhysicsBeforeStep();
@@ -172,6 +180,9 @@ public class PlayerControl : MonoBehaviour
 
     public void SetVelocity(float xVelocity, float yVelocity, bool yIsJumpImpulse = false)
     {
+        xVelocity += knockbackVelocity.x;
+        yVelocity += knockbackVelocity.y;
+
         if (yIsJumpImpulse)
         {
             ApplyJumpVelocity(xVelocity, yVelocity);
@@ -180,7 +191,7 @@ public class PlayerControl : MonoBehaviour
         {
             ElevatorPlatform platform = GetElevatorUnderFeet() ?? ridingElevator;
             Vector2 platformVelocity = platform != null ? platform.Velocity : Vector2.zero;
-            rb.velocity = new Vector2(xVelocity, platformVelocity.y);
+            rb.velocity = new Vector2(xVelocity, platformVelocity.y + knockbackVelocity.y);
         }
         else
         {
@@ -188,6 +199,29 @@ public class PlayerControl : MonoBehaviour
         }
 
         Handleflip(xVelocity);
+    }
+
+    public float GetVerticalVelocityWithoutKnockback()
+    {
+        return rb.velocity.y - knockbackVelocity.y;
+    }
+
+    private void DecayKnockback()
+    {
+        if (knockbackVelocity.sqrMagnitude <= 0.0001f)
+        {
+            knockbackVelocity = Vector2.zero;
+            return;
+        }
+
+        knockbackVelocity.x = Mathf.MoveTowards(
+            knockbackVelocity.x,
+            0f,
+            knockbackHorizontalDecay * Time.fixedDeltaTime);
+        knockbackVelocity.y = Mathf.MoveTowards(
+            knockbackVelocity.y,
+            0f,
+            knockbackVerticalDecay * Time.fixedDeltaTime);
     }
 
     public bool IsGroundedForLanding()
@@ -318,6 +352,30 @@ public class PlayerControl : MonoBehaviour
 
         ApplyJumpVelocity(xVelocity, impulse);
         stateMachine.ChangeState(jumpState);
+    }
+
+    /// <summary>
+    /// 叠加击退冲量；冲量独立衰减，与玩家输入在 SetVelocity 中叠加。
+    /// </summary>
+    public void ApplyKnockback(Vector2 impulse)
+    {
+        knockbackVelocity += impulse;
+
+        inheritElevatorVelocityInAir = false;
+        inheritedPlatformVelocityY = 0f;
+        platformJumpIgnoreTimer = 0f;
+        ridingElevator = null;
+        elevatorDetachTimer = 0f;
+
+        if (Mathf.Abs(impulse.x) > 0.01f)
+        {
+            Handleflip(impulse.x);
+        }
+
+        if (!groundDetected || impulse.y > 0f)
+        {
+            stateMachine.ChangeState(impulse.y > 0f ? jumpState : fallState);
+        }
     }
 
     private void ApplyElevatorAirVelocityInheritance()

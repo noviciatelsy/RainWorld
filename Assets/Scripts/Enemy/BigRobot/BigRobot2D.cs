@@ -16,11 +16,16 @@ public class BigRobot2D : MonsterBase, IContactWithLiquid, IAttractedByMilk
     public int attackDamage = 20;
     [Tooltip("两次攻击之间的间隔")]
     public float attackCooldown = 1.5f;
+    [Tooltip("进入识别区域后攻击多少次后自动关机（与踩电池/泼水效果相同）")]
+    [Min(1)]
+    public int attacksBeforeShutdown = 3;
 
     [Tooltip("攻击动画保持时长（秒），需覆盖攻击 clip 长度")]
     public float attackSequenceDuration = 1.5f;
     [Tooltip("攻击动画开始后，延迟多久再判定伤害")]
     public float attackDelay = 1f;
+    [Tooltip("攻击命中时对玩家的击退冲量（x 为远离机器人的水平冲量，y 为向上冲量）")]
+    public Vector2 attackKnockbackForce = new Vector2(8f, 3f);
 
     [Header("Visual")]
     [Tooltip("做 scale 挤压的视觉根（通常为 Textures）")]
@@ -46,7 +51,9 @@ public class BigRobot2D : MonsterBase, IContactWithLiquid, IAttractedByMilk
 
     public bool IsBatteryBroken => battery != null && battery.IsBroken;
     public bool IsLiquidDisabled { get; private set; }
-    public bool IsShutdown => IsBatteryBroken || IsLiquidDisabled;
+    public bool IsAttackLimitShutdown { get; private set; }
+    public bool IsShutdown => IsBatteryBroken || IsLiquidDisabled || IsAttackLimitShutdown;
+    public int CompletedAttackCount { get; private set; }
 
     public bool DebugHasPlayer { get; private set; }
     public Vector2 DebugPlayerPosition { get; private set; }
@@ -182,7 +189,26 @@ public class BigRobot2D : MonsterBase, IContactWithLiquid, IAttractedByMilk
         if (attackSequenceTimer <= 0f)
         {
             IsInAttackSequence = false;
+            NotifyAttackCycleFinished();
         }
+    }
+
+    private void NotifyAttackCycleFinished()
+    {
+        if (IsShutdown)
+        {
+            return;
+        }
+
+        CompletedAttackCount++;
+
+        if (CompletedAttackCount < attacksBeforeShutdown)
+        {
+            return;
+        }
+
+        IsAttackLimitShutdown = true;
+        ApplyShutdownState();
     }
 
     public void BeginAttackSequence()
@@ -226,7 +252,14 @@ public class BigRobot2D : MonsterBase, IContactWithLiquid, IAttractedByMilk
 
         attackDamageCoroutine = null;
 
-        if (IsShutdown || target == null)
+        if (target == null)
+        {
+            yield break;
+        }
+
+        TryKnockbackPlayer(target);
+
+        if (IsShutdown)
         {
             yield break;
         }
@@ -444,6 +477,31 @@ public class BigRobot2D : MonsterBase, IContactWithLiquid, IAttractedByMilk
         }
 
         return MonsterPlayerDamage.TryDealDamage(vitals, attackDamage);
+    }
+
+    public bool TryKnockbackPlayer(Transform playerTransform)
+    {
+        if (playerTransform == null)
+        {
+            return false;
+        }
+
+        if (!IsInsideActiveBounds(playerTransform.position))
+        {
+            return false;
+        }
+
+        Player player = playerTransform.GetComponentInParent<Player>();
+
+        if (player == null)
+        {
+            return false;
+        }
+
+        return PlayerKnockbackUtility.TryApplyKnockbackFromSource(
+            player,
+            attackKnockbackForce,
+            transform.position);
     }
 
     /// <summary>

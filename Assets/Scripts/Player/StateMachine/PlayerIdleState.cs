@@ -11,7 +11,7 @@ public class PlayerIdleState : PlayerGroundedState
     public override void Enter()
     {
         base.Enter();
-        playerControl.SetVelocity(0, rb.velocity.y);
+        playerControl.SetVelocity(0, playerControl.GetVerticalVelocityWithoutKnockback());
         if (Time.time - playerControl.jumpBufferTimer < jumpBufferTime)
         {
             stateMachine.ChangeState(playerControl.jumpState); // 切换至跳跃状态
@@ -34,7 +34,7 @@ public class PlayerIdleState : PlayerGroundedState
             return; // 不响应
         }
 
-        playerControl.SetVelocity(0, rb.velocity.y);
+        playerControl.SetVelocity(0, playerControl.GetVerticalVelocityWithoutKnockback());
 
         if (playerControl.moveInput.x != 0)
         // 如果人物有移动输入

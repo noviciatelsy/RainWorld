@@ -48,12 +48,14 @@ public class PlayerAiredState : PlayerBaseState
         if (playerControl.moveInput.x != 0)
         // 如果有横向移动输入
         {
-            playerControl.SetVelocity(playerControl.moveInput.x * playerControl.moveSpeed * playerControl.inAirMoveMultiplier, rb.velocity.y);
+            playerControl.SetVelocity(
+                playerControl.moveInput.x * playerControl.moveSpeed * playerControl.inAirMoveMultiplier,
+                playerControl.GetVerticalVelocityWithoutKnockback());
             // 获取相应方向横向速度
         }
         else
         {
-            playerControl.SetVelocity(0, rb.velocity.y);
+            playerControl.SetVelocity(0, playerControl.GetVerticalVelocityWithoutKnockback());
             // 获取相应方向横向速度
         }
 

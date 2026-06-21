@@ -1,8 +1,9 @@
+using System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// 大机器人动画：Idle / 攻击切换 sprite；scale/position 在 Animator 过渡期间插值，避免 crossfade 末帧突变。
-/// 电池损坏后切换为静态关机贴图并停止 Animator。
+/// 大机器人动画：Idle / 攻击切换 sprite；scale/position 随状态瞬间切换（攻击用 Play 避免 crossfade 导致的大小乱跳）。
+/// 关机时瞬间切到 shutdownScale，播放 BigRobotOff 并停在最后一帧。
 /// </summary>
 [DisallowMultipleComponent]
 public class BigRobotAni : MonoBehaviour
@@ -12,6 +13,7 @@ public class BigRobotAni : MonoBehaviour
     [Header("Animator States")]
     public string idleStateName = "BigRobotIdle";
     public string attackStateName = "BigRobotAttack1";
+    public string shutdownStateName = "BigRobotOff";
 
     [Header("References")]
     public BigRobot2D bigRobot;
@@ -30,18 +32,22 @@ public class BigRobotAni : MonoBehaviour
     public Vector3 attackPosition = new Vector3(-1f, 0.9f, 0f);
 
     [Header("Shutdown")]
+    public Vector3 shutdownScale = new Vector3(0.65f, 0.65f, 0.65f);
+    public Vector3 shutdownPosition = Vector3.zero;
+
+    [Header("Shutdown Fallback")]
     [SerializeField] private Sprite shutdownSpriteAsset;
     [SerializeField] private string shutdownSpriteResourcePath = "textures/敌人资源/大机器人/关机动画/图层_57-removebg-preview";
-    [SerializeField] private Vector3 shutdownScale = new Vector3(0.9f, 0.9f, 0.9f);
-    [SerializeField] private Vector3 shutdownPosition = Vector3.zero;
 
     private int idleStateHash;
     private int attackStateHash;
+    private int shutdownStateHash;
     private bool lastAttackIntent;
     private int lastAttackAnimVersion = -1;
     private bool lastAttackTransform;
     private bool shutdownApplied;
     private Sprite shutdownSprite;
+    private Coroutine shutdownCoroutine;
 
     private void Awake()
     {
@@ -78,6 +84,7 @@ public class BigRobotAni : MonoBehaviour
 
         idleStateHash = Animator.StringToHash(idleStateName);
         attackStateHash = Animator.StringToHash(attackStateName);
+        shutdownStateHash = Animator.StringToHash(shutdownStateName);
     }
 
     private void OnEnable()
@@ -106,7 +113,11 @@ public class BigRobotAni : MonoBehaviour
 
         if (bigRobot.IsShutdown)
         {
-            ApplyShutdownVisual();
+            if (!shutdownApplied)
+            {
+                ApplyShutdownVisual();
+            }
+
             return;
         }
 
@@ -121,6 +132,72 @@ public class BigRobotAni : MonoBehaviour
             return;
         }
 
+        shutdownApplied = true;
+
+        if (shutdownCoroutine != null)
+        {
+            StopCoroutine(shutdownCoroutine);
+            shutdownCoroutine = null;
+        }
+
+        ApplyShutdownTransform();
+
+        if (animator != null && HasShutdownState())
+        {
+            animator.enabled = true;
+            animator.SetBool(IsAttackingHash, false);
+            animator.Play(shutdownStateName, 0, 0f);
+            shutdownCoroutine = StartCoroutine(HoldShutdownAnimationEnd());
+            return;
+        }
+
+        ApplyShutdownSpriteFallback();
+    }
+
+    private bool HasShutdownState()
+    {
+        if (animator == null || animator.runtimeAnimatorController == null)
+        {
+            return false;
+        }
+
+        return animator.HasState(0, shutdownStateHash);
+    }
+
+    private void ApplyShutdownTransform()
+    {
+        if (scaleTransform == null)
+        {
+            return;
+        }
+
+        scaleTransform.localScale = shutdownScale;
+        scaleTransform.localPosition = shutdownPosition;
+    }
+
+    private IEnumerator HoldShutdownAnimationEnd()
+    {
+        yield return null;
+
+        if (animator == null)
+        {
+            yield break;
+        }
+
+        AnimatorStateInfo state = animator.GetCurrentAnimatorStateInfo(0);
+        float length = state.length > 0.01f ? state.length : 4.75f;
+        yield return new WaitForSeconds(length);
+
+        if (animator != null)
+        {
+            animator.enabled = false;
+        }
+
+        shutdownCoroutine = null;
+    }
+
+    private void ApplyShutdownSpriteFallback()
+    {
         Sprite sprite = GetShutdownSprite();
 
         if (animator != null)
@@ -133,13 +210,7 @@ public class BigRobotAni : MonoBehaviour
             bodySpriteRenderer.sprite = sprite;
         }
 
-        if (scaleTransform != null)
-        {
-            scaleTransform.localScale = shutdownScale;
-            scaleTransform.localPosition = shutdownPosition;
-        }
-
-        shutdownApplied = true;
+        ApplyShutdownTransform();
     }
 
     private Sprite GetShutdownSprite()

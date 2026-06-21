@@ -32,7 +32,9 @@ public class PlayerMoveState : PlayerGroundedState
             //return;
         }
 
-        playerControl.SetVelocity(playerControl.moveInput.x * playerControl.moveSpeed, rb.velocity.y);
+        playerControl.SetVelocity(
+            playerControl.moveInput.x * playerControl.moveSpeed,
+            playerControl.GetVerticalVelocityWithoutKnockback());
         // x方向按照输入移动，y方向保持原速度
     }
 
