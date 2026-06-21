@@ -153,6 +153,9 @@ public class GameRunData
     // ???????????????Ground ??????????????��??????????
     public List<string> unlockedElevatorFloors = new List<string>();
 
+    // 已永久解锁的密码门 SaveID 列表
+    public List<string> unlockedPasswordDoors = new List<string>();
+
     public Vector3 playerDiePosition = new Vector3(0,0,0);
 
     public Vector3 retrieveBackpackSpawnPosition = new Vector3(0,0,0);
@@ -214,6 +217,11 @@ public class GameRunData
         if (unlockedElevatorFloors == null)
         {
             unlockedElevatorFloors = new List<string>();
+        }
+
+        if (unlockedPasswordDoors == null)
+        {
+            unlockedPasswordDoors = new List<string>();
         }
 
         foreach (KeyValuePair<string, InventorySaveData> pair in inventorySaveDataMap)

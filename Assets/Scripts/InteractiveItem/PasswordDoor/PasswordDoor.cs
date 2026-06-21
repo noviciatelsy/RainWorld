@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 
 /// <summary>
 /// 密码门：进入触发区显示提示 UI，E 进入四位密码输入，正确后向上开门；离区关门并重置。
+/// 成功解锁一次后写入存档，之后进入触发区自动开门。
 /// </summary>
 [DisallowMultipleComponent]
 public class PasswordDoor : MonoBehaviour
@@ -29,6 +30,9 @@ public class PasswordDoor : MonoBehaviour
     [SerializeField] private string correctPassword = "mksl";
     [SerializeField] private int passwordLength = 4;
 
+    [Header("Save")]
+    [SerializeField] private string doorSaveID = "PasswordDoor_Default";
+
     private readonly StringBuilder inputBuffer = new StringBuilder(4);
 
     private DoorUiState uiState = DoorUiState.Hidden;
@@ -36,6 +40,10 @@ public class PasswordDoor : MonoBehaviour
     private Vector3 closedDoorPosition;
     private Coroutine doorAnimation;
     private bool isDoorOpen;
+    private bool isPermanentlyUnlocked;
+    private bool isSubscribedToSaveManager;
+    private bool playerInputLocked;
+    private int ignoreExitInputFrames;
     private MainInput mainInput;
 
     private void Awake()
@@ -54,9 +62,18 @@ public class PasswordDoor : MonoBehaviour
         mainInput = InputManager.Instance != null ? InputManager.Instance.mainInput : null;
     }
 
+    private void OnEnable()
+    {
+        TrySubscribeSaveManager();
+        LoadUnlockStateFromSave();
+        ApplyPermanentUnlockVisualImmediate();
+    }
+
     private void OnDisable()
     {
+        UnsubscribeSaveManager();
         ResetSession(false);
+        SetPlayerInputLocked(false);
         ElevatorInputGate.SetPasswordDoorInputBlocking(false);
         ElevatorInputGate.SetPasswordDoorUiBlocking(false);
     }
@@ -69,18 +86,43 @@ public class PasswordDoor : MonoBehaviour
         }
 
         HandleKeyboardInput();
-        HandleConfirmInput();
+        HandleExitInput();
+    }
+
+    private void EnterInputMode()
+    {
+        uiState = DoorUiState.Input;
+        ClearInputBuffer();
+        ignoreExitInputFrames = 2;
+        SetPlayerInputLocked(true);
+        ElevatorInputGate.SetPasswordDoorInputBlocking(true);
+        doorUI?.ShowInputMode(FormatPasswordDisplay());
     }
 
     public void NotifyPlayerEntered(PasswordDoorInteractZone zone, Vector3 playerWorldPosition)
     {
-        if (zone == null || uiState == DoorUiState.Open)
+        if (zone == null)
         {
-            activeZone = zone;
             return;
         }
 
         activeZone = zone;
+
+        if (isPermanentlyUnlocked)
+        {
+            uiState = DoorUiState.Open;
+            ElevatorInputGate.SetPasswordDoorInputBlocking(false);
+            ElevatorInputGate.SetPasswordDoorUiBlocking(false);
+            doorUI?.Hide();
+            SetDoorOpen(true);
+            return;
+        }
+
+        if (uiState == DoorUiState.Open)
+        {
+            return;
+        }
+
         uiState = DoorUiState.Prompt;
         ClearInputBuffer();
         doorUI?.SetUiAnchor(zone.UiAnchor);
@@ -106,12 +148,18 @@ public class PasswordDoor : MonoBehaviour
         }
 
         activeZone = null;
+
+        if (isPermanentlyUnlocked)
+        {
+            return;
+        }
+
         ResetSession(true);
     }
 
     public void OnInteract(PasswordDoorInteractZone zone)
     {
-        if (zone == null || activeZone != zone || uiState != DoorUiState.Prompt)
+        if (zone == null || activeZone != zone || isPermanentlyUnlocked || uiState != DoorUiState.Prompt)
         {
             return;
         }
@@ -119,12 +167,14 @@ public class PasswordDoor : MonoBehaviour
         EnterInputMode();
     }
 
-    private void EnterInputMode()
+    private void ExitInputModeToPrompt()
     {
-        uiState = DoorUiState.Input;
+        uiState = DoorUiState.Prompt;
         ClearInputBuffer();
-        ElevatorInputGate.SetPasswordDoorInputBlocking(true);
-        doorUI?.ShowInputMode(FormatPasswordDisplay());
+        SetPlayerInputLocked(false);
+        ElevatorInputGate.SetPasswordDoorInputBlocking(false);
+        ElevatorInputGate.SetPasswordDoorUiBlocking(true);
+        doorUI?.ShowPrompt();
     }
 
     private void HandleKeyboardInput()
@@ -138,7 +188,7 @@ public class PasswordDoor : MonoBehaviour
 
         for (Key key = Key.A; key <= Key.Z; key++)
         {
-            if (!keyboard[key].wasPressedThisFrame)
+            if (key == Key.E || !keyboard[key].wasPressedThisFrame)
             {
                 continue;
             }
@@ -146,17 +196,34 @@ public class PasswordDoor : MonoBehaviour
             char letter = (char)('a' + (key - Key.A));
             inputBuffer.Append(letter);
             doorUI?.UpdatePasswordDisplay(FormatPasswordDisplay());
+
+            if (inputBuffer.Length >= passwordLength)
+            {
+                TrySubmitPassword();
+            }
+
             return;
         }
     }
 
-    private void HandleConfirmInput()
+    private void HandleExitInput()
     {
-        if (mainInput == null || !mainInput.Player.Interact.WasPerformedThisFrame())
+        if (ignoreExitInputFrames > 0)
+        {
+            ignoreExitInputFrames--;
+            return;
+        }
+
+        if (!WasExitPressedThisFrame())
         {
             return;
         }
 
+        ExitInputModeToPrompt();
+    }
+
+    private void TrySubmitPassword()
+    {
         if (inputBuffer.Length < passwordLength)
         {
             return;
@@ -168,8 +235,13 @@ public class PasswordDoor : MonoBehaviour
             return;
         }
 
-        ClearInputBuffer();
-        doorUI?.UpdatePasswordDisplay(FormatPasswordDisplay());
+        OnPasswordRejected();
+    }
+
+    private bool WasExitPressedThisFrame()
+    {
+        Keyboard keyboard = Keyboard.current;
+        return keyboard != null && keyboard.eKey.wasPressedThisFrame;
     }
 
     private bool IsPasswordCorrect()
@@ -182,18 +254,34 @@ public class PasswordDoor : MonoBehaviour
 
     private void OnPasswordAccepted()
     {
+        isPermanentlyUnlocked = true;
+        SaveUnlockStateToRunData();
+
         uiState = DoorUiState.Open;
         ClearInputBuffer();
+        SetPlayerInputLocked(false);
         ElevatorInputGate.SetPasswordDoorInputBlocking(false);
         ElevatorInputGate.SetPasswordDoorUiBlocking(false);
         doorUI?.Hide();
         SetDoorOpen(true);
     }
 
+    private void OnPasswordRejected()
+    {
+        ClearInputBuffer();
+        ExitInputModeToPrompt();
+    }
+
     private void ResetSession(bool closeDoor)
     {
+        if (isPermanentlyUnlocked)
+        {
+            return;
+        }
+
         uiState = DoorUiState.Hidden;
         ClearInputBuffer();
+        SetPlayerInputLocked(false);
         ElevatorInputGate.SetPasswordDoorInputBlocking(false);
         ElevatorInputGate.SetPasswordDoorUiBlocking(false);
         doorUI?.Hide();
@@ -202,6 +290,26 @@ public class PasswordDoor : MonoBehaviour
         {
             SetDoorOpen(false);
         }
+    }
+
+    private void SetPlayerInputLocked(bool locked)
+    {
+        if (mainInput == null || playerInputLocked == locked)
+        {
+            return;
+        }
+
+        playerInputLocked = locked;
+
+        if (locked)
+        {
+            mainInput.Player.Disable();
+            mainInput.UI.Disable();
+            return;
+        }
+
+        mainInput.Player.Enable();
+        mainInput.UI.Enable();
     }
 
     private void ClearInputBuffer()
@@ -242,6 +350,17 @@ public class PasswordDoor : MonoBehaviour
         doorAnimation = StartCoroutine(AnimateDoor(open));
     }
 
+    private void ApplyPermanentUnlockVisualImmediate()
+    {
+        if (!isPermanentlyUnlocked)
+        {
+            return;
+        }
+
+        isDoorOpen = true;
+        doorRoot.position = closedDoorPosition + Vector3.up * openDistance;
+    }
+
     private IEnumerator AnimateDoor(bool open)
     {
         Vector3 startPos = doorRoot.position;
@@ -259,5 +378,74 @@ public class PasswordDoor : MonoBehaviour
         doorRoot.position = targetPos;
         isDoorOpen = open;
         doorAnimation = null;
+    }
+
+    private void TrySubscribeSaveManager()
+    {
+        if (isSubscribedToSaveManager || SaveManager.Instance == null)
+        {
+            return;
+        }
+
+        SaveManager.Instance.OnGameRunDataOverwrite += LoadUnlockStateFromSave;
+        isSubscribedToSaveManager = true;
+    }
+
+    private void UnsubscribeSaveManager()
+    {
+        if (!isSubscribedToSaveManager || SaveManager.Instance == null)
+        {
+            return;
+        }
+
+        SaveManager.Instance.OnGameRunDataOverwrite -= LoadUnlockStateFromSave;
+        isSubscribedToSaveManager = false;
+    }
+
+    private void LoadUnlockStateFromSave()
+    {
+        isPermanentlyUnlocked = false;
+
+        if (string.IsNullOrWhiteSpace(doorSaveID) || SaveManager.Instance == null)
+        {
+            return;
+        }
+
+        GameRunData runData = SaveManager.Instance.GetRunTimeGameData();
+        if (runData == null)
+        {
+            return;
+        }
+
+        runData.EnsureDataValid();
+        isPermanentlyUnlocked = runData.unlockedPasswordDoors.Contains(doorSaveID);
+    }
+
+    private void SaveUnlockStateToRunData()
+    {
+        if (string.IsNullOrWhiteSpace(doorSaveID) || SaveManager.Instance == null)
+        {
+            return;
+        }
+
+        GameRunData runData = SaveManager.Instance.GetRunTimeGameData();
+        if (runData == null)
+        {
+            return;
+        }
+
+        runData.EnsureDataValid();
+
+        if (runData.unlockedPasswordDoors == null)
+        {
+            runData.unlockedPasswordDoors = new System.Collections.Generic.List<string>();
+        }
+
+        if (!runData.unlockedPasswordDoors.Contains(doorSaveID))
+        {
+            runData.unlockedPasswordDoors.Add(doorSaveID);
+        }
+
+        SaveManager.Instance.SaveGame();
     }
 }

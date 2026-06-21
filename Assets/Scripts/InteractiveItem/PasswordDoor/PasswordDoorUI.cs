@@ -88,7 +88,7 @@ public class PasswordDoorUI : MonoBehaviour
         passwordView.gameObject.SetActive(true);
         confirmView.gameObject.SetActive(true);
         passwordView.SetLabel(passwordDisplay);
-        confirmView.SetLabel("E 确认密码");
+        confirmView.SetLabel("E 解除输入");
         UpdateWorldPosition();
     }
 
