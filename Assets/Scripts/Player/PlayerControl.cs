@@ -62,6 +62,8 @@ public class PlayerControl : MonoBehaviour
     private ElevatorPlatform ridingElevator;
     private float elevatorDetachTimer;
     private float platformJumpIgnoreTimer;
+    private float? nextJumpImpulseOverride;
+    private float waterSurfaceExitGraceTimer;
     private float inheritedPlatformVelocityY;
     private bool inheritElevatorVelocityInAir;
     private Vector2 knockbackVelocity;
@@ -138,7 +140,7 @@ public class PlayerControl : MonoBehaviour
     {
         stateMachine.UpdateActiveState();
 
-        if (isInWater && waterPhysics != null)
+        if (isInWater && waterPhysics != null && ShouldUseWaterGravity())
         {
             rb.gravityScale = originalGravityScale
                 * baseGravityMultiplier
@@ -156,7 +158,18 @@ public class PlayerControl : MonoBehaviour
 
         UpdateElevatorDetachTimer();
         UpdatePlatformJumpIgnoreTimer();
+        UpdateWaterSurfaceExitGraceTimer();
         ApplyElevatorAirVelocityInheritance();
+    }
+
+    private void UpdateWaterSurfaceExitGraceTimer()
+    {
+        if (waterSurfaceExitGraceTimer <= 0f)
+        {
+            return;
+        }
+
+        waterSurfaceExitGraceTimer -= Time.deltaTime;
     }
 
     private void FixedUpdate()
@@ -688,8 +701,32 @@ public class PlayerControl : MonoBehaviour
             return false;
         }
 
+        if (waterSurfaceExitGraceTimer > 0f)
+        {
+            return false;
+        }
+
         WaterPhysicsSettings settings = waterContact.ActiveSettings;
-        return waterSubmersion >= settings.enterSubmersionThreshold;
+        if (waterSubmersion < settings.enterSubmersionThreshold)
+        {
+            return false;
+        }
+
+        if (stateMachine.currentState == jumpState || stateMachine.currentState == fallState)
+        {
+            if (GetVerticalVelocityWithoutKnockback() > settings.surfaceJumpReentryVerticalSpeed
+                && waterSubmersion < settings.surfaceJumpMaxSubmersion)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public bool IsInWaterSurfaceExitGrace()
+    {
+        return waterSurfaceExitGraceTimer > 0f;
     }
 
     public bool IsInSwimState()
@@ -705,6 +742,64 @@ public class PlayerControl : MonoBehaviour
         }
 
         return waterPhysics.TrySwimBoost();
+    }
+
+    public bool CanJumpFromWaterSurface()
+    {
+        if (!isInWater || waterContact == null || !waterContact.HasActiveVolume)
+        {
+            return false;
+        }
+
+        WaterPhysicsSettings settings = waterContact.ActiveSettings;
+        if (waterSubmersion < settings.enterSubmersionThreshold)
+        {
+            return false;
+        }
+
+        if (waterSubmersion >= settings.surfaceJumpMaxSubmersion)
+        {
+            return false;
+        }
+
+        return waterContact.DepthBelowSurface <= settings.surfaceJumpMaxDepth;
+    }
+
+    public bool TryJumpFromWaterSurface()
+    {
+        if (!CanJumpFromWaterSurface())
+        {
+            return false;
+        }
+
+        WaterPhysicsSettings settings = waterContact.ActiveSettings;
+        nextJumpImpulseOverride = jumpForce * settings.surfaceJumpForceMultiplier;
+        waterSurfaceExitGraceTimer = settings.surfaceJumpGraceDuration;
+        stateMachine.ChangeState(jumpState);
+        jumpBufferTimer = -999f;
+        return true;
+    }
+
+    internal float ConsumeJumpImpulse()
+    {
+        float impulse = nextJumpImpulseOverride ?? jumpForce;
+        nextJumpImpulseOverride = null;
+        return impulse;
+    }
+
+    private bool ShouldUseWaterGravity()
+    {
+        if (!isInWater)
+        {
+            return false;
+        }
+
+        if (IsInSwimState())
+        {
+            return true;
+        }
+
+        return isFullySubmerged;
     }
 
     public bool ShouldBlockDropPlatform()

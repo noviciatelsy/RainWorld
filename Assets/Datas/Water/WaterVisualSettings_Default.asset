@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1a2b3c4d5e6478990abcdef22222222, type: 3}
+  m_Name: WaterVisualSettings_Default
+  m_EditorClassIdentifier: 
+  shallowColor: {r: 0.18431373, g: 0.18431373, b: 0.89411765, a: 0.3137255}
+  deepColor: {r: 0.08627451, g: 0.18, b: 0.5764706, a: 0.47058824}
+  surfaceHighlight: {r: 0.75, g: 0.95, b: 1, a: 0.45}
+  surfaceLineWidth: 0.1
+  surfaceWaveAmplitude: 0.035
+  surfaceWaveSpeed: 1.1
+  causticsStrength: 0.6
+  causticsScale: 1.2
+  causticsSpeed: 0.5
+  foamStrength: 0.22
+  foamBandWidth: 0.09
+  playerRippleInjectStrength: 2.4
+  playerRippleSplashStrength: 3
+  rippleDisplacementStrength: 0.25
+  rippleLineStrength: 0.42
+  rippleShallowDepth: 0.35
+  sortingLayerName: Water
+  sortingOrder: 0
