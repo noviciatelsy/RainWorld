@@ -17,6 +17,8 @@ public class PlayerWaterContact : MonoBehaviour
 
     public float SurfaceY { get; private set; }
     public float RawSubmersion { get; private set; }
+    public float DepthBelowSurface { get; private set; }
+    public float SubmergedHeight { get; private set; }
     public bool HasActiveVolume => activeVolumes.Count > 0;
     public WaterVolume2D DominantVolume { get; private set; }
 
@@ -57,6 +59,8 @@ public class PlayerWaterContact : MonoBehaviour
         DominantVolume = null;
         SurfaceY = float.NegativeInfinity;
         RawSubmersion = 0f;
+        DepthBelowSurface = 0f;
+        SubmergedHeight = 0f;
         playerControl?.NotifyWaterContactChanged(false, 0f);
     }
 
@@ -122,6 +126,8 @@ public class PlayerWaterContact : MonoBehaviour
         if (!HasActiveVolume)
         {
             RawSubmersion = 0f;
+            DepthBelowSurface = 0f;
+            SubmergedHeight = 0f;
             return;
         }
 
@@ -129,10 +135,14 @@ public class PlayerWaterContact : MonoBehaviour
         if (sampleCollider == null)
         {
             RawSubmersion = 0f;
+            DepthBelowSurface = 0f;
+            SubmergedHeight = 0f;
             return;
         }
 
         Bounds bounds = sampleCollider.bounds;
+        DepthBelowSurface = Mathf.Max(0f, SurfaceY - bounds.center.y);
+        SubmergedHeight = Mathf.Clamp(SurfaceY - bounds.min.y, 0f, bounds.size.y);
         Vector2 feet = new Vector2(bounds.center.x, bounds.min.y);
         Vector2 body = bounds.center;
         Vector2 head = new Vector2(bounds.center.x, bounds.max.y);

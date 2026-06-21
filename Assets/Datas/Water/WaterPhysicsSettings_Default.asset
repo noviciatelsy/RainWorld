@@ -12,17 +12,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea1424dfa5732534fa0ea98f8c7ee23f, type: 3}
   m_Name: WaterPhysicsSettings_Default
   m_EditorClassIdentifier: 
-  buoyancy: 22
+  buoyancy: 55
   linearDrag: 8
   swimForce: 16
   swimBoostForce: 20
   gravityInWater: 0.3
   maxSwimSpeed: 5.5
-  enterSubmersionThreshold: 0.15
-  exitSubmersionThreshold: 0.05
+  enterSubmersionThreshold: 0.1
+  exitSubmersionThreshold: 0.02
   fullSubmersionThreshold: 0.85
   dropPlatformBlockSubmersion: 0.5
   swimBoostCooldown: 0.35
   swimBoostDefaultDirection: {x: 1, y: 0.3}
-  minBuoyancyScaleAtFullLoad: 0.1
+  minBuoyancyScaleAtFullLoad: 0.2
   maxWaterGravityScaleAtFullLoad: 2
+  maxBuoyancyDepth: 4.5
+  depthBuoyancyCurve: 1.2
+  depthLoadRelief: 0.3
+  surfaceEquilibriumCenterOffset: 0.12
+  surfaceRestoreMaxDepth: 0.85
+  surfaceRestoreStrength: 58
+  surfaceRestoreDamping: 11
+  surfaceRestoreDiveSuppression: 0.85
+  surfaceUpwardDragMultiplier: 0.2
+  surfaceJumpMaxSubmersion: 0.75
+  surfaceJumpMaxDepth: 0.38
+  surfaceJumpForceMultiplier: 1.05
+  surfaceJumpGraceDuration: 0.45
+  surfaceJumpReentryVerticalSpeed: 0.35

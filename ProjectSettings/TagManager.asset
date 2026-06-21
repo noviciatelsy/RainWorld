@@ -51,6 +51,9 @@ TagManager:
   - name: InteractableObject
     uniqueID: 227208307
     locked: 0
+  - name: Water
+    uniqueID: 3890218765
+    locked: 0
   - name: Enemy
     uniqueID: 1479021791
     locked: 0

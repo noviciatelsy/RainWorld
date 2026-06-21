@@ -18,6 +18,15 @@ public class WaterVolume2D : MonoBehaviour
         settings != null ? settings : WaterPhysicsSettings.RuntimeFallback;
     public float LocalBuoyancyMultiplier => localBuoyancyMultiplier;
 
+    public Bounds WorldBounds
+    {
+        get
+        {
+            EnsureCollider();
+            return volumeCollider != null ? volumeCollider.bounds : new Bounds(transform.position, Vector3.one);
+        }
+    }
+
     public float GetSurfaceY()
     {
         if (autoSurfaceFromCollider)

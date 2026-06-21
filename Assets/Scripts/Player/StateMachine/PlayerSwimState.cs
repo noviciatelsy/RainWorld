@@ -32,6 +32,11 @@ public class PlayerSwimState : PlayerBaseState
 
         if (mainInput.Player.Jump.WasPerformedThisFrame())
         {
+            if (playerControl.TryJumpFromWaterSurface())
+            {
+                return;
+            }
+
             playerControl.TrySwimBoost();
         }
 

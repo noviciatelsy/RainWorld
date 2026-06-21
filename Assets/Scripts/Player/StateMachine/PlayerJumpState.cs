@@ -23,7 +23,7 @@ public class PlayerJumpState : PlayerAiredState
             xVelocity = 0f;
         }
 
-        playerControl.SetVelocity(xVelocity, playerControl.jumpForce, yIsJumpImpulse: true);
+        playerControl.SetVelocity(xVelocity, playerControl.ConsumeJumpImpulse(), yIsJumpImpulse: true);
         // �� y ������ jumpForce����վ�ڵ����ϻ���ӵ�������ٶ�
 
         playerControl.jumpBufferTimer = -999f;

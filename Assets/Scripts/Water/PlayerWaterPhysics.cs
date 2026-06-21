@@ -44,6 +44,7 @@ public class PlayerWaterPhysics : MonoBehaviour
 
         float backpackFillRatio = GetBackpackFillRatio();
         ApplyBuoyancy(settings, submersion, backpackFillRatio);
+        ApplySurfaceFloat(settings, backpackFillRatio);
         ApplyDrag(settings, submersion);
         ApplySwimInput(settings, submersion);
         ClampSwimSpeed(settings);
@@ -102,14 +103,57 @@ public class PlayerWaterPhysics : MonoBehaviour
 
     private void ApplyBuoyancy(WaterPhysicsSettings settings, float submersion, float backpackFillRatio)
     {
-        float buoyancyScale = settings.GetBuoyancyScaleForFillRatio(backpackFillRatio);
-        float force = settings.buoyancy * submersion * waterContact.ActiveBuoyancyMultiplier * buoyancyScale;
+        float depthFactor = settings.EvaluateBuoyancyDepthFactor(
+            waterContact.DepthBelowSurface,
+            waterContact.SubmergedHeight,
+            submersion);
+
+        if (depthFactor <= 0f)
+        {
+            return;
+        }
+
+        float loadScale = settings.GetLoadAdjustedBuoyancyScale(backpackFillRatio, depthFactor);
+        float force = settings.buoyancy * depthFactor * loadScale * waterContact.ActiveBuoyancyMultiplier;
         rb.AddForce(Vector2.up * force, ForceMode2D.Force);
+    }
+
+    private void ApplySurfaceFloat(WaterPhysicsSettings settings, float backpackFillRatio)
+    {
+        if (waterContact.DepthBelowSurface > settings.surfaceRestoreMaxDepth)
+        {
+            return;
+        }
+
+        float targetCenterY = waterContact.SurfaceY + settings.surfaceEquilibriumCenterOffset;
+        float centerY = waterContact.SurfaceY - waterContact.DepthBelowSurface;
+        float positionError = targetCenterY - centerY;
+
+        float diveIntent = Mathf.Clamp01(-playerControl.moveInput.y);
+        float restoreWeight = 1f - diveIntent * settings.surfaceRestoreDiveSuppression;
+        if (restoreWeight <= 0f)
+        {
+            return;
+        }
+
+        float loadScale = settings.GetLoadAdjustedBuoyancyScale(backpackFillRatio, 1f);
+        float springForce = positionError * settings.surfaceRestoreStrength * restoreWeight * loadScale;
+        float dampForce = -rb.velocity.y * settings.surfaceRestoreDamping * restoreWeight;
+        rb.AddForce(new Vector2(0f, springForce + dampForce), ForceMode2D.Force);
     }
 
     private void ApplyDrag(WaterPhysicsSettings settings, float submersion)
     {
-        Vector2 drag = -rb.velocity * (settings.linearDrag * submersion);
+        Vector2 velocity = rb.velocity;
+        Vector2 drag = -velocity * (settings.linearDrag * submersion);
+
+        float nearSurfaceFactor = 1f - Mathf.Clamp01(
+            waterContact.DepthBelowSurface / Mathf.Max(settings.surfaceRestoreMaxDepth, 0.01f));
+        if (velocity.y > 0f && nearSurfaceFactor > 0f)
+        {
+            drag.y *= Mathf.Lerp(1f, settings.surfaceUpwardDragMultiplier, nearSurfaceFactor);
+        }
+
         rb.AddForce(drag, ForceMode2D.Force);
     }
 
