@@ -501,12 +501,17 @@ public class TileMapGuideManager : MonoBehaviour
 
     public List<Vector2> FindPath(Vector2 start, Vector2 end)
     {
+        return FindPath(start, end, 2000);
+    }
 
+    public List<Vector2> FindPath(Vector2 start, Vector2 end, int maxIterations)
+    {
         Vector2Int startCell = WorldToCell(start);
         Vector2Int endCell = WorldToCell(end);
-        // 必加
         if (!InBounds(startCell) || !InBounds(endCell))
+        {
             return null;
+        }
 
         var open = new List<Vector2Int>();
         var cameFrom = new Dictionary<Vector2Int, Vector2Int>();
@@ -518,7 +523,6 @@ public class TileMapGuideManager : MonoBehaviour
         gScore[startCell] = 0;
         fScore[startCell] = Heuristic(startCell, endCell);
 
-        int maxIterations = 2000;
         int iter = 0;
 
         while (open.Count > 0)
@@ -526,7 +530,6 @@ public class TileMapGuideManager : MonoBehaviour
             iter++;
             if (iter > maxIterations)
             {
-                Debug.LogWarning("findpathfailed");
                 return null;
             }
 
@@ -661,6 +664,33 @@ public class TileMapGuideManager : MonoBehaviour
     public Vector2 CellToWorld(Vector2Int cell)
     {
         return tilemap.GetCellCenterWorld(new Vector3Int(cell.x, cell.y, 0));
+    }
+
+    /// <summary>
+    /// 廉价预检：不跑 A*，过远/越界/终点在墙内则直接放弃寻路。
+    /// </summary>
+    public bool CanAttemptFindPath(Vector2 start, Vector2 end, int maxCellDistance = 50)
+    {
+        Vector2Int startCell = WorldToCell(start);
+        Vector2Int endCell = WorldToCell(end);
+
+        if (!InBounds(startCell) || !InBounds(endCell))
+        {
+            return false;
+        }
+
+        if (IsSolid(endCell))
+        {
+            return false;
+        }
+
+        if (Mathf.Abs(endCell.x - startCell.x) > maxCellDistance
+            || Mathf.Abs(endCell.y - startCell.y) > maxCellDistance)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     bool InBounds(Vector2Int cell)

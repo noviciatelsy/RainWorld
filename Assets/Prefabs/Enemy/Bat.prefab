@@ -197,8 +197,11 @@ MonoBehaviour:
   idleWanderRadiusMin: 2
   idleWanderRadiusMax: 8
   maxStepAlongPath: 4
+  maxPathFindDistance: 14
+  maxPathSearchCells: 50
+  maxPathFindIterations: 400
   enableDebugLog: 0
-  drawDebugGizmos: 1
+  drawDebugGizmos: 0
 --- !u!114 &6284496953832666008
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -253,8 +256,9 @@ MonoBehaviour:
   minDistance: 1.5
   maxDistance: 12
   spatialBlend: 1
-  bat: {fileID: 0}
-  wingLoopVolume: 1
+  bat: {fileID: 6210681290052297228}
+  wingMoveGapAfterClip: 1
+  wingMoveVolume: 1
   attackVolume: 1
   spotPlayerVolume: 1
 --- !u!1 &6899663544322268070

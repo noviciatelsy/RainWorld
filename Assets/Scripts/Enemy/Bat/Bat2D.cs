@@ -60,10 +60,16 @@ public class Bat2D : MonsterBase, IMosquitoCoilRepellable, ITorchRepellable, IMe
 
     [Header("Path")]
     public float maxStepAlongPath = 4f;
+    [Tooltip("超过该距离（世界单位）不尝试 A*")]
+    public float maxPathFindDistance = 14f;
+    [Tooltip("与 TileMapGuideManager A* 搜索半径一致（格子）")]
+    public int maxPathSearchCells = 50;
+    [Tooltip("单次 A* 最大迭代次数（隔墙失败时尽快放弃）")]
+    public int maxPathFindIterations = 400;
 
     [Header("Debug")]
     public bool enableDebugLog = false;
-    public bool drawDebugGizmos = true;
+    public bool drawDebugGizmos = false;
 
     public int PerceptionMask { get; private set; }
     public BatBehavior CurrentBehavior { get; set; } = BatBehavior.Idle;
@@ -81,6 +87,9 @@ public class Bat2D : MonsterBase, IMosquitoCoilRepellable, ITorchRepellable, IMe
     public Vector2 DebugPreyPosition { get; set; }
     public float DebugAggroTimer { get; set; }
     public string DebugPickReason { get; set; } = string.Empty;
+
+    /// <summary>当前追击目标经 A* 判定不可达；AI/Motor 进入停留，interval 后再试。</summary>
+    public bool HuntPathUnreachable { get; set; }
 
     private readonly Collider2D[] overlapBuffer = new Collider2D[16];
     protected BatUtilityAI batAI;
@@ -118,7 +127,34 @@ public class Bat2D : MonsterBase, IMosquitoCoilRepellable, ITorchRepellable, IMe
             this,
             bodyVisual != null ? bodyVisual : transform,
             new Vector2(0.9f, 0.12f));
+        ApplyFlightPerformanceDefaults();
         OnBatInitialized();
+    }
+
+    /// <summary>
+    /// 运行时覆盖 Prefab 中可能遗留的高开销 Debug/寻路参数；BatKing2D 继承同样逻辑。
+    /// </summary>
+    protected virtual void ApplyFlightPerformanceDefaults()
+    {
+        if (!enableDebugLog)
+        {
+            drawDebugGizmos = false;
+        }
+
+        if (maxPathFindIterations <= 0)
+        {
+            maxPathFindIterations = 400;
+        }
+
+        if (maxPathFindDistance <= 0f)
+        {
+            maxPathFindDistance = 14f;
+        }
+
+        if (maxPathSearchCells <= 0)
+        {
+            maxPathSearchCells = 50;
+        }
     }
 
     private void OnValidate()
@@ -187,7 +223,10 @@ public class Bat2D : MonsterBase, IMosquitoCoilRepellable, ITorchRepellable, IMe
 
     public Vector2 PickRandomHuntSectorPoint(Vector2 preyWorldPos)
     {
-        for (int i = 0; i < 20; i++)
+        Vector2 fallback = preyWorldPos + Vector2.up * huntFanRadius;
+        TileMapGuideManager mgr = TileMapGuideManager.Instance;
+
+        for (int i = 0; i < 8; i++)
         {
             float halfFanRad = huntFanAngle * 0.5f * Mathf.Deg2Rad;
             const float upAngle = Mathf.PI * 0.5f;
@@ -195,13 +234,17 @@ public class Bat2D : MonsterBase, IMosquitoCoilRepellable, ITorchRepellable, IMe
             float radius = huntFanRadius * Random.Range(0.85f, 1f);
             Vector2 candidate = preyWorldPos + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius;
 
-            if (!RepellentAvoidance.IsInsideAnyZone(candidate))
+            if (RepellentAvoidance.IsInsideAnyZone(candidate))
+            {
+                continue;
+            }
+
+            if (mgr == null || !RepellentAvoidance.IsInsideAnyZone(candidate))
             {
                 return candidate;
             }
         }
 
-        Vector2 fallback = preyWorldPos + Vector2.up * huntFanRadius;
         if (!RepellentAvoidance.IsInsideAnyZone(fallback))
         {
             return fallback;
@@ -541,6 +584,11 @@ public class Bat2D : MonsterBase, IMosquitoCoilRepellable, ITorchRepellable, IMe
 
     private void OnDrawGizmosSelected()
     {
+        if (!drawDebugGizmos || !Application.isPlaying)
+        {
+            return;
+        }
+
         DrawDebugGizmosInternal(true);
     }
 
@@ -558,7 +606,7 @@ public class Bat2D : MonsterBase, IMosquitoCoilRepellable, ITorchRepellable, IMe
             Gizmos.DrawWireCube(activityBounds.center, activityBounds.size);
         }
 
-        if (DebugHasPrey)
+        if (DebugHasPrey && drawDebugGizmos)
         {
             Gizmos.color = DebugPreyIsFly ? Color.cyan : Color.magenta;
             Gizmos.DrawLine(transform.position, DebugPreyPosition);
@@ -584,16 +632,17 @@ public class Bat2D : MonsterBase, IMosquitoCoilRepellable, ITorchRepellable, IMe
 
         Gizmos.color = Color.green;
 
-        for (int i = 0; i < DebugPath.Count - 1; i++)
+        int maxSegments = Mathf.Min(DebugPath.Count - 1, 64);
+
+        for (int i = 0; i < maxSegments; i++)
         {
             Gizmos.DrawLine(DebugPath[i], DebugPath[i + 1]);
         }
 
-        Gizmos.color = Color.yellow;
-
-        foreach (Vector2 pathPoint in DebugPath)
+        if (selectedOnlyExtra && DebugPath.Count >= 2)
         {
-            Gizmos.DrawSphere(pathPoint, 0.06f);
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawSphere(DebugPath[DebugPath.Count - 1], 0.06f);
         }
 
         if (selectedOnlyExtra)

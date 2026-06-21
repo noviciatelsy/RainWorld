@@ -120,6 +120,7 @@ public class WolfSpider2D : MonsterBase, IMeatBaitAttractable, IToyCarAttractabl
             activityBounds = new Bounds(transform.position, new Vector3(12f, 8f, 1f));
         }
 
+        EnsureActivityBoundsContainSpider();
         ResolveFlyLayerMask();
         RebuildPerceptionMask();
         CacheVisualBaseline();
@@ -136,10 +137,50 @@ public class WolfSpider2D : MonsterBase, IMeatBaitAttractable, IToyCarAttractabl
     {
         ResolveFlyLayerMask();
 
+        if (!Application.isPlaying)
+        {
+            EnsureActivityBoundsContainSpider();
+        }
+
         if (Application.isPlaying)
         {
             RefreshStompPlatform();
         }
+    }
+
+    /// <summary>
+    /// 狼蛛 world 坐标必须在 activityBounds 内；否则自动对齐 center（与 MoleCave 一致）。
+    /// </summary>
+    public void EnsureActivityBoundsContainSpider()
+    {
+        if (activityBounds.size.sqrMagnitude < 0.01f)
+        {
+            return;
+        }
+
+        Vector3 spiderWorldPos = transform.position;
+
+        if (activityBounds.Contains(spiderWorldPos))
+        {
+            return;
+        }
+
+        Debug.LogWarning(
+            $"WolfSpider「{name}」的 world 坐标 {spiderWorldPos} 不在 activityBounds 内，"
+            + "已自动将 activityBounds.center 设为狼蛛位置。",
+            this);
+
+        activityBounds.center = spiderWorldPos;
+    }
+
+    public bool IsInsideActivityBounds(Vector2 point)
+    {
+        if (activityBounds.size.sqrMagnitude < 0.01f)
+        {
+            return true;
+        }
+
+        return activityBounds.Contains(point);
     }
 
     public void RefreshStompPlatform()

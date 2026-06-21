@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 public class BatUtilityAI : IMonsterAI
@@ -14,6 +13,7 @@ public class BatUtilityAI : IMonsterAI
     private float aggroMemoryTimer;
 
     private float idleTimer;
+    private float huntPathPickTimer;
     private float perceptionTimer;
     private Vector2 lastPathGoal;
     private float postAttackRecoveryTimer;
@@ -28,15 +28,16 @@ public class BatUtilityAI : IMonsterAI
 
     private Vector2 toyCarChasePoint;
     private bool hasToyCarChasePoint;
+    private bool usesSectorHuntPrey;
 
     private const float MoveTargetLockThresholdSqr = 0.12f * 0.12f;
     private const float PreyGoalChangeThresholdSqr = 1.5f * 1.5f;
-    private const int MaxPathNodeChecks = 8;
 
     public BatUtilityAI(Bat2D owner)
     {
         this.owner = owner;
         idleTimer = owner.idleMoveInterval;
+        huntPathPickTimer = 0f;
         lastIssuedIntent = CreateIdleIntent(owner, owner.Position);
     }
 
@@ -124,18 +125,25 @@ public class BatUtilityAI : IMonsterAI
     {
         postAttackRecoveryTimer = owner.attackStiffDuration;
         idleTimer = owner.idleMoveInterval;
+        huntPathPickTimer = 0f;
+        usesSectorHuntPrey = false;
         hasHuntPoint = false;
+        owner.HuntPathUnreachable = false;
     }
 
     public void NotifyRepelledByMosquitoCoil(Vector2 coilPosition)
     {
         hasHuntPoint = false;
+        huntPathPickTimer = 0f;
+        usesSectorHuntPrey = false;
         idleTimer = 0f;
     }
 
     public void NotifyRepelledByTorch(Vector2 torchPosition)
     {
         hasHuntPoint = false;
+        huntPathPickTimer = 0f;
+        usesSectorHuntPrey = false;
         idleTimer = 0f;
         hasIssuedIntent = false;
     }
@@ -144,6 +152,8 @@ public class BatUtilityAI : IMonsterAI
     {
         perceptionTimer = 0f;
         hasHuntPoint = false;
+        huntPathPickTimer = 0f;
+        usesSectorHuntPrey = false;
         idleTimer = 0f;
     }
 
@@ -299,6 +309,7 @@ public class BatUtilityAI : IMonsterAI
 
         currentPrey = null;
         currentPreySource = EnemyAttractionSource.None;
+        usesSectorHuntPrey = false;
         hasHuntPoint = false;
     }
 
@@ -318,6 +329,8 @@ public class BatUtilityAI : IMonsterAI
             string preyType = GetPreyTypeLabel(source, detected);
             bat.LogDebug($"发现目标: {detected.name} ({preyType})");
             idleTimer = 0f;
+            huntPathPickTimer = 0f;
+            usesSectorHuntPrey = false;
             hasHuntPoint = false;
 
             if (source != EnemyAttractionSource.ToyCar)
@@ -341,6 +354,28 @@ public class BatUtilityAI : IMonsterAI
         lastKnownPreyPosition = detected.position;
         hasLastKnownPreyPosition = true;
         aggroMemoryTimer = bat.aggroMemoryDuration;
+        usesSectorHuntPrey = !IsHuntOnlyPrey() && IsSectorHuntPrey(detected);
+    }
+
+    private bool IsSectorHuntPrey(Transform prey)
+    {
+        if (prey == null)
+        {
+            return false;
+        }
+
+        if (prey.GetComponentInParent<Player>() != null)
+        {
+            return true;
+        }
+
+        if (prey.GetComponentInParent<Fly2D>() != null)
+        {
+            return true;
+        }
+
+        Collider2D col = prey.GetComponent<Collider2D>();
+        return col != null && owner.IsFlyCollider(col);
     }
 
     private static string GetPreyTypeLabel(EnemyAttractionSource source, Transform detected)
@@ -495,7 +530,38 @@ public class BatUtilityAI : IMonsterAI
 
     private BatIntent BuildHuntIntent(Bat2D bat)
     {
+        if (bat.HuntPathUnreachable)
+        {
+            huntPathPickTimer = Mathf.Max(huntPathPickTimer, bat.idleMoveInterval);
+        }
+
+        if (hasIssuedIntent && lastIssuedIntent.behaviorState == BatBehavior.Hunt)
+        {
+            if (!bat.Arrived)
+            {
+                return lastIssuedIntent;
+            }
+
+            huntPathPickTimer -= Time.fixedDeltaTime;
+
+            if (huntPathPickTimer > 0f)
+            {
+                if (bat.HuntPathUnreachable)
+                {
+                    bat.DebugPickReason = "HuntBlockedStay";
+                    bat.DebugTarget = bat.Position;
+                    return CreateHuntIntent(bat, bat.Position);
+                }
+
+                return lastIssuedIntent;
+            }
+        }
+
+        bat.HuntPathUnreachable = false;
+
         Vector2 preyPosition = GetRawPreyPosition(bat);
+        lastPathGoal = preyPosition;
+
         Vector2 moveTarget;
 
         if (currentPreySource == EnemyAttractionSource.ToyCar)
@@ -504,7 +570,6 @@ public class BatUtilityAI : IMonsterAI
             {
                 toyCarChasePoint = preyPosition;
                 hasToyCarChasePoint = true;
-                lastPathGoal = preyPosition;
             }
 
             moveTarget = hasToyCarChasePoint ? toyCarChasePoint : preyPosition;
@@ -512,13 +577,8 @@ public class BatUtilityAI : IMonsterAI
         }
         else if (ShouldUseSectorHunt())
         {
-            if (ShouldPickNewHuntPoint(bat, preyPosition))
-            {
-                currentHuntPoint = bat.PickRandomHuntSectorPoint(preyPosition);
-                hasHuntPoint = true;
-                lastPathGoal = preyPosition;
-            }
-
+            currentHuntPoint = bat.PickRandomHuntSectorPoint(preyPosition);
+            hasHuntPoint = true;
             moveTarget = currentHuntPoint;
             bat.DebugPickReason = "HuntSector";
         }
@@ -537,6 +597,19 @@ public class BatUtilityAI : IMonsterAI
         }
 
         bat.DebugTarget = moveTarget;
+
+        if (!BatFlightPath.CanAttemptPath(bat, moveTarget))
+        {
+            bat.DebugPickReason = "TooFarOrBlocked";
+            moveTarget = bat.Position;
+            bat.HuntPathUnreachable = true;
+            huntPathPickTimer = bat.idleMoveInterval;
+        }
+        else
+        {
+            huntPathPickTimer = bat.pathPickInterval;
+        }
+
         return CreateHuntIntent(bat, moveTarget);
     }
 
@@ -584,47 +657,47 @@ public class BatUtilityAI : IMonsterAI
         return hasToyCarChasePoint && !bat.Arrived;
     }
 
-    private bool ShouldPickNewHuntPoint(Bat2D bat, Vector2 preyPosition)
-    {
-        if (!hasHuntPoint)
-        {
-            return true;
-        }
-
-        if (bat.Arrived)
-        {
-            return true;
-        }
-
-        if (HasPreyGoalChanged(preyPosition))
-        {
-            return true;
-        }
-
-        return !bat.IsWithinHuntSector(preyPosition, currentHuntPoint);
-    }
-
     private BatIntent BuildIdleIntent(Bat2D bat)
     {
-        idleTimer -= Time.fixedDeltaTime;
+        if (!bat.Arrived)
+        {
+            if (hasIssuedIntent && lastIssuedIntent.behaviorState == BatBehavior.Idle)
+            {
+                return lastIssuedIntent;
+            }
 
-        if (idleTimer <= 0f || bat.Arrived)
+            return CreateIdleIntent(bat, bat.Position);
+        }
+
+        bool isStayIntent = hasIssuedIntent
+            && lastIssuedIntent.behaviorState == BatBehavior.Idle
+            && (lastIssuedIntent.moveTarget - bat.Position).sqrMagnitude <= MoveTargetLockThresholdSqr;
+
+        if (idleTimer <= 0f)
         {
             idleTimer = bat.idleMoveInterval;
 
             Vector2 moveTarget = PickRandomIdleGoal(bat);
-            bat.DebugPickReason = "IdleWander";
             bat.DebugTarget = moveTarget;
 
+            if (!BatFlightPath.CanAttemptPath(bat, moveTarget))
+            {
+                bat.DebugPickReason = "IdleTooFar";
+                return CreateIdleIntent(bat, bat.Position);
+            }
+
+            bat.DebugPickReason = "IdleGoal";
             return CreateIdleIntent(bat, moveTarget);
         }
 
-        if (hasIssuedIntent && lastIssuedIntent.behaviorState == BatBehavior.Idle)
+        if (!isStayIntent && ShouldKeepCurrentMoveTarget(bat, BatBehavior.Idle))
         {
+            idleTimer -= Time.fixedDeltaTime;
             return lastIssuedIntent;
         }
 
-        return CreateIdleIntent(bat, bat.Position);
+        idleTimer -= Time.fixedDeltaTime;
+        return lastIssuedIntent;
     }
 
     private bool HasPreyGoalChanged(Vector2 preyPosition)
@@ -684,25 +757,7 @@ public class BatUtilityAI : IMonsterAI
             return false;
         }
 
-        Transform prey = currentPrey != null ? currentPrey : lastDebugPrey;
-
-        if (prey == null)
-        {
-            return false;
-        }
-
-        if (prey.GetComponentInParent<Player>() != null)
-        {
-            return true;
-        }
-
-        if (prey.GetComponentInParent<Fly2D>() != null)
-        {
-            return true;
-        }
-
-        Collider2D col = prey.GetComponent<Collider2D>();
-        return col != null && owner.IsFlyCollider(col);
+        return usesSectorHuntPrey;
     }
 
     private bool IsHuntOnlyPrey()
@@ -712,11 +767,10 @@ public class BatUtilityAI : IMonsterAI
     }
 
     /// <summary>
-    /// 在 activityBounds 矩形内随机取点并验证可飞行路径（逻辑参考 FlyUtilityAI）。
+    /// 随机游荡目标（仅几何选点；A* 由 BatMotor 单次执行，同 Fly）。
     /// </summary>
     private Vector2 PickRandomIdleGoal(Bat2D bat)
     {
-        TileMapGuideManager mgr = TileMapGuideManager.Instance;
         Bounds bounds = bat.activityBounds;
 
         if (bounds.size.sqrMagnitude < 0.01f)
@@ -724,117 +778,34 @@ public class BatUtilityAI : IMonsterAI
             bounds = new Bounds(bat.Position, new Vector3(14f, 10f, 1f));
         }
 
-        Vector2 min = bounds.min;
-        Vector2 max = bounds.max;
-
-        for (int i = 0; i < 30; i++)
+        for (int i = 0; i < 8; i++)
         {
-            Vector2 candidate = new Vector2(
-                Random.Range(min.x, max.x),
-                Random.Range(min.y, max.y)
-            );
+            Vector2 candidate;
+
+            if (i < 4)
+            {
+                candidate = new Vector2(
+                    Random.Range(bounds.min.x, bounds.max.x),
+                    Random.Range(bounds.min.y, bounds.max.y));
+            }
+            else
+            {
+                Vector2 offset = Random.insideUnitCircle
+                    * Random.Range(bat.idleWanderRadiusMin, bat.idleWanderRadiusMax);
+                candidate = bat.Position + offset;
+            }
 
             if (RepellentAvoidance.IsInsideAnyZone(candidate))
             {
                 continue;
             }
 
-            if (mgr == null)
-            {
-                return candidate;
-            }
-
-            List<Vector2> path = mgr.FindPath(bat.Position, candidate);
-
-            if (path != null && path.Count > 1)
+            if (bounds.Contains(candidate) && BatFlightPath.CanAttemptPath(bat, candidate))
             {
                 return candidate;
             }
         }
 
-        Vector2 fleeFallback = RepellentAvoidance.GetFleePointAwayFromAll(bat.Position);
-        if (!RepellentAvoidance.IsInsideAnyZone(fleeFallback))
-        {
-            return fleeFallback;
-        }
-
-        return bounds.center;
-    }
-
-    private Vector2 PickPathMoveTarget(Bat2D bat, Vector2 goal, BatBehavior behavior)
-    {
-        TileMapGuideManager mgr = TileMapGuideManager.Instance;
-
-        if (mgr == null)
-        {
-            bat.DebugPickReason = "NoMgr";
-            return bat.Position;
-        }
-
-        List<Vector2> path = mgr.FindPath(bat.Position, goal);
-
-        if (bat.drawDebugGizmos)
-        {
-            bat.DebugPath = path;
-        }
-
-        if (path == null || path.Count == 0)
-        {
-            bat.DebugPickReason = "NoPath";
-            return bat.Position;
-        }
-
-        float maxStepSqr = bat.maxStepAlongPath * bat.maxStepAlongPath;
-        Vector2 bestPoint = bat.Position;
-        float bestScore = float.MinValue;
-        int step = Mathf.Max(1, path.Count / MaxPathNodeChecks);
-
-        for (int i = path.Count - 1; i >= 0; i -= step)
-        {
-            Vector2 node = path[i];
-            float distSqr = (node - bat.Position).sqrMagnitude;
-
-            if (distSqr < 0.01f)
-            {
-                continue;
-            }
-
-            if (behavior == BatBehavior.Hunt && distSqr > maxStepSqr)
-            {
-                continue;
-            }
-
-            if (behavior == BatBehavior.Idle && !bat.activityBounds.Contains(node))
-            {
-                continue;
-            }
-
-            if (RepellentAvoidance.IsInsideAnyZone(node))
-            {
-                continue;
-            }
-
-            float towardGoal = Vector2.Dot(
-                (node - bat.Position).normalized,
-                (goal - bat.Position).normalized
-            );
-            float score = distSqr + towardGoal * 2f;
-
-            if (score > bestScore)
-            {
-                bestScore = score;
-                bestPoint = node;
-            }
-        }
-
-        if (bestScore <= float.MinValue)
-        {
-            bat.DebugPickReason = "Stay";
-            return bat.Position;
-        }
-
-        bat.DebugPickReason = behavior == BatBehavior.Hunt ? "HuntPath" : "IdlePath";
-        bat.DebugTarget = bestPoint;
-        return bestPoint;
+        return bat.Position;
     }
 }

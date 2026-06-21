@@ -16,6 +16,8 @@ public class BatMotor : IMonsterMotor
     private List<Vector2> path;
     private int pathIndex;
     private float cooldownTimer;
+    private Vector2 lockedMoveTarget;
+    private bool pathFailedForLockedTarget;
 
     private BatAttackPhase attackPhase = BatAttackPhase.None;
     private Vector2 attackAnchor;
@@ -227,18 +229,60 @@ public class BatMotor : IMonsterMotor
 
     private void ExecuteFlight(Bat2D bat, BatIntent intent)
     {
-        if (path == null || bat.Arrived || bat.TargetChanged(intent.moveTarget))
-        {
-            RebuildPath(bat, intent.moveTarget);
-        }
+        Vector2 moveTarget = intent.moveTarget;
 
-        if (path == null || path.Count == 0)
+        if ((moveTarget - bat.Position).sqrMagnitude <= bat.arriveThreshold)
         {
+            path = null;
+            pathIndex = 0;
             bat.Arrived = true;
             return;
         }
 
+        if (moveTarget != lockedMoveTarget)
+        {
+            lockedMoveTarget = moveTarget;
+            pathFailedForLockedTarget = false;
+            path = null;
+            pathIndex = 0;
+        }
+
+        if (pathFailedForLockedTarget)
+        {
+            bat.Arrived = true;
+            bat.HuntPathUnreachable = true;
+            return;
+        }
+
+        if (path == null)
+        {
+            if (!BatFlightPath.CanAttemptPath(bat, moveTarget))
+            {
+                MarkPathFailed(bat, moveTarget, "TooFarOrBlocked");
+                return;
+            }
+
+            RebuildPath(bat, moveTarget);
+
+            if (path == null || path.Count == 0)
+            {
+                MarkPathFailed(bat, moveTarget, "NoPathStay");
+                return;
+            }
+        }
+
         MoveAlongPath(bat);
+    }
+
+    private void MarkPathFailed(Bat2D bat, Vector2 moveTarget, string reason)
+    {
+        path = null;
+        pathIndex = 0;
+        pathFailedForLockedTarget = true;
+        bat.CurrentTarget = moveTarget;
+        bat.Arrived = true;
+        bat.HuntPathUnreachable = true;
+        bat.DebugPickReason = reason;
     }
 
     private void RebuildPath(Bat2D bat, Vector2 target)
@@ -257,7 +301,14 @@ public class BatMotor : IMonsterMotor
             return;
         }
 
-        path = mgr.FindPath(bat.Position, target);
+        if (!mgr.CanAttemptFindPath(bat.Position, target, bat.maxPathSearchCells))
+        {
+            path = null;
+            pathIndex = 0;
+            return;
+        }
+
+        path = mgr.FindPath(bat.Position, target, bat.maxPathFindIterations);
 
         if (bat.drawDebugGizmos)
         {
@@ -267,31 +318,15 @@ public class BatMotor : IMonsterMotor
 
         if (path == null || path.Count == 0)
         {
-            path = BuildDirectFlightPath(bat.Position, target);
-            bat.DebugPickReason = "DirectFly";
-        }
-
-        if (path == null || path.Count == 0)
-        {
             path = null;
             pathIndex = 0;
-            bat.Arrived = true;
             return;
         }
 
         pathIndex = 0;
         bat.CurrentTarget = target;
         bat.Arrived = false;
-    }
-
-    private static List<Vector2> BuildDirectFlightPath(Vector2 from, Vector2 to)
-    {
-        if ((to - from).sqrMagnitude < 0.0001f)
-        {
-            return null;
-        }
-
-        return new List<Vector2> { to };
+        bat.HuntPathUnreachable = false;
     }
 
     private void MoveAlongPath(Bat2D bat)

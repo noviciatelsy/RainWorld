@@ -298,6 +298,7 @@ public static class WolfSpiderJumpPlanner
 
         if (TryPickFromTopCandidates(
                 from, arcNormal, minJump, maxJump, arcHeight, surfaceSnapMaxDistance,
+                activityBounds, restrictToActivityBounds,
                 huntMode, raySeed, hasRecentVisit, recentVisitPoint,
                 out jumpTarget, out pickReason))
         {
@@ -653,6 +654,8 @@ public static class WolfSpiderJumpPlanner
         float maxJump,
         float arcHeight,
         float surfaceSnapMaxDistance,
+        Bounds activityBounds,
+        bool restrictToActivityBounds,
         bool huntMode,
         int raySeed,
         bool hasRecentVisit,
@@ -671,6 +674,11 @@ public static class WolfSpiderJumpPlanner
             ReachableCandidate candidate = sCandidates[i];
 
             if (IsRecentVisitPoint(candidate.Point, hasRecentVisit, recentVisitPoint))
+            {
+                continue;
+            }
+
+            if (!IsInsideBounds(activityBounds, candidate.Point, restrictToActivityBounds))
             {
                 continue;
             }
@@ -701,6 +709,11 @@ public static class WolfSpiderJumpPlanner
             ReachableCandidate candidate = sCandidates[i];
 
             if (IsRecentVisitPoint(candidate.Point, hasRecentVisit, recentVisitPoint))
+            {
+                continue;
+            }
+
+            if (!IsInsideBounds(activityBounds, candidate.Point, restrictToActivityBounds))
             {
                 continue;
             }

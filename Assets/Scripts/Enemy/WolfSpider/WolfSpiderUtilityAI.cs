@@ -588,17 +588,17 @@ public class WolfSpiderUtilityAI : IMonsterAI
 
                 Vector2 chaseGoal = hasToyCarChasePoint ? toyCarChasePoint : preyPosition;
                 huntGoal = chaseGoal;
-                jumpTarget = PickJumpTarget(spider, huntGoal, WolfSpiderBehavior.Hunt);
+                jumpTarget = PickJumpTarget(spider, huntGoal, WolfSpiderBehavior.Hunt, out _);
             }
             else
             {
-                jumpTarget = PickJumpTarget(spider, huntGoal, WolfSpiderBehavior.Hunt);
+                jumpTarget = PickJumpTarget(spider, huntGoal, WolfSpiderBehavior.Hunt, out _);
             }
 
             if ((jumpTarget - spider.Position).sqrMagnitude <= ArrivedThresholdSqr)
             {
                 pathPickTimer = spider.pathPickInterval;
-                forceContourRepick = true;
+                forceContourRepick = false;
             }
 
             return CreateHuntIntent(spider, jumpTarget);
@@ -639,18 +639,20 @@ public class WolfSpiderUtilityAI : IMonsterAI
 
         if (forceContourRepick || idleTimer <= 0f)
         {
-            idleTimer = spider.idleJumpInterval;
-
             Vector2 jumpTarget = PickJumpTarget(
                 spider,
                 GetRandomIdleGoal(spider),
-                WolfSpiderBehavior.Idle
+                WolfSpiderBehavior.Idle,
+                out bool pickSucceeded
             );
 
-            if ((jumpTarget - spider.Position).sqrMagnitude <= ArrivedThresholdSqr)
+            forceContourRepick = false;
+            idleTimer = spider.idleJumpInterval;
+
+            if (!pickSucceeded
+                || (jumpTarget - spider.Position).sqrMagnitude <= ArrivedThresholdSqr)
             {
-                idleTimer = spider.idleJumpInterval;
-                forceContourRepick = true;
+                return CreateIdleIntent(spider, spider.Position);
             }
 
             return CreateIdleIntent(spider, jumpTarget);
@@ -760,8 +762,13 @@ public class WolfSpiderUtilityAI : IMonsterAI
         return center;
     }
 
-    private Vector2 PickJumpTarget(WolfSpider2D spider, Vector2 goal, WolfSpiderBehavior behavior)
+    private Vector2 PickJumpTarget(
+        WolfSpider2D spider,
+        Vector2 goal,
+        WolfSpiderBehavior behavior,
+        out bool pickSucceeded)
     {
+        pickSucceeded = false;
         List<Vector2> debugRoute = null;
         List<Vector2> debugCandidates = null;
 
@@ -827,8 +834,9 @@ public class WolfSpiderUtilityAI : IMonsterAI
                 debugCandidates);
         }
 
-        if (picked)
+        if (picked && IsValidJumpTargetForBehavior(spider, behavior, pickedTarget))
         {
+            pickSucceeded = true;
             spider.DebugPickReason = pickedReason;
             spider.DebugTarget = pickedTarget;
             CacheArcDebug(spider, pickedTarget);
@@ -852,8 +860,10 @@ public class WolfSpiderUtilityAI : IMonsterAI
                 spider.activityBounds,
                 restrictToActivityBounds: behavior == WolfSpiderBehavior.Idle,
                 out Vector2 relaxedTarget,
-                out string relaxedReason))
+                out string relaxedReason)
+            && IsValidJumpTargetForBehavior(spider, behavior, relaxedTarget))
         {
+            pickSucceeded = true;
             spider.DebugPickReason = relaxedReason;
             spider.DebugTarget = relaxedTarget;
             return relaxedTarget;
@@ -869,8 +879,10 @@ public class WolfSpiderUtilityAI : IMonsterAI
                 spider.activityBounds,
                 restrictToActivityBounds: behavior == WolfSpiderBehavior.Idle,
                 out Vector2 ignoreVisitTarget,
-                out string ignoreVisitReason))
+                out string ignoreVisitReason)
+            && IsValidJumpTargetForBehavior(spider, behavior, ignoreVisitTarget))
         {
+            pickSucceeded = true;
             spider.DebugPickReason = ignoreVisitReason;
             spider.DebugTarget = ignoreVisitTarget;
             return ignoreVisitTarget;
@@ -891,20 +903,40 @@ public class WolfSpiderUtilityAI : IMonsterAI
                 restrictToActivityBounds: behavior == WolfSpiderBehavior.Idle,
                 out Vector2 desperateTarget,
                 out string desperateReason,
-                debugCandidates))
+                debugCandidates)
+            && IsValidJumpTargetForBehavior(spider, behavior, desperateTarget))
         {
             rejectedJumpTargets.Clear();
             forceContourRepick = false;
+            pickSucceeded = true;
             spider.DebugPickReason = desperateReason;
             spider.DebugTarget = desperateTarget;
             CacheArcDebug(spider, desperateTarget);
             return desperateTarget;
         }
 
-        forceContourRepick = true;
-        pathPickTimer = 0f;
+        forceContourRepick = false;
+
+        if (behavior == WolfSpiderBehavior.Hunt)
+        {
+            pathPickTimer = spider.pathPickInterval;
+        }
+
         spider.DebugPickReason = "Stay";
         return spider.Position;
+    }
+
+    private static bool IsValidJumpTargetForBehavior(
+        WolfSpider2D spider,
+        WolfSpiderBehavior behavior,
+        Vector2 jumpTarget)
+    {
+        if (behavior != WolfSpiderBehavior.Idle)
+        {
+            return true;
+        }
+
+        return spider.IsInsideActivityBounds(jumpTarget);
     }
 
     private void CacheArcDebug(WolfSpider2D spider, Vector2 jumpTarget)

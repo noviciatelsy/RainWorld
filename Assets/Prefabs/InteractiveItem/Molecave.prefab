@@ -70,8 +70,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1069685933
+  m_SortingLayer: -6
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: c68938e9a4ca7854090473175930418d, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -181,6 +181,7 @@ MonoBehaviour:
     m_Center: {x: 2, y: -4, z: 0}
     m_Extent: {x: 5, y: 2, z: 0}
   connectedCaves: []
+  teleportOffset: {x: 0, y: 0.35}
 --- !u!1001 &132998471962718533
 PrefabInstance:
   m_ObjectHideFlags: 0
