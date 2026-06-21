@@ -119,6 +119,7 @@ GameObject:
   - component: {fileID: 6284496953832666008}
   - component: {fileID: 8755883501440607053}
   - component: {fileID: 6860075595337316317}
+  - component: {fileID: 8100000000000000007}
   m_Layer: 0
   m_Name: Bat
   m_TagString: Untagged
@@ -293,3 +294,19 @@ Transform:
   - {fileID: 8313080569352574138}
   m_Father: {fileID: 7392640190292610508}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8100000000000000007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6375162213562965817}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4f5a6b7c8d9401234567890abcdef02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyInformationData: {fileID: 11400000, guid: 324ed3cbda08da447976681326007e7b, type: 2}
+  autoCreatePhotoCollider: 1
+  photoColliderSize: {x: 1.2, y: 1.2}
+  photoColliderOffset: {x: 0, y: 0}

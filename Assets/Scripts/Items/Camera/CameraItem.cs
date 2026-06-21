@@ -5,30 +5,31 @@ public class CameraItem : MonoBehaviour
 {
     [Header("References")]
     private PhotographyOverlayUI photographyOverlayUI;
-    // 摄影模式遮罩 UI
+    // ????????? UI
 
     private Camera worldCamera;
-    // 游戏主相机
+    // ????????
 
     private PlayerControl playerControl;
-    // 玩家控制脚本
-    // 如果希望摄影模式中禁止玩家移动，可以使用它
+    // ????????
+    // ?????????????????????????????????
 
     [Header("Detection Settings")]
     [SerializeField] private LayerMask photographableEnemyLayerMask;
-    // 可被相机拍照的敌人所在 Layer
+    // ?????????????????? Layer
 
     [SerializeField] private float worldPlaneZ = 0f;
-    // 2D 游戏物体所在的世界 Z 平面
-    // 一般 2D 项目里物体都在 Z = 0
+    // 2D ???????????????? Z ???
+    // ??? 2D ?????????Z?? Z = 0
 
 
     [Header("Camera Mode Settings")]
     [SerializeField] private bool disablePlayerControlInPhotographyMode = false;
-    // 开启摄影模式时是否禁用玩家操作
+    [SerializeField] private bool enablePhotoDebugLog = true;
+    // ??????????????????????
     [SerializeField] private float photoCooldown = 1f;
-    // 拍照冷却
-    // 防止玩家按得太快
+    // ???????
+    // ????????????
     public bool IsPhotographyModeOpen
     {
         get
@@ -39,16 +40,16 @@ public class CameraItem : MonoBehaviour
 
 
     private bool isPhotographyModeOpen;
-    // 是否处于摄影模式
+    // ??????????
 
     private Vector2 lastWorldAreaMin;
-    // 最近一次拍照检测区域左下角
+    // ?????????????????????
 
     private Vector2 lastWorldAreaMax;
-    // 最近一次拍照检测区域右上角
+    // ?????????????????????
 
     private float nextAllowedPhotoTime;
-    // 下一次允许拍照的时间
+    // ?????????????????
     private void Awake()
     {
         worldCamera = Camera.main;
@@ -119,8 +120,8 @@ public class CameraItem : MonoBehaviour
 
 
     /// <summary>
-    /// 使用相机拍照。
-    /// 只有摄影模式开启时才会生效。
+    /// ???????????
+    /// ??????????????????????
     /// </summary>
     public bool UseCamera()
     {
@@ -143,12 +144,12 @@ public class CameraItem : MonoBehaviour
         nextAllowedPhotoTime =
             Time.time + photoCooldown;
 
-        // 先进行拍照检测。
-        // 这样检测范围仍然是按下快门前的完整可视矩形，
-        // 不会被快门闭合动画影响。
+        // ???????????
+        // ????????????????????????????????????
+        // ????????????????
         PhotographVisibleTargets();
         AudioManager.Instance.PlaySFX("UseItemCameraSFX");
-        // 再播放快门动画。
+        // ?????????????
         photographyOverlayUI.PlayShutterPulse();
 
         return true;
@@ -181,6 +182,14 @@ public class CameraItem : MonoBehaviour
                 photographableEnemyLayerMask
             );
 
+        if (enablePhotoDebugLog)
+        {
+            Debug.Log(
+                $"[CameraPhoto] overlap area={worldAreaMin}~{worldAreaMax}, layerMask={photographableEnemyLayerMask.value}, hits={detectedColliders.Length}",
+                this
+            );
+        }
+
         HashSet<MonoBehaviour> triggeredTargets =
             new HashSet<MonoBehaviour>();
 
@@ -197,6 +206,11 @@ public class CameraItem : MonoBehaviour
 
             if (interfaceBehaviour == null)
             {
+                if (enablePhotoDebugLog)
+                {
+                    Debug.Log($"[CameraPhoto] collider {detectedCollider.name} has no ICameraPhotographable parent", this);
+                }
+
                 continue;
             }
 
@@ -208,9 +222,19 @@ public class CameraItem : MonoBehaviour
             ICameraPhotographable photographableEnemy =
                 interfaceBehaviour as ICameraPhotographable;
 
+            if (enablePhotoDebugLog)
+            {
+                Debug.Log($"[CameraPhoto] photographing {interfaceBehaviour.name}", interfaceBehaviour);
+            }
+
             photographableEnemy?.OnPhotographed
             (
             );
+        }
+
+        if (enablePhotoDebugLog && triggeredTargets.Count == 0)
+        {
+            Debug.Log("[CameraPhoto] no photographable enemy in frame", this);
         }
     }
 
@@ -278,19 +302,21 @@ public class CameraItem : MonoBehaviour
     }
 
 
-    private MonoBehaviour FindInterfaceBehaviourInParents<T>
-    (
-        Collider2D myCollider
-    )
-        where T : class
+    private MonoBehaviour FindInterfaceBehaviourInParents<T>(Collider2D myCollider) where T : class
     {
-        MonoBehaviour[] parentBehaviours =
-            myCollider.GetComponentsInParent<MonoBehaviour>();
+        EnemyCameraPhotographable photographable =
+            myCollider.GetComponentInParent<EnemyCameraPhotographable>(true);
+
+        if (photographable != null)
+        {
+            return photographable;
+        }
+
+        MonoBehaviour[] parentBehaviours = myCollider.GetComponentsInParent<MonoBehaviour>(true);
 
         for (int i = 0; i < parentBehaviours.Length; i++)
         {
-            MonoBehaviour currentBehaviour =
-                parentBehaviours[i];
+            MonoBehaviour currentBehaviour = parentBehaviours[i];
 
             if (currentBehaviour is T)
             {

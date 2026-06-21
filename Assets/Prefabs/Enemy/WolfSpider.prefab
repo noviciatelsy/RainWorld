@@ -45,6 +45,7 @@ GameObject:
   - component: {fileID: 6284496953832666010}
   - component: {fileID: 2318907822464081034}
   - component: {fileID: 5559514365985526402}
+  - component: {fileID: 8100000000000000002}
   m_Layer: 0
   m_Name: WolfSpider
   m_TagString: Untagged
@@ -278,3 +279,19 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &8100000000000000002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1517624288190499507}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4f5a6b7c8d9401234567890abcdef02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyInformationData: {fileID: 11400000, guid: 526cad063307998489f980c230da8ea8, type: 2}
+  autoCreatePhotoCollider: 1
+  photoColliderSize: {x: 1.2, y: 1.2}
+  photoColliderOffset: {x: 0, y: 0}

@@ -2447,6 +2447,7 @@ GameObject:
   - component: {fileID: 818207883925730995}
   - component: {fileID: 1781812323646009671}
   - component: {fileID: 9171685577172732631}
+  - component: {fileID: 8100000000000000001}
   m_Layer: 8
   m_Name: Shibie
   m_TagString: Untagged
@@ -3634,3 +3635,19 @@ Transform:
   - {fileID: 4178083101386441330}
   m_Father: {fileID: 3568277466795031782}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 140}
+--- !u!114 &8100000000000000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5818872615241360620}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4f5a6b7c8d9401234567890abcdef02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyInformationData: {fileID: 11400000, guid: 77c8b4a550a83cd4e8e7842060cc6a30, type: 2}
+  autoCreatePhotoCollider: 1
+  photoColliderSize: {x: 1.2, y: 1.2}
+  photoColliderOffset: {x: 0, y: 0}

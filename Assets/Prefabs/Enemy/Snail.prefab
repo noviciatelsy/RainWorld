@@ -117,6 +117,7 @@ GameObject:
   - component: {fileID: 7123456789012345006}
   - component: {fileID: 3732952398623403793}
   - component: {fileID: 3983081362171041184}
+  - component: {fileID: 8100000000000000006}
   m_Layer: 0
   m_Name: Snail
   m_TagString: Untagged
@@ -384,3 +385,19 @@ MonoBehaviour:
   turnSuspendDuration: 0.2
   downwardDetectDepth: 1.5
   downwardDetectPaddingX: 0.35
+--- !u!114 &8100000000000000006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1492779552362819572}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4f5a6b7c8d9401234567890abcdef02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyInformationData: {fileID: 11400000, guid: dfbe9b1de1f748c45afdc4054c90ae5e, type: 2}
+  autoCreatePhotoCollider: 1
+  photoColliderSize: {x: 1.2, y: 1.2}
+  photoColliderOffset: {x: 0, y: 0}

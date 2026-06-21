@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 9012345678901234562}
   - component: {fileID: 7784956539448789251}
   - component: {fileID: 5305306081192980344}
+  - component: {fileID: 8100000000000000010}
   m_Layer: 0
   m_Name: MoleParent
   m_TagString: Untagged
@@ -350,3 +351,19 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &8100000000000000010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1939753863665353310}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4f5a6b7c8d9401234567890abcdef02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyInformationData: {fileID: 11400000, guid: 3b9bf5ea67eeb0e4d80b58134c2f6a34, type: 2}
+  autoCreatePhotoCollider: 1
+  photoColliderSize: {x: 3, y: 2}
+  photoColliderOffset: {x: 0, y: 0}

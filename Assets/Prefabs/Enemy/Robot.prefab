@@ -183,6 +183,7 @@ GameObject:
   - component: {fileID: 8823456789012345601}
   - component: {fileID: 81127663917121517}
   - component: {fileID: 1403874536430522011}
+  - component: {fileID: 8100000000000000003}
   m_Layer: 8
   m_Name: Robot
   m_TagString: Untagged
@@ -498,3 +499,19 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &8100000000000000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2630524371018857482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4f5a6b7c8d9401234567890abcdef02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyInformationData: {fileID: 11400000, guid: da90d79842f32f946a0f52d3bafa200e, type: 2}
+  autoCreatePhotoCollider: 1
+  photoColliderSize: {x: 1.2, y: 1.2}
+  photoColliderOffset: {x: 0, y: 0}

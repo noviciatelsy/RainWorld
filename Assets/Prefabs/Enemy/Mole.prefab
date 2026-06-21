@@ -133,6 +133,7 @@ GameObject:
   - component: {fileID: 9023456789012345602}
   - component: {fileID: 1929296095181732878}
   - component: {fileID: 1468212355694324806}
+  - component: {fileID: 8100000000000000009}
   m_Layer: 8
   m_Name: Mole
   m_TagString: Untagged
@@ -453,3 +454,19 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 5481188885493449138}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &8100000000000000009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6430993408388382896}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4f5a6b7c8d9401234567890abcdef02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyInformationData: {fileID: 11400000, guid: 0274220343862694eb8a2ef35c96ad3b, type: 2}
+  autoCreatePhotoCollider: 1
+  photoColliderSize: {x: 1.2, y: 1.2}
+  photoColliderOffset: {x: 0, y: 0}

@@ -67,11 +67,14 @@ public class IntelligenceArchiveManager : MonoBehaviour
     [Header("Unlock Settings")]
     [SerializeField] private bool saveImmediatelyWhenUnlock = true;
 
-    [Tooltip("解锁敌人专属情报时，是否顺便解锁这个敌人的图鉴页")]
+    [Tooltip("?????????????l????????????????????????")]
     [SerializeField] private bool autoUnlockEnemyWhenUnlockEnemyIntelligence = true;
 
-    [Tooltip("解锁敌人照片时，是否顺便解锁这个敌人的图鉴页。")]
+    [Tooltip("?????????????????????????????????????")]
     [SerializeField] private bool autoUnlockEnemyWhenUnlockEnemyPicture = true;
+
+    [Header("Debug")]
+    [SerializeField] private bool enableArchiveDebugLog = true;
 
     //[Header("Test")]
     //[SerializeField] private IntelligenceDataSO test;
@@ -88,7 +91,7 @@ public class IntelligenceArchiveManager : MonoBehaviour
     public event Action<EnemyIntelligenceDataSO> OnEnemyIntelligenceUnlocked;
     public event Action<EnemyInformationDataSO> OnEnemyPictureUnlocked;
 
-    // 统一事件：给 UI 使用，告诉图鉴“刚刚新增了哪类条目”
+    // ????????? UI ???????????????????????????????
     public event Action<ArchiveUnlockRecord> OnArchiveEntryUnlocked;
 
     private bool hasInitializedFromSave = false;
@@ -107,7 +110,12 @@ public class IntelligenceArchiveManager : MonoBehaviour
     private void Start()
     {
         hasInitializedFromSave = true;
-        SaveManager.Instance.OnCurrentGameRunDataChanged += HandleCurrentGameRunDataChanged;
+
+        if (SaveManager.Instance != null)
+        {
+            SaveManager.Instance.OnCurrentGameRunDataChanged += HandleCurrentGameRunDataChanged;
+            TryAcquireGameRunData();
+        }
     }
 
     private void OnEnable()
@@ -116,17 +124,35 @@ public class IntelligenceArchiveManager : MonoBehaviour
         {
             return;
         }
+
+        if (SaveManager.Instance == null)
+        {
+            return;
+        }
+
         SaveManager.Instance.OnCurrentGameRunDataChanged += HandleCurrentGameRunDataChanged;
+        TryAcquireGameRunData();
     }
 
     private void OnDisable()
     {
+        if (SaveManager.Instance == null)
+        {
+            return;
+        }
+
         SaveManager.Instance.OnCurrentGameRunDataChanged -= HandleCurrentGameRunDataChanged;
     }
 
     private void HandleCurrentGameRunDataChanged(int mySlotIndex, GameRunData myRunData)
     {
+        BindCurrentGameRunData(myRunData);
+    }
+
+    private void BindCurrentGameRunData(GameRunData myRunData)
+    {
         gameRunData = myRunData;
+
         if (gameRunData != null)
         {
             EnsureGameDataLists();
@@ -136,14 +162,82 @@ public class IntelligenceArchiveManager : MonoBehaviour
 
     private bool TryPrepareGameData()
     {
+        TryAcquireGameRunData();
+
         if (gameRunData == null)
         {
-            Debug.LogWarning("无法操作图鉴数据：GameData 为空。");
+            Debug.LogWarning("图鉴初始化失败：当前 GameRunData 为空。");
             return false;
         }
 
         EnsureGameDataLists();
         return true;
+    }
+
+    private void TryAcquireGameRunData()
+    {
+        if (SaveManager.Instance == null)
+        {
+            return;
+        }
+
+        GameRunData runtimeData = SaveManager.Instance.GetRunTimeGameData();
+
+        if (runtimeData != null)
+        {
+            BindCurrentGameRunData(runtimeData);
+            return;
+        }
+
+        int selectedSlotIndex = SaveManager.Instance.CurrentSelectedSlotIndex;
+
+        if (selectedSlotIndex >= 0 && !SaveManager.Instance.IsGameDataSlotEmpty(selectedSlotIndex))
+        {
+            SaveManager.Instance.SelectGameRunDataSlot(selectedSlotIndex);
+            runtimeData = SaveManager.Instance.GetRunTimeGameData();
+        }
+
+        if (runtimeData == null)
+        {
+            for (int slotIndex = 0; slotIndex < GameData.GameDataSlotCount; slotIndex++)
+            {
+                if (SaveManager.Instance.IsGameDataSlotEmpty(slotIndex))
+                {
+                    continue;
+                }
+
+                SaveManager.Instance.SelectGameRunDataSlot(slotIndex);
+                runtimeData = SaveManager.Instance.GetRunTimeGameData();
+
+                if (runtimeData != null)
+                {
+                    LogArchiveDebug($"TryAcquireGameRunData: auto selected slot {slotIndex}");
+                    break;
+                }
+            }
+        }
+
+#if UNITY_EDITOR
+        if (runtimeData == null)
+        {
+            for (int slotIndex = 0; slotIndex < GameData.GameDataSlotCount; slotIndex++)
+            {
+                if (!SaveManager.Instance.IsGameDataSlotEmpty(slotIndex))
+                {
+                    continue;
+                }
+
+                if (SaveManager.Instance.CreateNewGameRunDataInSlot(slotIndex))
+                {
+                    runtimeData = SaveManager.Instance.GetRunTimeGameData();
+                    LogArchiveDebug($"TryAcquireGameRunData: created editor test run in slot {slotIndex}");
+                    break;
+                }
+            }
+        }
+#endif
+
+        BindCurrentGameRunData(runtimeData);
     }
 
     private void EnsureGameDataLists()
@@ -216,12 +310,12 @@ public class IntelligenceArchiveManager : MonoBehaviour
         }
     }
 
-    // 解锁普通情报
+    // ?????????l
     public bool UnlockIntelligence(IntelligenceDataSO intelligenceData)
     {
         if (intelligenceData == null)
         {
-            Debug.LogWarning("解锁普通情报失败：传入的 IntelligenceDataSO 为空。");
+            Debug.LogWarning("?????????l????????? IntelligenceDataSO ????");
             return false;
         }
 
@@ -245,7 +339,7 @@ public class IntelligenceArchiveManager : MonoBehaviour
         return unlocked;
     }
 
-    // 解锁敌人图鉴页
+    // ????????????
     public bool UnlockEnemy(EnemyInformationDataSO enemyInformationData)
     {
         return UnlockEnemyInternal(enemyInformationData, true);
@@ -255,7 +349,7 @@ public class IntelligenceArchiveManager : MonoBehaviour
     {
         if (enemyInformationData == null)
         {
-            Debug.LogWarning("解锁敌人图鉴失败：传入的 EnemyInformationDataSO 为空。");
+            Debug.LogWarning("???????????????????? EnemyInformationDataSO ????");
             return false;
         }
 
@@ -279,12 +373,12 @@ public class IntelligenceArchiveManager : MonoBehaviour
         return unlocked;
     }
 
-    // 解锁敌人照片
+    // ???????????
     public bool UnlockEnemyPicture(EnemyInformationDataSO enemyInformationData)
     {
         if (enemyInformationData == null)
         {
-            Debug.LogWarning("解锁敌人照片失败：传入的 EnemyInformationDataSO 为空。");
+            Debug.LogWarning("???????????????????? EnemyInformationDataSO ????");
             return false;
         }
 
@@ -293,11 +387,8 @@ public class IntelligenceArchiveManager : MonoBehaviour
             return false;
         }
 
-        if (autoUnlockEnemyWhenUnlockEnemyPicture)
-        {
-            // 静默解锁敌人页，不额外弹一次“敌人解锁”的图鉴
-            UnlockEnemyInternal(enemyInformationData, false);
-        }
+        bool wasEnemyKnown = IsEnemyUnlocked(enemyInformationData);
+        EnsureEnemyRecognized(enemyInformationData);
 
         bool unlocked = AddUnlockFlag(
             enemyInformationData.SaveID,
@@ -311,34 +402,39 @@ public class IntelligenceArchiveManager : MonoBehaviour
             OnArchiveEntryUnlocked?.Invoke(ArchiveUnlockRecord.CreateEnemyPictureRecord(enemyInformationData));
         }
 
+        LogArchiveDebug(
+            $"UnlockEnemyPicture: {enemyInformationData.enemyName} | " +
+            $"photoNew={unlocked} | knownBefore={wasEnemyKnown} | knownNow={IsEnemyUnlocked(enemyInformationData)}"
+        );
+
         return unlocked;
     }
 
-    // 只解锁某条敌人专属情报，不指定它属于哪个敌人
+    // ?????????????????l????????????????????
     public bool UnlockEnemyIntelligence(EnemyIntelligenceDataSO enemyIntelligenceData)
     {
         EnemyInformationDataSO ownerEnemyData = FindEnemyInformationByEnemyIntelligence(enemyIntelligenceData);
         return UnlockEnemyIntelligenceInternal(ownerEnemyData, enemyIntelligenceData, true);
     }
 
-    // 解锁某个敌人的某条专属情报
+    // ????????????????????l
     public bool UnlockEnemyIntelligence(EnemyInformationDataSO enemyInformationData, EnemyIntelligenceDataSO enemyIntelligenceData)
     {
         if (enemyInformationData == null)
         {
-            Debug.LogWarning("解锁敌人情报失败：传入的 EnemyInformationDataSO 为空。");
+            Debug.LogWarning("??????????l????????? EnemyInformationDataSO ????");
             return false;
         }
 
         if (enemyIntelligenceData == null)
         {
-            Debug.LogWarning("解锁敌人情报失败：传入的 EnemyIntelligenceDataSO 为空。");
+            Debug.LogWarning("??????????l????????? EnemyIntelligenceDataSO ????");
             return false;
         }
 
         if (!enemyInformationData.ContainsEnemyIntelligence(enemyIntelligenceData))
         {
-            Debug.LogWarning($"解锁敌人情报失败：{enemyIntelligenceData.name} 不属于敌人 {enemyInformationData.name}。");
+            Debug.LogWarning($"??????????l????{enemyIntelligenceData.name} ????????? {enemyInformationData.name}??");
             return false;
         }
 
@@ -349,7 +445,7 @@ public class IntelligenceArchiveManager : MonoBehaviour
     {
         if (enemyIntelligenceData == null)
         {
-            Debug.LogWarning("解锁敌人情报失败：传入的 EnemyIntelligenceDataSO 为空。");
+            Debug.LogWarning("??????????l????????? EnemyIntelligenceDataSO ????");
             return false;
         }
 
@@ -358,11 +454,13 @@ public class IntelligenceArchiveManager : MonoBehaviour
             return false;
         }
 
-        if (enemyInformationData != null && autoUnlockEnemyWhenUnlockEnemyIntelligence)
+        if (enemyInformationData == null)
         {
-            // 静默解锁敌人页，不额外弹一次“敌人解锁”的图鉴
-            UnlockEnemyInternal(enemyInformationData, false);
+            enemyInformationData = FindEnemyInformationByEnemyIntelligence(enemyIntelligenceData);
         }
+
+        bool wasEnemyKnown = enemyInformationData != null && IsEnemyUnlocked(enemyInformationData);
+        EnsureEnemyRecognized(enemyInformationData);
 
         bool unlocked = AddUnlockID(
             enemyIntelligenceData.SaveID,
@@ -376,15 +474,23 @@ public class IntelligenceArchiveManager : MonoBehaviour
             OnArchiveEntryUnlocked?.Invoke(ArchiveUnlockRecord.CreateEnemyIntelligenceRecord(enemyInformationData, enemyIntelligenceData));
         }
 
+        if (unlocked && enemyInformationData != null)
+        {
+            LogArchiveDebug(
+                $"UnlockEnemyIntelligence: {enemyInformationData.enemyName} / {enemyIntelligenceData.intelligenceName} | " +
+                $"intelNew={unlocked} | knownBefore={wasEnemyKnown} | knownNow={IsEnemyUnlocked(enemyInformationData)}"
+            );
+        }
+
         return unlocked;
     }
 
-    // 解锁某个敌人的全部专属情报
+    // ????????????????????l
     public int UnlockAllEnemyIntelligences(EnemyInformationDataSO enemyInformationData)
     {
         if (enemyInformationData == null)
         {
-            Debug.LogWarning("解锁全部敌人情报失败：传入的 EnemyInformationDataSO 为空。");
+            Debug.LogWarning("?????????????l????????? EnemyInformationDataSO ????");
             return 0;
         }
 
@@ -395,16 +501,13 @@ public class IntelligenceArchiveManager : MonoBehaviour
 
         int unlockCount = 0;
 
-        if (autoUnlockEnemyWhenUnlockEnemyIntelligence)
-        {
-            UnlockEnemyInternal(enemyInformationData, false);
-        }
+        EnsureEnemyRecognized(enemyInformationData);
 
         for (int i = 0; i < enemyInformationData.enemyIntelligences.Length; i++)
         {
             EnemyIntelligenceDataSO enemyIntelligenceData = enemyInformationData.enemyIntelligences[i];
 
-            // 批量解锁时不逐条弹图鉴，不然可能连开好多次，很烦人
+            // ????????????????????????????????????????????
             if (UnlockEnemyIntelligenceInternal(enemyInformationData, enemyIntelligenceData, false))
             {
                 unlockCount++;
@@ -423,7 +526,7 @@ public class IntelligenceArchiveManager : MonoBehaviour
     {
         if (string.IsNullOrEmpty(saveID))
         {
-            Debug.LogWarning("解锁失败：目标数据的 SaveID 为空。");
+            Debug.LogWarning("???????????????? SaveID ????");
             return false;
         }
 
@@ -444,7 +547,7 @@ public class IntelligenceArchiveManager : MonoBehaviour
     {
         if (string.IsNullOrEmpty(saveID))
         {
-            Debug.LogWarning("解锁失败：目标数据的 SaveID 为空。");
+            Debug.LogWarning("???????????????? SaveID ????");
             return false;
         }
 
@@ -470,7 +573,7 @@ public class IntelligenceArchiveManager : MonoBehaviour
 
         if (SaveManager.Instance == null)
         {
-            Debug.LogWarning("图鉴解锁成功，但保存失败：找不到 SaveManager。");
+            Debug.LogWarning("??????????????????????????? SaveManager??");
             return;
         }
 
@@ -481,14 +584,14 @@ public class IntelligenceArchiveManager : MonoBehaviour
     {
         if (SaveManager.Instance == null)
         {
-            Debug.LogWarning("保存图鉴数据失败：找不到 SaveManager。");
+            Debug.LogWarning("???????????????????? SaveManager??");
             return;
         }
 
         SaveManager.Instance.SaveGame();
     }
 
-    // 查询：普通情报是否已解锁
+    // ??????????l????????
     public bool IsIntelligenceUnlocked(IntelligenceDataSO intelligenceData)
     {
         if (intelligenceData == null)
@@ -504,7 +607,7 @@ public class IntelligenceArchiveManager : MonoBehaviour
         return unlockedIntelligenceIDSet.Contains(intelligenceData.SaveID);
     }
 
-    // 查询：敌人图鉴页是否已解锁
+    // ?????????????????????
     public bool IsEnemyUnlocked(EnemyInformationDataSO enemyInformationData)
     {
         if (enemyInformationData == null)
@@ -517,10 +620,22 @@ public class IntelligenceArchiveManager : MonoBehaviour
             return false;
         }
 
-        return unlockedEnemyIDSet.Contains(enemyInformationData.SaveID);
+        string saveID = enemyInformationData.SaveID;
+
+        if (unlockedEnemyIDSet.Contains(saveID))
+        {
+            return true;
+        }
+
+        if (unlockedEnemyPictureIDSet.Contains(saveID))
+        {
+            return true;
+        }
+
+        return HasAnyUnlockedEnemyIntelligence(enemyInformationData);
     }
 
-    // 查询：敌人专属情报是否已解锁
+    // ??????????????l????????
     public bool IsEnemyIntelligenceUnlocked(EnemyIntelligenceDataSO enemyIntelligenceData)
     {
         if (enemyIntelligenceData == null)
@@ -536,7 +651,7 @@ public class IntelligenceArchiveManager : MonoBehaviour
         return unlockedEnemyIntelligenceIDSet.Contains(enemyIntelligenceData.SaveID);
     }
 
-    // 查询：敌人照片是否已解锁
+    // ????????????????????
     public bool IsEnemyPictureUnlocked(EnemyInformationDataSO enemyInformationData)
     {
         if (enemyInformationData == null)
@@ -552,7 +667,7 @@ public class IntelligenceArchiveManager : MonoBehaviour
         return unlockedEnemyPictureIDSet.Contains(enemyInformationData.SaveID);
     }
 
-    // 获取所有已解锁的普通情报
+    // ???????????????????l
     public List<IntelligenceDataSO> GetUnlockedIntelligences()
     {
         List<IntelligenceDataSO> result = new List<IntelligenceDataSO>();
@@ -564,7 +679,7 @@ public class IntelligenceArchiveManager : MonoBehaviour
 
         if (intelligenceDataBase == null)
         {
-            Debug.LogWarning("获取普通情报失败：IntelligenceDataBaseSO 没有赋值。");
+            Debug.LogWarning("????????l????IntelligenceDataBaseSO ????????");
             return result;
         }
 
@@ -582,7 +697,7 @@ public class IntelligenceArchiveManager : MonoBehaviour
         return result;
     }
 
-    // 获取所有已解锁的敌人图鉴页
+    // ?????????????????????
     public List<EnemyInformationDataSO> GetUnlockedEnemies()
     {
         List<EnemyInformationDataSO> result = new List<EnemyInformationDataSO>();
@@ -592,27 +707,38 @@ public class IntelligenceArchiveManager : MonoBehaviour
             return result;
         }
 
-        if (enemyInformationDataBase == null)
+        if (enemyInformationDataBase == null || enemyInformationDataBase.enemyInformationDataBase == null)
         {
-            Debug.LogWarning("获取敌人图鉴失败：EnemyInformationDataBaseSO 没有赋值。");
+            Debug.LogWarning("??????????????EnemyInformationDataBaseSO ????????");
             return result;
         }
 
-        for (int i = 0; i < gameRunData.unlockedEnemies.Count; i++)
-        {
-            string saveID = gameRunData.unlockedEnemies[i];
-            EnemyInformationDataSO data = enemyInformationDataBase.GetEnemyInformationData(saveID);
+        HashSet<string> addedSaveIDs = new HashSet<string>();
 
-            if (data != null)
+        for (int i = 0; i < enemyInformationDataBase.enemyInformationDataBase.Length; i++)
+        {
+            EnemyInformationDataSO enemyData = enemyInformationDataBase.enemyInformationDataBase[i];
+
+            if (enemyData == null)
             {
-                result.Add(data);
+                continue;
+            }
+
+            if (!IsEnemyUnlocked(enemyData))
+            {
+                continue;
+            }
+
+            if (addedSaveIDs.Add(enemyData.SaveID))
+            {
+                result.Add(enemyData);
             }
         }
 
         return result;
     }
 
-    // 获取某个敌人当前已解锁的专属情报
+    // ????????????????????????l
     public List<EnemyIntelligenceDataSO> GetUnlockedEnemyIntelligences(EnemyInformationDataSO enemyInformationData)
     {
         List<EnemyIntelligenceDataSO> result = new List<EnemyIntelligenceDataSO>();
@@ -645,7 +771,7 @@ public class IntelligenceArchiveManager : MonoBehaviour
         return result;
     }
 
-    // 获取某个敌人的全部专属情报，UI 可以自己根据 IsEnemyIntelligenceUnlocked 判断显示正文还是“？？？”
+    // ???????????????????l??UI ??????????? IsEnemyIntelligenceUnlocked ???????????????????????
     public List<EnemyIntelligenceDataSO> GetAllEnemyIntelligences(EnemyInformationDataSO enemyInformationData)
     {
         List<EnemyIntelligenceDataSO> result = new List<EnemyIntelligenceDataSO>();
@@ -666,6 +792,49 @@ public class IntelligenceArchiveManager : MonoBehaviour
         }
 
         return result;
+    }
+
+    private void EnsureEnemyRecognized(EnemyInformationDataSO enemyInformationData)
+    {
+        if (enemyInformationData == null)
+        {
+            return;
+        }
+
+        bool newlyRecognized = UnlockEnemyInternal(enemyInformationData, false);
+
+        if (newlyRecognized)
+        {
+            LogArchiveDebug($"EnsureEnemyRecognized: newly recognized {enemyInformationData.enemyName}");
+        }
+    }
+
+    private bool HasAnyUnlockedEnemyIntelligence(EnemyInformationDataSO enemyInformationData)
+    {
+        if (enemyInformationData == null || enemyInformationData.enemyIntelligences == null)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < enemyInformationData.enemyIntelligences.Length; i++)
+        {
+            EnemyIntelligenceDataSO enemyIntelligenceData = enemyInformationData.enemyIntelligences[i];
+
+            if (enemyIntelligenceData != null && unlockedEnemyIntelligenceIDSet.Contains(enemyIntelligenceData.SaveID))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void LogArchiveDebug(string message)
+    {
+        if (enableArchiveDebugLog)
+        {
+            Debug.Log($"[IntelligenceArchive] {message}", this);
+        }
     }
 
     public EnemyInformationDataSO FindEnemyInformationByEnemyIntelligence(EnemyIntelligenceDataSO enemyIntelligenceData)
@@ -719,7 +888,7 @@ public class IntelligenceArchiveManager : MonoBehaviour
 
         if (candidates.Count <= 0)
         {
-            Debug.Log("没有可以通过纸条随机解锁的情报。");
+            Debug.Log("????????????????????????l??");
             return null;
         }
 
@@ -1010,13 +1179,13 @@ public class IntelligenceArchiveManager : MonoBehaviour
             return false;
         }
 
-        // 只排列已经认识的敌人的交换项
+        // ??????????????????????
         if (!IsEnemyUnlocked(exchangeData.requiredEnemyInformationData))
         {
             return false;
         }
 
-        // 奖励已经解锁后，就不再显示这个交换项
+        // ?????????????????????????????
         if (IsExchangeRewardUnlocked(exchangeData))
         {
             return false;
@@ -1059,7 +1228,7 @@ public class IntelligenceArchiveManager : MonoBehaviour
 
         if (ownerEnemyData == null)
         {
-            Debug.LogWarning($"交换情报失败：奖励敌人情报 {exchangeData.rewardEnemyIntelligenceData.name} 找不到所属敌人。");
+            Debug.LogWarning($"??????l??????????????l {exchangeData.rewardEnemyIntelligenceData.name} ??????????????");
             return false;
         }
 
