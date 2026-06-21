@@ -152,17 +152,17 @@ public class PlayerVitals : MonoBehaviour
         }
     }
 
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.H))
-        {
-            KillPlayer();
-        }
-        if (Input.GetKeyDown(KeyCode.L))
-        {
-            TakeDamage(1);
-        }
-    }
+    //private void Update()
+    //{
+    //    if (Input.GetKeyDown(KeyCode.H))
+    //    {
+    //        KillPlayer();
+    //    }
+    //    if (Input.GetKeyDown(KeyCode.L))
+    //    {
+    //        TakeDamage(1);
+    //    }
+    //}
 
     public void TakeDamage(float damageAmount)
     {
