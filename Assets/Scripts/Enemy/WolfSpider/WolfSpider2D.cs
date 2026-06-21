@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WolfSpider2D : MonsterBase, IMeatBaitAttractable, IToyCarAttractable
+public class WolfSpider2D : MonsterBase, IMeatBaitAttractable, IToyCarAttractable, ITorchRepellable
 {
     [Header("Jump")]
     public float moveSpeed = 8f;
@@ -238,6 +238,12 @@ public class WolfSpider2D : MonsterBase, IMeatBaitAttractable, IToyCarAttractabl
     public void NotifyJumpStarted()
     {
         spiderAni?.NotifyJumpStarted();
+
+        EnemyWolfSpiderAudioEmitter audioEmitter = GetComponent<EnemyWolfSpiderAudioEmitter>();
+        if (audioEmitter != null)
+        {
+            audioEmitter.PlayJump();
+        }
     }
 
     public void NotifyJumpEnded()
@@ -248,6 +254,12 @@ public class WolfSpider2D : MonsterBase, IMeatBaitAttractable, IToyCarAttractabl
     public void NotifyAttackStarted()
     {
         spiderAni?.NotifyAttackStarted();
+
+        EnemyWolfSpiderAudioEmitter audioEmitter = GetComponent<EnemyWolfSpiderAudioEmitter>();
+        if (audioEmitter != null)
+        {
+            audioEmitter.PlayAttack();
+        }
     }
 
     public void NotifyAttackAnimEnded()
@@ -818,6 +830,11 @@ public class WolfSpider2D : MonsterBase, IMeatBaitAttractable, IToyCarAttractabl
     public void AttractToToyCar(Vector2 myToyCarPosition)
     {
         spiderAI?.ForcePerceptionRefresh();
+    }
+
+    public void FleeFromTorch(Vector2 torchPosition)
+    {
+        spiderAI?.NotifyRepelledByTorch(torchPosition);
     }
 
     private void DrawStompPlatformGizmo()

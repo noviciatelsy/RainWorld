@@ -26,9 +26,21 @@ public class MoleCave : PlayerSensorTarget
 
     public Vector2 Position => (Vector2)transform.position + teleportOffset;
 
+    /// <summary>鼹鼠 AI 用的洞口脚底世界坐标（与 feetYOffset 贴地逻辑一致，不含玩家传送偏移）。</summary>
+    public Vector2 GetMoleFeetPosition(float feetYOffset = RobotGroundPath.DefaultFeetYOffset)
+    {
+        return RobotGroundPath.SnapToFlatGround((Vector2)transform.position, feetYOffset);
+    }
+
+    public bool IsMoleAtEntrance(Vector2 molePosition, float feetYOffset, float maxDistance = 0.35f)
+    {
+        return Vector2.Distance(molePosition, GetMoleFeetPosition(feetYOffset)) <= maxDistance;
+    }
+
     protected override void Awake()
     {
         EnsureInteractionSetup();
+        EnsureActivityBoundsContainCave();
 
         base.Awake();
 
@@ -159,6 +171,38 @@ public class MoleCave : PlayerSensorTarget
 
         collider.isTrigger = true;
     }
+
+    /// <summary>
+    /// 洞口 world 坐标必须在 activityBounds 内；否则视为配置错误并自动对齐 center。
+    /// </summary>
+    private void EnsureActivityBoundsContainCave()
+    {
+        Vector3 caveWorldPos = transform.position;
+
+        if (activityBounds.Contains(caveWorldPos))
+        {
+            return;
+        }
+
+        Debug.LogWarning(
+            $"MoleCave「{name}」的 world 坐标 {caveWorldPos} 不在 activityBounds 内，"
+            + "已自动将 activityBounds.center 设为洞口位置。",
+            this);
+
+        activityBounds.center = caveWorldPos;
+    }
+
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        if (Application.isPlaying)
+        {
+            return;
+        }
+
+        EnsureActivityBoundsContainCave();
+    }
+#endif
 
     private void RefreshPromptVisibility()
     {

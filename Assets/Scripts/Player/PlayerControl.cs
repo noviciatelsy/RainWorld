@@ -6,6 +6,8 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 [DefaultExecutionOrder(100)]
+[RequireComponent(typeof(PlayerWaterContact))]
+[RequireComponent(typeof(PlayerWaterPhysics))]
 public class PlayerControl : MonoBehaviour
 {
     [Header("Collision detection")]
@@ -22,7 +24,8 @@ public class PlayerControl : MonoBehaviour
     public float inAirMoveMultiplier = 1; // ?????????????
 
     [Header("DropPlatform")]
-    [SerializeField] private Collider2D playerCollider;       // ??????????
+    [SerializeField] private Collider2D playerCollider;
+    public Collider2D playerColliderRef => playerCollider;
     [SerializeField] private Vector2 groundCheckSize = new Vector2(0.6f, 0.1f);
     [SerializeField] private LayerMask oneWayPlatformLayer;   // ???????????
     [SerializeField] private float dropIgnoreTime = 0.25f;    // ??????????????
@@ -62,6 +65,12 @@ public class PlayerControl : MonoBehaviour
 
     public bool isInRopeArea {  get; private set; }
 
+    public bool isInWater { get; private set; }
+    public float waterSubmersion { get; private set; }
+    public bool isFullySubmerged { get; private set; }
+    public PlayerWaterContact waterContact { get; private set; }
+    public PlayerWaterPhysics waterPhysics { get; private set; }
+
     public bool enableDoubleJump {  get; private set; }
     private bool hasPreparedDoubleJump;
     private bool hasUsedDoubleJump;
@@ -72,6 +81,7 @@ public class PlayerControl : MonoBehaviour
     public PlayerFallState fallState { get; private set; }
     public PlayerDropPlatformState dropPlatformState { get; private set; }
     public PlayerClimbState climbState { get; private set; }
+    public PlayerSwimState swimState { get; private set; }
     #endregion
 
 
@@ -91,7 +101,11 @@ public class PlayerControl : MonoBehaviour
         fallState = new PlayerFallState(stateMachine, "jumpFall", this);
         dropPlatformState=new PlayerDropPlatformState(stateMachine,"jumpFall",this);
         climbState = new PlayerClimbState(stateMachine, "climb", this);
+        swimState = new PlayerSwimState(stateMachine, "jumpFall", this);
         #endregion
+
+        waterContact = GetComponent<PlayerWaterContact>();
+        waterPhysics = GetComponent<PlayerWaterPhysics>();
     }
 
     private void Start()
@@ -117,7 +131,14 @@ public class PlayerControl : MonoBehaviour
     {
         stateMachine.UpdateActiveState();
 
-        if (IsGroundedOnMovingElevator())
+        if (isInWater && waterPhysics != null)
+        {
+            rb.gravityScale = originalGravityScale
+                * baseGravityMultiplier
+                * BonusGravityMultiplier
+                * waterPhysics.GetGravityMultiplier();
+        }
+        else if (IsGroundedOnMovingElevator())
         {
             rb.gravityScale = 0f;
         }
@@ -415,7 +436,7 @@ public class PlayerControl : MonoBehaviour
 
     public bool IsGroundedOnMovingElevator()
     {
-        if (platformJumpIgnoreTimer > 0f || !IsInGroundedMovementState())
+        if (isInWater || platformJumpIgnoreTimer > 0f || !IsInGroundedMovementState())
         {
             return false;
         }
@@ -576,6 +597,81 @@ public class PlayerControl : MonoBehaviour
     public void SetInRopeArea(bool inRopeArea)
     {
         isInRopeArea = inRopeArea;
+    }
+
+    internal void NotifyWaterContactChanged(bool hasActiveVolume, float rawSubmersion)
+    {
+        waterSubmersion = rawSubmersion;
+
+        WaterPhysicsSettings settings = waterContact != null
+            ? waterContact.ActiveSettings
+            : WaterPhysicsSettings.RuntimeFallback;
+
+        if (!isInWater)
+        {
+            if (hasActiveVolume && rawSubmersion >= settings.enterSubmersionThreshold)
+            {
+                isInWater = true;
+            }
+        }
+        else if (!hasActiveVolume || rawSubmersion <= settings.exitSubmersionThreshold)
+        {
+            isInWater = false;
+        }
+
+        isFullySubmerged = isInWater && rawSubmersion >= settings.fullSubmersionThreshold;
+        TryAutoEnterSwimState();
+    }
+
+    public bool CanEnterSwimState()
+    {
+        if (!isInWater || waterContact == null)
+        {
+            return false;
+        }
+
+        WaterPhysicsSettings settings = waterContact.ActiveSettings;
+        return waterSubmersion >= settings.enterSubmersionThreshold;
+    }
+
+    public bool IsInSwimState()
+    {
+        return stateMachine.currentState == swimState;
+    }
+
+    public bool TrySwimBoost()
+    {
+        if (waterPhysics == null)
+        {
+            return false;
+        }
+
+        return waterPhysics.TrySwimBoost();
+    }
+
+    public bool ShouldBlockDropPlatform()
+    {
+        if (!isInWater || waterContact == null)
+        {
+            return false;
+        }
+
+        return waterSubmersion >= waterContact.ActiveSettings.dropPlatformBlockSubmersion;
+    }
+
+    private void TryAutoEnterSwimState()
+    {
+        if (!CanEnterSwimState() || stateMachine.currentState == climbState)
+        {
+            return;
+        }
+
+        if (stateMachine.currentState == swimState)
+        {
+            return;
+        }
+
+        stateMachine.ChangeState(swimState);
     }
 
     public void AddMoveSpeed(float amountToAdd)

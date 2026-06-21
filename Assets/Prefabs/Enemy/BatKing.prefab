@@ -44,6 +44,7 @@ GameObject:
   - component: {fileID: -4428974715500886016}
   - component: {fileID: 7123456789012345678}
   - component: {fileID: 5902265362926967256}
+  - component: {fileID: 253899160481240738}
   m_Layer: 0
   m_Name: BatKing
   m_TagString: Untagged
@@ -162,6 +163,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   overlapActiveRooms: []
+--- !u!114 &253899160481240738
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5871502380270661758}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd7ffa0191f801e48bfcce662978ad7e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oneShotSource: {fileID: 0}
+  loopSource: {fileID: 0}
+  minDistance: 1.5
+  maxDistance: 12
+  spatialBlend: 1
+  bat: {fileID: 0}
+  wingLoopVolume: 1
+  attackVolume: 1
+  spotPlayerVolume: 1
 --- !u!1 &8956899310618150152
 GameObject:
   m_ObjectHideFlags: 0

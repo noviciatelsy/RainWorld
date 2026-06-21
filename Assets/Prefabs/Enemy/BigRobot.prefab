@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 4790567607833133304}
   - component: {fileID: 9012345678901234501}
   - component: {fileID: 3805292190825094050}
+  - component: {fileID: 1140580892322411327}
   m_Layer: 9
   m_Name: BigRobot
   m_TagString: Untagged
@@ -158,6 +159,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   overlapActiveRooms: []
+--- !u!114 &1140580892322411327
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 655137027452463140}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f80c6ef565216543b2dfbd84bd2ecb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oneShotSource: {fileID: 0}
+  loopSource: {fileID: 0}
+  minDistance: 1.5
+  maxDistance: 12
+  spatialBlend: 1
+  bigRobot: {fileID: 0}
+  idleLoopVolume: 0.85
+  slashVolume: 1
+  shutdownVolume: 1
 --- !u!1 &2663248745151360903
 GameObject:
   m_ObjectHideFlags: 0

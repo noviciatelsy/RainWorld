@@ -27,6 +27,11 @@ public class PlayerAiredState : PlayerBaseState
             return;
         }
 
+        if (TryEnterSwimState())
+        {
+            return;
+        }
+
         if (mainInput.Player.Jump.WasPerformedThisFrame()) // 如果人物在空中按下跳跃键
         {
             if (playerControl.TryConsumeDoubleJump())

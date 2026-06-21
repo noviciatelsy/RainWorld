@@ -132,41 +132,77 @@ public class MoleMotor : IMonsterMotor
             return;
         }
 
+        if (TryTeleportThroughCave(targetCave))
+        {
+            return;
+        }
+
+        Vector2 caveFeet = targetCave.GetMoleFeetPosition(mole.feetYOffset);
+
         if (lastTargetCave != targetCave || edgePath == null)
         {
             lastTargetCave = targetCave;
-            edgePath = GeneratePathToCave(targetCave.Position);
+            edgePath = GeneratePathToCave(caveFeet);
             pathIndex = 0;
-            mole.CurrentTarget = targetCave.Position;
+            mole.CurrentTarget = caveFeet;
             ResetSegmentTracking();
         }
 
         if (edgePath != null && edgePath.Count > 0 && pathIndex < edgePath.Count)
         {
             DriveMovement(true, false);
+            return;
         }
 
-        if (Vector2.Distance(mole.Position, targetCave.Position) < 0.25f)
+        if (!targetCave.IsMoleAtEntrance(mole.Position, mole.feetYOffset))
         {
-            if (MoleCaveManager.Instance != null)
-            {
-                List<MoleCave> linkedCaves = MoleCaveManager.Instance.GetLinkedCaves(targetCave);
-                if (linkedCaves != null && linkedCaves.Count > 0)
-                {
-                    MoleCave exitCave = linkedCaves[Random.Range(0, linkedCaves.Count)];
-
-                    mole.Transform.position = exitCave.Position;
-
-                    mole.currentHomeCave = exitCave;
-                    mole.idleArrivalCount = 0; // ?????????????
-
-                    lastTargetCave = exitCave;
-                    edgePath = null;
-
-                    internalTeleportTimer = 0.3f;
-                }
-            }
+            Vector2 nextPos = Vector2.MoveTowards(
+                mole.Position,
+                caveFeet,
+                mole.moveSpeed * Time.fixedDeltaTime
+            );
+            mole.SnapFeetToGround(nextPos);
+            mole.CurrentTarget = caveFeet;
         }
+    }
+
+    private bool TryTeleportThroughCave(MoleCave targetCave)
+    {
+        if (targetCave == null || !targetCave.IsMoleAtEntrance(mole.Position, mole.feetYOffset))
+        {
+            return false;
+        }
+
+        if (MoleCaveManager.Instance == null)
+        {
+            return false;
+        }
+
+        List<MoleCave> linkedCaves = MoleCaveManager.Instance.GetLinkedCaves(targetCave);
+        if (linkedCaves == null || linkedCaves.Count == 0)
+        {
+            return false;
+        }
+
+        MoleCave exitCave = linkedCaves[Random.Range(0, linkedCaves.Count)];
+        if (exitCave == null)
+        {
+            return false;
+        }
+
+        EnemyMoleAudioEmitter audioEmitter = mole.GetComponent<EnemyMoleAudioEmitter>();
+        audioEmitter?.PlayDigIn();
+
+        mole.PlaceAtCave(exitCave);
+        mole.currentHomeCave = exitCave;
+        mole.idleArrivalCount = 0;
+
+        audioEmitter?.PlayDigOut();
+
+        lastTargetCave = exitCave;
+        edgePath = null;
+        internalTeleportTimer = 0.3f;
+        return true;
     }
 
     private void ResetSegmentTracking()
@@ -208,7 +244,14 @@ public class MoleMotor : IMonsterMotor
         }
 
         Vector3 pos = mole.Transform.position;
-        mole.Transform.position = new Vector3(basePos.x, basePos.y + jumpArc, pos.z);
+        if (jumpArc <= 0.001f)
+        {
+            mole.SnapFeetToGround(basePos);
+        }
+        else
+        {
+            mole.Transform.position = new Vector3(basePos.x, basePos.y + jumpArc, pos.z);
+        }
 
         if (segmentProgress >= 1f || Vector2.Distance(mole.Position, nodeTarget) < ArriveThreshold)
         {
@@ -257,7 +300,15 @@ public class MoleMotor : IMonsterMotor
         Vector2Int startCell = mgr.WorldToCell(mole.Position);
         Vector2Int endCell = mgr.WorldToCell(caveWorldPos);
 
-        if (startCell == endCell) return pathPoints;
+        if (startCell == endCell)
+        {
+            if (Vector2.Distance(mole.Position, caveWorldPos) > ArriveThreshold)
+            {
+                pathPoints.Add(caveWorldPos);
+            }
+
+            return pathPoints;
+        }
 
         Dictionary<Vector2Int, Vector2Int> parentMap = new Dictionary<Vector2Int, Vector2Int>();
         Queue<Vector2Int> q = new Queue<Vector2Int>();
@@ -310,7 +361,7 @@ public class MoleMotor : IMonsterMotor
             Vector2Int backtrackNode = endCell;
             while (backtrackNode != startCell)
             {
-                Vector2 worldPos = mgr.CellToWorld(backtrackNode) + new Vector2(0f, -0.45f);
+                Vector2 worldPos = RobotGroundPath.CellToFeetWorld(mgr, backtrackNode, mole.feetYOffset);
                 pathPoints.Insert(0, worldPos);
                 backtrackNode = parentMap[backtrackNode];
             }

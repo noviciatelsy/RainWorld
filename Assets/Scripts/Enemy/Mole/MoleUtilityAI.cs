@@ -34,6 +34,20 @@ public class MoleUtilityAI : IMonsterAI
         toyCarPathRefreshTimer = 0f;
     }
 
+    public void NotifyRepelledByTorch(Vector2 torchPosition)
+    {
+        isStealing = false;
+        wasStealing = false;
+        mole.stealTimer = 0f;
+        SetStealClawActive(false);
+        isMovingToCave = false;
+        isChasingToyCar = false;
+
+        Vector2 fleeTarget = TorchAvoidance.GetFleePointAwayFromAllTorches(mole.Position);
+        lastIssuedPath = BuildTorchFleePath(fleeTarget);
+        mole.Arrived = false;
+    }
+
     public IIntent Evaluate(MonsterBase owner)
     {
         // 1. ???????????????????? Idle ???? cleanup ???
@@ -44,6 +58,23 @@ public class MoleUtilityAI : IMonsterAI
             {
                 strictPath = new List<Vector2> { mole.Position },
                 isTeleportCleanup = true
+            };
+        }
+
+        if (TorchAvoidance.IsInsideAnyActiveTorch(mole.Position))
+        {
+            Vector2 fleeTarget = TorchAvoidance.GetFleePointAwayFromAllTorches(mole.Position);
+            isStealing = false;
+            wasStealing = false;
+            mole.stealTimer = 0f;
+            SetStealClawActive(false);
+            isMovingToCave = false;
+            isChasingToyCar = false;
+
+            return new MoleIdleIntent
+            {
+                strictPath = BuildTorchFleePath(fleeTarget),
+                isTeleportCleanup = false
             };
         }
 
@@ -74,6 +105,7 @@ public class MoleUtilityAI : IMonsterAI
         {
             isStealing = false;
             mole.stealTimer = 0f;
+            SetStealClawActive(false);
         }
 
         if (hasPlayer && !isStealing)
@@ -81,6 +113,9 @@ public class MoleUtilityAI : IMonsterAI
             isStealing = true;
             mole.stealTimer = 3f;
             isMovingToCave = false;
+
+            EnemyMoleAudioEmitter audioEmitter = mole.GetComponent<EnemyMoleAudioEmitter>();
+            audioEmitter?.PlayStealWarning();
         }
 
         // 4. Steal 阶段
@@ -235,7 +270,7 @@ public class MoleUtilityAI : IMonsterAI
 
             while (backtrackNode != startCell)
             {
-                Vector2 worldPos = mgr.CellToWorld(backtrackNode) + new Vector2(0f, -0.45f);
+                Vector2 worldPos = RobotGroundPath.CellToFeetWorld(mgr, backtrackNode, mole.feetYOffset);
                 pathPoints.Insert(0, worldPos);
                 backtrackNode = parentMap[backtrackNode];
             }
@@ -250,6 +285,17 @@ public class MoleUtilityAI : IMonsterAI
         }
 
         return pathPoints;
+    }
+
+    private List<Vector2> BuildTorchFleePath(Vector2 fleeTarget)
+    {
+        List<Vector2> path = SurfaceEdgePath.FindVertexPath(mole.Position, fleeTarget);
+        if (path != null && path.Count > 0)
+        {
+            return path;
+        }
+
+        return new List<Vector2> { fleeTarget };
     }
 
     private bool TryUpdateToyCarChasePath()
@@ -331,5 +377,20 @@ public class MoleUtilityAI : IMonsterAI
     private void SetStealClawActive(bool active)
     {
         mole.moleAni?.SetActivate(active);
+
+        EnemyMoleAudioEmitter audioEmitter = mole.GetComponent<EnemyMoleAudioEmitter>();
+        if (audioEmitter == null)
+        {
+            return;
+        }
+
+        if (active)
+        {
+            audioEmitter.StartStealLoop();
+        }
+        else
+        {
+            audioEmitter.StopStealLoop();
+        }
     }
 }

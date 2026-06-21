@@ -1,9 +1,11 @@
 using UnityEngine;
 
-public class Mole2D : MonsterBase, IAttractedByTreasure, IToyCarAttractable
+public class Mole2D : MonsterBase, IAttractedByTreasure, IToyCarAttractable, ITorchRepellable
 {
     [Header("鼹鼠属性配置")]
     public float moveSpeed = 2.5f;
+    [Tooltip("脚底相对格子中心的 Y 偏移")]
+    public float feetYOffset = RobotGroundPath.DefaultFeetYOffset;
     public float playerCheckRadius = 5f;
     public LayerMask playerLayer;
 
@@ -84,7 +86,7 @@ public class Mole2D : MonsterBase, IAttractedByTreasure, IToyCarAttractable
 
         if (currentHomeCave != null)
         {
-            transform.position = currentHomeCave.Position;
+            PlaceAtCave(currentHomeCave);
             return;
         }
 
@@ -94,16 +96,16 @@ public class Mole2D : MonsterBase, IAttractedByTreasure, IToyCarAttractable
             return;
         }
 
-        currentHomeCave = manager.FindClosestValidCave(Position);
+        currentHomeCave = manager.FindClosestValidCave(Position, feetYOffset);
 
         if (currentHomeCave == null)
         {
-            currentHomeCave = manager.FindClosestCave(Position);
+            currentHomeCave = manager.FindClosestCave(Position, feetYOffset);
         }
 
         if (currentHomeCave != null)
         {
-            transform.position = currentHomeCave.Position;
+            PlaceAtCave(currentHomeCave);
 
             if (!MoleCaveManager.CaveHasConnections(currentHomeCave))
             {
@@ -118,6 +120,27 @@ public class Mole2D : MonsterBase, IAttractedByTreasure, IToyCarAttractable
         }
 
         Debug.LogWarning("场景中未找到任何 MoleCave！请放置带 MoleCave 组件的洞穴。");
+    }
+
+    public void PlaceAtCave(MoleCave cave)
+    {
+        if (cave == null)
+        {
+            return;
+        }
+
+        SnapFeetToGround(cave.GetMoleFeetPosition(feetYOffset));
+    }
+
+    public void SnapFeetToGround(Vector2 worldPos)
+    {
+        Vector2 feet = RobotGroundPath.SnapToFlatGround(worldPos, feetYOffset);
+        transform.position = new Vector3(feet.x, feet.y, transform.position.z);
+    }
+
+    public void SnapFeetToGround()
+    {
+        SnapFeetToGround(Position);
     }
 
     public void CompleteSteal(Player player)
@@ -149,5 +172,10 @@ public class Mole2D : MonsterBase, IAttractedByTreasure, IToyCarAttractable
     public void AttractToToyCar(Vector2 myToyCarPosition)
     {
         moleAI?.ForceAttractionRefresh();
+    }
+
+    public void FleeFromTorch(Vector2 torchPosition)
+    {
+        moleAI?.NotifyRepelledByTorch(torchPosition);
     }
 }

@@ -260,6 +260,12 @@ public class SnailUtilityAI : IMonsterAI
                 waitTimer = snail.eatWaitDuration;
                 activePath = null;
                 sw.Arrived = true;
+
+                EnemySnailAudioEmitter audioEmitter = sw.GetComponent<EnemySnailAudioEmitter>();
+                if (audioEmitter != null)
+                {
+                    audioEmitter.PlayEat();
+                }
             }
 
             return;

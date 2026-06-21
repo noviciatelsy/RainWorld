@@ -4,22 +4,22 @@ using UnityEngine;
 
 public class InventoryBase : MonoBehaviour
 {
-    public event Action onInventoryChange; // ÎïÆ·¸Ä±äÊÂ¼ş
+    public event Action onInventoryChange; // ç‰©å“æ”¹å˜äº‹ä»¶
 
-    [Header("³ß´ç")]
-    [Min(1)] public int columnCount = 7; // Ã¿ĞĞ¶àÉÙÁĞ
-    [Min(1)] public int maxInventorySize = 56; // ÈİÁ¿
+    [Header("å°ºå¯¸")]
+    [Min(1)] public int columnCount = 7; // æ¯è¡Œå¤šå°‘åˆ—
+    [Min(1)] public int maxInventorySize = 56; // å®¹é‡
 
-    [Header("×Ô¶¯ÈûÈëÉèÖÃ")]
-    [SerializeField] private bool preferTighterPlacement = true; // ÊÇ·ñÓÅÏÈÑ¡Ôñ¸ü½ôÃÜµÄÎ»ÖÃ
+    [Header("è‡ªåŠ¨å¡å…¥è®¾ç½®")]
+    [SerializeField] private bool preferTighterPlacement = true; // æ˜¯å¦ä¼˜å…ˆé€‰æ‹©æ›´ç´§å¯†çš„ä½ç½®
 
-    [Header("´æµµ")]
+    [Header("å­˜æ¡£")]
     [SerializeField] protected string inventorySaveID = "";
 
 
-    public List<InventoryItemSlot> itemSlotList = new List<InventoryItemSlot>(); // ÎïÆ·²ÛÎ»ÁĞ±í
+    public List<InventoryItemSlot> itemSlotList = new List<InventoryItemSlot>(); // ç‰©å“æ§½ä½åˆ—è¡¨
     public List<InventoryItem> inventoryItems = new List<InventoryItem>();
-    public ItemListDataSO itemDataBase; // È«ÎïÆ·SO
+    public ItemListDataSO itemDataBase; // å…¨ç‰©å“SO
 
     public int ColumnCount
     {
@@ -45,6 +45,39 @@ public class InventoryBase : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// èƒŒåŒ…ç½‘æ ¼ä¸­è¢«ç‰©å“å ç”¨çš„æ ¼å­æ•°ï¼ˆå¤šæ ¼ç‰©å“æŒ‰å®é™…å ç”¨æ§½ä½è®¡æ•°ï¼Œå¦‚ 2x2 = 4ï¼‰ã€‚
+    /// </summary>
+    public int GetOccupiedCellCount()
+    {
+        EnsureSlotListSize();
+        SanitizeEmptyItemShells();
+
+        int occupiedCount = 0;
+        for (int i = 0; i < itemSlotList.Count; i++)
+        {
+            InventoryItemSlot slot = itemSlotList[i];
+            if (slot != null && slot.HasItem())
+            {
+                occupiedCount++;
+            }
+        }
+
+        return occupiedCount;
+    }
+
+    /// <summary>
+    /// å æ ¼æ¯”ä¾‹ï¼šoccupiedCells / maxInventorySizeï¼ŒèŒƒå›´ 0~1ã€‚
+    /// </summary>
+    public float GetCellFillRatio()
+    {
+        if (maxInventorySize <= 0)
+        {
+            return 0f;
+        }
+
+        return GetOccupiedCellCount() / (float)maxInventorySize;
+    }
 
     protected virtual void Awake()
     {
@@ -71,7 +104,7 @@ public class InventoryBase : MonoBehaviour
 
         while (itemSlotList.Count < maxInventorySize)
         {
-            itemSlotList.Add(new InventoryItemSlot()); // ²¹¿Õ²Û
+            itemSlotList.Add(new InventoryItemSlot()); // è¡¥ç©ºæ§½
         }
 
         if (itemSlotList.Count > maxInventorySize)
@@ -88,13 +121,13 @@ public class InventoryBase : MonoBehaviour
         SanitizeEmptyItemShells();
         if (itemData == null)
         {
-            Debug.LogWarning("AddItem Ê§°Ü£ºitemData Îª¿Õ¡£");
+            Debug.LogWarning("AddItem å¤±è´¥ï¼šitemData ä¸ºç©ºã€‚");
             return false;
         }
 
         if (itemData.backpackItemData == null)
         {
-            Debug.LogWarning($"AddItem Ê§°Ü£º{itemData.name} Ã»ÓĞÅäÖÃ backpackItemData¡£");
+            Debug.LogWarning($"AddItem å¤±è´¥ï¼š{itemData.name} æ²¡æœ‰é…ç½® backpackItemDataã€‚");
             return false;
         }
 
@@ -104,7 +137,7 @@ public class InventoryBase : MonoBehaviour
 
         if (!TryFindBestPlacement(newItem, out Vector2Int bestTopLeft, out ItemRotateState bestRotateState))
         {
-            Debug.Log($"±³°üÃ»ÓĞ×ã¹»¿Õ¼ä·ÅÈë£º{itemData.itemDisplayName}");
+            Debug.Log($"èƒŒåŒ…æ²¡æœ‰è¶³å¤Ÿç©ºé—´æ”¾å…¥ï¼š{itemData.itemDisplayName}");
             return false;
         }
 
@@ -128,7 +161,7 @@ public class InventoryBase : MonoBehaviour
 
         if (!slot.HasItem())
         {
-            // Çåµô Unity ĞòÁĞ»¯»ò²âÊÔÒÅÁô³öÀ´µÄ¿Õ¿Ç InventoryItem
+            // æ¸…æ‰ Unity åºåˆ—åŒ–æˆ–æµ‹è¯•é—ç•™å‡ºæ¥çš„ç©ºå£³ InventoryItem
             slot.itemInSlot = null;
             return null;
         }
@@ -148,7 +181,7 @@ public class InventoryBase : MonoBehaviour
             return false;
         }
 
-        // Èç¹ûÕâ¸öÎïÆ·Ö®Ç°ÒÑ¾­ÔÚµ±Ç°±³°üÀï£¬ÏÈÇåµô¾ÉÕ¼ÓÃ£¬±ÜÃâÖØ¸´Õ¼¸ñ
+        // å¦‚æœè¿™ä¸ªç‰©å“ä¹‹å‰å·²ç»åœ¨å½“å‰èƒŒåŒ…é‡Œï¼Œå…ˆæ¸…æ‰æ—§å ç”¨ï¼Œé¿å…é‡å¤å æ ¼
         ClearSlotsContaining(item);
 
         item.rotateState = rotateState;
@@ -218,7 +251,7 @@ public class InventoryBase : MonoBehaviour
 
         if (!placed)
         {
-            // ÀíÂÛÉÏ²»»á·¢Éú£¬µ«·ÀÓùÒ»ÏÂ£¬ÃâµÃÎïÆ·Æ¾¿ÕÏûÊ§
+            // ç†è®ºä¸Šä¸ä¼šå‘ç”Ÿï¼Œä½†é˜²å¾¡ä¸€ä¸‹ï¼Œå…å¾—ç‰©å“å‡­ç©ºæ¶ˆå¤±
             if (hasOldTopLeft)
             {
                 PlaceItem(replacedItem, oldTopLeft, oldRotateState);
@@ -291,8 +324,8 @@ public class InventoryBase : MonoBehaviour
                 continue;
             }
 
-            // Ö»ÓĞ HasItem Îª true µÄ¸ñ×Ó²ÅÊÇÕæµÄ±»Õ¼ÓÃ¡£
-            // itemInSlot != null µ« ItemData == null µÄ¿Õ¿ÇÎïÆ·£¬Ö±½ÓÇåµô¡£
+            // åªæœ‰ HasItem ä¸º true çš„æ ¼å­æ‰æ˜¯çœŸçš„è¢«å ç”¨ã€‚
+            // itemInSlot != null ä½† ItemData == null çš„ç©ºå£³ç‰©å“ï¼Œç›´æ¥æ¸…æ‰ã€‚
             if (!slot.HasItem())
             {
                 slot.itemInSlot = null;
@@ -522,7 +555,7 @@ public class InventoryBase : MonoBehaviour
 
                 if (outside)
                 {
-                    // ¿¿±ßÒ²Ëã¸ü½ô´ÕÒ»µã
+                    // é è¾¹ä¹Ÿç®—æ›´ç´§å‡‘ä¸€ç‚¹
                     score += 1;
                     continue;
                 }
@@ -538,7 +571,7 @@ public class InventoryBase : MonoBehaviour
 
                 if (neighborSlot != null && neighborSlot.HasItem())
                 {
-                    // ¿¿ÒÑÓĞÎïÆ·¸ü½ô´Õ
+                    // é å·²æœ‰ç‰©å“æ›´ç´§å‡‘
                     score += 3;
                 }
                 else if (neighborSlot != null)
@@ -562,7 +595,7 @@ public class InventoryBase : MonoBehaviour
 
         if (backpackItemData == null)
         {
-            Debug.LogWarning("TryGetTargetIndices Ê§°Ü£ºbackpackItemData Îª¿Õ¡£");
+            Debug.LogWarning("TryGetTargetIndices å¤±è´¥ï¼šbackpackItemData ä¸ºç©ºã€‚");
             return false;
         }
 
@@ -570,7 +603,7 @@ public class InventoryBase : MonoBehaviour
 
         if (rotatedSize.x <= 0 || rotatedSize.y <= 0)
         {
-            Debug.LogWarning($"TryGetTargetIndices Ê§°Ü£ºrotatedSize ²»ºÏ·¨£º{rotatedSize}");
+            Debug.LogWarning($"TryGetTargetIndices å¤±è´¥ï¼šrotatedSize ä¸åˆæ³•ï¼š{rotatedSize}");
             return false;
         }
 
@@ -594,10 +627,10 @@ public class InventoryBase : MonoBehaviour
         if (rotatedOccupationArea == null || rotatedOccupationArea.Count == 0)
         {
             Debug.LogWarning(
-                $"TryGetTargetIndices Ê§°Ü£ºĞı×ªºóµÄÕ¼ÓÃ¸ñÎª¿Õ¡£\n" +
-                $"BackpackItemData£º{backpackItemData.name}\n" +
-                $"rotateState£º{rotateState}\n" +
-                $"Ô­ occupationArea.Length£º{(backpackItemData.occupationArea == null ? 0 : backpackItemData.occupationArea.Length)}"
+                $"TryGetTargetIndices å¤±è´¥ï¼šæ—‹è½¬åçš„å ç”¨æ ¼ä¸ºç©ºã€‚\n" +
+                $"BackpackItemDataï¼š{backpackItemData.name}\n" +
+                $"rotateStateï¼š{rotateState}\n" +
+                $"åŸ occupationArea.Lengthï¼š{(backpackItemData.occupationArea == null ? 0 : backpackItemData.occupationArea.Length)}"
             );
 
             return false;
@@ -609,7 +642,7 @@ public class InventoryBase : MonoBehaviour
 
             int column = topLeft.x + localCell.x;
 
-            // occupationArea ÊÇ×óÏÂ½Ç×ø±êÏµ£¬UI ±³°üÊÇ´ÓÉÏÍùÏÂÅÅ£¬ËùÒÔÕâÀïÒª·­×ª y
+            // occupationArea æ˜¯å·¦ä¸‹è§’åæ ‡ç³»ï¼ŒUI èƒŒåŒ…æ˜¯ä»ä¸Šå¾€ä¸‹æ’ï¼Œæ‰€ä»¥è¿™é‡Œè¦ç¿»è½¬ y
             int row = topLeft.y + (rotatedSize.y - 1 - localCell.y);
 
             if (column < 0 || column >= ColumnCount || row < 0 || row >= RowCount)
@@ -622,12 +655,12 @@ public class InventoryBase : MonoBehaviour
             if (index < 0 || index >= itemSlotList.Count)
             {
                 Debug.LogWarning(
-                    $"TryGetTargetIndices Ê§°Ü£º¼ÆËã³öÀ´µÄ index ³¬³ö itemSlotList¡£\n" +
-                    $"column£º{column}\n" +
-                    $"row£º{row}\n" +
-                    $"index£º{index}\n" +
-                    $"itemSlotList.Count£º{itemSlotList.Count}\n" +
-                    $"maxInventorySize£º{maxInventorySize}"
+                    $"TryGetTargetIndices å¤±è´¥ï¼šè®¡ç®—å‡ºæ¥çš„ index è¶…å‡º itemSlotListã€‚\n" +
+                    $"columnï¼š{column}\n" +
+                    $"rowï¼š{row}\n" +
+                    $"indexï¼š{index}\n" +
+                    $"itemSlotList.Countï¼š{itemSlotList.Count}\n" +
+                    $"maxInventorySizeï¼š{maxInventorySize}"
                 );
 
                 return false;
@@ -790,7 +823,7 @@ public class InventoryBase : MonoBehaviour
 
             if (itemDataBase == null)
             {
-                Debug.LogWarning($"{gameObject.name} ¶ÁÈ¡±³°ü´æµµÊ§°Ü£ºitemDataBase Îª¿Õ¡£");
+                Debug.LogWarning($"{gameObject.name} è¯»å–èƒŒåŒ…å­˜æ¡£å¤±è´¥ï¼šitemDataBase ä¸ºç©ºã€‚");
                 continue;
             }
 
@@ -798,7 +831,7 @@ public class InventoryBase : MonoBehaviour
 
             if (itemData == null)
             {
-                Debug.LogWarning($"{gameObject.name} ¶ÁÈ¡±³°ü´æµµÊ§°Ü£ºÕÒ²»µ½ÎïÆ· saveID = {itemSaveData.itemSaveID}");
+                Debug.LogWarning($"{gameObject.name} è¯»å–èƒŒåŒ…å­˜æ¡£å¤±è´¥ï¼šæ‰¾ä¸åˆ°ç‰©å“ saveID = {itemSaveData.itemSaveID}");
                 continue;
             }
 
@@ -810,7 +843,7 @@ public class InventoryBase : MonoBehaviour
 
             if (!placed)
             {
-                Debug.LogWarning($"{gameObject.name} ¶ÁÈ¡±³°ü´æµµÊ§°Ü£º{itemData.itemDisplayName} ÎŞ·¨·Å»ØÔ­Î»ÖÃ {topLeft}¡£");
+                Debug.LogWarning($"{gameObject.name} è¯»å–èƒŒåŒ…å­˜æ¡£å¤±è´¥ï¼š{itemData.itemDisplayName} æ— æ³•æ”¾å›åŸä½ç½® {topLeft}ã€‚");
             }
         }
 
@@ -828,7 +861,7 @@ public class InventoryBase : MonoBehaviour
 
         if (string.IsNullOrEmpty(inventorySaveID))
         {
-            Debug.LogWarning($"{gameObject.name} Ã»ÓĞÉèÖÃ inventorySaveID£¬ÎŞ·¨±£´æ±³°üÊı¾İ¡£");
+            Debug.LogWarning($"{gameObject.name} æ²¡æœ‰è®¾ç½® inventorySaveIDï¼Œæ— æ³•ä¿å­˜èƒŒåŒ…æ•°æ®ã€‚");
             return;
         }
 
@@ -849,7 +882,7 @@ public class InventoryBase : MonoBehaviour
 
         if (string.IsNullOrEmpty(inventorySaveID))
         {
-            Debug.LogWarning($"{gameObject.name} Ã»ÓĞÉèÖÃ inventorySaveID£¬ÎŞ·¨¶ÁÈ¡±³°üÊı¾İ¡£");
+            Debug.LogWarning($"{gameObject.name} æ²¡æœ‰è®¾ç½® inventorySaveIDï¼Œæ— æ³•è¯»å–èƒŒåŒ…æ•°æ®ã€‚");
             return;
         }
 

@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// 大机器人动画：Idle / 攻击切换 sprite；scale/position 与 Animator 当前状态同步，避免过渡末帧错位。
+/// 大机器人动画：Idle / 攻击切换 sprite；scale/position 在 Animator 过渡期间插值，避免 crossfade 末帧突变。
 /// 电池损坏后切换为静态关机贴图并停止 Animator。
 /// </summary>
 [DisallowMultipleComponent]
@@ -94,7 +94,7 @@ public class BigRobotAni : MonoBehaviour
         }
 
         ApplySpriteAnimation(true);
-        ApplyTransform(ShouldUseAttackTransform(), true);
+        ApplyTransformFromAnimator(true);
     }
 
     private void LateUpdate()
@@ -111,9 +111,7 @@ public class BigRobotAni : MonoBehaviour
         }
 
         ApplySpriteAnimation(false);
-
-        bool attackTransform = ShouldUseAttackTransform();
-        ApplyTransform(attackTransform, false);
+        ApplyTransformFromAnimator(false);
     }
 
     public void ApplyShutdownVisual()
@@ -202,38 +200,41 @@ public class BigRobotAni : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 按 Animator 实际所处状态决定 transform，而不是按 IsInAttackSequence 瞬时切换。
-    /// 过渡期间：Attack→Idle 保持攻击 transform 直到离开攻击状态；Idle→Attack 过半后再切攻击 transform。
-    /// </summary>
-    private bool ShouldUseAttackTransform()
+    private void ApplyTransformFromAnimator(bool force)
     {
-        if (animator == null)
+        if (scaleTransform == null || animator == null)
         {
-            return bigRobot != null && bigRobot.IsInAttackSequence;
+            return;
         }
-
-        AnimatorStateInfo current = animator.GetCurrentAnimatorStateInfo(0);
 
         if (animator.IsInTransition(0))
         {
+            AnimatorStateInfo current = animator.GetCurrentAnimatorStateInfo(0);
             AnimatorStateInfo next = animator.GetNextAnimatorStateInfo(0);
-            AnimatorTransitionInfo transition = animator.GetAnimatorTransitionInfo(0);
+            float t = Mathf.Clamp01(animator.GetAnimatorTransitionInfo(0).normalizedTime);
 
-            if (IsAttackState(next))
+            if (IsAttackState(next) && !IsAttackState(current))
             {
-                return transition.normalizedTime >= 0.5f;
+                scaleTransform.localScale = Vector3.Lerp(idleScale, attackScale, t);
+                scaleTransform.localPosition = Vector3.Lerp(idlePosition, attackPosition, t);
+            }
+            else if (IsAttackState(current) && !IsAttackState(next))
+            {
+                scaleTransform.localScale = Vector3.Lerp(attackScale, idleScale, t);
+                scaleTransform.localPosition = Vector3.Lerp(attackPosition, idlePosition, t);
+            }
+            else
+            {
+                bool attacking = IsAttackState(current);
+                scaleTransform.localScale = attacking ? attackScale : idleScale;
+                scaleTransform.localPosition = attacking ? attackPosition : idlePosition;
             }
 
-            if (IsAttackState(current))
-            {
-                return true;
-            }
-
-            return IsAttackState(next);
+            lastAttackTransform = IsAttackState(next);
+            return;
         }
 
-        return IsAttackState(current);
+        ApplyTransform(IsAttackState(animator.GetCurrentAnimatorStateInfo(0)), force);
     }
 
     private bool IsAttackState(AnimatorStateInfo stateInfo)

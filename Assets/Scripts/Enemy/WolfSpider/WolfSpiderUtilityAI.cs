@@ -68,6 +68,12 @@ public class WolfSpiderUtilityAI : IMonsterAI
             UpdateDebugState(spider);
         }
 
+        if (TryBuildTorchFleeIntent(spider, out WolfSpiderIntent torchFleeIntent))
+        {
+            lastIssuedIntent = torchFleeIntent;
+            return lastIssuedIntent;
+        }
+
         if (postAttackRecoveryTimer > 0f)
         {
             postAttackRecoveryTimer -= Time.fixedDeltaTime;
@@ -128,6 +134,29 @@ public class WolfSpiderUtilityAI : IMonsterAI
         perceptionTimer = 0f;
         pathPickTimer = 0f;
         idleTimer = 0f;
+    }
+
+    public void NotifyRepelledByTorch(Vector2 torchPosition)
+    {
+        ForcePerceptionRefresh();
+        hasIssuedIntent = false;
+    }
+
+    private bool TryBuildTorchFleeIntent(WolfSpider2D spider, out WolfSpiderIntent fleeIntent)
+    {
+        fleeIntent = default;
+
+        if (!TorchAvoidance.IsInsideAnyActiveTorch(spider.Position))
+        {
+            return false;
+        }
+
+        Vector2 fleeTarget = TorchAvoidance.GetFleePointAwayFromAllTorches(spider.Position);
+        fleeIntent = CreateIdleIntent(spider, fleeTarget);
+        spider.CurrentBehavior = WolfSpiderBehavior.Idle;
+        spider.DebugPickReason = "TorchFlee";
+        hasIssuedIntent = true;
+        return true;
     }
 
     private void HandleJumpTargetRejected(WolfSpider2D spider)
