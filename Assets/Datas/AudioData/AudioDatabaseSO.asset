@@ -193,6 +193,20 @@ MonoBehaviour:
     clips:
     - {fileID: 8300000, guid: 100129dcc6b75ef458e2e88e233d5975, type: 3}
     volume: 0.2
+  - audioName: FireworkShootSFX
+    clips:
+    - {fileID: 8300000, guid: e43024fee79df0c4f891db6f590d38d3, type: 3}
+    - {fileID: 8300000, guid: 23681626ee82f36448f99099a3f45cf0, type: 3}
+    - {fileID: 8300000, guid: 7cf0e7e0e49a21a4bbe5c2635b99c834, type: 3}
+    volume: 1
+  - audioName: FireworkExplodeSFX
+    clips:
+    - {fileID: 8300000, guid: cfa8472d8f33c784d9cf4adcf3471305, type: 3}
+    - {fileID: 8300000, guid: dd4e476710c75df45be8526cf46afe19, type: 3}
+    - {fileID: 8300000, guid: 6bede34e4ae15b246a54a4fbfd245fa9, type: 3}
+    - {fileID: 8300000, guid: 748c2f000bc94ca4497912c9aeca2374, type: 3}
+    - {fileID: 8300000, guid: 467a6c666406c604db2ced0f970b3c75, type: 3}
+    volume: 0.5
   BGM:
   - audioName: MainMenuBGM
     clips:
