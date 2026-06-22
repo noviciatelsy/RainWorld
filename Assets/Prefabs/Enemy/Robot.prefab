@@ -26,7 +26,7 @@ Transform:
   m_GameObject: {fileID: 379411101162143799}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.035, y: -0.29, z: -0.02}
+  m_LocalPosition: {x: -0.035, y: 0.11700007, z: -0.02}
   m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -110,7 +110,7 @@ Transform:
   m_GameObject: {fileID: 1261536677189524382}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: 0.3169937, y: -0.29000092, z: -0.02}
+  m_LocalPosition: {x: 0.3169937, y: 0.11699915, z: -0.02}
   m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -381,6 +381,24 @@ MonoBehaviour:
   robot: {fileID: 0}
   dashLoopVolume: 1
   hitVolume: 1
+--- !u!114 &8100000000000000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2630524371018857482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4f5a6b7c8d9401234567890abcdef02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyInformationData: {fileID: 11400000, guid: da90d79842f32f946a0f52d3bafa200e,
+    type: 2}
+  autoCreatePhotoCollider: 1
+  enablePhotoDebugLog: 1
+  photoColliderSize: {x: 1.2, y: 1.2}
+  photoColliderOffset: {x: 0, y: 0}
 --- !u!1 &5015183846912480924
 GameObject:
   m_ObjectHideFlags: 0
@@ -406,7 +424,7 @@ Transform:
   m_GameObject: {fileID: 5015183846912480924}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -0.328, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -441,7 +459,7 @@ Transform:
   m_GameObject: {fileID: 8474302356219504385}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.407, z: 0}
   m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -499,19 +517,3 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &8100000000000000003
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2630524371018857482}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e4f5a6b7c8d9401234567890abcdef02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  enemyInformationData: {fileID: 11400000, guid: da90d79842f32f946a0f52d3bafa200e, type: 2}
-  autoCreatePhotoCollider: 1
-  photoColliderSize: {x: 1.2, y: 1.2}
-  photoColliderOffset: {x: 0, y: 0}

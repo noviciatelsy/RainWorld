@@ -31,6 +31,7 @@ public class Mole2D : MonsterBase, IAttractedByTreasure, IToyCarAttractable, ITo
     public MoleCave currentHomeCave;
 
     private MoleUtilityAI moleAI;
+    private bool stompPausedLastFrame;
 
     protected override void Init()
     {
@@ -68,6 +69,16 @@ public class Mole2D : MonsterBase, IAttractedByTreasure, IToyCarAttractable, ITo
             this,
             headAnchor != null ? headAnchor : transform,
             new Vector2(0.55f, 0.12f));
+    }
+
+    private void Update()
+    {
+        if (IsStompPaused && !stompPausedLastFrame)
+        {
+            moleAI?.NotifyStomped();
+        }
+
+        stompPausedLastFrame = IsStompPaused;
     }
 
     private void ResolveHomeCave()

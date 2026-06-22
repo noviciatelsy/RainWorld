@@ -20,8 +20,13 @@ public class MoleAni : MonoBehaviour
     private bool clawActive;
     private Vector2 lastPlayerWorldPos;
     private bool hasPlayerTarget;
+    private Transform stealTargetTransform;
     private Transform clawOriginalParent;
+    private Vector3 clawOriginalLocalPosition;
+    private Quaternion clawOriginalLocalRotation;
+    private Vector3 clawOriginalLocalScale;
     private bool clawUnparented;
+    private bool clawRestorePending;
 
     private void Awake()
     {
@@ -37,9 +42,20 @@ public class MoleAni : MonoBehaviour
 
         if (claw != null)
         {
+            CacheClawParentDefaults();
             claw.SetHiddenInstant();
             claw.gameObject.SetActive(false);
         }
+    }
+
+    private void Update()
+    {
+        if (!clawRestorePending || claw == null || mole == null || mole.IsStompPaused)
+        {
+            return;
+        }
+
+        RestoreClawParent();
     }
 
     public void SetActivate(bool active)
@@ -71,39 +87,77 @@ public class MoleAni : MonoBehaviour
 
         clawActive = false;
         hasPlayerTarget = false;
+        stealTargetTransform = null;
         claw.StopMove();
 
         if (!claw.gameObject.activeSelf)
         {
-            RestoreClawParent();
+            TryRestoreClawParent();
             claw.SetHiddenInstant();
             return;
         }
 
         claw.PlayDisappear(() =>
         {
-            RestoreClawParent();
+            TryRestoreClawParent();
             claw.SetHiddenInstant();
             claw.gameObject.SetActive(false);
         });
     }
 
-    public void UpdateStealClaw(Vector2 playerWorldPos)
+    public void SetStealTarget(Transform target)
     {
-        lastPlayerWorldPos = playerWorldPos;
-        hasPlayerTarget = true;
-        RefreshClawTransform();
+        stealTargetTransform = target;
+        hasPlayerTarget = target != null;
+
+        if (hasPlayerTarget)
+        {
+            lastPlayerWorldPos = target.position;
+            RefreshClawTransform();
+        }
+    }
+
+    public void HideClawImmediate()
+    {
+        if (claw == null)
+        {
+            clawActive = false;
+            hasPlayerTarget = false;
+            stealTargetTransform = null;
+            return;
+        }
+
+        clawActive = false;
+        hasPlayerTarget = false;
+        stealTargetTransform = null;
+        claw.StopMove();
+        TryRestoreClawParent();
+        claw.SetHiddenInstant();
+        claw.gameObject.SetActive(false);
     }
 
     private void LateUpdate()
     {
-        if (!clawActive || claw == null)
+        if (!clawActive || claw == null || !hasPlayerTarget)
         {
             return;
         }
 
         EnsureClawWorldSpace();
         RefreshClawTransform();
+    }
+
+    private void CacheClawParentDefaults()
+    {
+        if (claw == null)
+        {
+            return;
+        }
+
+        clawOriginalParent = claw.transform.parent;
+        clawOriginalLocalPosition = claw.transform.localPosition;
+        clawOriginalLocalRotation = claw.transform.localRotation;
+        clawOriginalLocalScale = claw.transform.localScale;
     }
 
     private void EnsureClawWorldSpace()
@@ -113,19 +167,43 @@ public class MoleAni : MonoBehaviour
             return;
         }
 
-        clawOriginalParent = claw.transform.parent;
+        CacheClawParentDefaults();
         claw.transform.SetParent(null, true);
         clawUnparented = true;
+        clawRestorePending = false;
+    }
+
+    private void TryRestoreClawParent()
+    {
+        if (ShouldDeferClawRestore())
+        {
+            clawRestorePending = true;
+            return;
+        }
+
+        RestoreClawParent();
+    }
+
+    private bool ShouldDeferClawRestore()
+    {
+        return clawUnparented && mole != null && mole.IsStompPaused;
     }
 
     private void RestoreClawParent()
     {
-        if (claw == null || !clawUnparented)
+        clawRestorePending = false;
+
+        if (claw == null || !clawUnparented || clawOriginalParent == null)
         {
+            clawUnparented = false;
             return;
         }
 
-        claw.transform.SetParent(clawOriginalParent, true);
+        claw.transform.SetParent(clawOriginalParent, false);
+        claw.transform.localPosition = clawOriginalLocalPosition;
+        claw.transform.localRotation = clawOriginalLocalRotation;
+        claw.transform.localScale = clawOriginalLocalScale;
+        claw.ResetVisualDefaults();
         clawUnparented = false;
     }
 
@@ -136,7 +214,9 @@ public class MoleAni : MonoBehaviour
             return;
         }
 
-        Vector2 playerPos = lastPlayerWorldPos;
+        Vector2 playerPos = stealTargetTransform != null
+            ? (Vector2)stealTargetTransform.position
+            : lastPlayerWorldPos;
         Vector2 molePos = mole != null ? (Vector2)mole.transform.position : playerPos + Vector2.left;
 
         Vector2 toMole = molePos - playerPos;

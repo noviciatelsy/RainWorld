@@ -179,7 +179,7 @@ MonoBehaviour:
   HasEdge: 0
   moveSpeed: 1.5
   feetYOffset: -0.3
-  playerCheckRadius: 1
+  playerCheckRadius: 2
   playerLayer:
     serializedVersion: 2
     m_Bits: 64

@@ -26,7 +26,9 @@ public class MoleClaw : MonoBehaviour
     private bool running;
     private float phaseElapsed;
     private Vector3 textureBaseScale = Vector3.one;
+    private Vector3 initialTextureBaseScale = Vector3.one;
     private Vector3 orbitRestLocalPos;
+    private bool hasStoredInitialDefaults;
 
     private SpriteRenderer[] renderers;
     private Color[] baseColors;
@@ -47,7 +49,7 @@ public class MoleClaw : MonoBehaviour
     private void OnEnable()
     {
         ResolveTransforms();
-        CacheDefaults();
+        StoreInitialDefaultsIfNeeded();
         RefreshRendererList();
         phaseElapsed = 0f;
     }
@@ -130,14 +132,46 @@ public class MoleClaw : MonoBehaviour
 
     private void CacheDefaults()
     {
+        StoreInitialDefaultsIfNeeded();
+    }
+
+    private void StoreInitialDefaultsIfNeeded()
+    {
+        ResolveTransforms();
+
+        if (!hasStoredInitialDefaults)
+        {
+            if (textureTransform != null)
+            {
+                initialTextureBaseScale = textureTransform.localScale;
+            }
+
+            if (orbitTransform != null)
+            {
+                orbitRestLocalPos = orbitTransform.localPosition;
+            }
+
+            hasStoredInitialDefaults = true;
+        }
+
+        textureBaseScale = initialTextureBaseScale;
+    }
+
+    public void ResetVisualDefaults()
+    {
+        ResolveTransforms();
+        running = false;
+        phaseElapsed = 0f;
+
         if (textureTransform != null)
         {
-            textureBaseScale = textureTransform.localScale;
+            textureTransform.localScale = initialTextureBaseScale;
+            textureBaseScale = initialTextureBaseScale;
         }
 
         if (orbitTransform != null)
         {
-            orbitRestLocalPos = orbitTransform.localPosition;
+            orbitTransform.localPosition = orbitRestLocalPos;
         }
     }
 
@@ -212,11 +246,7 @@ public class MoleClaw : MonoBehaviour
     {
         running = false;
         phaseElapsed = 0f;
-
-        if (orbitTransform != null)
-        {
-            orbitTransform.localPosition = orbitRestLocalPos;
-        }
+        ResetVisualDefaults();
     }
 
     private void Update()
