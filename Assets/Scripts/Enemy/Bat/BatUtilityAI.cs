@@ -245,6 +245,7 @@ public class BatUtilityAI : IMonsterAI
             EnemyAttractionCapabilities.MeatBait
             | EnemyAttractionCapabilities.ToyCar
             | EnemyAttractionCapabilities.Fly
+            | EnemyAttractionCapabilities.Snail
             | EnemyAttractionCapabilities.Player;
 
         if (EnemyAttractionUtility.TryResolveTarget(
@@ -379,6 +380,11 @@ public class BatUtilityAI : IMonsterAI
             return true;
         }
 
+        if (prey.GetComponentInParent<Snail2D>() != null)
+        {
+            return true;
+        }
+
         Collider2D col = prey.GetComponent<Collider2D>();
         return col != null && owner.IsFlyCollider(col);
     }
@@ -393,12 +399,19 @@ public class BatUtilityAI : IMonsterAI
                 return "ToyCar";
             case EnemyAttractionSource.Fly:
                 return "Fly";
+            case EnemyAttractionSource.Snail:
+                return "Snail";
             case EnemyAttractionSource.Player:
                 return "Player";
             default:
                 if (detected != null && detected.GetComponentInParent<Fly2D>() != null)
                 {
                     return "Fly";
+                }
+
+                if (detected != null && detected.GetComponentInParent<Snail2D>() != null)
+                {
+                    return "Snail";
                 }
 
                 if (detected != null && detected.GetComponentInParent<Player>() != null)

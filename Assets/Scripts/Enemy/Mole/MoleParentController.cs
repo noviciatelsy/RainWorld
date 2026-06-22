@@ -6,6 +6,10 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class MoleParentController : MonoBehaviour
 {
+    [Header("Save")]
+    [Tooltip("用于存档的唯一 ID，同场景多个实例需不同")]
+    [SerializeField] private string moleParentSaveID = "MoleParent";
+
     [Header("Treasure Detection")]
     [Tooltip("宝物识别半径")]
     [SerializeField] private float treasureDetectRadius = 8f;
@@ -42,15 +46,30 @@ public class MoleParentController : MonoBehaviour
     private int absorbedTreasureCount;
     private float detectTimer;
     private bool kinSenseIntelUnlocked;
+    private bool isSubscribedToSaveManager;
+    private Vector3 initialWorldPosition;
 
     public bool IsHappy => moleParentAni != null && moleParentAni.IsHappy;
 
     private void Awake()
     {
+        initialWorldPosition = transform.position;
+
         if (moleParentAni == null)
         {
             moleParentAni = GetComponent<MoleParentAni>();
         }
+    }
+
+    private void Start()
+    {
+        TrySubscribeSaveManager();
+        LoadHappyStateFromSave();
+    }
+
+    private void OnDestroy()
+    {
+        UnsubscribeSaveManager();
     }
 
     private void Update()
@@ -120,11 +139,6 @@ public class MoleParentController : MonoBehaviour
 
     private void ScanForMoleCharm()
     {
-        if (kinSenseIntelUnlocked)
-        {
-            return;
-        }
-
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, treasureDetectRadius);
 
         for (int i = 0; i < hits.Length; i++)
@@ -143,18 +157,46 @@ public class MoleParentController : MonoBehaviour
                 continue;
             }
 
-            kinSenseIntelUnlocked = true;
-            EnemyIntelligenceUnlockUtility.TryUnlockByName(EnemyIntelligenceNames.MoleParentKinSense);
+            AbsorbMoleCharm(pickable);
             return;
         }
     }
 
-    private void TriggerPermanentHappyState()
+    private void AbsorbMoleCharm(PickableObject charm)
     {
-        if (moleParentAni == null)
+        if (charm == null)
         {
             return;
         }
+
+        Destroy(charm.gameObject);
+
+        if (!kinSenseIntelUnlocked)
+        {
+            kinSenseIntelUnlocked = true;
+            EnemyIntelligenceUnlockUtility.TryUnlockByName(EnemyIntelligenceNames.MoleParentKinSense);
+        }
+
+        TriggerPermanentHappyState();
+    }
+
+    private void TriggerPermanentHappyState()
+    {
+        if (moleParentAni == null || IsHappy || moleParentAni.IsPlayingHappySequence)
+        {
+            return;
+        }
+
+        if (IsHappyTriggeredInSave())
+        {
+            moleParentAni.ApplyPermanentHappyStateImmediate(
+                happyLandingWorldPosition,
+                destructibleWall,
+                permanentWallDestroy);
+            return;
+        }
+
+        SaveHappyStateToRunData();
 
         EnemyMoleParentAudioEmitter audioEmitter = GetComponent<EnemyMoleParentAudioEmitter>();
         if (audioEmitter != null)
@@ -166,6 +208,107 @@ public class MoleParentController : MonoBehaviour
             happyLandingWorldPosition,
             destructibleWall,
             permanentWallDestroy);
+    }
+
+    private void LoadHappyStateFromSave()
+    {
+        if (moleParentAni == null)
+        {
+            return;
+        }
+
+        if (IsHappyTriggeredInSave())
+        {
+            if (!IsHappy)
+            {
+                moleParentAni.ApplyPermanentHappyStateImmediate(
+                    happyLandingWorldPosition,
+                    destructibleWall,
+                    permanentWallDestroy);
+            }
+
+            return;
+        }
+
+        if (IsHappy || moleParentAni.IsPlayingHappySequence)
+        {
+            moleParentAni.ResetToSleepState(initialWorldPosition);
+        }
+    }
+
+    private bool IsHappyTriggeredInSave()
+    {
+        if (string.IsNullOrWhiteSpace(moleParentSaveID) || SaveManager.Instance == null)
+        {
+            return false;
+        }
+
+        GameRunData runData = SaveManager.Instance.GetRunTimeGameData();
+        if (runData == null)
+        {
+            return false;
+        }
+
+        runData.EnsureDataValid();
+        return runData.moleParentHappyTriggeredIds.Contains(moleParentSaveID);
+    }
+
+    private void SaveHappyStateToRunData()
+    {
+        if (string.IsNullOrWhiteSpace(moleParentSaveID) || SaveManager.Instance == null)
+        {
+            return;
+        }
+
+        GameRunData runData = SaveManager.Instance.GetRunTimeGameData();
+        if (runData == null)
+        {
+            return;
+        }
+
+        runData.EnsureDataValid();
+
+        if (runData.moleParentHappyTriggeredIds == null)
+        {
+            runData.moleParentHappyTriggeredIds = new System.Collections.Generic.List<string>();
+        }
+
+        if (runData.moleParentHappyTriggeredIds.Contains(moleParentSaveID))
+        {
+            return;
+        }
+
+        runData.moleParentHappyTriggeredIds.Add(moleParentSaveID);
+        SaveManager.Instance.SaveGame();
+    }
+
+    private void TrySubscribeSaveManager()
+    {
+        if (isSubscribedToSaveManager || SaveManager.Instance == null)
+        {
+            return;
+        }
+
+        SaveManager.Instance.OnGameRunDataOverwrite += LoadHappyStateFromSave;
+        SaveManager.Instance.OnCurrentGameRunDataChanged += HandleCurrentGameRunDataChanged;
+        isSubscribedToSaveManager = true;
+    }
+
+    private void UnsubscribeSaveManager()
+    {
+        if (!isSubscribedToSaveManager || SaveManager.Instance == null)
+        {
+            return;
+        }
+
+        SaveManager.Instance.OnGameRunDataOverwrite -= LoadHappyStateFromSave;
+        SaveManager.Instance.OnCurrentGameRunDataChanged -= HandleCurrentGameRunDataChanged;
+        isSubscribedToSaveManager = false;
+    }
+
+    private void HandleCurrentGameRunDataChanged(int slotIndex, GameRunData runData)
+    {
+        LoadHappyStateFromSave();
     }
 
     private bool IsValidDiscardedTreasure(PickableObject pickable)

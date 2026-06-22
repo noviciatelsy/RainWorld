@@ -73,6 +73,16 @@ public class Snail2D : MonsterBase, IToyCarAttractable
         ridePlatform = GetComponentInChildren<SnailRidePlatform>(true);
     }
 
+    private void OnEnable()
+    {
+        SnailRegistry.Register(this);
+    }
+
+    private void OnDisable()
+    {
+        SnailRegistry.Unregister(this);
+    }
+
     protected override void FixedUpdate()
     {
         if (ai == null || motor == null)

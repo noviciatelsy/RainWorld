@@ -58,6 +58,19 @@ public static class EnemyAttractionUtility
             }
         }
 
+        if (HasCapability(capabilities, EnemyAttractionCapabilities.Snail))
+        {
+            Snail2D snail = SnailRegistry.FindClosest(from, queryRadius, out float snailDistSqr);
+            if (snail != null)
+            {
+                target = new EnemyAttractionTarget(
+                    EnemyAttractionSource.Snail,
+                    snail.Position,
+                    snail.transform);
+                return true;
+            }
+        }
+
         if (HasCapability(capabilities, EnemyAttractionCapabilities.Player))
         {
             Player player = PlayerManager.Instance != null

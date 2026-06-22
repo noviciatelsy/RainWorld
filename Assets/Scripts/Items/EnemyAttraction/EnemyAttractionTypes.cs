@@ -6,7 +6,8 @@ public enum EnemyAttractionSource
     MeatBait = 1,
     ToyCar = 2,
     Fly = 3,
-    Player = 4
+    Player = 4,
+    Snail = 5
 }
 
 [System.Flags]
@@ -16,7 +17,8 @@ public enum EnemyAttractionCapabilities
     MeatBait = 1 << 0,
     ToyCar = 1 << 1,
     Fly = 1 << 2,
-    Player = 1 << 3
+    Player = 1 << 3,
+    Snail = 1 << 4
 }
 
 public readonly struct EnemyAttractionTarget

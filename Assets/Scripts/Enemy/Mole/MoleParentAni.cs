@@ -51,6 +51,7 @@ public class MoleParentAni : MonoBehaviour
     private bool isBreathing;
     private bool isZBubbleSpawning;
     private float spawnTimer;
+    private Sprite sleepSprite;
 
     private void Awake()
     {
@@ -61,6 +62,11 @@ public class MoleParentAni : MonoBehaviour
         if (happySprite == null)
         {
             happySprite = Resources.Load<Sprite>(HappySpriteResourcePath);
+        }
+
+        if (faceRenderer != null)
+        {
+            sleepSprite = faceRenderer.sprite;
         }
     }
 
@@ -143,6 +149,74 @@ public class MoleParentAni : MonoBehaviour
         }
 
         happyRoutine = StartCoroutine(HappySequenceRoutine(landingWorldPosition));
+    }
+
+    /// <summary>
+    /// 从存档恢复：跳过动画，直接落到开心落点并破坏墙壁。
+    /// </summary>
+    public void ApplyPermanentHappyStateImmediate(
+        Vector2 landingWorldPosition,
+        DestructibleWall destructibleWall = null,
+        bool permanentWallDestroy = true)
+    {
+        if (happyRoutine != null)
+        {
+            StopCoroutine(happyRoutine);
+            happyRoutine = null;
+        }
+
+        IsPlayingHappySequence = false;
+        StopBreathBehavior();
+
+        if (faceRenderer != null && happySprite != null)
+        {
+            faceRenderer.sprite = happySprite;
+        }
+
+        transform.position = new Vector3(
+            landingWorldPosition.x,
+            landingWorldPosition.y,
+            transform.position.z);
+        textureRoot.localPosition = Vector3.zero;
+        visualTransform.localScale = baseScale;
+
+        if (destructibleWall != null)
+        {
+            destructibleWall.NotifyWallDestroy(permanentWallDestroy);
+        }
+
+        IsHappy = true;
+        StartHappyBreathBehavior();
+    }
+
+    /// <summary>
+    /// 切换存档/重置时回到睡觉初始状态。
+    /// </summary>
+    public void ResetToSleepState(Vector3 sleepWorldPosition)
+    {
+        if (happyRoutine != null)
+        {
+            StopCoroutine(happyRoutine);
+            happyRoutine = null;
+        }
+
+        IsPlayingHappySequence = false;
+        IsHappy = false;
+        StopBreathBehavior();
+
+        transform.position = new Vector3(
+            sleepWorldPosition.x,
+            sleepWorldPosition.y,
+            transform.position.z);
+        textureRoot.localPosition = textureBaseLocalPosition;
+        visualTransform.localScale = baseScale;
+
+        if (faceRenderer != null && sleepSprite != null)
+        {
+            faceRenderer.sprite = sleepSprite;
+        }
+
+        StartSleepBehavior();
     }
 
     private void StartSleepBehavior()
