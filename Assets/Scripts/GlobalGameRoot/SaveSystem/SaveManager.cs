@@ -7,14 +7,14 @@ public class SaveManager : MonoBehaviour
 
     public event Action<int, GameRunData> OnCurrentGameRunDataChanged;
 
-    private FileDataHandler dataHandler;      // ×¨ÃÅ¸ºÔð¡°ÎÄ¼þ¶ÁÐ´¡±µÄ¹¤¾ßÀà
+    private FileDataHandler dataHandler;      // ×¨ï¿½Å¸ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½Ð´ï¿½ï¿½ï¿½Ä¹ï¿½ï¿½ï¿½ï¿½ï¿½
 
-    [SerializeField] private GameData gameData;               // Õû¸öÓÎÏ·µÄ×Ü´æµµÊý¾Ý
+    [SerializeField] private GameData gameData;               // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï·ï¿½ï¿½ï¿½Ü´æµµï¿½ï¿½ï¿½ï¿½
 
-    [SerializeField] private string fileName = "RainWorldYC.json";   // ´æµµÎÄ¼þÃû£¨»áºÍ persistentDataPath ×éºÏ³ÉÍêÕûÂ·¾¶£©
-    [SerializeField] private bool encryptData = true; // ÊÇ·ñÐèÒª¼ÓÃÜ
+    [SerializeField] private string fileName = "RainWorldYC.json";   // ï¿½æµµï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ persistentDataPath ï¿½ï¿½Ï³ï¿½ï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½ï¿½ï¿½
+    [SerializeField] private bool encryptData = true; // ï¿½Ç·ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½
 
-    [Header("µ±Ç°Ñ¡ÖÐµÄÓÎÏ·ÄÚ´æµµ")]
+    [Header("ï¿½ï¿½Ç°Ñ¡ï¿½Ðµï¿½ï¿½ï¿½Ï·ï¿½Ú´æµµ")]
     [SerializeField] private int currentSelectedSlotIndex = -1;
     [SerializeField] private GameRunData currentGameRunData;
     private GameRunData clonedCurrentGameRunData;
@@ -39,7 +39,7 @@ public class SaveManager : MonoBehaviour
 
         Instance = this;
 
-        // ÓÃ Â·¾¶ + ÎÄ¼þÃû Éú³ÉÒ»¸ö FileDataHandler
+        // ï¿½ï¿½ Â·ï¿½ï¿½ + ï¿½Ä¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ FileDataHandler
         dataHandler = new FileDataHandler(Application.persistentDataPath, fileName, encryptData);
 
         LoadGameDataFromDisk();
@@ -47,13 +47,13 @@ public class SaveManager : MonoBehaviour
 
     private void LoadGameDataFromDisk()
     {
-        // ´ÓÎÄ¼þÀï¶Á³ö GameData£¨¿ÉÄÜÊÇ null£¬Ò²¿ÉÄÜÊÇÒ»·ÝÍêÕû´æµµ£©
+        // ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ GameDataï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ nullï¿½ï¿½Ò²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½æµµï¿½ï¿½
         gameData = dataHandler.loadData();
 
-        // Èç¹ûÃ»ÓÐ¶Áµ½´æµµ£¨±ÈÈçµÚÒ»´Î½øÈëÓÎÏ·£©
+        // ï¿½ï¿½ï¿½Ã»ï¿½Ð¶ï¿½ï¿½ï¿½ï¿½æµµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½Î½ï¿½ï¿½ï¿½ï¿½ï¿½Ï·ï¿½ï¿½
         if (gameData == null)
         {
-            // ´´½¨Ò»·ÝÐÂµÄÄ¬ÈÏ GameData£¨´ËÊ±ÀïÃæµÄ×Ö¶Î¶¼ÊÇÄ¬ÈÏÖµ£©
+            // ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Âµï¿½Ä¬ï¿½ï¿½ GameDataï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¶Î¶ï¿½ï¿½ï¿½Ä¬ï¿½ï¿½Öµï¿½ï¿½
             gameData = new GameData();
         }
 
@@ -86,12 +86,12 @@ public class SaveManager : MonoBehaviour
             {
                 currentGameRunData = currentSlot.runData;
 
-                // Ã¿´Î±£´æµ±Ç°¾ÖÄÚ´æµµÊ±£¬¼ÇÂ¼ÏÖÊµÊ±¼ä
+                // Ã¿ï¿½Î±ï¿½ï¿½æµ±Ç°ï¿½ï¿½ï¿½Ú´æµµÊ±ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ÊµÊ±ï¿½ï¿½
                 currentGameRunData.lastSaveTimeIso = DateTime.Now.ToString("o");
             }
         }
 
-        // °Ñ×îÖÕÊÕ¼¯ºÃµÄ GameData ½»¸ø FileDataHandler£¬Ð´µ½´ÅÅÌÎÄ¼þÖÐ
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½ï¿½Ãµï¿½ GameData ï¿½ï¿½ï¿½ï¿½ FileDataHandlerï¿½ï¿½Ð´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½
         dataHandler.SaveData(gameData);
     }
 
@@ -99,7 +99,7 @@ public class SaveManager : MonoBehaviour
     {
         EnsureGameDataValid();
 
-        // ±£´æÈ«¾ÖÊý¾ÝÊ±£¬²»ÐÞ¸Äµ±Ç°¾ÖÄÚ´æµµµÄ×îºóÔËÐÐÊ±¼ä
+        // ï¿½ï¿½ï¿½ï¿½È«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½Þ¸Äµï¿½Ç°ï¿½ï¿½ï¿½Ú´æµµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
         dataHandler.SaveData(gameData);
     }
 
@@ -150,7 +150,7 @@ public class SaveManager : MonoBehaviour
 
         if (slot == null || slot.IsEmpty())
         {
-            Debug.LogWarning("ÊÔÍ¼¼ÓÔØÒ»¸ö¿Õ´æµµ²Û£º" + mySlotIndex);
+            Debug.LogWarning("ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Õ´æµµï¿½Û£ï¿½" + mySlotIndex);
             return false;
         }
 
@@ -164,13 +164,13 @@ public class SaveManager : MonoBehaviour
 
         if (slot == null)
         {
-            Debug.LogWarning("ÊÔÍ¼ÔÚ·Ç·¨´æµµ²ÛÖÐÐÂ½¨ÓÎÏ·£º" + mySlotIndex);
+            Debug.LogWarning("ï¿½ï¿½Í¼ï¿½Ú·Ç·ï¿½ï¿½æµµï¿½ï¿½ï¿½ï¿½ï¿½Â½ï¿½ï¿½ï¿½Ï·ï¿½ï¿½" + mySlotIndex);
             return false;
         }
 
         if (slot.IsEmpty() == false)
         {
-            Debug.LogWarning("ÊÔÍ¼ÔÚ·Ç¿Õ´æµµ²ÛÖÐÐÂ½¨ÓÎÏ·£º" + mySlotIndex);
+            Debug.LogWarning("ï¿½ï¿½Í¼ï¿½Ú·Ç¿Õ´æµµï¿½ï¿½ï¿½ï¿½ï¿½Â½ï¿½ï¿½ï¿½Ï·ï¿½ï¿½" + mySlotIndex);
             return false;
         }
 
@@ -178,7 +178,7 @@ public class SaveManager : MonoBehaviour
 
         SetCurrentGameRunData(mySlotIndex, slot.runData);
 
-        // ÐÂÓÎÏ·´´½¨ºó£¬Á¢¿Ì±£´æÒ»´Î£¬ÈÃÕâ¸ö²ÛÎ»±ä³É·Ç¿Õ
+        // ï¿½ï¿½ï¿½ï¿½Ï·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì±ï¿½ï¿½ï¿½Ò»ï¿½Î£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½É·Ç¿ï¿½
         SaveGame();
 
         return true;
@@ -190,7 +190,7 @@ public class SaveManager : MonoBehaviour
 
         if (slot == null)
         {
-            Debug.LogWarning("ÊÔÍ¼É¾³ý·Ç·¨´æµµ²Û£º" + mySlotIndex);
+            Debug.LogWarning("ï¿½ï¿½Í¼É¾ï¿½ï¿½ï¿½Ç·ï¿½ï¿½æµµï¿½Û£ï¿½" + mySlotIndex);
             return false;
         }
 
@@ -203,7 +203,7 @@ public class SaveManager : MonoBehaviour
             SetCurrentGameRunData(-1, null);
         }
 
-        // É¾³ý²ÛÎ»Ê±£¬Ö»±£´æ×ÜÊý¾Ý£¬²»Ë¢ÐÂÆäËûµ±Ç°´æµµµÄ×îºóÔËÐÐÊ±¼ä
+        // É¾ï¿½ï¿½ï¿½ï¿½Î»Ê±ï¿½ï¿½Ö»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý£ï¿½ï¿½ï¿½Ë¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç°ï¿½æµµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
         SaveGlobalGameData();
 
         return true;
@@ -230,7 +230,7 @@ public class SaveManager : MonoBehaviour
     {
         if (currentGameRunData == null)
         {
-            Debug.LogWarning("µ±Ç°Ã»ÓÐÑ¡ÖÐµÄ¾ÖÄÚ´æµµ£¬ÎÞ·¨¿ËÂ¡¡£");
+            Debug.LogWarning("ï¿½ï¿½Ç°Ã»ï¿½ï¿½Ñ¡ï¿½ÐµÄ¾ï¿½ï¿½Ú´æµµï¿½ï¿½ï¿½Þ·ï¿½ï¿½ï¿½Â¡ï¿½ï¿½");
             return;
         }
 
@@ -244,8 +244,8 @@ public class SaveManager : MonoBehaviour
             return null;
         }
 
-        // Í¨¹ý JsonUtility ×öÉî¿½±´
-        // ÕâÑù List¡¢SerializableDictionary ÀïµÄÊý¾Ý¶¼»á¸´ÖÆÒ»·ÝÐÂµÄ£¬¶ø²»ÊÇ¼ÌÐø¹²ÓÃÒýÓÃ
+        // Í¨ï¿½ï¿½ JsonUtility ï¿½ï¿½ï¿½î¿½ï¿½ï¿½
+        // ï¿½ï¿½ï¿½ï¿½ Listï¿½ï¿½SerializableDictionary ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý¶ï¿½ï¿½á¸´ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ÂµÄ£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         string json = JsonUtility.ToJson(mySourceData);
         GameRunData clonedData = JsonUtility.FromJson<GameRunData>(json);
 
@@ -256,13 +256,13 @@ public class SaveManager : MonoBehaviour
     {
         if (clonedCurrentGameRunData == null)
         {
-            Debug.LogWarning("¿ËÂ¡´æµµÎª¿Õ£¬ÎÞ·¨¸²¸Çµ±Ç°¾ÖÄÚ´æµµ¡£");
+            Debug.LogWarning("ï¿½ï¿½Â¡ï¿½æµµÎªï¿½Õ£ï¿½ï¿½Þ·ï¿½ï¿½ï¿½ï¿½Çµï¿½Ç°ï¿½ï¿½ï¿½Ú´æµµï¿½ï¿½");
             return false;
         }
 
         if (IsSlotIndexValid(currentSelectedSlotIndex) == false)
         {
-            Debug.LogWarning("µ±Ç°Ã»ÓÐÓÐÐ§µÄ´æµµ²ÛÎ»£¬ÎÞ·¨¸²¸Çµ±Ç°¾ÖÄÚ´æµµ¡£");
+            Debug.LogWarning("ï¿½ï¿½Ç°Ã»ï¿½ï¿½ï¿½ï¿½Ð§ï¿½Ä´æµµï¿½ï¿½Î»ï¿½ï¿½ï¿½Þ·ï¿½ï¿½ï¿½ï¿½Çµï¿½Ç°ï¿½ï¿½ï¿½Ú´æµµï¿½ï¿½");
             return false;
         }
 
@@ -272,12 +272,12 @@ public class SaveManager : MonoBehaviour
 
         if (currentSlot == null)
         {
-            Debug.LogWarning("µ±Ç°´æµµ²ÛÎª¿Õ£¬ÎÞ·¨¸²¸Çµ±Ç°¾ÖÄÚ´æµµ¡£");
+            Debug.LogWarning("ï¿½ï¿½Ç°ï¿½æµµï¿½ï¿½Îªï¿½Õ£ï¿½ï¿½Þ·ï¿½ï¿½ï¿½ï¿½Çµï¿½Ç°ï¿½ï¿½ï¿½Ú´æµµï¿½ï¿½");
             return false;
         }
 
-        // ×¢Òâ£ºÕâÀï²»ÒªÖ±½Ó currentSlot.runData = myClonedRunData;
-        // ¶øÊÇÔÙ¿ËÂ¡Ò»´Î£¬±ÜÃâÍâ²¿¼ÌÐø³ÖÓÐÕâ¸ö¶ÔÏóÒýÓÃ²¢ÐÞ¸ÄËü
+        // ×¢ï¿½â£ºï¿½ï¿½ï¿½ï²»ÒªÖ±ï¿½ï¿½ currentSlot.runData = myClonedRunData;
+        // ï¿½ï¿½ï¿½ï¿½ï¿½Ù¿ï¿½Â¡Ò»ï¿½Î£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½â²¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã²ï¿½ï¿½Þ¸ï¿½ï¿½ï¿½
         GameRunData newRunData = CloneGameRunData(clonedCurrentGameRunData);
 
         currentSlot.hasRunData = true;
@@ -295,11 +295,11 @@ public class SaveManager : MonoBehaviour
     }
 
     [ContextMenu("Delete Saved Data")]
-    public void DeleteSavedData() // ±à¼­Æ÷ÄÚÊ¹ÓÃ
+    public void DeleteSavedData() // ï¿½à¼­ï¿½ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½
     {
         dataHandler = new FileDataHandler(Application.persistentDataPath, fileName, encryptData);
 
-        // µ÷ÓÃ FileDataHandler µÄÉ¾³ý·½·¨£¬É¾µô¶ÔÓ¦Â·¾¶µÄ´æµµÎÄ¼þ
+        // ï¿½ï¿½ï¿½ï¿½ FileDataHandler ï¿½ï¿½É¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É¾ï¿½ï¿½ï¿½Ó¦Â·ï¿½ï¿½ï¿½Ä´æµµï¿½Ä¼ï¿½
         dataHandler.Delete();
 
         gameData = new GameData();

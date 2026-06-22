@@ -5,12 +5,12 @@ using UnityEngine;
 public class FileDataHandler
 {
     private string fullPath;
-    private bool encryptData; // ÊÇ·ñÐèÒª¼ÓÃÜ
+    private bool encryptData; // ï¿½Ç·ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½
     private string codeWord = "RainWorld";
 
     public FileDataHandler(string dataDirPath, string dataFileName, bool encryptData)
     {
-        // dataDirPath£ºÄ¿Â¼Â·¾¶£¨±ÈÈç Application.persistentDataPath£©
+        // dataDirPathï¿½ï¿½Ä¿Â¼Â·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Application.persistentDataPathï¿½ï¿½
         fullPath = Path.Combine(dataDirPath, dataFileName);
         this.encryptData = encryptData;
     }
@@ -19,35 +19,35 @@ public class FileDataHandler
     {
         try
         {
-            // Directory.CreateDirectory(Ä¿Â¼)£º
-            // Èç¹ûÄ¿Â¼²»´æÔÚ ¡ú »á´´½¨Ëü£¨°üº¬ÖÐ¼äËùÓÐ×ÓÄ¿Â¼£©
-            // Èç¹ûÄ¿Â¼ÒÑ¾­ÓÐÁË ¡ú Ê²Ã´Ò²²»×ö£¨²»»á±¨´í£©
+            // Directory.CreateDirectory(Ä¿Â¼)ï¿½ï¿½
+            // ï¿½ï¿½ï¿½Ä¿Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½á´´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿Â¼ï¿½ï¿½
+            // ï¿½ï¿½ï¿½Ä¿Â¼ï¿½Ñ¾ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ Ê²Ã´Ò²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½á±¨ï¿½ï¿½ï¿½
             Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
 
-            string dataToSave = JsonUtility.ToJson(gameData, true); // ×ª³É JSON ÓïÑÔµÄÒ»´®ÎÄ±¾
+            string dataToSave = JsonUtility.ToJson(gameData, true); // ×ªï¿½ï¿½ JSON ï¿½ï¿½ï¿½Ôµï¿½Ò»ï¿½ï¿½ï¿½Ä±ï¿½
 
-            if (encryptData) // Èç¹ûÐèÒª¼ÓÃÜ
+            if (encryptData) // ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½
             {
-                dataToSave = EncryptDecrypt(dataToSave); // ¶ÔÊý¾Ý¼ÓÃÜ
+                dataToSave = EncryptDecrypt(dataToSave); // ï¿½ï¿½ï¿½ï¿½ï¿½Ý¼ï¿½ï¿½ï¿½
             }
 
-            // using (...) { ... }£º
-            // C# ÀïµÄÓï·¨ÌÇ
-            // È·±£ÓÃÍêÕâ¸ö stream Ö®ºó£¬»á×Ô¶¯µ÷ÓÃ stream.Dispose()£¬ÊÍ·Å×ÊÔ´£¨¹Ø±ÕÎÄ¼þ¾ä±ú£©
-            // ¼´Ê¹ÖÐÍ¾Å×Òì³££¬Ò²ÄÜ±£Ö¤²»»áÍü¼Ç¹ØÎÄ¼þ
+            // using (...) { ... }ï¿½ï¿½
+            // C# ï¿½ï¿½ï¿½ï¿½ï·¨ï¿½ï¿½
+            // È·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ stream Ö®ï¿½ó£¬»ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½ï¿½ï¿½ stream.Dispose()ï¿½ï¿½ï¿½Í·ï¿½ï¿½ï¿½Ô´ï¿½ï¿½ï¿½Ø±ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+            // ï¿½ï¿½Ê¹ï¿½ï¿½Í¾ï¿½ï¿½ï¿½ì³£ï¿½ï¿½Ò²ï¿½Ü±ï¿½Ö¤ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç¹ï¿½ï¿½Ä¼ï¿½
             using (FileStream stream = new FileStream(fullPath, FileMode.Create))
-            // FileMode.Create£º
-            // Èç¹ûÎÄ¼þ²»´æÔÚ ¡ú ´´½¨ÐÂÎÄ¼þ
-            // Èç¹ûÎÄ¼þÒÑ´æÔÚ ¡ú Ö±½Ó¸²¸ÇÔ­ÎÄ¼þ
+            // FileMode.Createï¿½ï¿½
+            // ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½
+            // ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½Ñ´ï¿½ï¿½ï¿½ ï¿½ï¿½ Ö±ï¿½Ó¸ï¿½ï¿½ï¿½Ô­ï¿½Ä¼ï¿½
             {
-                // StreamWriter£º°ïÖúÄãÓÃ¡°ÎÄ±¾·½Ê½¡±ÍùÁ÷ÀïÐ´×Ö·û´®
-                // Ëü°ü×°ÁËÇ°ÃæµÄ FileStream stream
-                // ×éºÏ¹ØÏµ£ºStreamWriter ¡ú FileStream ¡ú ´ÅÅÌÉÏµÄÊµ¼ÊÎÄ¼þ
+                // StreamWriterï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã¡ï¿½ï¿½Ä±ï¿½ï¿½ï¿½Ê½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð´ï¿½Ö·ï¿½ï¿½ï¿½
+                // ï¿½ï¿½ï¿½ï¿½×°ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ FileStream stream
+                // ï¿½ï¿½Ï¹ï¿½Ïµï¿½ï¿½StreamWriter ï¿½ï¿½ FileStream ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ïµï¿½Êµï¿½ï¿½ï¿½Ä¼ï¿½
                 using (StreamWriter writer = new StreamWriter(stream))
                 {
                     writer.Write(dataToSave);
-                    //  °Ñ¸Õ¸ÕÐòÁÐ»¯ºÃµÄ JSON ×Ö·û´®Ð´ÈëÎÄ¼þ¡£
-                    // ÕâÒ»²½½áÊøºó£¬´ÅÅÌÉÏ¾Í³öÏÖÁËÒ»¸öÕæÕýµÄ´æµµÎÄ¼þ£¨ÄÚÈÝ¾ÍÊÇ JSON£©
+                    //  ï¿½Ñ¸Õ¸ï¿½ï¿½ï¿½ï¿½Ð»ï¿½ï¿½Ãµï¿½ JSON ï¿½Ö·ï¿½ï¿½ï¿½Ð´ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½
+                    // ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ó£¬´ï¿½ï¿½ï¿½ï¿½Ï¾Í³ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä´æµµï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý¾ï¿½ï¿½ï¿½ JSONï¿½ï¿½
                 }
             }
         }
@@ -61,7 +61,7 @@ public class FileDataHandler
     {
         GameData loadData = null;
 
-        if (File.Exists(fullPath)) // ÔÚ¶ÁÎÄ¼þÇ°ÏÈ¼ì²éÒ»ÏÂÕâ¸öÂ·¾¶ÉÏÊÇ·ñÕæµÄÓÐÎÄ¼þ
+        if (File.Exists(fullPath)) // ï¿½Ú¶ï¿½ï¿½Ä¼ï¿½Ç°ï¿½È¼ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½
         {
             try
             {
@@ -69,9 +69,9 @@ public class FileDataHandler
 
                 using (FileStream stream = new FileStream(fullPath, FileMode.Open))
                 {
-                    using (StreamReader reader = new StreamReader(stream)) // ºÍ StreamWriter ·´¹ýÀ´£¬ÊÇÓÃÀ´´ÓÁ÷Àï¶ÁÎÄ±¾×Ö·û´®µÄ
+                    using (StreamReader reader = new StreamReader(stream)) // ï¿½ï¿½ StreamWriter ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä±ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½
                     {
-                        dataToLoad = reader.ReadToEnd(); // Ò»¿ÚÆø°ÑÕû¸öÎÄ¼þÄÚÈÝ¶ÁÍê£¬·µ»Ø×Ö·û´®
+                        dataToLoad = reader.ReadToEnd(); // Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½Ý¶ï¿½ï¿½ê£¬ï¿½ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½
                     }
                 }
 
@@ -81,7 +81,7 @@ public class FileDataHandler
                 }
 
                 loadData = JsonUtility.FromJson<GameData>(dataToLoad);
-                // ´´½¨Ò»¸öÐÂµÄ GameData ¶ÔÏó,°ÑJSONÀïµÄ×Ö¶ÎÌî½øÈ¥
+                // ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Âµï¿½ GameData ï¿½ï¿½ï¿½ï¿½,ï¿½ï¿½JSONï¿½ï¿½ï¿½ï¿½Ö¶ï¿½ï¿½ï¿½ï¿½È¥
             }
             catch (Exception e)
             {
@@ -96,7 +96,7 @@ public class FileDataHandler
     {
         if (File.Exists(fullPath))
         {
-            File.Delete(fullPath); // ÕæÕý´Ó´ÅÅÌÉÏÉ¾µôÕâ·Ý JSON ´æµµ
+            File.Delete(fullPath); // ï¿½ï¿½ï¿½ï¿½ï¿½Ó´ï¿½ï¿½ï¿½ï¿½ï¿½É¾ï¿½ï¿½ï¿½ï¿½ï¿½ JSON ï¿½æµµ
         }
     }
 
@@ -107,10 +107,10 @@ public class FileDataHandler
         for (int i = 0; i < data.Length; i++)
         {
             result[i] = (char)(data[i] ^ codeWord[i % codeWord.Length]);
-            // ^£ºC# µÄ°´Î»Òì»òÔËËã·û XOR
-            // ÓÃ % °Ñ codeWord ±ä³ÉÎÞÏÞÑ­»·µÄÃÜÔ¿
-            // ´«ÈëÃ÷ÎÄ×Ö·û´® ¡ú Ëü XOR Ò»±é ¡ú µÃµ½ÃÜÎÄ
-            // ÔÙÓÃÍ¬Ò»¸öº¯Êý¡¢Í¬Ò»¸ö key È¥´¦ÀíÕâ¸öÃÜÎÄ ¡ú ÓÖ XOR Ò»±é ¡ú »á»¹Ô­³ÉÔ­Ê¼Ã÷ÎÄ
+            // ^ï¿½ï¿½C# ï¿½Ä°ï¿½Î»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ XOR
+            // ï¿½ï¿½ % ï¿½ï¿½ codeWord ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¿
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ XOR Ò»ï¿½ï¿½ ï¿½ï¿½ ï¿½Ãµï¿½ï¿½ï¿½ï¿½ï¿½
+            // ï¿½ï¿½ï¿½ï¿½Í¬Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¬Ò»ï¿½ï¿½ key È¥ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ XOR Ò»ï¿½ï¿½ ï¿½ï¿½ ï¿½á»¹Ô­ï¿½ï¿½Ô­Ê¼ï¿½ï¿½ï¿½ï¿½
         }
 
         return new string(result);

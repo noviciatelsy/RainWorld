@@ -156,6 +156,9 @@ public class GameRunData
     // 已永久解锁的密码门 SaveID 列表
     public List<string> unlockedPasswordDoors = new List<string>();
 
+    // 已触发过的对话Trigger
+    public List<string> triggeredDialogues = new List<string>();
+
     public Vector3 playerDiePosition = new Vector3(0,0,0);
 
     public Vector3 retrieveBackpackSpawnPosition = new Vector3(0,0,0);
@@ -222,6 +225,11 @@ public class GameRunData
         if (unlockedPasswordDoors == null)
         {
             unlockedPasswordDoors = new List<string>();
+        }
+
+        if (triggeredDialogues == null)
+        {
+            triggeredDialogues = new List<string>();
         }
 
         foreach (KeyValuePair<string, InventorySaveData> pair in inventorySaveDataMap)

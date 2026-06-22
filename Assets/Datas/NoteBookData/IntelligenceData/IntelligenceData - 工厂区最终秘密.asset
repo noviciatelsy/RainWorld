@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7f89d9075d3fde4094d7fd8a6449452, type: 3}
   m_Name: "IntelligenceData - \u5DE5\u5382\u533A\u6700\u7EC8\u79D8\u5BC6"
   m_EditorClassIdentifier: 
-  intelligenceText: "\u8FD9\u91CC\u7684\u6587\u5B57\u5199\u7740\uFF0C\u5728\u673A\u5173\u95E8\u524D\u8DF3\u8DC3\u4E09\u6B21\u5C31\u53EF\u4EE5\u4F7F\u4E4B\u5F00\u542F"
+  intelligenceText: "\u5DE5\u5382\u5C3D\u5934\u79D8\u5BC6\u623F\u95F4\u4E2D\u7684\u6587\u5B57\u5199\u7740\uFF0C\u5728\u673A\u5173\u95E8\u524D\u8DF3\u8DC3\u4E09\u6B21\u5C31\u53EF\u4EE5\u4F7F\u4E4B\u5F00\u542F"
   intelligenceName: "\u5DE5\u5382\u533A\u6700\u7EC8\u79D8\u5BC6"
   isImportant: 0
   canBePurchased: 0
