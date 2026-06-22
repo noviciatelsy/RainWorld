@@ -11,10 +11,12 @@ public class ActiveItemDataSO : ItemDataSO
     [Header("ÊÇ·ñÎªÄ¢¹½")]
     public bool isMushroom=false;
 
+#if UNITY_EDITOR
     protected override void OnValidate()
     {
         base.OnValidate();
         itemType = ItemType.Active;
-    } 
+    }
+#endif
 
 }

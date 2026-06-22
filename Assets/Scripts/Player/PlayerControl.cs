@@ -1,10 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Xml;
-using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using static UnityEditor.Experimental.GraphView.GraphView;
 
 [DefaultExecutionOrder(100)]
 [RequireComponent(typeof(PlayerWaterContact))]
