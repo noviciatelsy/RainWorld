@@ -48,7 +48,7 @@ public class MagicBeanVineGrowth : MonoBehaviour
     [SerializeField] private bool permanentWallDestroy;
 
     [Header("Audio")]
-    [SerializeField] private string growSfxName = "魔豆生长音效";
+    [SerializeField] private string growSfxName = ItemAudioPaths.MagicBeanGrow;
 
     private readonly List<LineRenderer> segmentLines = new List<LineRenderer>();
     private SpriteRenderer headRenderer;

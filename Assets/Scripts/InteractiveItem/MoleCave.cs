@@ -311,6 +311,8 @@ public class MoleCave : PlayerSensorTarget
             rb.velocity = Vector2.zero;
             rb.angularVelocity = 0f;
         }
+
+        AudioManager.Instance?.PlaySFX(ItemAudioPaths.MoleAmuletDig, randomPitch: false);
     }
 
     private void OnDrawGizmos()

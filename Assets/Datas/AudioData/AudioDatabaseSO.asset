@@ -211,6 +211,18 @@ MonoBehaviour:
     clips:
     - {fileID: 8300000, guid: e360177a36abf7d4f8f8c0666bbd011d, type: 3}
     volume: 0.5
+  - audioName: UseItemMoleAmuletDigSFX
+    clips:
+    - {fileID: 8300000, guid: 7f8e9d0c1b2a39485746352413021100, type: 3}
+    volume: 1
+  - audioName: MagicBeanGrowSFX
+    clips:
+    - {fileID: 8300000, guid: 9009f2c0925cf9945bb147560d55cd15, type: 3}
+    volume: 1
+  - audioName: MonsterEatMeatBaitSFX
+    clips:
+    - {fileID: 8300000, guid: 13ba3f6440ccd744585a030e5e3251b0, type: 3}
+    volume: 1
   BGM:
   - audioName: MainMenuBGM
     clips:

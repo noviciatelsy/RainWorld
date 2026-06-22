@@ -459,6 +459,11 @@ public class Bat2D : MonsterBase, IMosquitoCoilRepellable, ITorchRepellable, IMe
             return true;
         }
 
+        if (MeatBaitProjectile.TryConsumeFromTransform(preyTransform))
+        {
+            return true;
+        }
+
         Collider2D col = preyTransform.GetComponent<Collider2D>();
 
         if (col != null && !IsPlayerCollider(col))

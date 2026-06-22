@@ -55,6 +55,32 @@ public class MeatBaitProjectile : MonoBehaviour
 
     public Vector2 AttractionCenter => GetEffectCenterPosition();
 
+    /// <summary>
+    /// 怪物啃食时调用：播放音效并销毁肉饵。
+    /// </summary>
+    public void ConsumeByEnemy()
+    {
+        AudioManager.Instance?.PlaySFX(ItemAudioPaths.MonsterEatMeatBait, randomPitch: false);
+        Destroy(gameObject);
+    }
+
+    public static bool TryConsumeFromTransform(Transform preyTransform)
+    {
+        if (preyTransform == null)
+        {
+            return false;
+        }
+
+        MeatBaitProjectile meatBait = preyTransform.GetComponentInParent<MeatBaitProjectile>();
+        if (meatBait == null)
+        {
+            return false;
+        }
+
+        meatBait.ConsumeByEnemy();
+        return true;
+    }
+
 
     private bool hasBeenInitialized;
     // ?????????????????????

@@ -94,6 +94,8 @@ public class BoomController : MonoBehaviour
             return;
         }
 
+        AudioManager.Instance?.PlaySFX(ItemAudioPaths.FactoryExplode, randomPitch: false);
+
         if (!destroyWallOnMoveComplete)
         {
             TriggerDestructibleWall();
