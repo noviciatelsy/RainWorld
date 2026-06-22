@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea1424dfa5732534fa0ea98f8c7ee23f, type: 3}
   m_Name: WaterPhysicsSettings_Default
   m_EditorClassIdentifier: 
-  buoyancy: 55
+  buoyancy: 65
   linearDrag: 8
   swimForce: 16
   swimBoostForce: 20

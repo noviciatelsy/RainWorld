@@ -161,8 +161,8 @@ MonoBehaviour:
   EdgeIndex: 0
   Target: {x: 0, y: 0}
   HasEdge: 0
-  moveSpeed: 2
-  spiralCurvature: 0.15
+  moveSpeed: 2.5
+  spiralCurvature: 0.1
   pathPlanInterval: 1
   attackRange: 0.9
   attackDamage: 30
