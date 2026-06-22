@@ -470,6 +470,7 @@ GameObject:
   - component: {fileID: 9012345678901234601}
   - component: {fileID: 6619689907813102319}
   - component: {fileID: 8100000000000000005}
+  - component: {fileID: 6877220903792759495}
   m_Layer: 8
   m_Name: Fly
   m_TagString: Fly
@@ -593,6 +594,40 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   overlapActiveRooms: []
+--- !u!114 &8100000000000000005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8577359883850200549}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4f5a6b7c8d9401234567890abcdef02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyInformationData: {fileID: 11400000, guid: e0950280275358d48970e87b96a8c2ba,
+    type: 2}
+  autoCreatePhotoCollider: 1
+  enablePhotoDebugLog: 1
+  photoColliderSize: {x: 1.2, y: 1.2}
+  photoColliderOffset: {x: 0, y: 0}
+--- !u!114 &6877220903792759495
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8577359883850200549}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fac8d12ec4f72a94b8809b14a650c455, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  radius: 3
+  edgeSoftness: 1
+  centerOffset: {x: 0, y: 0}
+  revealEnabled: 1
 --- !u!1 &9012345678901234604
 GameObject:
   m_ObjectHideFlags: 0
@@ -796,19 +831,3 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 3150401150393307016}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &8100000000000000005
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8577359883850200549}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e4f5a6b7c8d9401234567890abcdef02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  enemyInformationData: {fileID: 11400000, guid: e0950280275358d48970e87b96a8c2ba, type: 2}
-  autoCreatePhotoCollider: 1
-  photoColliderSize: {x: 1.2, y: 1.2}
-  photoColliderOffset: {x: 0, y: 0}
