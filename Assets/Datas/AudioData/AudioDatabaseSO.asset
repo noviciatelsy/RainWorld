@@ -207,6 +207,10 @@ MonoBehaviour:
     - {fileID: 8300000, guid: 748c2f000bc94ca4497912c9aeca2374, type: 3}
     - {fileID: 8300000, guid: 467a6c666406c604db2ced0f970b3c75, type: 3}
     volume: 0.5
+  - audioName: FactoryExplodeSFX
+    clips:
+    - {fileID: 8300000, guid: e360177a36abf7d4f8f8c0666bbd011d, type: 3}
+    volume: 0.5
   BGM:
   - audioName: MainMenuBGM
     clips:

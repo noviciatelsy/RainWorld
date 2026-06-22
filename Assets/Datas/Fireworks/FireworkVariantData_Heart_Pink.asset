@@ -16,7 +16,7 @@ MonoBehaviour:
     type: 3}
   explosionPrefab: {fileID: 8216405428109916230, guid: 77962b74d67d8664a8304a6ad6cb8f3e,
     type: 3}
-  heightRange: {x: 3.5, y: 6}
+  heightRange: {x: 4.5, y: 7.5}
   flightDurationRange: {x: 0.8, y: 1.2}
   horizontalDriftRange: {x: -0.8, y: 0.8}
   heightCurve:
