@@ -125,4 +125,48 @@ public class BoomStompPlatform : MonoBehaviour
 
         boomController?.ActivateFromPlatform(this);
     }
+
+    public void ApplyTriggeredStateImmediate()
+    {
+        if (isTriggered)
+        {
+            return;
+        }
+
+        isTriggered = true;
+
+        PlatformEffector2D effector = GetComponent<PlatformEffector2D>();
+
+        if (effector != null)
+        {
+            effector.enabled = false;
+        }
+
+        if (platformCollider != null)
+        {
+            platformCollider.enabled = false;
+        }
+    }
+
+    public void ResetToInactive()
+    {
+        if (!isTriggered)
+        {
+            return;
+        }
+
+        isTriggered = false;
+
+        if (platformCollider != null)
+        {
+            platformCollider.enabled = true;
+        }
+
+        PlatformEffector2D effector = GetComponent<PlatformEffector2D>();
+
+        if (effector != null)
+        {
+            effector.enabled = true;
+        }
+    }
 }

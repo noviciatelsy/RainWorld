@@ -7,6 +7,10 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class BoomController : MonoBehaviour
 {
+    [Header("Save")]
+    [Tooltip("用于存档的唯一 ID，同场景多个 Boom 需不同")]
+    [SerializeField] private string boomSaveID = "Boom";
+
     [Header("Trigger Platform")]
     [SerializeField] private BoomStompPlatform stompPlatform;
 
@@ -28,7 +32,10 @@ public class BoomController : MonoBehaviour
     [SerializeField] private bool drawGizmos = true;
 
     private bool isActivated;
+    private bool isSubscribedToSaveManager;
     private Coroutine moveRoutine;
+    private Vector3 initialTexturePosition;
+    private bool hasCachedInitialTexturePosition;
 
     public bool IsActivated => isActivated;
 
@@ -43,6 +50,19 @@ public class BoomController : MonoBehaviour
         {
             stompPlatform.Bind(this);
         }
+
+        CacheInitialTexturePosition();
+    }
+
+    private void Start()
+    {
+        TrySubscribeSaveManager();
+        LoadActivatedStateFromSave();
+    }
+
+    private void OnDestroy()
+    {
+        UnsubscribeSaveManager();
     }
 
     /// <summary>
@@ -60,7 +80,19 @@ public class BoomController : MonoBehaviour
             return;
         }
 
+        SaveActivatedStateToRunData();
+        BeginActivation(playAnimation: true);
+    }
+
+    private void BeginActivation(bool playAnimation)
+    {
         isActivated = true;
+
+        if (!playAnimation)
+        {
+            ApplyActivatedStateImmediate();
+            return;
+        }
 
         if (!destroyWallOnMoveComplete)
         {
@@ -73,6 +105,37 @@ public class BoomController : MonoBehaviour
         }
 
         moveRoutine = StartCoroutine(MoveTextureRoutine());
+    }
+
+    private void ApplyActivatedStateImmediate()
+    {
+        if (moveRoutine != null)
+        {
+            StopCoroutine(moveRoutine);
+            moveRoutine = null;
+        }
+
+        stompPlatform?.ApplyTriggeredStateImmediate();
+        SnapTextureToTarget();
+        ApplyDestructibleWallImmediate();
+    }
+
+    private void ResetInactiveState()
+    {
+        if (moveRoutine != null)
+        {
+            StopCoroutine(moveRoutine);
+            moveRoutine = null;
+        }
+
+        isActivated = false;
+        stompPlatform?.ResetToInactive();
+        RestoreInitialTexturePosition();
+
+        if (destructibleWall != null)
+        {
+            destructibleWall.ResetWallVisual();
+        }
     }
 
     private IEnumerator MoveTextureRoutine()
@@ -111,6 +174,25 @@ public class BoomController : MonoBehaviour
             yield return null;
         }
 
+        SnapTextureToTarget();
+
+        if (destroyWallOnMoveComplete)
+        {
+            TriggerDestructibleWall();
+        }
+
+        moveRoutine = null;
+    }
+
+    private void SnapTextureToTarget()
+    {
+        if (movingTexture == null)
+        {
+            return;
+        }
+
+        Vector3 end = ResolveTargetPosition();
+
         if (useLocalSpace)
         {
             movingTexture.localPosition = end;
@@ -119,13 +201,6 @@ public class BoomController : MonoBehaviour
         {
             movingTexture.position = end;
         }
-
-        if (destroyWallOnMoveComplete)
-        {
-            TriggerDestructibleWall();
-        }
-
-        moveRoutine = null;
     }
 
     private Vector3 ResolveTargetPosition()
@@ -150,6 +225,140 @@ public class BoomController : MonoBehaviour
         }
 
         destructibleWall.NotifyWallDestroy(permanentWallDestroy);
+    }
+
+    private void ApplyDestructibleWallImmediate()
+    {
+        if (destructibleWall == null)
+        {
+            return;
+        }
+
+        destructibleWall.ForceDestroyedStateImmediate(permanentWallDestroy);
+    }
+
+    private void CacheInitialTexturePosition()
+    {
+        if (movingTexture == null || hasCachedInitialTexturePosition)
+        {
+            return;
+        }
+
+        initialTexturePosition = useLocalSpace
+            ? movingTexture.localPosition
+            : movingTexture.position;
+        hasCachedInitialTexturePosition = true;
+    }
+
+    private void RestoreInitialTexturePosition()
+    {
+        if (movingTexture == null || !hasCachedInitialTexturePosition)
+        {
+            return;
+        }
+
+        if (useLocalSpace)
+        {
+            movingTexture.localPosition = initialTexturePosition;
+        }
+        else
+        {
+            movingTexture.position = initialTexturePosition;
+        }
+    }
+
+    private void LoadActivatedStateFromSave()
+    {
+        if (IsActivatedInSave())
+        {
+            if (!isActivated)
+            {
+                isActivated = true;
+                ApplyActivatedStateImmediate();
+            }
+
+            return;
+        }
+
+        if (isActivated)
+        {
+            ResetInactiveState();
+        }
+    }
+
+    private bool IsActivatedInSave()
+    {
+        if (string.IsNullOrWhiteSpace(boomSaveID) || SaveManager.Instance == null)
+        {
+            return false;
+        }
+
+        GameRunData runData = SaveManager.Instance.GetRunTimeGameData();
+        if (runData == null)
+        {
+            return false;
+        }
+
+        runData.EnsureDataValid();
+        return runData.triggeredBoomIds.Contains(boomSaveID);
+    }
+
+    private void SaveActivatedStateToRunData()
+    {
+        if (string.IsNullOrWhiteSpace(boomSaveID) || SaveManager.Instance == null)
+        {
+            return;
+        }
+
+        GameRunData runData = SaveManager.Instance.GetRunTimeGameData();
+        if (runData == null)
+        {
+            return;
+        }
+
+        runData.EnsureDataValid();
+
+        if (runData.triggeredBoomIds == null)
+        {
+            runData.triggeredBoomIds = new System.Collections.Generic.List<string>();
+        }
+
+        if (runData.triggeredBoomIds.Contains(boomSaveID))
+        {
+            return;
+        }
+
+        runData.triggeredBoomIds.Add(boomSaveID);
+        SaveManager.Instance.SaveGame();
+    }
+
+    private void TrySubscribeSaveManager()
+    {
+        if (isSubscribedToSaveManager || SaveManager.Instance == null)
+        {
+            return;
+        }
+
+        SaveManager.Instance.OnGameRunDataOverwrite += LoadActivatedStateFromSave;
+        SaveManager.Instance.OnCurrentGameRunDataChanged += HandleCurrentGameRunDataChanged;
+        isSubscribedToSaveManager = true;
+    }
+
+    private void UnsubscribeSaveManager()
+    {
+        if (!isSubscribedToSaveManager || SaveManager.Instance == null)
+        {
+            return;
+        }
+
+        SaveManager.Instance.OnGameRunDataOverwrite -= LoadActivatedStateFromSave;
+        SaveManager.Instance.OnCurrentGameRunDataChanged -= HandleCurrentGameRunDataChanged;
+        isSubscribedToSaveManager = false;
+    }
+
+    private void HandleCurrentGameRunDataChanged(int slotIndex, GameRunData runData)
+    {
+        LoadActivatedStateFromSave();
     }
 
 #if UNITY_EDITOR

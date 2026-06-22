@@ -13,9 +13,9 @@ public class MoleUtilityAI : IMonsterAI
     private Mole2D mole;
     private List<Vector2> lastIssuedPath = new List<Vector2>();
     private bool isStealing = false;
-    private bool wasStealing = false;
     private bool isMovingToCave = false;
     private float teleportCooldown = 0f;
+    private float stealCooldown = 0f;
     private Player lastStealPlayer;
     private bool isChasingToyCar;
     private float toyCarPathRefreshTimer;
@@ -23,6 +23,8 @@ public class MoleUtilityAI : IMonsterAI
     private bool hasCommittedToyCarPosition;
 
     private const float ToyCarPathRefreshInterval = 0.45f;
+    private const float StealDuration = 3f;
+    private const float StealRetryCooldown = 4f;
 
     public MoleUtilityAI(Mole2D mole)
     {
@@ -37,9 +39,10 @@ public class MoleUtilityAI : IMonsterAI
     public void NotifyRepelledByTorch(Vector2 torchPosition)
     {
         isStealing = false;
-        wasStealing = false;
         mole.stealTimer = 0f;
         SetStealClawActive(false);
+        lastStealPlayer = null;
+        stealCooldown = StealRetryCooldown;
         isMovingToCave = false;
         isChasingToyCar = false;
 
@@ -65,9 +68,10 @@ public class MoleUtilityAI : IMonsterAI
         {
             Vector2 fleeTarget = TorchAvoidance.GetFleePointAwayFromAllTorches(mole.Position);
             isStealing = false;
-            wasStealing = false;
             mole.stealTimer = 0f;
             SetStealClawActive(false);
+            lastStealPlayer = null;
+            stealCooldown = StealRetryCooldown;
             isMovingToCave = false;
             isChasingToyCar = false;
 
@@ -93,64 +97,43 @@ public class MoleUtilityAI : IMonsterAI
         }
 
         // 3. 偷取玩家
+        if (stealCooldown > 0f)
+        {
+            stealCooldown -= Time.fixedDeltaTime;
+        }
+
         bool hasPlayer = PlayerInvisibilityPerception.TryFindDetectablePlayer(
             mole.Position,
             mole.playerCheckRadius,
             mole.playerLayer,
-            out _);
+            out Player detectedPlayer);
 
         if (isStealing
             && lastStealPlayer != null
             && !PlayerInvisibilityPerception.IsPlayerDetectable(lastStealPlayer))
         {
-            isStealing = false;
-            mole.stealTimer = 0f;
-            SetStealClawActive(false);
+            CancelStealAttempt();
         }
 
-        if (hasPlayer && !isStealing)
+        if (hasPlayer && !isStealing && stealCooldown <= 0f)
         {
-            isStealing = true;
-            mole.stealTimer = 3f;
-            isMovingToCave = false;
-
-            EnemyMoleAudioEmitter audioEmitter = mole.GetComponent<EnemyMoleAudioEmitter>();
-            audioEmitter?.PlayStealWarning();
+            BeginStealAttempt(detectedPlayer);
         }
 
-        // 4. Steal 阶段
+        // 4. Steal 阶段：满 3 秒后立即结算，不要求玩家离开
         if (isStealing)
         {
             mole.stealTimer -= Time.fixedDeltaTime;
+            UpdateStealClawVisual();
+
             if (mole.stealTimer <= 0f)
             {
-                isStealing = hasPlayer;
-                if (isStealing)
-                {
-                    mole.stealTimer = 3f;
-                }
+                CompleteStealAttempt();
             }
-
-            if (isStealing)
+            else
             {
-                UpdateStealClawVisual();
-                wasStealing = true;
                 return new MoleStealIntent();
             }
-        }
-
-        if (wasStealing)
-        {
-            SetStealClawActive(false);
-
-            if (lastStealPlayer != null
-                && PlayerInvisibilityPerception.IsPlayerDetectable(lastStealPlayer))
-            {
-                mole.CompleteSteal(lastStealPlayer);
-            }
-
-            wasStealing = false;
-            lastStealPlayer = null;
         }
 
         // 5. 传送后 idle 清理
@@ -344,6 +327,41 @@ public class MoleUtilityAI : IMonsterAI
         return true;
     }
 
+    private void BeginStealAttempt(Player player)
+    {
+        isStealing = true;
+        mole.stealTimer = StealDuration;
+        isMovingToCave = false;
+        lastStealPlayer = player;
+
+        EnemyMoleAudioEmitter audioEmitter = mole.GetComponent<EnemyMoleAudioEmitter>();
+        audioEmitter?.PlayStealWarning();
+    }
+
+    private void CompleteStealAttempt()
+    {
+        SetStealClawActive(false);
+        isStealing = false;
+        stealCooldown = StealRetryCooldown;
+
+        Player stealTarget = lastStealPlayer;
+        lastStealPlayer = null;
+
+        if (stealTarget != null)
+        {
+            mole.CompleteSteal(stealTarget);
+        }
+    }
+
+    private void CancelStealAttempt()
+    {
+        SetStealClawActive(false);
+        isStealing = false;
+        mole.stealTimer = 0f;
+        lastStealPlayer = null;
+        stealCooldown = StealRetryCooldown;
+    }
+
     private void UpdateStealClawVisual()
     {
         if (mole.moleAni == null)
@@ -351,10 +369,7 @@ public class MoleUtilityAI : IMonsterAI
             return;
         }
 
-        if (!wasStealing)
-        {
-            SetStealClawActive(true);
-        }
+        SetStealClawActive(true);
 
         Collider2D playerHit = Physics2D.OverlapCircle(
             mole.Position,
@@ -371,6 +386,10 @@ public class MoleUtilityAI : IMonsterAI
             }
 
             mole.moleAni.UpdateStealClaw(playerHit.transform.position);
+        }
+        else if (lastStealPlayer != null)
+        {
+            mole.moleAni.UpdateStealClaw(lastStealPlayer.transform.position);
         }
     }
 

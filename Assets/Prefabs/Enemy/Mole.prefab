@@ -178,7 +178,7 @@ MonoBehaviour:
   Target: {x: 0, y: 0}
   HasEdge: 0
   moveSpeed: 1.5
-  feetYOffset: -0.4
+  feetYOffset: -0.3
   playerCheckRadius: 1
   playerLayer:
     serializedVersion: 2
@@ -328,6 +328,24 @@ MonoBehaviour:
   stealLoopVolume: 1
   giftVolume: 1
   digVolume: 1
+--- !u!114 &8100000000000000009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6430993408388382896}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4f5a6b7c8d9401234567890abcdef02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyInformationData: {fileID: 11400000, guid: 0274220343862694eb8a2ef35c96ad3b,
+    type: 2}
+  autoCreatePhotoCollider: 1
+  enablePhotoDebugLog: 1
+  photoColliderSize: {x: 1.2, y: 1.2}
+  photoColliderOffset: {x: 0, y: 0}
 --- !u!1001 &5481188885493449138
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -454,19 +472,3 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 5481188885493449138}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &8100000000000000009
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6430993408388382896}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e4f5a6b7c8d9401234567890abcdef02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  enemyInformationData: {fileID: 11400000, guid: 0274220343862694eb8a2ef35c96ad3b, type: 2}
-  autoCreatePhotoCollider: 1
-  photoColliderSize: {x: 1.2, y: 1.2}
-  photoColliderOffset: {x: 0, y: 0}

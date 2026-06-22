@@ -140,6 +140,27 @@ public class DestructibleWall : MonoBehaviour, IDestructibleWallNotify
         BeginBreakSequence();
     }
 
+    /// <summary>
+    /// 跳过破碎动画，直接处于已破坏状态（用于存档恢复等）。
+    /// </summary>
+    public void ForceDestroyedStateImmediate(bool permanentDestroy = false)
+    {
+        if (permanentDestroy)
+        {
+            isPermanentDestroy = true;
+        }
+
+        if (isDestroyed)
+        {
+            ApplyDestroyedStateImmediate(skipAnimation: true);
+            return;
+        }
+
+        isBreaking = false;
+        isDestroyed = true;
+        ApplyDestroyedStateImmediate(skipAnimation: true);
+    }
+
     public void ResetWallVisual()
     {
         isDestroyed = false;

@@ -177,6 +177,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52e08e9eea6fbe84187e3a686f436c44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  boomSaveID: Boom
   stompPlatform: {fileID: 4519454785341015874}
   movingTexture: {fileID: 3531839401006515279}
   textureTarget: {fileID: 105604495307515157}

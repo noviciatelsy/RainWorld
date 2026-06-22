@@ -55,26 +55,44 @@ public class MoleStealController : MonoBehaviour, IMoleStealHandler
         yield return new WaitForSeconds(stealFlyDelay);
 
         ItemDataSO stolenItem = TryRemoveRandomItem(inventoryPlayer);
-        if (stolenItem == null || stolenItem.itemIcon == null)
+        if (stolenItem == null)
         {
             pendingStealRoutine = null;
             yield break;
         }
 
-        Vector3 spawnPosition = inventoryPlayer.transform.position + (Vector3)spawnWorldOffset;
-        Transform target = itemReceivePoint != null ? itemReceivePoint : mole.transform;
-
-        MoleStolenItemFly.Spawn(
-            stolenItem.itemIcon,
-            spawnPosition,
-            target,
-            itemFlySpeed,
-            itemDisplayScale
-        );
-
         EnemyIntelligenceUnlockUtility.TryUnlockByName(EnemyIntelligenceNames.MolePrank);
+        ShowStolenItemHint(stolenItem);
+
+        if (stolenItem.itemIcon != null)
+        {
+            Vector3 spawnPosition = inventoryPlayer.transform.position + (Vector3)spawnWorldOffset;
+            Transform target = itemReceivePoint != null ? itemReceivePoint : mole.transform;
+
+            MoleStolenItemFly.Spawn(
+                stolenItem.itemIcon,
+                spawnPosition,
+                target,
+                itemFlySpeed,
+                itemDisplayScale
+            );
+        }
 
         pendingStealRoutine = null;
+    }
+
+    private static void ShowStolenItemHint(ItemDataSO stolenItem)
+    {
+        if (stolenItem == null || GlobalUI.Instance == null || GlobalUI.Instance.hintMessageUI == null)
+        {
+            return;
+        }
+
+        string itemName = string.IsNullOrWhiteSpace(stolenItem.itemDisplayName)
+            ? stolenItem.name
+            : stolenItem.itemDisplayName;
+
+        GlobalUI.Instance.hintMessageUI.ShowQuickMessage($"{itemName}被偷走了");
     }
 
     private static ItemDataSO TryRemoveRandomItem(InventoryPlayer inventory)

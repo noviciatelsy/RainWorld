@@ -162,6 +162,9 @@ public class GameRunData
     // 已进入永久开心状态的鼹鼠爷爷 SaveID 列表
     public List<string> moleParentHappyTriggeredIds = new List<string>();
 
+    // 已触发爆炸的 Boom SaveID 列表
+    public List<string> triggeredBoomIds = new List<string>();
+
     public Vector3 playerDiePosition = new Vector3(0,0,0);
 
     public Vector3 retrieveBackpackSpawnPosition = new Vector3(0,0,0);
@@ -238,6 +241,11 @@ public class GameRunData
         if (moleParentHappyTriggeredIds == null)
         {
             moleParentHappyTriggeredIds = new List<string>();
+        }
+
+        if (triggeredBoomIds == null)
+        {
+            triggeredBoomIds = new List<string>();
         }
 
         foreach (KeyValuePair<string, InventorySaveData> pair in inventorySaveDataMap)
