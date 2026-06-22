@@ -29,14 +29,24 @@ public abstract class MonsterBase : MonoBehaviour
 
     public bool IsStompPaused { get; private set; }
 
+    [Header("图鉴解锁")]
+    [SerializeField] private EnemyInformationDataSO enemyInformationData;
+    [SerializeField] private float enemyInformationUnlockRadius = 8f;
+
     public void SetStompPaused(bool paused)
     {
         IsStompPaused = paused;
     }
 
+    protected void EnsureEnemyInformationUnlockTrigger()
+    {
+        EnemyInformationUnlockRangeTrigger.Ensure(this, enemyInformationData, enemyInformationUnlockRadius);
+    }
+
     protected virtual void Start()
     {
         Init();
+        EnsureEnemyInformationUnlockTrigger();
     }
 
     protected abstract void Init();

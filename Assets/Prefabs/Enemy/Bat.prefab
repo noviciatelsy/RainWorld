@@ -162,6 +162,9 @@ MonoBehaviour:
   EdgeIndex: 0
   Target: {x: 0, y: 0}
   HasEdge: 0
+  enemyInformationData: {fileID: 11400000, guid: 324ed3cbda08da447976681326007e7b,
+    type: 2}
+  enemyInformationUnlockRadius: 8
   moveSpeed: 4
   arriveThreshold: 0.05
   huntFanRadius: 2
@@ -262,6 +265,24 @@ MonoBehaviour:
   wingMoveVolume: 1
   attackVolume: 1
   spotPlayerVolume: 1
+--- !u!114 &8100000000000000007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6375162213562965817}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4f5a6b7c8d9401234567890abcdef02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyInformationData: {fileID: 11400000, guid: 324ed3cbda08da447976681326007e7b,
+    type: 2}
+  autoCreatePhotoCollider: 1
+  enablePhotoDebugLog: 1
+  photoColliderSize: {x: 1.2, y: 1.2}
+  photoColliderOffset: {x: 0, y: 0}
 --- !u!1 &6899663544322268070
 GameObject:
   m_ObjectHideFlags: 0
@@ -294,19 +315,3 @@ Transform:
   - {fileID: 8313080569352574138}
   m_Father: {fileID: 7392640190292610508}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8100000000000000007
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6375162213562965817}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e4f5a6b7c8d9401234567890abcdef02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  enemyInformationData: {fileID: 11400000, guid: 324ed3cbda08da447976681326007e7b, type: 2}
-  autoCreatePhotoCollider: 1
-  photoColliderSize: {x: 1.2, y: 1.2}
-  photoColliderOffset: {x: 0, y: 0}

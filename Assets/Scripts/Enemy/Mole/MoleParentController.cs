@@ -43,6 +43,10 @@ public class MoleParentController : MonoBehaviour
     [Header("References")]
     [SerializeField] private MoleParentAni moleParentAni;
 
+    [Header("图鉴解锁")]
+    [SerializeField] private EnemyInformationDataSO enemyInformationData;
+    [SerializeField] private float enemyInformationUnlockRadius = 8f;
+
     private int absorbedTreasureCount;
     private float detectTimer;
     private bool kinSenseIntelUnlocked;
@@ -65,6 +69,7 @@ public class MoleParentController : MonoBehaviour
     {
         TrySubscribeSaveManager();
         LoadHappyStateFromSave();
+        EnemyInformationUnlockRangeTrigger.Ensure(gameObject, enemyInformationData, enemyInformationUnlockRadius);
     }
 
     private void OnDestroy()

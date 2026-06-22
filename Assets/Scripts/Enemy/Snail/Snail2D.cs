@@ -76,6 +76,7 @@ public class Snail2D : MonsterBase, IToyCarAttractable
     private void OnEnable()
     {
         SnailRegistry.Register(this);
+        EnsureEnemyInformationUnlockTrigger();
     }
 
     private void OnDisable()
@@ -124,6 +125,7 @@ public class Snail2D : MonsterBase, IToyCarAttractable
         if (mgr == null)
         {
             HasEdge = false;
+            EnsureEnemyInformationUnlockTrigger();
             return;
         }
 
@@ -148,6 +150,7 @@ public class Snail2D : MonsterBase, IToyCarAttractable
         SurfaceEdgePath.SyncEdgeStateFromPosition(this);
         UpdateVisualOffset();
         snailAni?.RefreshMoveBaseScale();
+        EnsureEnemyInformationUnlockTrigger();
     }
 
     private void OnValidate()

@@ -161,6 +161,8 @@ MonoBehaviour:
   EdgeIndex: 0
   Target: {x: 0, y: 0}
   HasEdge: 0
+  enemyInformationData: {fileID: 0}
+  enemyInformationUnlockRadius: 3
   moveSpeed: 2.5
   spiralCurvature: 0.1
   pathPlanInterval: 1

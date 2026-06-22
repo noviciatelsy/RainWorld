@@ -226,6 +226,8 @@ MonoBehaviour:
   EdgeIndex: 0
   Target: {x: 0, y: 0}
   HasEdge: 0
+  enemyInformationData: {fileID: 11400000, guid: da90d79842f32f946a0f52d3bafa200e, type: 2}
+  enemyInformationUnlockRadius: 8
   moveSpeed: 1
   chargeSpeed: 4
   chargeDistance: 5
