@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text;
 using TMPro;
 using UnityEngine;
@@ -85,16 +86,19 @@ public class EnemyPageUI : MonoBehaviour
 
     private string BuildEnemyInformationText(EnemyInformationDataSO enemyData, IntelligenceArchiveManager archiveManager, string unknownLineText)
     {
-        if (enemyData.enemyIntelligences == null || enemyData.enemyIntelligences.Length == 0)
+        List<EnemyIntelligenceDataSO> displayIntelligences =
+            archiveManager.GetEnemyIntelligencesForNotebookDisplay(enemyData);
+
+        if (displayIntelligences == null || displayIntelligences.Count == 0)
         {
             return string.Empty;
         }
 
         StringBuilder builder = new StringBuilder();
 
-        for (int i = 0; i < enemyData.enemyIntelligences.Length; i++)
+        for (int i = 0; i < displayIntelligences.Count; i++)
         {
-            EnemyIntelligenceDataSO intelligenceData = enemyData.enemyIntelligences[i];
+            EnemyIntelligenceDataSO intelligenceData = displayIntelligences[i];
 
             if (intelligenceData != null && archiveManager.IsEnemyIntelligenceUnlocked(intelligenceData))
             {
@@ -105,7 +109,7 @@ public class EnemyPageUI : MonoBehaviour
                 builder.Append(unknownLineText);
             }
 
-            if (i < enemyData.enemyIntelligences.Length - 1)
+            if (i < displayIntelligences.Count - 1)
             {
                 builder.AppendLine();
                 builder.AppendLine();

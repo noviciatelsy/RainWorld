@@ -713,7 +713,6 @@ public class IntelligenceArchiveManager : MonoBehaviour
         return result;
     }
 
-    // ?????????????????????
     public List<EnemyInformationDataSO> GetUnlockedEnemies()
     {
         List<EnemyInformationDataSO> result = new List<EnemyInformationDataSO>();
@@ -725,12 +724,44 @@ public class IntelligenceArchiveManager : MonoBehaviour
 
         if (enemyInformationDataBase == null || enemyInformationDataBase.enemyInformationDataBase == null)
         {
-            Debug.LogWarning("??????????????EnemyInformationDataBaseSO ????????");
+            Debug.LogWarning("获取敌人图鉴失败：EnemyInformationDataBaseSO 没有赋值。");
             return result;
         }
 
         HashSet<string> addedSaveIDs = new HashSet<string>();
 
+        // 第一阶段：严格按照 gameRunData.unlockedEnemies 的顺序显示。
+        // 这个 List 的顺序就是玩家实际解锁敌人的顺序。
+        for (int i = 0; i < gameRunData.unlockedEnemies.Count; i++)
+        {
+            string saveID = gameRunData.unlockedEnemies[i];
+
+            if (string.IsNullOrEmpty(saveID))
+            {
+                continue;
+            }
+
+            EnemyInformationDataSO enemyData = enemyInformationDataBase.GetEnemyInformationData(saveID);
+
+            if (enemyData == null)
+            {
+                continue;
+            }
+
+            if (!IsEnemyUnlocked(enemyData))
+            {
+                continue;
+            }
+
+            if (addedSaveIDs.Add(enemyData.SaveID))
+            {
+                result.Add(enemyData);
+            }
+        }
+
+        // 第二阶段：兼容旧存档。
+        // 如果旧存档里有照片或敌人情报，但没有写入 unlockedEnemies，
+        // 这里会把它补到最后，避免旧数据直接丢失显示。
         for (int i = 0; i < enemyInformationDataBase.enemyInformationDataBase.Length; i++)
         {
             EnemyInformationDataSO enemyData = enemyInformationDataBase.enemyInformationDataBase[i];
@@ -753,7 +784,6 @@ public class IntelligenceArchiveManager : MonoBehaviour
 
         return result;
     }
-
     // ????????????????????????l
     public List<EnemyIntelligenceDataSO> GetUnlockedEnemyIntelligences(EnemyInformationDataSO enemyInformationData)
     {
@@ -1343,5 +1373,104 @@ public class IntelligenceArchiveManager : MonoBehaviour
         }
 
         return count;
+    }
+
+    public List<EnemyIntelligenceDataSO> GetEnemyIntelligencesForNotebookDisplay(EnemyInformationDataSO enemyInformationData)
+    {
+        List<EnemyIntelligenceDataSO> result = new List<EnemyIntelligenceDataSO>();
+
+        if (enemyInformationData == null || enemyInformationData.enemyIntelligences == null)
+        {
+            return result;
+        }
+
+        HashSet<string> addedSaveIDs = new HashSet<string>();
+
+        if (!TryPrepareGameData())
+        {
+            AddEnemyIntelligencesInOriginalOrder(enemyInformationData, result, addedSaveIDs);
+            return result;
+        }
+
+        // 第一阶段：已解锁的敌人情报排在上面。
+        // 顺序使用 gameRunData.unlockedEnemyIntelligences 的顺序，
+        // 也就是玩家实际解锁这些情报的顺序。
+        for (int i = 0; i < gameRunData.unlockedEnemyIntelligences.Count; i++)
+        {
+            string saveID = gameRunData.unlockedEnemyIntelligences[i];
+
+            EnemyIntelligenceDataSO enemyIntelligenceData = FindEnemyIntelligenceInEnemy(enemyInformationData, saveID);
+
+            if (enemyIntelligenceData == null)
+            {
+                continue;
+            }
+
+            if (addedSaveIDs.Add(enemyIntelligenceData.SaveID))
+            {
+                result.Add(enemyIntelligenceData);
+            }
+        }
+
+        // 第二阶段：未解锁的敌人情报排在下面，继续显示 ???。
+        AddEnemyIntelligencesInOriginalOrder(enemyInformationData, result, addedSaveIDs);
+
+        return result;
+    }
+
+    private void AddEnemyIntelligencesInOriginalOrder(
+        EnemyInformationDataSO enemyInformationData,
+        List<EnemyIntelligenceDataSO> result,
+        HashSet<string> addedSaveIDs)
+    {
+        if (enemyInformationData == null || enemyInformationData.enemyIntelligences == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < enemyInformationData.enemyIntelligences.Length; i++)
+        {
+            EnemyIntelligenceDataSO enemyIntelligenceData = enemyInformationData.enemyIntelligences[i];
+
+            if (enemyIntelligenceData == null)
+            {
+                continue;
+            }
+
+            if (addedSaveIDs.Add(enemyIntelligenceData.SaveID))
+            {
+                result.Add(enemyIntelligenceData);
+            }
+        }
+    }
+
+    private EnemyIntelligenceDataSO FindEnemyIntelligenceInEnemy(EnemyInformationDataSO enemyInformationData, string saveID)
+    {
+        if (enemyInformationData == null || enemyInformationData.enemyIntelligences == null)
+        {
+            return null;
+        }
+
+        if (string.IsNullOrEmpty(saveID))
+        {
+            return null;
+        }
+
+        for (int i = 0; i < enemyInformationData.enemyIntelligences.Length; i++)
+        {
+            EnemyIntelligenceDataSO enemyIntelligenceData = enemyInformationData.enemyIntelligences[i];
+
+            if (enemyIntelligenceData == null)
+            {
+                continue;
+            }
+
+            if (enemyIntelligenceData.SaveID == saveID)
+            {
+                return enemyIntelligenceData;
+            }
+        }
+
+        return null;
     }
 }
