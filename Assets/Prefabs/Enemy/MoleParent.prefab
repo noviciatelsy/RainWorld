@@ -78,16 +78,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51c518a85d8a4b6fbe39cca4e005a7f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  moleParentSaveID: MoleParent
   treasureDetectRadius: 8
   requiredTreasureCount: 1
   targetTreasures: []
   acceptAnyTreasureType: 1
+  moleCharmItems: []
   detectInterval: 0.25
   happyLandingWorldPosition: {x: 129, y: -43.6}
   destructibleWall: {fileID: 0}
   permanentWallDestroy: 1
   moleParentAni: {fileID: 9012345678901234561}
-  enemyInformationData: {fileID: 11400000, guid: 3b9bf5ea67eeb0e4d80b58134c2f6a34, type: 2}
+  enemyInformationData: {fileID: 11400000, guid: 3b9bf5ea67eeb0e4d80b58134c2f6a34,
+    type: 2}
   enemyInformationUnlockRadius: 8
 --- !u!114 &7784956539448789251
 MonoBehaviour:
@@ -122,6 +125,24 @@ MonoBehaviour:
   moleParentAni: {fileID: 0}
   sleepLoopVolume: 0.85
   wakeVolume: 1
+--- !u!114 &8100000000000000010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1939753863665353310}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4f5a6b7c8d9401234567890abcdef02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyInformationData: {fileID: 11400000, guid: 3b9bf5ea67eeb0e4d80b58134c2f6a34,
+    type: 2}
+  autoCreatePhotoCollider: 1
+  enablePhotoDebugLog: 1
+  photoColliderSize: {x: 3, y: 2}
+  photoColliderOffset: {x: 0, y: 0}
 --- !u!1 &3663797757834754782
 GameObject:
   m_ObjectHideFlags: 0
@@ -262,7 +283,7 @@ Transform:
   m_GameObject: {fileID: 8146760989250523769}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -0.64, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -353,19 +374,3 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &8100000000000000010
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1939753863665353310}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e4f5a6b7c8d9401234567890abcdef02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  enemyInformationData: {fileID: 11400000, guid: 3b9bf5ea67eeb0e4d80b58134c2f6a34, type: 2}
-  autoCreatePhotoCollider: 1
-  photoColliderSize: {x: 3, y: 2}
-  photoColliderOffset: {x: 0, y: 0}
