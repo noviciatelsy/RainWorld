@@ -129,7 +129,8 @@ MonoBehaviour:
   maxPathFindIterations: 400
   enableDebugLog: 0
   drawDebugGizmos: 0
-  attacksForSpecial: 3
+  attacksForSpecial: 5
+  playerTeleportWorldPosition: {x: 0, y: 0}
 --- !u!114 &7123456789012345678
 MonoBehaviour:
   m_ObjectHideFlags: 0
