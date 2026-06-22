@@ -211,8 +211,24 @@ MonoBehaviour:
   - audioName: MainMenuBGM
     clips:
     - {fileID: 8300000, guid: 07e689f14b73b5f439589256c16bbc56, type: 3}
-    volume: 0.35
+    volume: 0.25
   - audioName: BaseBGM
     clips:
     - {fileID: 8300000, guid: c4368aa3a3947dc42908c47ac41c3ace, type: 3}
+    volume: 0.2
+  - audioName: CaveBGM
+    clips:
+    - {fileID: 8300000, guid: 7541b9f4d99f6b5429ce7562e9e8ada3, type: 3}
+    volume: 0.15
+  - audioName: FactoryBGM
+    clips:
+    - {fileID: 8300000, guid: 5897f928db8650540a55fcb6cde91edf, type: 3}
+    volume: 0.15
+  - audioName: VineBGM
+    clips:
+    - {fileID: 8300000, guid: 5149316675793894485a8e17af003324, type: 3}
+    volume: 0.2
+  - audioName: FinalRoomBGM
+    clips:
+    - {fileID: 8300000, guid: 34462def92bc05f4ea8b7c6c8827eccd, type: 3}
     volume: 0.2

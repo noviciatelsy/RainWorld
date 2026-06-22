@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 632e77a2afa0f904abd9351b623f3b87, type: 3}
+  m_Name: "DialogueData - \u5DE5\u5382\u533A\u6700\u7EC8\u79D8\u5BC6"
+  m_EditorClassIdentifier: 
+  defaultCharacterSprite: {fileID: -941600117, guid: 453e9136813a630458a24d26f0e7caee,
+    type: 3}
+  segments:
+  - characterSprite: {fileID: 0}
+    content: "\u8FD9\u91CC\u7684\u6587\u5B57\u5199\u7740\uFF0C\u5728\u673A\u5173\u95E8\u524D\u8DF3\u8DC3\u4E09\u6B21\u5C31\u53EF\u4EE5\u4F7F\u4E4B\u5F00\u542F"
