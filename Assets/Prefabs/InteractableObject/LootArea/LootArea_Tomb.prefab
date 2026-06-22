@@ -128,7 +128,10 @@ MonoBehaviour:
   rareWeight: 30
   epicWeight: 15
   legendaryWeight: 5
-  generateOnAwake: 1
+  bonusLuckWeightGrowthPerPoint: 0.03
+  maxBonusLuckAffect: 50
+  noteItemData: {fileID: 11400000, guid: 39af64b4519d0464aadd24111e2eda6b, type: 2}
+  noteGenerateChanceDenominator: 5
   cursedTreasureData: {fileID: 11400000, guid: 37e51293344c4b341a2e6b37517d97b8, type: 2}
   ghostPrefab: {fileID: 6845061922351269542, guid: f16307e7d15eb774cb1eb46c5339017d,
     type: 3}

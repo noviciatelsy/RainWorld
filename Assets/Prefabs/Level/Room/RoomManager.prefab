@@ -48,7 +48,8 @@ MonoBehaviour:
   initialRoom: {fileID: 0}
   findInitialRoomByPlayerPosition: 1
   useFadeWhenSwitchRoom: 1
-  disablePlayerControlWhenSwitchRoom: 1
+  disablePlayerControlWhenSwitchRoom: 0
+  roomCameraSwitchDuration: 0.55
 --- !u!114 &4256186242178235959
 MonoBehaviour:
   m_ObjectHideFlags: 0

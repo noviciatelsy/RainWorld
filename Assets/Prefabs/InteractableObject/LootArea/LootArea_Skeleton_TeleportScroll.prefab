@@ -114,5 +114,7 @@ MonoBehaviour:
   legendaryWeight: 5
   bonusLuckWeightGrowthPerPoint: 0.03
   maxBonusLuckAffect: 50
+  noteItemData: {fileID: 11400000, guid: 39af64b4519d0464aadd24111e2eda6b, type: 2}
+  noteGenerateChanceDenominator: 5
   certainItems:
   - {fileID: 11400000, guid: dcbc2c965b167b0468ea189fe45809cc, type: 2}

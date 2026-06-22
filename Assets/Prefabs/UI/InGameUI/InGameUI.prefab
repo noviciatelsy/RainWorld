@@ -3890,6 +3890,7 @@ MonoBehaviour:
   velocitySmoothTime: 0.04
   maxVelocityForInertia: 3000
   useUnscaledTime: 1
+  secondaryUseHoldThreshold: 0.35
 --- !u!222 &1097979785008489933
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -11771,7 +11772,7 @@ MonoBehaviour:
   unknownEnemyInformationLineCount: 4
   intelligencesPerPage: 4
   stretchInstantiatedPagesToParent: 1
-  halfTurnDuration: 0.35
+  halfTurnDuration: 0.2
   bookMarkTurnInterval: 0.03
   useUnscaledTime: 1
   pageTurnCurve:
@@ -11800,7 +11801,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   lockedEnemyPictureSprite: {fileID: 156122274, guid: 929c954530056eb47be1e89f3b60e526,
     type: 3}
-  autoFocusTurnInterval: 0.05
+  autoFocusTurnInterval: 0.025
 --- !u!114 &6174452794026077565
 MonoBehaviour:
   m_ObjectHideFlags: 0

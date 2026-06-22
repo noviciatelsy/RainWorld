@@ -118,12 +118,12 @@ public class BaseItemSlotUI : MonoBehaviour, IPointerDownHandler,IPointerEnterHa
 
     public virtual void OnPointerEnter(PointerEventData eventData)
     {
-        
+        inGameUI.draggedItemUI.SetInSlot(true);
     }
 
     public virtual void OnPointerExit(PointerEventData eventData)
     {
-        
+        inGameUI.draggedItemUI.SetInSlot(false);
     }
 
     protected virtual void ShowItemToolTip()

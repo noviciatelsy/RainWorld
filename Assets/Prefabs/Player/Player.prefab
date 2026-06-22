@@ -314,6 +314,11 @@ MonoBehaviour:
   climbVerticalSpeed: 2.5
   climbInputDeadZone: 0.1
   platformJumpGroundIgnoreTime: 0.2
+  knockbackHorizontalDecay: 10
+  knockbackVerticalDecay: 6
+  playerLayerName: Player
+  platformLayerName: Platform
+  maxFallSpeed: 18
   jumpBufferTimer: -999
 --- !u!114 &2536843987404145219
 MonoBehaviour:
@@ -678,7 +683,7 @@ MonoBehaviour:
   startDefense: 0
   startHunger: 0
   autoIncreaseHunger: 1
-  hungerIncreaseInterval: 15
+  hungerIncreaseInterval: 12
   hungerIncreaseAmount: 1
   playerBackpackSprite: {fileID: 3019942942140580155, guid: 448f2dbad3de3eb4dbddf9023991c160,
     type: 3}
@@ -1020,6 +1025,7 @@ MonoBehaviour:
     m_Bits: 256
   worldPlaneZ: 0
   disablePlayerControlInPhotographyMode: 0
+  enablePhotoDebugLog: 1
   photoCooldown: 1
 --- !u!1 &3228610241194486205
 GameObject:

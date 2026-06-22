@@ -832,6 +832,7 @@ MonoBehaviour:
   saveImmediatelyWhenUnlock: 0
   autoUnlockEnemyWhenUnlockEnemyIntelligence: 1
   autoUnlockEnemyWhenUnlockEnemyPicture: 1
+  enableArchiveDebugLog: 1
 --- !u!1 &3408192366164122419
 GameObject:
   m_ObjectHideFlags: 0
@@ -1181,8 +1182,17 @@ MonoBehaviour:
     inventorySaveDataMap:
       keys: []
       values: []
+    unlockedElevatorFloors: []
+    unlockedPasswordDoors: []
+    triggeredDialogues: []
+    moleParentHappyTriggeredIds: []
+    triggeredBoomIds: []
     playerDiePosition: {x: 0, y: 0, z: 0}
     retrieveBackpackSpawnPosition: {x: 0, y: 0, z: 0}
+    hasPassedMerchantTutorialDialogue: 0
+    hasPassedIntelligencerTutorialDialogue: 0
+    hasFirstDeath: 0
+    hasPassedMerchantFirstDeathDialogue: 0
 --- !u!1 &5194314256015458291
 GameObject:
   m_ObjectHideFlags: 0
@@ -1496,7 +1506,7 @@ MonoBehaviour:
   longText: {fileID: 6516219395889494379}
   longCanvasGroup: {fileID: 7887620635777550549}
   longLayoutElement: {fileID: 3337674624132391523}
-  quickShowSeconds: 0.5
+  quickShowSeconds: 0.75
   switchPauseSeconds: 0.1
   useFade: 1
   fadeSeconds: 0.1

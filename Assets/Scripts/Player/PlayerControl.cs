@@ -45,6 +45,10 @@ public class PlayerControl : MonoBehaviour
     [Header("平台碰撞")]
     [SerializeField] private string playerLayerName= "Player";
     [SerializeField] private string platformLayerName = "Platform";
+
+    [Header("Fall limit")]
+    [Tooltip("玩家最大下落速度，填正数")]
+    [SerializeField] private float maxFallSpeed = 18f;
     public Player player { get; private set; }
     public Animator anim {  get; private set; }
     public Rigidbody2D rb { get; private set; }
@@ -168,6 +172,7 @@ public class PlayerControl : MonoBehaviour
         UpdatePlatformJumpIgnoreTimer();
         UpdateWaterSurfaceExitGraceTimer();
         ApplyElevatorAirVelocityInheritance();
+        ClampFallSpeed();
     }
 
     private void UpdateWaterSurfaceExitGraceTimer()
@@ -186,6 +191,7 @@ public class PlayerControl : MonoBehaviour
         HandleCollisionDetecion();
         UpdateElevatorReference();
         ApplyElevatorGroundPhysicsBeforeStep();
+        ClampFallSpeed();
     }
 
     public void OnMovePerformed(InputAction.CallbackContext context)
@@ -1026,6 +1032,31 @@ public class PlayerControl : MonoBehaviour
 
         hasUsedDoubleJump = true;
         return true;
+    }
+
+    private void ClampFallSpeed()
+    {
+        if (maxFallSpeed <= 0f || rb == null)
+        {
+            return;
+        }
+
+        // 站在向下移动的电梯上时，不限制平台给玩家的速度，避免玩家和平台分离。
+        if (IsGroundedOnMovingElevator())
+        {
+            return;
+        }
+
+        Vector2 velocity = rb.velocity;
+        float minYVelocity = -maxFallSpeed;
+
+        // Unity 2D 中向下速度是负数，所以低于 -maxFallSpeed 时才需要钳制。
+        if (velocity.y >= minYVelocity)
+        {
+            return;
+        }
+
+        rb.velocity = new Vector2(velocity.x, minYVelocity);
     }
 
     protected virtual void OnDrawGizmos()

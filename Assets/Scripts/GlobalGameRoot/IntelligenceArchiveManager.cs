@@ -342,7 +342,9 @@ public class IntelligenceArchiveManager : MonoBehaviour
     // ????????????
     public bool UnlockEnemy(EnemyInformationDataSO enemyInformationData)
     {
+
         return UnlockEnemyInternal(enemyInformationData, true);
+
     }
 
     private bool UnlockEnemyInternal(EnemyInformationDataSO enemyInformationData, bool notify)
@@ -368,6 +370,7 @@ public class IntelligenceArchiveManager : MonoBehaviour
         {
             OnEnemyUnlocked?.Invoke(enemyInformationData);
             OnArchiveEntryUnlocked?.Invoke(ArchiveUnlockRecord.CreateEnemyRecord(enemyInformationData));
+            GlobalUI.Instance.hintMessageUI.ShowQuickMessage(enemyInformationData.enemyName + "已记入笔记");
         }
 
         return unlocked;

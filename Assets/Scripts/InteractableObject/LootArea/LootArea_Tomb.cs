@@ -81,8 +81,8 @@ public class LootArea_Tomb : LootArea
 
     public override void GenerateLoot()
     {
-        inventory.AddItem(cursedTreasureData);
         base.GenerateLoot();
+        inventory.AddItem(cursedTreasureData);
     }
 
     private void OnValidate()

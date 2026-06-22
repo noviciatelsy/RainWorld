@@ -18,8 +18,16 @@ public class DraggedItemUI : MonoBehaviour
     [SerializeField] private float maxVelocityForInertia = 2000f; // 参与惯性计算的最大鼠标速度
     [SerializeField] private bool useUnscaledTime = true; // 是否无视Time.timeScale
 
+    [Header("UseItem")]
+    [SerializeField] private float secondaryUseHoldThreshold = 0.35f;
+
+    private bool isPressingLeftUse;
+    private bool hasTriggeredLongPressDrop;
+    private float leftUseStartTime;
 
     public bool IsDragging { get; private set; } // bool锁，是否正在拖拽物品
+
+    private bool isInSlot; // 是否在物品槽位内 
     public InventoryItem draggedItem { get; private set; } // 拖拽时暂存的物品
 
 
@@ -29,6 +37,7 @@ public class DraggedItemUI : MonoBehaviour
 
     private RectTransform selfRt; // 自身的Rect
     private InventoryPlayer playerInventory;
+    private Player player;
 
     private Vector2 previousMousePosition; // 上一帧鼠标在Canvas本地坐标中的位置
     private Vector2 smoothedMouseVelocity; // 平滑后的鼠标速度
@@ -86,6 +95,8 @@ public class DraggedItemUI : MonoBehaviour
         {
             RotateDraggedItem(); // 旋转物品
         }
+
+        HandleDraggedItemLeftUseInput();
     }
 
 
@@ -95,10 +106,14 @@ public class DraggedItemUI : MonoBehaviour
         {
             return;
         }
+
         draggedItem = item;
         IsDragging = true;
+        draggedItem.SubscribeToPlayer(player);
 
         ResetDragInertia();
+        ResetLeftUseInputState();
+
         ShowItem();
 
         OnBeginDraggingItem?.Invoke(draggedItem);
@@ -106,13 +121,24 @@ public class DraggedItemUI : MonoBehaviour
 
     public void EndDrag()
     {
+        if (draggedItem == null)
+        {
+            HideItem();
+            IsDragging = false;
+            ResetLeftUseInputState();
+            return;
+        }
+
         InventoryItem endedItem = draggedItem;
+
+        draggedItem.UnsubscribeToPlayer();
 
         HideItem();
 
         draggedItem = null;
-
         IsDragging = false;
+
+        ResetLeftUseInputState();
 
         OnEndDraggingItem?.Invoke(endedItem);
     }
@@ -123,10 +149,39 @@ public class DraggedItemUI : MonoBehaviour
         {
             return;
         }
-        playerInventory.DropItem(draggedItem.ItemData);
+
+        if (playerInventory == null)
+        {
+            Debug.LogWarning("拖拽物品丢弃失败：playerInventory 为空。");
+            return;
+        }
+
+        InventoryItem itemToDrop = draggedItem;
+
+        if (itemToDrop.ItemData == null)
+        {
+            return;
+        }
+
+        // 如果这个物品还残留在快捷栏，清掉引用
+        playerInventory.ClearQuickItem(itemToDrop);
+
+        // 如果这个物品正被手持，取消手持
+        if (playerInventory.GetHoldingItem() == itemToDrop)
+        {
+            playerInventory.ClearHoldingItem();
+        }
+
+        // 防御性移除。
+        // 正常拖拽时，这个物品多半已经不在 Inventory 中。
+        playerInventory.RemoveItem(itemToDrop);
+
+        playerInventory.DropItem(itemToDrop.ItemData);
 
         EndDrag();
-        return;
+
+        playerInventory.ValidateQuickItems(null);
+        playerInventory.ValidateHoldingItem(null);
     }
 
     private void HideItem()
@@ -266,6 +321,171 @@ public class DraggedItemUI : MonoBehaviour
         {
             return;
         }
+        this.player = player;
         playerInventory = player.GetComponent<InventoryPlayer>();
+    }
+
+    public void SetInSlot(bool isInSlot)
+    {
+        this.isInSlot = isInSlot;
+    }
+
+    private void HandleDraggedItemLeftUseInput()
+    {
+        if (!IsDragging || draggedItem == null)
+        {
+            ResetLeftUseInputState();
+            return;
+        }
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            TryStartLeftUseInput();
+        }
+
+        if (isPressingLeftUse)
+        {
+            UpdateLeftUseInput();
+        }
+
+        if (Input.GetMouseButtonUp(0))
+        {
+            TryFinishLeftUseInput();
+        }
+    }
+
+    private void TryStartLeftUseInput()
+    {
+        // 鼠标在槽位内时，左键应该交给槽位处理放置，不触发使用/丢弃
+        if (isInSlot)
+        {
+            return;
+        }
+
+        isPressingLeftUse = true;
+        hasTriggeredLongPressDrop = false;
+        leftUseStartTime = GetCurrentUseTime();
+    }
+
+    private void UpdateLeftUseInput()
+    {
+        if (!isPressingLeftUse)
+        {
+            return;
+        }
+
+        // 如果按住过程中进入了槽位，就取消这次使用/丢弃判断
+        if (isInSlot)
+        {
+            ResetLeftUseInputState();
+            return;
+        }
+
+        if (hasTriggeredLongPressDrop)
+        {
+            return;
+        }
+
+        float holdDuration = GetCurrentUseTime() - leftUseStartTime;
+
+        if (holdDuration >= secondaryUseHoldThreshold)
+        {
+            hasTriggeredLongPressDrop = true;
+
+            // 长按达到阈值，直接丢弃
+            TryDropItem();
+
+            ResetLeftUseInputState();
+        }
+    }
+
+    private void TryFinishLeftUseInput()
+    {
+        if (!isPressingLeftUse)
+        {
+            return;
+        }
+
+        bool shouldTryMainUse =
+            !hasTriggeredLongPressDrop &&
+            !isInSlot &&
+            IsDragging &&
+            draggedItem != null;
+
+        ResetLeftUseInputState();
+
+        if (shouldTryMainUse)
+        {
+            TryMainUseDraggedItem();
+        }
+    }
+
+    private void ResetLeftUseInputState()
+    {
+        isPressingLeftUse = false;
+        hasTriggeredLongPressDrop = false;
+        leftUseStartTime = 0f;
+    }
+
+    private float GetCurrentUseTime()
+    {
+        return useUnscaledTime ? Time.unscaledTime : Time.time;
+    }
+
+    private void TryMainUseDraggedItem()
+    {
+        if (!IsDragging || draggedItem == null)
+        {
+            return;
+        }
+
+        if (playerInventory == null)
+        {
+            Debug.LogWarning("拖拽物品使用失败：playerInventory 为空。");
+            return;
+        }
+
+        if (draggedItem.ItemData == null)
+        {
+            return;
+        }
+
+        if (draggedItem.ItemData.itemType != ItemType.Active)
+        {
+            Debug.Log($"{draggedItem.ItemData.itemDisplayName} 不是主动道具，没有 MainUse。");
+            return;
+        }
+
+        bool useSucceeded = draggedItem.MainUse(playerInventory);
+
+        if (!useSucceeded)
+        {
+            return;
+        }
+
+        ActiveItemDataSO activeItemData = draggedItem.ItemData as ActiveItemDataSO;
+
+        bool isConsumable =
+            activeItemData != null &&
+            activeItemData.isConsumable;
+
+        if (isConsumable)
+        {
+            // 如果这个拖拽物品本身是消耗品，使用成功后结束拖拽。
+            // 由于拖拽时它通常已经临时离开 Inventory，所以这里 RemoveItem 只是防御。
+            playerInventory.ClearQuickItem(draggedItem);
+
+            if (playerInventory.GetHoldingItem() == draggedItem)
+            {
+                playerInventory.ClearHoldingItem();
+            }
+
+            playerInventory.RemoveItem(draggedItem);
+
+            EndDrag();
+
+            playerInventory.ValidateQuickItems(null);
+            playerInventory.ValidateHoldingItem(null);
+        }
     }
 }

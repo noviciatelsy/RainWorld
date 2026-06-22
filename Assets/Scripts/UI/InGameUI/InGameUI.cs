@@ -281,12 +281,19 @@ public class InGameUI : MonoBehaviour
             return;
         }
 
+        // 只解锁敌人图鉴页时，不自动打开笔记本。
+        // 例如第一次认识某个敌人，只让它进入图鉴列表，但不打断玩家操作。
+        if (unlockRecord.unlockType == ArchiveUnlockType.Enemy)
+        {
+            return;
+        }
+
         if (notebookUI == null)
         {
             return;
         }
 
-        // PauseUI ��ʱ����������Ϊ�鱨�����Զ��򿪱ʼǱ���
+        // PauseUI 打开时，不允许因为情报解锁自动打开笔记本。
         if (pauseUIEnabled)
         {
             return;
@@ -296,7 +303,6 @@ public class InGameUI : MonoBehaviour
 
         HideToolTips();
     }
-
     private void HandleEscape()
     {
 

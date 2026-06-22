@@ -26,6 +26,12 @@ public class LootArea : PlayerSensorTarget
     [Tooltip("参与掉落计算的最大 bonusLuck，防止幸运值过高导致权重膨胀失控。")]
     [SerializeField] protected int maxBonusLuckAffect = 50;
 
+    [Header("纸条生成")]
+    [SerializeField] protected ItemDataSO noteItemData;
+
+    [Tooltip("纸条额外生成概率的分母。填 5 就是 1/5 概率，填 10 就是 1/10 概率。")]
+    [SerializeField, Min(1)] protected int noteGenerateChanceDenominator = 5;
+
     // 防止之后手动调用生成时重复生成
     protected bool hasGeneratedLoot = false;
 
@@ -43,6 +49,7 @@ public class LootArea : PlayerSensorTarget
         base.Interact();
 
         GenerateLoot();
+
         if (InGameUI.Instance != null)
         {
             InGameUI.Instance.ToggleLootUI(inventory);
@@ -66,6 +73,11 @@ public class LootArea : PlayerSensorTarget
         int generateCount = GetGenerateCountAndBonusLuck(out bonusLuck);
 
         GenerateLootItems(generateCount, bonusLuck);
+
+        // 在原有物品生成基础上，额外概率生成一个纸条物品。
+        // 这里放在基类的生成入口里，而不是放在 GenerateLootItems 里面。
+        // 这样即使子类 override 了 GenerateLootItems，也依然会统一执行纸条生成逻辑。
+        TryGenerateExtraNoteItem();
 
         hasGeneratedLoot = true;
     }
@@ -118,6 +130,7 @@ public class LootArea : PlayerSensorTarget
         if (playerLuck != null)
         {
             bonusItemLootAmount = Mathf.Max(0, playerLuck.bonusItemLootAmount);
+
             bonusLuck = Mathf.Clamp(
                 playerLuck.bonusLuck,
                 0,
@@ -125,6 +138,7 @@ public class LootArea : PlayerSensorTarget
         }
 
         int safeMinGenerateItemCount = Mathf.Max(0, minGenerateItemCount);
+
         int safeMaxGenerateItemCount = Mathf.Max(
             safeMinGenerateItemCount,
             maxGenerateItemCount);
@@ -206,6 +220,49 @@ public class LootArea : PlayerSensorTarget
         return false;
     }
 
+    protected void TryGenerateExtraNoteItem()
+    {
+        if (noteItemData == null)
+        {
+            return;
+        }
+
+        // 没有背包形状的数据，AddItem 肯定放不进去，所以提前跳过
+        if (noteItemData.backpackItemData == null)
+        {
+            Debug.LogWarning(
+                $"{gameObject.name} 纸条物品 {noteItemData.name} 没有 backpackItemData，已跳过。");
+
+            return;
+        }
+
+        if (noteGenerateChanceDenominator <= 0)
+        {
+            Debug.LogWarning(
+                $"{gameObject.name} 纸条生成概率分母不能小于等于 0，已跳过纸条生成。");
+
+            return;
+        }
+
+        // 例如 noteGenerateChanceDenominator = 5 时，就是 1/5 概率
+        bool shouldGenerateNote = Random.Range(
+            0,
+            noteGenerateChanceDenominator) == 0;
+
+        if (!shouldGenerateNote)
+        {
+            return;
+        }
+
+        bool added = inventory.AddItem(noteItemData);
+
+        if (!added)
+        {
+            Debug.Log(
+                $"{gameObject.name} 纸条物品 {noteItemData.name} 生成失败，可能是背包空间不足。");
+        }
+    }
+
     private ItemRarity GetRandomRarityByWeight(int bonusLuck)
     {
         int safeCommonWeight = Mathf.Max(0, commonWeight);
@@ -214,6 +271,7 @@ public class LootArea : PlayerSensorTarget
         int safeLegendaryWeight = Mathf.Max(0, legendaryWeight);
 
         float adjustedCommonWeight = safeCommonWeight;
+
         float adjustedRareWeight = safeRareWeight * GetBonusLuckWeightMultiplier(
             bonusLuck,
             1);

@@ -64,7 +64,7 @@ public class Goods : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
         {
             return;
         }
-
+        inGameUI.draggedItemUI.SetInSlot(true);
         inGameUI.itemToolTip.ShowItemToolTip(true, rect, itemData);
     }
 
@@ -79,7 +79,7 @@ public class Goods : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, I
         {
             return;
         }
-
+        inGameUI.draggedItemUI.SetInSlot(false);
         inGameUI.itemToolTip.ShowItemToolTip(false, rect, itemData);
     }
 
