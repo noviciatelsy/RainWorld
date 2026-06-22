@@ -33,6 +33,11 @@ public class PlayerGroundedState : PlayerBaseState
 
         if (mainInput.Player.Jump.WasPerformedThisFrame()) // 如果人物按下跳跃键
         {
+            if (Minecart.TryBoardNearbyCart())
+            {
+                return;
+            }
+
             if (playerControl.moveInput.y >= 0)
             {
                 stateMachine.ChangeState(playerControl.jumpState); // 切换至跳跃状态
