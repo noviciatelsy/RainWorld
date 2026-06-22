@@ -354,21 +354,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 5261003564691755304}
     m_Modifications:
-    - target: {fileID: 1919133884830379943, guid: 27df738ea965b9f49ad3d3d323a6e5ad,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1919133884830379943, guid: 27df738ea965b9f49ad3d3d323a6e5ad,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 1919133884830379943, guid: 27df738ea965b9f49ad3d3d323a6e5ad,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 4435174533446780829, guid: 27df738ea965b9f49ad3d3d323a6e5ad,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -419,35 +404,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4715899642970654790, guid: 27df738ea965b9f49ad3d3d323a6e5ad,
-        type: 3}
-      propertyPath: m_SortingLayer
-      value: -3
-      objectReference: {fileID: 0}
-    - target: {fileID: 4715899642970654790, guid: 27df738ea965b9f49ad3d3d323a6e5ad,
-        type: 3}
-      propertyPath: m_SortingLayerID
-      value: 1479021791
-      objectReference: {fileID: 0}
     - target: {fileID: 7150974309418763093, guid: 27df738ea965b9f49ad3d3d323a6e5ad,
         type: 3}
       propertyPath: m_Name
       value: MoleClaw
-      objectReference: {fileID: 0}
-    - target: {fileID: 7150974309418763093, guid: 27df738ea965b9f49ad3d3d323a6e5ad,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 9158427797058962076, guid: 27df738ea965b9f49ad3d3d323a6e5ad,
-        type: 3}
-      propertyPath: radius
-      value: 0.1
-      objectReference: {fileID: 0}
-    - target: {fileID: 9158427797058962076, guid: 27df738ea965b9f49ad3d3d323a6e5ad,
-        type: 3}
-      propertyPath: swingArcDegrees
-      value: 180
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
