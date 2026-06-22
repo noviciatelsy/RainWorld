@@ -81,13 +81,13 @@ public class InventoryPlayer : InventoryBase
         SaveManager.Instance.OnGameRunDataOverwrite -= LoadData;
     }
 
-    private void Update()
-    {
-        if (Input.GetKeyUp(KeyCode.G))
-        {
-            GetRandomItem();
-        }
-    }
+    //private void Update()
+    //{
+    //    if (Input.GetKeyUp(KeyCode.G))
+    //    {
+    //        GetRandomItem();
+    //    }
+    //}
 
     private void GetRandomItem()
     {
