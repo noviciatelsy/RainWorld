@@ -60,8 +60,10 @@ public class PlayerGroundedState : PlayerBaseState
             return;
         }
 
-        if (rb.velocity.y < 0 && playerControl.groundDetected == false)
-        // �����������ֱ�����䣬δ������Ծ״̬
+        if (rb.velocity.y < 0
+            && playerControl.groundDetected == false
+            && !playerControl.IsGroundedOnMovingElevator())
+        // 空中开始下落，且未进入跳跃状态
         {
             stateMachine.ChangeState(playerControl.fallState);
             // 切换至下落状态

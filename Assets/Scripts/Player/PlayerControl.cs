@@ -258,6 +258,11 @@ public class PlayerControl : MonoBehaviour
             return false;
         }
 
+        if (IsGroundedOnMovingElevator())
+        {
+            return true;
+        }
+
         return groundDetected;
     }
 
@@ -462,7 +467,7 @@ public class PlayerControl : MonoBehaviour
             return;
         }
 
-        // 平台尚未移动前只关重力；Y 速度在电梯 MovePosition 后按本帧 Velocity 刷新。
+        // 平台移动前关闭重力；Y 速度在电梯 MovePosition 后由 RefreshElevatorGroundPhysicsAfterPlatform 刷新。
         rb.gravityScale = 0f;
     }
 
@@ -537,10 +542,17 @@ public class PlayerControl : MonoBehaviour
 
     private ElevatorPlatform GetElevatorUnderFeet()
     {
+        float checkDistance = groundCheckDistance;
+
+        if (ridingElevator != null && ridingElevator.IsMoving)
+        {
+            checkDistance = Mathf.Max(checkDistance, ridingElevator.Velocity.magnitude * Time.fixedDeltaTime + 0.08f);
+        }
+
         RaycastHit2D hit = Physics2D.Raycast(
             groundCheck.position,
             Vector2.down,
-            groundCheckDistance + 0.1f,
+            checkDistance + 0.1f,
             whatIsGround);
 
         if (hit.collider == null)
@@ -592,11 +604,20 @@ public class PlayerControl : MonoBehaviour
 
     private void HandleCollisionDetecion()
     {
-        groundDetected = Physics2D.Raycast(groundCheck.position, Vector2.down, groundCheckDistance, whatIsGround);
-        // ????????????
+        float groundDistance = groundCheckDistance;
+
+        if (ridingElevator != null && ridingElevator.IsMoving)
+        {
+            groundDistance = Mathf.Max(
+                groundDistance,
+                ridingElevator.Velocity.magnitude * Time.fixedDeltaTime + 0.08f);
+        }
+
+        groundDetected = Physics2D.Raycast(groundCheck.position, Vector2.down, groundDistance, whatIsGround);
+        // 检测是否接触地面
 
         wallDetected = Physics2D.Raycast(wallCheck.position, Vector2.right * facingDir, wallCheckDistance, whatIsGround);
-        // ????????
+        // 检测是否接触墙
     }
 
 

@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// 电梯平台：FixedUpdate 内 MovePosition 移动（晚于 PlayerControl，避免上升时地面检测失效）。
+/// 电梯平台：FixedUpdate 内 MovePosition 移动（晚于 PlayerControl 地面检测，再刷新骑手速度）。
 /// </summary>
 [DisallowMultipleComponent]
 [DefaultExecutionOrder(110)]
