@@ -28,6 +28,7 @@ public class DraggedItemUI : MonoBehaviour
     public bool IsDragging { get; private set; } // bool锁，是否正在拖拽物品
 
     private bool isInSlot; // 是否在物品槽位内 
+    private bool isInMerchant;
     public InventoryItem draggedItem { get; private set; } // 拖拽时暂存的物品
 
 
@@ -357,7 +358,7 @@ public class DraggedItemUI : MonoBehaviour
     private void TryStartLeftUseInput()
     {
         // 鼠标在槽位内时，左键应该交给槽位处理放置，不触发使用/丢弃
-        if (isInSlot)
+        if (isInSlot||isInMerchant)
         {
             return;
         }
@@ -410,7 +411,8 @@ public class DraggedItemUI : MonoBehaviour
             !hasTriggeredLongPressDrop &&
             !isInSlot &&
             IsDragging &&
-            draggedItem != null;
+            draggedItem != null&&
+           !isInMerchant ;
 
         ResetLeftUseInputState();
 
@@ -487,5 +489,10 @@ public class DraggedItemUI : MonoBehaviour
             playerInventory.ValidateQuickItems(null);
             playerInventory.ValidateHoldingItem(null);
         }
+    }
+
+    public void SetInMerchant(bool isInMerchant)
+    {
+        this.isInMerchant = isInMerchant;
     }
 }

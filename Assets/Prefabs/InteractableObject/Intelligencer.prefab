@@ -51,6 +51,7 @@ MonoBehaviour:
   displayText: {fileID: 3927135965134368906}
   tutorialDialogueData: {fileID: 11400000, guid: f918832f7d8af83478c80b2c79a9e9c3,
     type: 2}
+  hintDialogueData: {fileID: 11400000, guid: 5ced8c1c6e58ffe4582c4a3d78f437e0, type: 2}
 --- !u!61 &8534481827662869029
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -168,7 +169,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 227208307
-  m_SortingLayer: -4
+  m_SortingLayer: -5
   m_SortingOrder: 0
   m_Sprite: {fileID: 487888433, guid: 0fe20802349f1fa49bea196f068159bf, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

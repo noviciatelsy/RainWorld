@@ -10,6 +10,9 @@ public class GameSceneManager : MonoBehaviour
         InputManager.Instance.mainInput.Enable();
         GameStateManager.Instance.SetCurrentGameState(GameState.Game);
         SpawnBackpack();
+
+        SaveManager.Instance.GetRunTimeGameData().tryTime++;
+        SaveManager.Instance.SaveGame();
         SaveManager.Instance.CloneCurrentGameRunData(); // ¿ËÂ¡¾ÖÄÚ´æµµ
     }
 

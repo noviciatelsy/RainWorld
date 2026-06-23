@@ -10,6 +10,7 @@ public class BaseSceneManager : MonoBehaviour
         InputManager.Instance.mainInput.Enable();
         GameStateManager.Instance.SetCurrentGameState(GameState.Base);
         SpawnBackpack();
+
     }
 
     private void SpawnBackpack()

@@ -54,6 +54,7 @@ public class MerchantUI : MonoBehaviour
         quickItemSlots.SetInventory(playerInventory);
         goodsShelfUI.SetInventory(playerInventory);
         AudioManager.Instance.PlayUI("MerchantUIOpenSFX");
+        InGameUI.Instance.draggedItemUI.SetInMerchant(true);
     }
 
     public void Close()
@@ -85,6 +86,7 @@ public class MerchantUI : MonoBehaviour
 
         playerInventory = null;
         AudioManager.Instance.PlayUI("MerchantUIOpenSFX");
+        InGameUI.Instance.draggedItemUI.SetInMerchant(false);
         gameObject.SetActive(false);
     }
 }

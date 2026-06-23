@@ -8,7 +8,7 @@ public class PlayerMoveState : PlayerGroundedState
     {
     }
 
-    private AudioSource footStepsAudioSource;
+    public AudioSource footStepsAudioSource {  get; private set; }
 
     public override void Enter()
     {

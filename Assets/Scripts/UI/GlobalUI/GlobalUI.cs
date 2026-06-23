@@ -43,6 +43,15 @@ public class GlobalUI : MonoBehaviour
             {
                 Time.timeScale = 0f;
                 InputManager.Instance.mainInput.Player.Disable();
+                Player player = PlayerManager.Instance.TryGetCurrentPlayer();
+                if (player!= null)
+                {
+                    AudioSource footStepsAudioSource = player.GetComponent<PlayerControl>().moveState.footStepsAudioSource;
+                    if (footStepsAudioSource != null&& footStepsAudioSource.isPlaying)
+                    {
+                        footStepsAudioSource.Stop();
+                    }
+                }
                 gameIsPaused = true;
             }
         }

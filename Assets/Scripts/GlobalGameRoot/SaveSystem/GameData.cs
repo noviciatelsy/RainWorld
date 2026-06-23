@@ -173,6 +173,10 @@ public class GameRunData
     public bool hasPassedIntelligencerTutorialDialogue = false;
     public bool hasFirstDeath=false;
     public bool hasPassedMerchantFirstDeathDialogue=false;
+    public bool hasShowMoveInputTutorial=false;
+    public bool hasShowClimbInputTutorial=false;
+    public int tryTime = 0;
+    public bool hasShowIntelligencerHint=false;
 
     public void EnsureDataValid()
     {
@@ -265,6 +269,7 @@ public class GameRunData
         {
             retrieveBackpackSpawnPosition = new Vector3(0, 0, 0);
         }
+
     }
 }
 

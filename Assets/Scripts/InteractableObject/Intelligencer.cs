@@ -6,6 +6,7 @@ public class Intelligencer : PlayerSensorTarget
 {
 
     [SerializeField] private DialogueDataSO tutorialDialogueData;
+    [SerializeField] private DialogueDataSO hintDialogueData;
     GameRunData gameRunData;
 
     protected override void Awake()
@@ -32,7 +33,13 @@ public class Intelligencer : PlayerSensorTarget
             AudioManager.Instance.PlaySFX("IntelligencerDialogueSFX"); 
             SaveManager.Instance.SaveGame();
         }
-
+        if(gameRunData.tryTime>=2&&gameRunData.hasShowIntelligencerHint==false)
+        {
+            gameRunData.hasShowIntelligencerHint= true;
+            InGameUI.Instance.dialogueUI.StartDialogue(hintDialogueData);
+            AudioManager.Instance.PlaySFX("IntelligencerDialogueSFX");
+            SaveManager.Instance.SaveGame();
+        }
   
     }
 }

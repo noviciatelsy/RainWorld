@@ -91,6 +91,7 @@ public class PlayerControl : MonoBehaviour
 
     private int playerLayer;
     private int platformLayer;
+
     #region State Variables
     public PlayerIdleState idleState { get; private set; }
     public PlayerMoveState moveState { get; private set; }
@@ -136,16 +137,23 @@ public class PlayerControl : MonoBehaviour
 
     private void OnEnable()
     {
-        mainInput.Player.Enable();
         mainInput.Player.Move.performed += OnMovePerformed;
         mainInput.Player.Move.canceled += OnMoveCanceled;
     }
 
     private void OnDisable()
     {
-        mainInput.Player.Disable();
         mainInput.Player.Move.performed -= OnMovePerformed;
         mainInput.Player.Move.canceled -= OnMoveCanceled;
+    }
+
+    private void OnDestroy()
+    {
+        AudioSource footStepsAudioSource =moveState.footStepsAudioSource;
+        if(footStepsAudioSource != null &&footStepsAudioSource.isPlaying)
+        {
+            footStepsAudioSource.Stop();
+        }
     }
 
     private void Update()
