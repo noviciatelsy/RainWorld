@@ -57,6 +57,30 @@ MonoBehaviour:
     dockTransform: {fileID: 9011111111111111114}
   - floor: 2
     dockTransform: {fileID: 9011111111111111115}
+  floorPresenceZones:
+  - floor: 0
+    boundsAnchor: {fileID: 9011111111111111113}
+    localBounds:
+      m_Center: {x: 0, y: 0, z: 0}
+      m_Extent: {x: 15, y: 0.75, z: 0}
+    expandPadding: 1.5
+  - floor: 1
+    boundsAnchor: {fileID: 9011111111111111114}
+    localBounds:
+      m_Center: {x: 0, y: 0, z: 0}
+      m_Extent: {x: 15, y: 0.75, z: 0}
+    expandPadding: 1.5
+  - floor: 2
+    boundsAnchor: {fileID: 9011111111111111115}
+    localBounds:
+      m_Center: {x: 0, y: 0, z: 0}
+      m_Extent: {x: 15, y: 0.75, z: 0}
+    expandPadding: 1.5
+  autoBuildPresenceFromInteractZones: 1
+  interactZoneExpandPadding: 1.5
+  enablePresenceDetection: 1
+  ensurePresenceTriggerZonesOnAwake: 1
+  drawPresenceGizmos: 1
   currentFloor: 0
 --- !u!114 &9011111111111111104
 MonoBehaviour:
@@ -383,7 +407,7 @@ Transform:
   m_GameObject: {fileID: 9011111111111111134}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.2, y: 1.2, z: 0}
+  m_LocalPosition: {x: 1.5, y: 1.8, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -523,7 +547,7 @@ Transform:
   m_GameObject: {fileID: 9011111111111111144}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.2, y: 1.2, z: 0}
+  m_LocalPosition: {x: 1.5, y: 1.8, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -663,7 +687,7 @@ Transform:
   m_GameObject: {fileID: 9011111111111111154}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.2, y: 1.2, z: 0}
+  m_LocalPosition: {x: 1.5, y: 1.8, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

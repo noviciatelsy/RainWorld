@@ -165,7 +165,7 @@ MonoBehaviour:
   enemyInformationData: {fileID: 11400000, guid: 324ed3cbda08da447976681326007e7b,
     type: 2}
   enemyInformationUnlockRadius: 8
-  moveSpeed: 4
+  moveSpeed: 3
   arriveThreshold: 0.05
   huntFanRadius: 2
   huntFanAngle: 120
@@ -183,7 +183,7 @@ MonoBehaviour:
     m_Bits: 0
   flyTag: Fly
   attackRange: 1.4
-  attackStiffDuration: 1
+  attackStiffDuration: 2
   attackDamage: 8
   knockItemCount: 1
   knockItemChance: 1
