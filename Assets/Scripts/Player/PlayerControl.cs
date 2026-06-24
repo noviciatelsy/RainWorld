@@ -710,8 +710,17 @@ public class PlayerControl : MonoBehaviour
 
     public void IgnoreCollisionBetweenPlayerAndPlatform(bool enable)
     {
-        Physics2D.IgnoreLayerCollision(playerLayer,platformLayer,enable);
+        if(enable)
+        {
+            Physics2D.IgnoreLayerCollision(playerLayer, platformLayer, true);
+        }
+        else
+        {
+            Physics2D.IgnoreLayerCollision(playerLayer, platformLayer, false);
+        }
+
     }
+
 
     public void SetInRopeArea(bool inRopeArea)
     {
