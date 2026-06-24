@@ -14,7 +14,7 @@ public class ItemEffectDataSO_Boot : ItemEffectDataSO
         if (playerVitals != null && playerControl != null) 
         {
             playerVitals.AddDefense(3);
-            playerControl.ReduceJumpForce(0.5f);
+            playerControl.ReduceJumpForce(0.25f);
         }
     }
 

@@ -10,8 +10,8 @@ public class ItemEffectDataSO_BigBread : ItemEffectDataSO
         PlayerVitals playerVitals = player.GetComponent<PlayerVitals>();
         if (playerVitals != null)
         {
-            playerVitals.ReduceHunger(40);
-            playerVitals.AddHealth(40);
+            playerVitals.ReduceHunger(30);
+            playerVitals.AddHealth(30);
             AudioManager.Instance.PlaySFX("UseItemEatSFX");
             return true;
         }

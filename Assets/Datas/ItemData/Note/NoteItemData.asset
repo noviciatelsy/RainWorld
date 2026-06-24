@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   saveID: 39af64b4519d0464aadd24111e2eda6b
   itemDisplayName: "\u5947\u602A\u7684\u77F3\u677F"
-  itemDescription: "\u4E00\u5757\u9752\u7EFF\u8272\u7684\u77F3\u677F\uFF0C\u5BC6\u5BC6\u9EBB\u9EBB\u5730\u5199\u6EE1\u53E4\u4EE3\u6587\u5B57"
+  itemDescription: "\u5BC6\u5BC6\u9EBB\u9EBB\u5730\u5199\u6EE1\u4E86\u770B\u4E0D\u61C2\u7684\u53E4\u4EE3\u6587\u5B57\uFF0C\u5356\u7ED9\u5546\u4EBA\u53EF\u5C06\u5176\u4E2D\u7684\u5185\u5BB9\u7FFB\u8BD1\u51FA\u6765"
   itemIcon: {fileID: 21300000, guid: e62cd8a8c20a8184a870e2dfeb81075e, type: 3}
   itemEffectData: {fileID: 11400000, guid: 261c8fb536fcb824c9a9cf04d80d37dd, type: 2}
   backpackItemData: {fileID: 11400000, guid: 52023b128b5a5864badc22fabedcfc70, type: 2}

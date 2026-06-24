@@ -318,7 +318,7 @@ MonoBehaviour:
   knockbackVerticalDecay: 6
   playerLayerName: Player
   platformLayerName: Platform
-  maxFallSpeed: 18
+  maxFallSpeed: 12
   jumpBufferTimer: -999
 --- !u!114 &2536843987404145219
 MonoBehaviour:

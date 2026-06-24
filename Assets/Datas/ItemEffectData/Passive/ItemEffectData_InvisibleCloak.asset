@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b25cc49b3ea84c64bacca188629eb335, type: 3}
   m_Name: ItemEffectData_InvisibleCloak
   m_EditorClassIdentifier: 
-  effectDescription: "\u6BCF\u9694\u4E00\u6BB5\u65F6\u95F4\u4FBF\u80FD\u8FDB\u5165\u865A\u5316\u72B6\u6001\uFF0C\u4F7F\u4F60\u514D\u53D7\u4F24\u5BB3\uFF08\u4E0D\u53EF\u53E0\u52A0\uFF09"
+  effectDescription: "\u6BCF\u9694\u4E00\u6BB5\u65F6\u95F4\u4FBF\u80FD\u8FDB\u5165\u865A\u5316\u72B6\u6001\uFF0C\u4F7F\u4F60\u514D\u53D7\u4F24\u5BB3\uFF08\u6548\u679C\u4E0D\u53EF\u53E0\u52A0\uFF09"
   holdingHintMessage: "\u957F\u6309\u5DE6\u952E\u4E22\u5F03\u8BE5\u7269\u54C1"
