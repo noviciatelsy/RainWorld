@@ -164,7 +164,7 @@ MonoBehaviour:
   HasEdge: 0
   enemyInformationData: {fileID: 11400000, guid: 324ed3cbda08da447976681326007e7b,
     type: 2}
-  enemyInformationUnlockRadius: 8
+  enemyInformationUnlockRadius: 4
   moveSpeed: 3
   arriveThreshold: 0.05
   huntFanRadius: 2

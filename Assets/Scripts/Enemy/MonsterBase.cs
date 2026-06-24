@@ -31,7 +31,7 @@ public abstract class MonsterBase : MonoBehaviour
 
     [Header("图鉴解锁")]
     [SerializeField] private EnemyInformationDataSO enemyInformationData;
-    [SerializeField] private float enemyInformationUnlockRadius = 8f;
+    [SerializeField] private float enemyInformationUnlockRadius = 4f;
 
     public void SetStompPaused(bool paused)
     {

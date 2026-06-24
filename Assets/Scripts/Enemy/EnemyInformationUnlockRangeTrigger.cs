@@ -11,7 +11,7 @@ public class EnemyInformationUnlockRangeTrigger : MonoBehaviour
     private const string TriggerLayerName = "CanCollideWithPlayer";
 
     [SerializeField] private EnemyInformationDataSO enemyInformationData;
-    [SerializeField] private float triggerRadius = 8f;
+    [SerializeField] private float triggerRadius = 4f;
 
     private CircleCollider2D rangeCollider;
     private Coroutine overlapCheckRoutine;
@@ -19,7 +19,7 @@ public class EnemyInformationUnlockRangeTrigger : MonoBehaviour
     public static EnemyInformationUnlockRangeTrigger Ensure(
         MonsterBase owner,
         EnemyInformationDataSO informationData = null,
-        float radius = 8f)
+        float radius = 4f)
     {
         if (owner == null)
         {
@@ -32,7 +32,7 @@ public class EnemyInformationUnlockRangeTrigger : MonoBehaviour
     public static EnemyInformationUnlockRangeTrigger Ensure(
         GameObject owner,
         EnemyInformationDataSO informationData = null,
-        float radius = 8f)
+        float radius = 4f)
     {
         if (owner == null)
         {

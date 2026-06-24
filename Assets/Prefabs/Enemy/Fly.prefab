@@ -516,7 +516,7 @@ MonoBehaviour:
   Target: {x: 0, y: 0}
   HasEdge: 0
   enemyInformationData: {fileID: 11400000, guid: e0950280275358d48970e87b96a8c2ba, type: 2}
-  enemyInformationUnlockRadius: 8
+  enemyInformationUnlockRadius: 4
   moveSpeed: 1
   dropItemData: {fileID: 11400000, guid: d28e91883df10b14c8ab0081b5c0211f, type: 2}
   pickableObjectPrefab: {fileID: 8677623834353847797, guid: c813b335070fe534e927a641d31420e5,

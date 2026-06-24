@@ -45,7 +45,7 @@ public class MoleParentController : MonoBehaviour
 
     [Header("图鉴解锁")]
     [SerializeField] private EnemyInformationDataSO enemyInformationData;
-    [SerializeField] private float enemyInformationUnlockRadius = 8f;
+    [SerializeField] private float enemyInformationUnlockRadius = 4f;
 
     private int absorbedTreasureCount;
     private float detectTimer;

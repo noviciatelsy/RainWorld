@@ -91,7 +91,7 @@ MonoBehaviour:
   moleParentAni: {fileID: 9012345678901234561}
   enemyInformationData: {fileID: 11400000, guid: 3b9bf5ea67eeb0e4d80b58134c2f6a34,
     type: 2}
-  enemyInformationUnlockRadius: 8
+  enemyInformationUnlockRadius: 4
 --- !u!114 &7784956539448789251
 MonoBehaviour:
   m_ObjectHideFlags: 0

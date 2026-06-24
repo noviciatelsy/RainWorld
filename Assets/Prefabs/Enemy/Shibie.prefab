@@ -2521,7 +2521,7 @@ MonoBehaviour:
   Target: {x: 0, y: 0}
   HasEdge: 0
   enemyInformationData: {fileID: 11400000, guid: 77c8b4a550a83cd4e8e7842060cc6a30, type: 2}
-  enemyInformationUnlockRadius: 8
+  enemyInformationUnlockRadius: 4
   moveSpeed: 0.4
   fallSpeed: 6
   travelClockwise: 0
